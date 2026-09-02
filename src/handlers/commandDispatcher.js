@@ -237,16 +237,17 @@ async function dispatch(context) {
     }
 
     // 3.1.5 Categoria desativada no grupo (.categoria off <cat>) — bloqueia toda a categoria
-    if (isGroup && cmdCategory && !isAdmin && !isUserOwner) {
+    const catKeyForToggle = (cmd.category || '').toLowerCase()
+    if (isGroup && catKeyForToggle && !isAdmin && !isUserOwner) {
         const disabledCats = configs[from]?.disabledCategories || []
         const alwaysAllowed = ['menu', 'help', 'categoria', 'dono', 'ping']
-        if (disabledCats.includes(cmdCategory) && !alwaysAllowed.includes(cmd.name.toLowerCase())) {
+        if (disabledCats.includes(catKeyForToggle) && !alwaysAllowed.includes(cmd.name.toLowerCase())) {
             let catDoc = `╔══════════════════════════════╗\n`
             catDoc += `║   🔒 *CATEGORIA DESATIVADA* 🔒   ║\n`
             catDoc += `╚══════════════════════════════╝\n\n`
-            catDoc += `⚠️ A categoria *${cmdCategory.toUpperCase()}* está desativada neste grupo.\n`
+            catDoc += `⚠️ A categoria *${catKeyForToggle.toUpperCase()}* está desativada neste grupo.\n`
             catDoc += `🚫 O comando \`.${cmd.name}\` não pode ser usado agora.\n\n`
-            catDoc += `💡 _Para reativar, peça a um *Administrador* do grupo:_\n\`.categoria on ${cmdCategory}\``
+            catDoc += `💡 _Para reativar, peça a um *Administrador* do grupo:_\n\`.categoria on ${catKeyForToggle}\``
             await reply(catDoc.trim())
             return true
         }

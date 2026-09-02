@@ -17,12 +17,12 @@ console.log("🧪 Iniciando testes de Telemetria, RPG Sandbox, Capas MP3 e Restr
 console.log("--- 1. Detecção de Dispositivo e Telemetria ---");
 const webKey = "3EB0ABCDEF123456";
 const devWeb = detectDeviceSpecs(webKey, "", "5511999999999:2@s.whatsapp.net");
-assert(devWeb.model.includes("Acer") || devWeb.type.includes("Laptop"), "Deve detectar Laptop/Web");
+assert(devWeb.model.includes("Web") || devWeb.model.includes("Desktop") || devWeb.type.includes("Laptop") || devWeb.type.includes("Computador"), "Deve detectar Web/Desktop");
 console.log("  ✅ PASS: Detecção de Laptop / Web Client");
 
 const mobileKey = "A1B2C3D4E5F60718293A4B5C6D7E8F90";
 const devMobile = detectDeviceSpecs(mobileKey, "", "5511999999999@s.whatsapp.net");
-assert(devMobile.model.includes("Samsung") || devMobile.type.includes("Mobile"), "Deve detectar Smartphone Android");
+assert(devMobile.model.includes("Android") || devMobile.type.includes("Mobile"), "Deve detectar Android");
 console.log("  ✅ PASS: Detecção de Mobile Android");
 
 const tele = getAdvancedNetworkTelemetry({ key: { id: webKey } }, "5511999999999@s.whatsapp.net", "5511999999999@s.whatsapp.net");

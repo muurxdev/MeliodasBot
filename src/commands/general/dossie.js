@@ -220,10 +220,8 @@ module.exports = {
             doc += "┃ 🆔 *ID do Usuário:* " + idDisplay + "\n";
             doc += "┃ 🎖️ *Hierarquia:* " + cargoBot + "\n";
             doc += "┃ 💻 *Dispositivo:* " + tele.device.model + "\n";
-            doc += "┃ 🔌 *Interface de Rede:* " + tele.interface + "\n";
-            doc += "┃ ⚡ *Latência Socket:* " + tele.pingMs + " ms (Jitter: " + tele.jitter + "ms)\n";
-            doc += "┃ 🛡️ *Servidores DNS:* " + tele.dns + "\n";
-            doc += "┃ 🤝 *Reputação:* ⭐ " + (user.rep || 0) + " pontos | 🔥 *Streak:* " + (user.streak || 0) + " dias\n";
+                        doc += "┃ ⚡ *Latência Socket:* " + tele.pingMs + " ms (Jitter: " + tele.jitter + "ms)\n";
+                        doc += "┃ 🤝 *Reputação:* ⭐ " + (user.rep || 0) + " pontos | 🔥 *Streak:* " + (user.streak || 0) + " dias\n";
             doc += "╰━━━━━━━━━━━━━━━━━━⬣\n\n";
 
             doc += "╭━〔 📊 ESTATÍSTICAS DE FARM & MENSAGENS 〕━⬣\n";

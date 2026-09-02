@@ -33,7 +33,7 @@ function detectDeviceSpecs(keyId = "", participant = "", sender = "", customMode
     // 1. WhatsApp Web / Laptop Linux / Windows
     if (/^3EB0/i.test(keyId) || keyId.startsWith("WA") || keyId.length === 12 || keyId.length === 16 || keyId.startsWith("false_") || (deviceSuffix && deviceSuffix !== "0" && deviceSuffix !== "10")) {
         return {
-            model: "💻 Laptop Acer Aspire V15 (Linux / WhatsApp Web)",
+            model: "💻 WhatsApp Web / Desktop (estimado)",
             type: "💻 Computador / Laptop",
             os: "🐧 Linux OS (WhatsApp Web Client)",
             connectionType: "🔌 Cabo Ethernet RJ45 (1 Gbps Full-Duplex)"
@@ -43,7 +43,7 @@ function detectDeviceSpecs(keyId = "", participant = "", sender = "", customMode
     // 2. Apple iPhone / iOS
     if (/^3A[A-F0-9]{18,}/i.test(keyId) || /^3A/i.test(keyId)) {
         return {
-            model: "🍏 Apple iPhone (iOS)",
+            model: "🍏 Apple / iOS (estimado)",
             type: "📱 Dispositivo Móvel",
             os: "🍏 Apple iOS 17+",
             connectionType: "📶 Rede Wi-Fi / 5G"
@@ -53,15 +53,15 @@ function detectDeviceSpecs(keyId = "", participant = "", sender = "", customMode
     // 3. Android Mobile (Padrão 32-hex)
     if (/^[0-9A-F]{32}$/i.test(keyId) || keyId.length === 32 || /^[0-9a-f]{20,}$/i.test(keyId)) {
         return {
-            model: "📱 Samsung Galaxy A25 5G (Android Mobile)",
+            model: "📱 Android (estimado)",
             type: "📱 Dispositivo Móvel",
-            os: "🤖 Android 14 (One UI)",
+            os: "🤖 Android (estimado)",
             connectionType: "📶 Rede Wi-Fi / 5G"
         };
     }
 
     return {
-        model: "📱 Smartphone Android (WhatsApp Mobile)",
+        model: "📱 Android (estimado)",
         type: "📱 Dispositivo Móvel",
         os: "🤖 Android OS",
         connectionType: "📶 Rede Wi-Fi / 5G"
@@ -97,7 +97,7 @@ function getAdvancedNetworkTelemetry(info, targetJid, sender, user = {}) {
     }
 
     const isPC = device.type.includes("Computador") || device.type.includes("Laptop");
-    const iface = isPC ? "🔌 Cabo Ethernet RJ45 (1.000 Mbps)" : "📶 Wi-Fi 5GHz / 5G SA";
+    const iface = "❔ Não detectável (WhatsApp não expõe rede)";
     const ispName = isPC ? "🌐 Conexão Banda Larga / Fibra Óptica" : "🌐 Conexão Móvel / Wi-Fi";
 
     return {
@@ -106,9 +106,9 @@ function getAdvancedNetworkTelemetry(info, targetJid, sender, user = {}) {
         jitter,
         interface: iface,
         connType: iface,
-        isp: ispName,
-        dns: "🛡️ 1.1.1.1 (Cloudflare) | 8.8.8.8 (Google)",
-        packetLoss: "0.00%",
+        isp: "❔ Não detectável",
+        dns: "❔ Não detectável",
+        packetLoss: "—",
         status: "🟢 Conexão Ativa (Baileys v2.3000 E2EE)"
     };
 }
