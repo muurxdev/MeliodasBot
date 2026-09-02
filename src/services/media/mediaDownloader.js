@@ -33,9 +33,8 @@ async function downloadMedia(job, onProgress = null) {
     job.tempDir = jobTempDir
     const formatConfig = resolveDownloadFormat({
         format: job.requestedFormat || FORMATS.MP4,
-        quality: job.requestedQuality || (
-            (job.requestedFormat === FORMATS.MP3 || job.requestedFormat === 'mp3') ? undefined : '1080p'
-        )
+        // Sem teto: maior resolução disponível (best). Pode ser 1440p/4K quando existir.
+        quality: job.requestedQuality || 'best'
     })
 
     const outputTemplate = path.join(jobTempDir, `media_${jobId}.%(ext)s`)

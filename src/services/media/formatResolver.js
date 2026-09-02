@@ -43,21 +43,25 @@ function resolveDownloadFormat({ format = FORMATS.MP3, quality = QUALITIES.BEST 
         }
     }
 
-    // Formato de Vídeo MP4
+    // Formato de Vídeo — MAIOR resolução possível, sempre entregue como MP4.
+    // NÃO forçamos [ext=mp4] no seletor: no YouTube o mp4/h264 trava em 1080p
+    // (acima disso é vp9/av1 em webm). Pegamos o melhor vídeo+áudio de qualquer
+    // codec e remuxamos/recodificamos para MP4 (compatível com WhatsApp).
     let heightFilter = ''
     if (qual === QUALITIES.P1080) heightFilter = '[height<=1080]'
     else if (qual === QUALITIES.P720) heightFilter = '[height<=720]'
     else if (qual === QUALITIES.P480) heightFilter = '[height<=480]'
     else if (qual === QUALITIES.P360) heightFilter = '[height<=360]'
+    // 'best' (default) = sem teto de altura → maior resolução disponível
 
-    const videoSelector = heightFilter
-        ? `bv*${heightFilter}[ext=mp4]+ba[ext=m4a]/b${heightFilter}[ext=mp4]/best`
-        : 'bv*[ext=mp4]+ba[ext=m4a]/b[ext=mp4]/best'
+    const videoSelector = `bv*${heightFilter}+ba/b${heightFilter}/bv*+ba/b`
 
     return {
         args: [
             '-f', videoSelector,
             '--merge-output-format', 'mp4',
+            // Garante container MP4 mesmo quando o melhor vídeo vem em vp9/webm
+            '--remux-video', 'mp4',
             '--add-metadata'
         ],
         targetExt: 'mp4',
@@ -138,7 +142,12 @@ function probeMedia(filePath) {
         const sizeBytes = Number(fmt.size || (fs.statSync(filePath).size)) || 0
         const durationSec = Math.round(Number(fmt.duration || (v?.duration) || (a?.duration) || 0))
         const bitrateKbps = fmt.bit_rate ? Math.round(Number(fmt.bit_rate) / 1000) : (a?.bit_rate ? Math.round(Number(a.bit_rate) / 1000) : 0)
-        const container = (fmt.format_name || '').split(',')[0] || filePath.split('.').pop()
+        // ffprobe reporta a família "mov,mp4,m4a,3gp,..." — normaliza para MP4/M4A.
+        const rawContainer = (fmt.format_name || '')
+        let container = rawContainer.split(',')[0] || filePath.split('.').pop()
+        if (/mp4|mov|m4a|3gp/i.test(rawContainer)) {
+            container = (a && !v) ? 'M4A' : 'MP4'
+        }
         return {
             container: container.toUpperCase(),
             vcodec: v?.codec_name || null,

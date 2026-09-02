@@ -229,6 +229,7 @@ function downloadDirectYtDlpAudio(targetUrl, outputPath) {
  * @returns {Promise<object>}
  */
 async function searchAndDownloadAudio(query) {
+    const startedAt = Date.now();
     const jobId = "audio_" + Date.now() + "_" + Math.random().toString(36).slice(2, 7);
     const audioTempDir = path.join(tempDir, "audio");
     if (!fs.existsSync(audioTempDir)) {
@@ -276,6 +277,7 @@ async function searchAndDownloadAudio(query) {
             await downloadDirectYtDlpAudio(sourceUrl, outputPath);
             return {
                 filePath: outputPath,
+                elapsedMs: Date.now() - startedAt,
                 title,
                 author,
                 durationFormatted,
@@ -296,6 +298,7 @@ async function searchAndDownloadAudio(query) {
                     if (ok && fs.existsSync(outputPath) && fs.statSync(outputPath).size > 0) {
                         return {
                             filePath: outputPath,
+                elapsedMs: Date.now() - startedAt,
                             title,
                             author,
                             durationFormatted,
@@ -340,6 +343,7 @@ async function searchAndDownloadAudio(query) {
                     if (fs.existsSync(outputPath) && fs.statSync(outputPath).size > 0) {
                         return {
                             filePath: outputPath,
+                elapsedMs: Date.now() - startedAt,
                             title,
                             author,
                             durationFormatted,
@@ -362,6 +366,7 @@ async function searchAndDownloadAudio(query) {
                     if (ok && fs.existsSync(outputPath) && fs.statSync(outputPath).size > 0) {
                         return {
                             filePath: outputPath,
+                elapsedMs: Date.now() - startedAt,
                             title,
                             author,
                             durationFormatted,
@@ -405,6 +410,7 @@ async function searchAndDownloadAudio(query) {
 
                 return {
                     filePath: outputPath,
+                elapsedMs: Date.now() - startedAt,
                     title: isSpotify ? title : (selectedTrack.name || title),
                     author: isSpotify ? author : (selectedTrack.user?.name || author),
                     durationFormatted: finalDuration,
@@ -428,6 +434,7 @@ async function searchAndDownloadAudio(query) {
 
     return {
         filePath: outputPath,
+                elapsedMs: Date.now() - startedAt,
         title,
         author,
         durationFormatted,
