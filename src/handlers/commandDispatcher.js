@@ -236,6 +236,22 @@ async function dispatch(context) {
         }
     }
 
+    // 3.1.5 Categoria desativada no grupo (.categoria off <cat>) — bloqueia toda a categoria
+    if (isGroup && cmdCategory && !isAdmin && !isUserOwner) {
+        const disabledCats = configs[from]?.disabledCategories || []
+        const alwaysAllowed = ['menu', 'help', 'categoria', 'dono', 'ping']
+        if (disabledCats.includes(cmdCategory) && !alwaysAllowed.includes(cmd.name.toLowerCase())) {
+            let catDoc = `╔══════════════════════════════╗\n`
+            catDoc += `║   🔒 *CATEGORIA DESATIVADA* 🔒   ║\n`
+            catDoc += `╚══════════════════════════════╝\n\n`
+            catDoc += `⚠️ A categoria *${cmdCategory.toUpperCase()}* está desativada neste grupo.\n`
+            catDoc += `🚫 O comando \`.${cmd.name}\` não pode ser usado agora.\n\n`
+            catDoc += `💡 _Para reativar, peça a um *Administrador* do grupo:_\n\`.categoria on ${cmdCategory}\``
+            await reply(catDoc.trim())
+            return true
+        }
+    }
+
     // 3.2 Verificação de Modo Restrito no Grupo (.restringir adm - Apenas ADMs e Donos)
     if (isGroup && configs[from]?.restrictedToAdmins && !isAdmin && !isUserOwner) {
         const allowedInRestricted = ['menu', 'help', 'dossie', 'ping']

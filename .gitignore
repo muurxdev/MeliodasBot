@@ -46,3 +46,4 @@ data/*.sqlite-shm
 
 # Dados legados/runtime com informação real de usuários — não versionar
 data/*.json
+audit-report.json
