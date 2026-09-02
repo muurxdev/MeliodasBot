@@ -62,6 +62,7 @@ module.exports = {
             // 2. VÍDEO PADRÃO OU ÁUDIO MP3
             const caption = formatMediaCaption({
                 filePath: mediaData.filePath,
+                elapsedMs: mediaData.elapsedMs,
                 platform: "TikTok",
                 title: mediaData.title,
                 author: mediaData.author,

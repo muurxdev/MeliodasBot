@@ -64,6 +64,7 @@ module.exports = {
 
             const caption = formatMediaCaption({
                 filePath: mediaData.filePath,
+                elapsedMs: mediaData.elapsedMs,
                 platform: 'Twitter (X)',
                 title: mediaData.title,
                 author: mediaData.author,

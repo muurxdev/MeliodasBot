@@ -50,6 +50,7 @@ module.exports = {
 
             const caption = formatMediaCaption({
                 filePath,
+                elapsedMs: downloaded.elapsedMs,
                 platform: 'YouTube',
                 title: meta.title,
                 author: meta.author,

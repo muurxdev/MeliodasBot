@@ -18,7 +18,7 @@ module.exports = {
         const mentions = []
 
         let doc = `╔══════════════════════════════╗\n`
-        doc += `║    👑 *HIERARQUIA DOS 5 DONOS* 👑  ║\n`
+        doc += `║    👑 *HIERARQUIA DE DONOS* 👑  ║\n`
         doc += `╚══════════════════════════════╝\n\n`
 
         const icons = {
@@ -54,6 +54,7 @@ module.exports = {
                 const contactPhone = o.phone || formatPhoneFromJid(o.jid)
 
                 doc += `┃ 👤 *Nome:* ${displayName}\n`
+                doc += `┃ 👑 *Perfil:* ${o.rank === 'Capitão' ? 'Sou o Dono do Bot' : 'Sou Dono do Bot'}\n`
                 if (contactPhone) {
                     doc += `┃ 📱 *Contato:* ${contactPhone}\n`
                 }

@@ -22,6 +22,7 @@ const activeProcesses = new Map()
  * @returns {Promise<object>}
  */
 async function downloadMedia(job, onProgress = null) {
+    const startedAt = Date.now()   // para medir o tempo REAL de download
     const jobId = job.id || `job_${Date.now()}`
     const jobTempDir = path.join(tempDir, 'media', jobId)
 
@@ -90,7 +91,8 @@ async function downloadMedia(job, onProgress = null) {
                                 format: job.requestedFormat,
                                 mimeType: ext === 'mp3' ? 'audio/mpeg' : 'video/mp4',
                                 size: stats.size,
-                                stats
+                                stats,
+                                elapsedMs: Date.now() - startedAt
                             })
                         }
                     } catch (fbErr) {
@@ -176,7 +178,8 @@ async function downloadMedia(job, onProgress = null) {
                                 format: job.requestedFormat,
                                 mimeType: ext === 'mp3' ? 'audio/mpeg' : 'video/mp4',
                                 size: stats.size,
-                                stats
+                                stats,
+                                elapsedMs: Date.now() - startedAt
                             })
                         }
                     } catch (fbErr) {
@@ -241,7 +244,8 @@ async function downloadMedia(job, onProgress = null) {
                     size: stats.size,
                     mimeType: formatConfig.mimeType,
                     format: formatConfig.targetExt,
-                    isGallery: mediaFiles.length > 1
+                    isGallery: mediaFiles.length > 1,
+                    elapsedMs: Date.now() - startedAt
                 })
             } catch (readErr) {
                 cleanupJobDir(jobTempDir)

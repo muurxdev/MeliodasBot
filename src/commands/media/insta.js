@@ -66,6 +66,7 @@ module.exports = {
 
             const caption = formatMediaCaption({
                 filePath: downloaded.filePath,
+                elapsedMs: downloaded.elapsedMs,
                 platform: 'Instagram',
                 title: meta.title,
                 author: meta.author,

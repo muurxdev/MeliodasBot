@@ -70,6 +70,7 @@ module.exports = {
 
                         const caption = formatMediaCaption({
                 filePath: mediaData.filePath,
+                elapsedMs: mediaData.elapsedMs,
                             platform: "Spotify",
                             title: `[${i + 1}/${limit}] ${mediaData.title}`,
                             author: mediaData.author,
@@ -116,6 +117,7 @@ module.exports = {
             const cleanFileName = mediaData.title.replace(/[^a-zA-Z0-9_\-\s]/g, "").slice(0, 35);
             const caption = formatMediaCaption({
                 filePath: mediaData.filePath,
+                elapsedMs: mediaData.elapsedMs,
                 platform: "Spotify",
                 title: mediaData.title,
                 author: mediaData.author,

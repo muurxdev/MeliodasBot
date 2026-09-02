@@ -97,6 +97,7 @@ module.exports = {
 
                         const caption = formatMediaCaption({
                 filePath: mediaData.filePath,
+                elapsedMs: mediaData.elapsedMs,
                             platform: playlistInfo.platform,
                             title: `[${i + 1}/${limit}] ${mediaData.title}`,
                             author: mediaData.author,
@@ -169,6 +170,7 @@ module.exports = {
 
                 const caption = formatMediaCaption({
                 filePath: mediaData.filePath,
+                elapsedMs: mediaData.elapsedMs,
                     platform: "Pinterest",
                     title: mediaData.title,
                     author: mediaData.author,
@@ -209,6 +211,7 @@ module.exports = {
 
                 const caption = formatMediaCaption({
                 filePath: mediaData.filePath,
+                elapsedMs: mediaData.elapsedMs,
                     platform: "Kwai",
                     title: mediaData.title,
                     author: mediaData.author,
@@ -255,6 +258,7 @@ module.exports = {
 
                 const caption = formatMediaCaption({
                 filePath: mediaData.filePath,
+                elapsedMs: mediaData.elapsedMs,
                     platform: "TikTok",
                     title: mediaData.title,
                     author: mediaData.author,
@@ -301,6 +305,7 @@ module.exports = {
 
                 const caption = formatMediaCaption({
                 filePath: mediaData.filePath,
+                elapsedMs: mediaData.elapsedMs,
                     platform: "Twitter (X)",
                     title: mediaData.title,
                     author: mediaData.author,
@@ -375,6 +380,7 @@ module.exports = {
 
                     const caption = formatMediaCaption({
                 filePath: mediaData.filePath,
+                elapsedMs: mediaData.elapsedMs,
                         platform: platformName,
                         title: meta.title,
                         author: meta.author,
@@ -424,6 +430,7 @@ module.exports = {
 
             const caption = formatMediaCaption({
                 filePath: mediaData.filePath,
+                elapsedMs: mediaData.elapsedMs,
                 platform: mediaData.platform || platformName,
                 title: mediaData.title,
                 author: mediaData.author,

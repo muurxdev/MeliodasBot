@@ -75,6 +75,7 @@ module.exports = {
 
             const caption = formatMediaCaption({
                 filePath: mediaData.filePath,
+                elapsedMs: mediaData.elapsedMs,
                 platform: "Pinterest",
                 title: mediaData.title,
                 author: mediaData.author,

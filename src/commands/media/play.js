@@ -118,6 +118,7 @@ module.exports = {
             const { formatMediaCaption } = require('../../services/media/formatResolver')
             const audioCaption = formatMediaCaption({
                 filePath: mediaData.filePath,
+                elapsedMs: mediaData.elapsedMs,
                 platform: mediaData.platform || 'YouTube',
                 title: mediaData.title,
                 author: mediaData.author,

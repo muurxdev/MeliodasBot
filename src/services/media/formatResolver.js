@@ -102,6 +102,22 @@ const { getBotName } = require('../../config/botConfig')
 const { spawnSync } = require('child_process')
 const fs = require('fs')
 
+/** Formata bytes em KB / MB / GB legível (nunca mostra bytes crus). */
+function formatBytes(bytes) {
+    const n = Number(bytes) || 0
+    if (n <= 0) return null
+    if (n < 1024 * 1024) return (n / 1024).toFixed(1) + ' KB'
+    if (n < 1024 * 1024 * 1024) return (n / 1024 / 1024).toFixed(2) + ' MB'
+    return (n / 1024 / 1024 / 1024).toFixed(2) + ' GB'
+}
+
+/** Formata uma duração em ms para tempo legível de download (ex.: "12s", "1m 05s"). */
+function formatElapsed(ms) {
+    const s = Math.max(0, Math.round((Number(ms) || 0) / 1000))
+    if (s < 60) return s + 's'
+    return Math.floor(s / 60) + 'm ' + String(s % 60).padStart(2, '0') + 's'
+}
+
 /**
  * Inspeciona o arquivo REAL com ffprobe e retorna dados verdadeiros — nada inventado.
  * @param {string} filePath
@@ -147,7 +163,7 @@ function probeMedia(filePath) {
  * @param {object} params
  * @returns {string}
  */
-function formatMediaCaption({ platform = 'Web', title = 'Mídia', author = 'Desconhecido', durationFormatted = '—', url = '', isAudio = false, filePath = null } = {}) {
+function formatMediaCaption({ platform = 'Web', title = 'Mídia', author = 'Desconhecido', durationFormatted = '—', url = '', isAudio = false, filePath = null, elapsedMs = null } = {}) {
     const botName = getBotName()
     const probe = filePath ? probeMedia(filePath) : null
     const audio = probe ? probe.isAudio : isAudio
@@ -174,13 +190,16 @@ function formatMediaCaption({ platform = 'Web', title = 'Mídia', author = 'Desc
         if (!audio && probe.resolution) doc += `┃ 🖥️ *Resolução:* ${probe.resolution}${probe.vcodec ? ' (' + probe.vcodec + ')' : ''}\n`
         doc += `┃ 📦 *Formato:* ${probe.container}${audio && probe.acodec ? ' / ' + probe.acodec : ''}\n`
         if (probe.bitrateKbps) doc += `┃ 🎚️ *Bitrate:* ${probe.bitrateKbps} kbps\n`
-        if (probe.sizeMB) doc += `┃ 💾 *Tamanho:* ${probe.sizeMB} MB\n`
+        const sizeStr = formatBytes(probe.sizeBytes)
+        if (sizeStr) doc += `┃ 💾 *Tamanho:* ${sizeStr}\n`
     } else {
         // Sem probe: mostra só o formato-alvo, sem inventar resolução/qualidade
         doc += `┃ 📦 *Formato:* ${audio ? 'MP3' : 'MP4'}\n`
     }
 
-    if (url) doc += `┃ 🔗 *Link:* ${url}\n`
+    // Tempo REAL que levou para baixar (medido), quando disponível
+    if (elapsedMs) doc += `┃ ⏬ *Baixado em:* ${formatElapsed(elapsedMs)}\n`
+    if (url) doc += `┃ 🔗 *Fonte:* ${url}\n`
     doc += `╰━━━━━━━━━━━━━━━━━━⬣\n\n`
     doc += `👑 *${botName}*`
     return doc.trim()
@@ -251,6 +270,8 @@ module.exports = {
     getEstimatedWaitTime,
     formatDownloadProgressCard,
     probeMedia,
+    formatBytes,
+    formatElapsed,
     formatDuration
 }
 

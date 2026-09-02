@@ -114,6 +114,7 @@ assert.strictEqual(checkTenenteOnSargento.allowed, true, 'Tenente PODE alterar S
 
 // 5. Usuário comum não altera nada
 const checkRandom = canModifyOwner(randomUserJid, 'Soldado');
+try { require('../src/database/connection').getDatabase().prepare("DELETE FROM configs WHERE group_jid='global_owners'").run(); } catch (_) {} // limpa fixture de donos
 assert.strictEqual(checkRandom.allowed, false, 'Usuário comum não pode alterar cargos');
 console.log('  ✅ PASS: Hierarquia Rígida (Capitão Soberano, Tenente Sub-Comandante com Imunidades)');
 

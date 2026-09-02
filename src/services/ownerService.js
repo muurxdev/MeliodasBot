@@ -29,18 +29,32 @@ const DEFAULT_OWNERS = [
 ];
 
 /**
- * Nome de exibição do dono, puxado AO VIVO do perfil do WhatsApp (nome verde
- * verificado = pushName salvo em users.name), com fallbacks.
+ * Nome do PERFIL do dono (nick personalizado), exibido APENAS na lista de donos.
+ * Prioridade: nick fixo salvo no owner -> OWNER_PROFILE_NAME (do dono via .env,
+ * só para o Capitão/dono principal) -> pushName do WhatsApp -> patente.
  */
 function resolveOwnerName(owner) {
     if (!owner || !owner.jid) return owner?.name || owner?.rank || "Dono";
+    // 1. nick fixo definido para este dono (via .setdono / saveOwners)
+    if (owner.name) return owner.name;
+    // 2. nick de perfil do dono principal (env), só quando bate com o OWNER_JID
+    const profileNick = (process.env.OWNER_PROFILE_NAME || "").trim();
+    if (profileNick && OWNER_JID && owner.jid.replace(/\D/g, "") === OWNER_JID.replace(/\D/g, "")) {
+        return profileNick;
+    }
+    // 3. pushName real do WhatsApp
     try {
         const userRepo = require("../database/repositories/userRepository");
         const digits = owner.jid.replace(/\D/g, "");
         const u = userRepo.getUser(owner.jid) || userRepo.getUser(digits + "@s.whatsapp.net");
         if (u && u.name) return u.name;
     } catch (_) {}
-    return owner.name || owner.rank;
+    return owner.rank;
+}
+
+/** Nick de perfil do dono principal (para exibição em .dono e no perfil do dono). */
+function getOwnerProfileName() {
+    return (process.env.OWNER_PROFILE_NAME || "").trim() || null;
 }
 
 function normalizeRank(r) {
@@ -267,5 +281,6 @@ module.exports = {
     resetRankTitle,
     isOwner,
     resolveOwnerName,
+    getOwnerProfileName,
     getOwnerRank
 };
