@@ -1,0 +1,48 @@
+# Dependências
+node_modules/
+
+# Sessão e Credenciais do WhatsApp
+sessao/
+auth_info_baileys/
+*.json.bak
+
+# Diretórios Temporários, Backups e Logs
+temp/
+logs/
+backups/
+*.log
+npm-debug.log*
+
+# Banco de dados de produção e testes
+tests/test_db.sqlite
+*.sqlite-journal
+*.sqlite-wal
+*.sqlite-shm
+
+# Variáveis de ambiente
+.env
+.env.local
+
+# Backups legados e lixo
+*.bak
+indexxxxx/
+database/
+
+# Sistema operacional
+.DS_Store
+Thumbs.db
+# Backups legados arquivados
+legacy_backup/
+
+# Ferramentas de desenvolvimento (skills/agents) — não fazem parte do bot
+.agents/
+.claude/
+skills-lock.json
+
+# Banco de dados de produção (dados reais de usuários) — NUNCA versionar
+data/*.sqlite
+data/*.sqlite-wal
+data/*.sqlite-shm
+
+# Dados legados/runtime com informação real de usuários — não versionar
+data/*.json

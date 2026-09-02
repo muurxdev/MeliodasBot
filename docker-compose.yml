@@ -1,0 +1,65 @@
+version: '3.8'
+
+networks:
+  bot-net:
+    driver: bridge
+
+services:
+  meliodas-bot:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: meliodas_bot_xp
+    restart: unless-stopped
+    networks:
+      - bot-net
+    ports:
+      - "3000:3000"
+    env_file:
+      - .env
+    environment:
+      - NODE_ENV=production
+      - PORT=3000
+    volumes:
+      - ./data:/app/data
+      - ./sessao:/app/sessao
+      - ./backups:/app/backups
+      - ./logs:/app/logs
+      - ./temp:/app/temp
+    deploy:
+      resources:
+        limits:
+          cpus: '1.5'
+          memory: 512M
+        reservations:
+          memory: 128M
+    logging:
+      driver: 'json-file'
+      options:
+        max-size: '10m'
+        max-file: '3'
+    depends_on:
+      - bgutil-pot-provider
+
+  # Serviço gerador de PO Tokens do YouTube (bgutil) — contorna o bloqueio
+  # "Sign in to confirm you're not a bot" gerando tokens frescos por vídeo.
+  bgutil-pot-provider:
+    image: brainicism/bgutil-ytdlp-pot-provider
+    container_name: bgutil_pot_provider
+    restart: unless-stopped
+    networks:
+      - bot-net
+    ports:
+      - "127.0.0.1:4416:4416"
+    deploy:
+      resources:
+        limits:
+          cpus: '1.0'
+          memory: 256M
+        reservations:
+          memory: 128M
+    logging:
+      driver: 'json-file'
+      options:
+        max-size: '5m'
+        max-file: '2'

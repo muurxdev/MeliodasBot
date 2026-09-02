@@ -1,0 +1,42 @@
+{
+  "name": "meliodasbot",
+  "version": "2.0.0",
+  "description": "MeliodasBot - WhatsApp bot modular com RPG, economia e mídia",
+  "main": "src/index.js",
+  "scripts": {
+    "start": "node src/index.js",
+    "cli": "node scripts/dev-cli.js",
+    "seed": "node scripts/seed.js",
+    "healthcheck": "node scripts/healthcheck.js",
+    "test": "node tests/database.test.js && node tests/user-persistence.test.js && node tests/dispatcher-integrity.test.js && node tests/menu.test.js && node tests/rpg.test.js && node tests/media.test.js && node tests/progress-engine.test.js && node tests/security.test.js && node tests/scheduler.test.js && node tests/dev-tools.test.js && node tests/telemetry.test.js && node tests/backup.test.js && node tests/deploy.test.js && node tests/e2e.test.js && node tests/core.test.js && node tests/group-auth.test.js && node tests/group-promote.test.js && node tests/group-control.test.js && node tests/media-fix.test.js",
+    "test:group": "node tests/group-auth.test.js",
+    "test:grouppromote": "node tests/group-promote.test.js",
+    "test:groupcontrol": "node tests/group-control.test.js",
+    "test:mediafix": "node tests/media-fix.test.js",
+    "test:telemetry": "node tests/telemetry.test.js",
+    "test:backup": "node tests/backup.test.js",
+    "test:media": "node tests/media.test.js"
+  },
+  "author": "MeliodasBot",
+  "license": "MIT",
+  "engines": {
+    "node": ">=22.5.0"
+  },
+  "dependencies": {
+    "@distube/ytdl-core": "^4.16.12",
+    "@whiskeysockets/baileys": "7.0.0-rc11",
+    "axios": "^1.20.0",
+    "dotenv": "^17.4.2",
+    "instagram-url-direct": "^2.0.7",
+    "mathjs": "^12.4.0",
+    "node-webpmux": "^3.2.1",
+    "pdfkit": "^0.20.2",
+    "pino": "^7.11.0",
+    "play-dl": "^1.9.7",
+    "qrcode": "^1.5.4",
+    "qrcode-terminal": "^0.12.0",
+    "sharp": "^0.34.5",
+    "youtubei.js": "^18.0.0",
+    "yt-search": "^2.13.1"
+  }
+}
