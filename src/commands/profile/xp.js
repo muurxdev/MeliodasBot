@@ -1,23 +1,44 @@
 const dataService = require('../../services/dataService')
-const { initializeUser } = require('../../services/xpService')
-const { barraXP, getCargo, getRank } = require('../../utils/helpers')
+const { getXpProgress, getXpTips } = require('../../services/xpService')
+const { getCargo, getRank } = require('../../utils/helpers')
 
 module.exports = {
     name: 'xp',
-    aliases: ['perfil', 'level'],
+    aliases: ['level', 'nivel', 'meuxp'],
     category: 'profile',
-    description: 'Exibe seu nível, XP, rank e progresso no bot',
-    execute: async ({ info, sender, reply }) => {
-        const xpData = dataService.getXpData()
+    subcategory: 'Perfil & Ranking',
+    description: 'Exibe seu nível, XP, progresso para o próximo nível e como ganhar mais',
+    cooldownMs: 2000,
+    execute: async ({ info, sender, reply, prefix = '.' }) => {
         const alvo = info?.message?.extendedTextMessage?.contextInfo?.mentionedJid?.[0] || sender
-        const perfil = initializeUser(alvo, xpData)
+        const perfil = dataService.getUser(alvo) || dataService.initializeUser(alvo, {})
+        const prog = getXpProgress(perfil)
 
-        const cargo = perfil.equipado ? ('🎒 ' + perfil.equipado) : getCargo(perfil.level)
-        const rank = getRank(perfil.level)
-        const maxXp = Math.floor(100 * Math.pow(perfil.level, 1.5))
+        let doc = `╔══════════════════════════════╗\n`
+        doc += `║   ⭐ *PROGRESSO DE XP* ⭐   ║\n`
+        doc += `╚══════════════════════════════╝\n\n`
+        doc += `👤 @${alvo.split('@')[0]}\n`
+        doc += `📈 *Nível:* ${perfil.level || 1} | 🏆 *Rank:* ${getRank(perfil.level || 1)}\n`
+        doc += `💼 *Cargo:* ${getCargo(perfil.level || 1)}\n`
+        doc += `⚡ *Poder:* ${prog.poder} | ❤️ *HP:* ${perfil.hpMax || 100}\n\n`
 
-        const texto = '🏆 *PERFIL DO USUÁRIO*\n\n👤 @' + alvo.split('@')[0] + '\n\n⭐ *XP:* ' + perfil.xp + ' / ' + maxXp + '\n📊 *Progresso:* ' + barraXP(perfil.xp, perfil.level) + '\n\n📈 *Nível:* ' + perfil.level + '\n🏆 *Rank:* ' + rank + '\n💼 *Cargo:* ' + cargo + '\n🧬 *Classe:* ' + (perfil.classe || 'Nenhuma') + '\n🔮 *Classe Lendária:* ' + (perfil.classeLendaria || 'Nenhuma') + '\n🐛 *Poder Bug:* ' + (perfil.bugPower || 0) + '\n━━━━━━━━━━━━━━━━━━\n💰 *Coins:* ' + perfil.coins + '\n💬 *Mensagens:* ' + (perfil.messages || 0) + '\n❤️ *Rep:* ' + (perfil.rep || 0) + '\n🔥 *Streak:* ' + (perfil.streak || 0) + '\n🥇 *Conquistas:* ' + (perfil.conquistas?.length || 0) + '\n🐉 *Bosses derrotados:* ' + (perfil.bossesMortos || 0) + '\n🏆 *Vitórias:* ' + (perfil.wins || 0) + ' | 💀 *Derrotas:* ' + (perfil.losses || 0)
+        doc += `╭━〔 📊 RUMO AO NÍVEL ${(perfil.level || 1) + 1} 〕━⬣\n`
+        doc += `┃ ${prog.barra} ${prog.percent}%\n`
+        doc += `┃ ⭐ *XP:* ${prog.atual.toLocaleString('pt-BR')} / ${prog.necessario.toLocaleString('pt-BR')}\n`
+        doc += `┃ 🎯 *Faltam:* ${prog.faltam.toLocaleString('pt-BR')} XP\n`
+        doc += `╰━━━━━━━━━━━━━━━━━━⬣\n\n`
 
-        await reply(texto, [alvo])
+        doc += `╭━〔 🗂️ SEU XP POR ORIGEM 〕━⬣\n`
+        doc += `┃ 👥 *XP Grupo:* ${(perfil.xpGroup || 0).toLocaleString('pt-BR')}\n`
+        doc += `┃ 📱 *XP Privado:* ${(perfil.xpPv || 0).toLocaleString('pt-BR')}\n`
+        doc += `┃ 📅 *XP Semanal:* ${(perfil.weeklyXp || 0).toLocaleString('pt-BR')}\n`
+        doc += `╰━━━━━━━━━━━━━━━━━━⬣\n\n`
+
+        doc += `╭━〔 🚀 COMO GANHAR MAIS XP 〕━⬣\n`
+        for (const tip of getXpTips(prefix)) doc += `┃ ${tip}\n`
+        doc += `╰━━━━━━━━━━━━━━━━━━⬣\n\n`
+        doc += `💡 _Veja seu perfil completo com_ \`${prefix}dossie\``
+
+        await reply(doc.trim(), [alvo])
     }
 }

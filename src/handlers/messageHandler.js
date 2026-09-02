@@ -126,7 +126,14 @@ async function handleIncomingMessage(client, { messages }) {
 
     // Ganho de XP liberado em grupos OU no PV quando ativado pelo dono (.farmpv on)
     if (isGroup || allowPvXp) {
-        const xpEarned = Math.floor(Math.random() * 11) + 15 // +15 a +25 XP
+        // XP base + bônus por tipo de mídia (áudio/vídeo/imagem/figurinha/documento
+        // rendem um pouco mais que texto puro, incentivando engajamento variado).
+        const base = Math.floor(Math.random() * 11) + 15 // 15 a 25
+        const typeBonus = {
+            audioMessage: 8, videoMessage: 10, imageMessage: 5,
+            stickerMessage: 4, documentMessage: 6
+        }[type] || 0
+        const xpEarned = base + typeBonus
         user.xp = (user.xp || 0) + xpEarned
         user.weeklyXp = (user.weeklyXp || 0) + xpEarned
         if (isGroup) {
@@ -139,10 +146,19 @@ async function handleIncomingMessage(client, { messages }) {
         const lvlRes = processarLevelUp(user)
         if (lvlRes.subiu) {
             try {
-                await client.sendMessage(from, {
-                    text: `🎉 *LEVEL UP!* Parabéns @${sender.split('@')[0]} avançou para o *Nível ${user.level}*!\n💼 *Novo Cargo:* ${getCargo(user.level)}\n💰 *Bônus:* +${lvlRes.ganhoCoins} Coins\n❤️ *HP Total:* ${user.hpMax} HP`,
-                    mentions: [sender]
-                }, { quoted: info })
+                const { getXpProgress } = require('../services/xpService')
+                const prog = getXpProgress(user)
+                let up = `╔══════════════════════════════╗\n`
+                up += `║   🎉 *LEVEL UP!* 🎉   ║\n`
+                up += `╚══════════════════════════════╝\n\n`
+                up += `👤 @${sender.split('@')[0]} subiu para o *Nível ${user.level}*!`
+                if (lvlRes.levelsGanhos > 1) up += ` (+${lvlRes.levelsGanhos} níveis)`
+                up += `\n💼 *Cargo:* ${getCargo(user.level)}\n`
+                up += `❤️ *HP Total:* ${user.hpMax} (+${lvlRes.ganhoHp}) | ⚡ *Poder:* ${prog.poder}\n`
+                up += `💰 *Bônus:* +${lvlRes.ganhoCoins} Coins\n\n`
+                up += `📊 *Progresso p/ Nv. ${user.level + 1}:*\n${prog.barra} ${prog.percent}%\n`
+                up += `⭐ Faltam *${prog.faltam.toLocaleString('pt-BR')} XP*`
+                await client.sendMessage(from, { text: up, mentions: [sender] }, { quoted: info })
             } catch (_) {}
         }
     }

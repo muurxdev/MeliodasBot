@@ -124,11 +124,14 @@ function processarLevelUp(user) {
         user.coins = (user.coins || 0) + coinsBonus
         ganhoCoins += coinsBonus
 
-        // Upgrade de HP a cada 5 níveis
-        if (user.level % 5 === 0) {
-            user.hpMax = (user.hpMax || 100) + 10
-            ganhoHp += 10
-        }
+        // Ganho de HP a CADA nível (+15) com bônus extra a cada 5 níveis (+35)
+        const hpGain = 15 + (user.level % 5 === 0 ? 35 : 0)
+        user.hpMax = (user.hpMax || 100) + hpGain
+        ganhoHp += hpGain
+
+        // Ganho leve de atributos por nível (poder do personagem cresce)
+        user.atk = (user.atk || 10) + 2
+        user.def = (user.def || 5) + 1
 
         // Restaura a vida completa ao subir de nível
         user.hp = user.hpMax || 100
@@ -149,8 +152,39 @@ function processarLevelUp(user) {
     }
 }
 
+/**
+ * Progresso de XP do usuário para o próximo nível.
+ * @returns {{ atual, necessario, faltam, percent, barra, poder }}
+ */
+function getXpProgress(user) {
+    const level = user.level || 1
+    const atual = user.xp || 0
+    const necessario = calcularXpNecessario(level)
+    const faltam = Math.max(0, necessario - atual)
+    const percent = Math.min(100, Math.floor((atual / necessario) * 100))
+    const blocos = 10
+    const cheios = Math.floor((percent / 100) * blocos)
+    const barra = '🟩'.repeat(cheios) + '⬛'.repeat(blocos - cheios)
+    // "Poder" = medida agregada de força do personagem
+    const poder = Math.floor((level * 10) + (user.atk || 10) * 2 + (user.def || 5) * 1.5 + (user.hpMax || 100) / 5)
+    return { atual, necessario, faltam, percent, barra, poder }
+}
+
+/** Fontes de XP sugeridas ao usuário (dica de "como ganhar mais XP"). */
+function getXpTips(prefix = '.') {
+    return [
+        `⚔️ \`${prefix}hunt\` / \`${prefix}dungeon\` — caçar e masmorras`,
+        `🐉 \`${prefix}boss criar\` / \`${prefix}raid\` — bosses e raids`,
+        `🤺 \`${prefix}duelo @user\` — duelar com outros jogadores`,
+        `🔨 \`${prefix}forjar\` — forjar e evoluir equipamentos`,
+        `💬 Mandar mensagens no grupo (texto, áudio, vídeo) rende XP`
+    ]
+}
+
 module.exports = {
     initializeUser,
+    getXpProgress,
+    getXpTips,
     calcularXpNecessario,
     processarLevelUp,
     barraXP,

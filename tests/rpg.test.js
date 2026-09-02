@@ -137,7 +137,7 @@ test('processarLevelUp sobe nível com XP suficiente e concede marcos', () => {
     assert.strictEqual(res.subiu, true)
     assert.strictEqual(user.level, 2)
     assert.strictEqual(user.xp, 25, 'XP excedente deve ser preservado')
-    assert.strictEqual(user.hp, 100, 'HP deve ser restaurado ao máximo após level up')
+    assert.strictEqual(user.hp, user.hpMax, 'HP deve ser restaurado ao máximo após level up')
     assert(user.coins > 0, 'Deve receber moedas de bônus ao subir de nível')
 })
 
@@ -154,8 +154,8 @@ test('processarLevelUp incrementa HP máximo em múltiplos de 5 níveis', () => 
     const res = processarLevelUp(user)
 
     assert.strictEqual(user.level, 5)
-    assert.strictEqual(user.hpMax, 110, 'Nível 5 deve conceder +10 de HP máximo')
-    assert.strictEqual(user.hp, 110, 'Vida atual deve atualizar para o novo HP máximo')
+    assert.strictEqual(user.hpMax, 150, 'Nível 5 deve conceder +50 de HP máximo (15/nível + 35 bônus)')
+    assert.strictEqual(user.hp, 150, 'Vida atual deve atualizar para o novo HP máximo')
 })
 
 // ══════════════════════════════════════════
