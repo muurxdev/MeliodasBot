@@ -1,5 +1,5 @@
 /**
- * MeliodasBot — Comando .mimetype
+ * Comando .mimetype
  * Dicionário de tipos MIME por extensão de arquivo
  */
 

@@ -1,5 +1,5 @@
 /**
- * MeliodasBot — Comando .dossiegrupo / .perfilgrupo / .grupodossie
+ * Comando .dossiegrupo / .perfilgrupo / .grupodossie
  * Dossiê analítico e estatístico completo sobre o grupo
  */
 

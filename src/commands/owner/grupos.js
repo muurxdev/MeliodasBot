@@ -1,5 +1,5 @@
 /**
- * MeliodasBot — Comando .grupos
+ * Comando .grupos
  * Lista todos os grupos onde o bot está presente com contagem de membros e status de admin
  */
 

@@ -1,5 +1,5 @@
 /**
- * MeliodasBot — Comando .emboscada / .ataquesurpresa
+ * Comando .emboscada / .ataquesurpresa
  * Evento surpresa de emboscada no chat com monstros lendários
  */
 

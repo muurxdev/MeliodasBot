@@ -1,5 +1,5 @@
 /**
- * MeliodasBot — Comando .opendm
+ * Comando .opendm
  * Desbane ou libera o privado do bot para usuários (aceita números formatados, menções ou 'all')
  */
 

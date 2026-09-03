@@ -1,5 +1,5 @@
 /**
- * MeliodasBot — Comando .desafioimpossivel
+ * Comando .desafioimpossivel
  * Desafio diário da comunidade para cumprir no grupo
  */
 

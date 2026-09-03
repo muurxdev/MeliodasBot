@@ -1,5 +1,5 @@
 /**
- * MeliodasBot — Comando .livro / .pdf / .ebook / .book / .libro / .livre
+ * Comando .livro / .pdf / .ebook / .book / .libro / .livre
  * Motor inteligente multilíngue com contagem real de páginas e sugestões dinâmicas de autor
  */
 

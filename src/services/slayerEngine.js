@@ -1,5 +1,5 @@
 /**
- * MeliodasBot — Motor Slayer Legends RPG
+ * Motor Slayer Legends RPG
  * Cálculo de atributos reais de combate, Poder de Combate (CP) e Patentes Slayer
  */
 

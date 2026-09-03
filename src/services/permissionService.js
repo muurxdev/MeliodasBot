@@ -1,5 +1,5 @@
 /**
- * MeliodasBot — 5-Tier Permission & Hierarchy Service
+ * 5-Tier Permission & Hierarchy Service
  *
  * HIERARQUIA DE PERMISSÕES:
  * 5 - OWNER        (Dono do bot — controle absoluto de infraestrutura, bans globais e configurações)
@@ -171,7 +171,7 @@ function canExecuteCommand(userRole, cmd, context = {}) {
     if (cmd.ownerOnly && userRole.level < ROLES.OWNER) {
         return {
             allowed: false,
-            reason: `👑 *COMANDO EXCLUSIVO DOS DONOS DO BOT!*\n\n❌ O comando \`.${cmd.name}\` é de uso exclusivo dos 5 Donos oficiais do MeliodasBot.\n🎖️ *Hierarquia:* Requer patente de Dono / Fundador (Nível 5).\n💡 *Dica:* Digite \`.dono\` para visualizar os proprietários autorizados.`
+            reason: `👑 *COMANDO EXCLUSIVO DOS DONOS DO BOT!*\n\n❌ O comando \`.${cmd.name}\` é de uso exclusivo dos 5 Donos oficiais do bot.\n🎖️ *Hierarquia:* Requer patente de Dono / Fundador (Nível 5).\n💡 *Dica:* Digite \`.dono\` para visualizar os proprietários autorizados.`
         }
     }
 
@@ -195,7 +195,7 @@ function canExecuteCommand(userRole, cmd, context = {}) {
     if ((cmd.botAdminOnly || cmd.botAdminRequired) && !context.isBotAdmin) {
         return {
             allowed: false,
-            reason: `⚡ *PERMISSÃO DO BOT NECESSÁRIA!*\n\n❌ O MeliodasBot precisa ser *Administrador do Grupo* para executar \`.${cmd.name}\`.\n💡 *Dica:* Promova o bot a admin para liberar esta função.`
+            reason: `⚡ *PERMISSÃO DO BOT NECESSÁRIA!*\n\n❌ O bot precisa ser *Administrador do Grupo* para executar \`.${cmd.name}\`.\n💡 *Dica:* Promova o bot a admin para liberar esta função.`
         }
     }
 

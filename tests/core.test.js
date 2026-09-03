@@ -1,5 +1,5 @@
 /**
- * MeliodasBotXP — Suíte de Testes Automatizados (Fase 1 & Fase 2)
+ * BotXP — Suíte de Testes Automatizados (Fase 1 & Fase 2)
  * Testa arquitetura modular, persistência, serviços, utilitários e command dispatcher
  */
 
@@ -22,7 +22,7 @@ const rpgService = require('../src/services/rpgService')
 const missionService = require('../src/services/missionService')
 const dispatcher = require('../src/handlers/commandDispatcher')
 
-console.log('🧪 Iniciando suíte de testes do MeliodasBotXP (FASE 2 — ARQUITETURA MODULAR)...\n')
+console.log('🧪 Iniciando suíte de testes do BotXP (FASE 2 — ARQUITETURA MODULAR)...\n')
 
 let passCount = 0
 let failCount = 0

@@ -1,5 +1,5 @@
 /**
- * MeliodasBot — Comando .antilink Avançado & Granular por Plataforma
+ * Comando .antilink Avançado & Granular por Plataforma
  * Suporte a bloqueio geral ou seletivo: whatsapp, canal, telegram, instagram, tiktok, discord, youtube
  * Ações configuráveis: ban, kick, warn, delete
  */

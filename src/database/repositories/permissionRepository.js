@@ -1,5 +1,5 @@
 /**
- * MeliodasBot — Permission & Hierarchy Repository
+ * Permission & Hierarchy Repository
  * Persistência relacional em SQLite para roles, restrições de DM, status e lista trust
  */
 

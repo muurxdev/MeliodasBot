@@ -1,5 +1,5 @@
 /**
- * MeliodasBot — Comando .inativos / .limparfantasmas
+ * Comando .inativos / .limparfantasmas
  * Detecta e lista membros inativos no grupo
  */
 

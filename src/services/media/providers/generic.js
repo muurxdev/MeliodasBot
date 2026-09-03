@@ -1,5 +1,5 @@
 /**
- * MeliodasBot — Generic Media Provider (Fallback para URLs web suportadas por yt-dlp)
+ * Generic Media Provider (Fallback para URLs web suportadas por yt-dlp)
  */
 
 const BaseProvider = require('./baseProvider')

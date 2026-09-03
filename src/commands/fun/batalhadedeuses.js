@@ -1,5 +1,5 @@
 /**
- * MeliodasBot — Comando .batalhadedeuses
+ * Comando .batalhadedeuses
  * Simulação de batalha entre deidades mitológicas
  */
 

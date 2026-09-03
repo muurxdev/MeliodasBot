@@ -1,5 +1,5 @@
 /**
- * MeliodasBot — Comando .despertar / .awakening / .modoassalto
+ * Comando .despertar / .awakening / .modoassalto
  * Desperte seu poder oculto para multiplicar temporariamente seu Combat Power
  */
 

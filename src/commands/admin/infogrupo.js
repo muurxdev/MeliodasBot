@@ -1,5 +1,5 @@
 /**
- * MeliodasBot — Comando .infogrupo
+ * Comando .infogrupo
  * Exibe o dossiê completo e métricas do grupo atual
  */
 

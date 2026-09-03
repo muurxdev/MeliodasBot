@@ -1,5 +1,5 @@
 /**
- * MeliodasBot — Comando .bandm
+ * Comando .bandm
  * Gerencia o bloqueio global e individual de mensagens no privado (DM) do bot
  */
 

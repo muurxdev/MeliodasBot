@@ -1,5 +1,5 @@
 /**
- * MeliodasBot — Comando .ytmp4
+ * Comando .ytmp4
  * Download direto de vídeo em formato MP4 HD do YouTube com otimização mobile
  */
 

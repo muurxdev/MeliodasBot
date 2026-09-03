@@ -1,5 +1,5 @@
 /**
- * MeliodasBot — Comando .ytmp3
+ * Comando .ytmp3
  * Download direto de áudio em formato MP3 (320kbps) do YouTube
  */
 

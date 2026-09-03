@@ -1,5 +1,5 @@
 /**
- * MeliodasBotXP — Suíte de Testes da Fase 8: VPS & Deploy
+ * BotXP — Suíte de Testes da Fase 8: VPS & Deploy
  */
 
 process.env.NODE_ENV = 'test'

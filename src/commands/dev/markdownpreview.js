@@ -1,5 +1,5 @@
 /**
- * MeliodasBot — Comando .markdownpreview
+ * Comando .markdownpreview
  * Guia de formatação Markdown para mensagens de WhatsApp
  */
 

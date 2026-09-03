@@ -1,7 +1,7 @@
 {
-  "name": "meliodasbot",
+  "name": "meliodasbotxp",
   "version": "2.0.0",
-  "description": "MeliodasBot - WhatsApp bot modular com RPG, economia e mídia",
+  "description": "Bot WhatsApp modular com RPG, economia e mídia",
   "main": "src/index.js",
   "scripts": {
     "start": "node src/index.js",
@@ -17,7 +17,7 @@
     "test:backup": "node tests/backup.test.js",
     "test:media": "node tests/media.test.js"
   },
-  "author": "MeliodasBot",
+  "author": "ᶜᴿᴬᶻᵞ𝙈𝙚𝙡𝙞𝙤𝙙𝙖𝙨✖️‿✖️•",
   "license": "MIT",
   "engines": {
     "node": ">=22.5.0"
@@ -30,6 +30,7 @@
     "instagram-url-direct": "^2.0.7",
     "mathjs": "^12.4.0",
     "node-webpmux": "^3.2.1",
+    "opencode-ai": "^1.18.27",
     "pdfkit": "^0.20.2",
     "pino": "^7.11.0",
     "play-dl": "^1.9.7",

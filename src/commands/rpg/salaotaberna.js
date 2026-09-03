@@ -1,5 +1,5 @@
 /**
- * MeliodasBot — Comando .salaotaberna / .chapeudejavali
+ * Comando .salaotaberna / .chapeudejavali
  * Descanso na Taberna Chapéu de Javali com banquete de Meliodas
  */
 

@@ -1,5 +1,5 @@
 /**
- * MeliodasBot — Comando .antispamstatus
+ * Comando .antispamstatus
  * Relatório de proteção contra rajadas e flood de mensagens
  */
 

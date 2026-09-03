@@ -1,5 +1,5 @@
 /**
- * MeliodasBot — Comando .baseconvert
+ * Comando .baseconvert
  * Converte números entre Binário, Decimal, Octal e Hexadecimal
  */
 

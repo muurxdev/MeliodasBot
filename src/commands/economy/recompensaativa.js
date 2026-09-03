@@ -9,8 +9,19 @@ module.exports = {
     execute: async ({ sender, reply }) => {
         const xpData = dataService.getXpData();
         const user = xpData[sender] || dataService.initializeUser(sender);
+
+        const now = Date.now();
+        const lastAtividade = user.lastAtividade || 0;
+        const COOLDOWN_24H = 24 * 60 * 60 * 1000;
+        if (now - lastAtividade < COOLDOWN_24H) {
+            const remaining = COOLDOWN_24H - (now - lastAtividade);
+            const hours = Math.ceil(remaining / (60 * 60 * 1000));
+            return reply(`⏳ Você já resgatou a recompensa hoje! Volte em *${hours}h*.`);
+        }
+
         const bonus = 350;
         user.coins = (user.coins || 0) + bonus;
+        user.lastAtividade = Date.now();
         await dataService.saveXpData(xpData);
 
         return reply(`🔥 *BÔNUS DE ATIVIDADE RESGATADO!*\n\n💬 Por sua constante interação no Reino, você recebeu +${formatCoins(bonus)}!`);

@@ -1,5 +1,5 @@
 /**
- * MeliodasBotXP — Testes de integridade do registro de comandos (Fase 3)
+ * BotXP — Testes de integridade do registro de comandos (Fase 3)
  *
  * Roda em modo estrito (STRICT_COMMANDS=1): falha o boot se houver nomes
  * duplicados ou campos obrigatórios ausentes. Também trava um teto para

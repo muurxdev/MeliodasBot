@@ -1,5 +1,5 @@
 /**
- * MeliodasBot — Comando .raid
+ * Comando .raid
  * Sistema de Raids Cooperativas Globais e de Grupo contra Bosses Titânicos
  */
 

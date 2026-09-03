@@ -1,5 +1,5 @@
 /**
- * MeliodasBot — Comando .tesouro / .tesourosagrado
+ * Comando .tesouro / .tesourosagrado
  * Enciclopédia e Despertar dos 7 Tesouros Sagrados dos Sete Pecados Capitais
  */
 

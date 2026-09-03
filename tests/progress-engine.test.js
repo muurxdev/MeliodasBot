@@ -1,5 +1,5 @@
 /**
- * MeliodasBotXP — Suíte de Testes do Live Progress Engine (ETAPA 4)
+ * BotXP — Suíte de Testes do Live Progress Engine (ETAPA 4)
  */
 
 process.env.NODE_ENV = 'test'

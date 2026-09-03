@@ -1,5 +1,5 @@
 /**
- * MeliodasBot — Comando .twitter
+ * Comando .twitter
  * Download de vídeos e carrossel de fotos do Twitter / X
  */
 

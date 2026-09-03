@@ -1,5 +1,5 @@
 /**
- * MeliodasBot — Comando .reencarnar / .rebirth
+ * Comando .reencarnar / .rebirth
  * Renascimento Supremo: exige Nível 100+, reseta o nível para 1, reseta o mundo para 'floresta'
  * (bloqueando mundos avançados até atingir os níveis correspondentes) e concede +25% DMG/XP perpétuo por Rebirth (máx 10).
  */
@@ -11,7 +11,7 @@ const { getBotName } = require("../../config/botConfig");
 
 module.exports = {
     name: "reencarnar",
-    aliases: ["rebirth", "renascer", "transcender", "ascensao-divina"],
+    aliases: ["renascer", "transcender", "ascensao-divina"],
     category: "rpg",
     description: "Reencarne seu herói: reseta para nível 1 e mundo floresta em troca de +25% bônus permanente acumulativo",
     cooldownMs: 5000,
@@ -53,7 +53,7 @@ module.exports = {
         user.hp = 120;
         user.hpMax = 120;
 
-        await dataService.saveXpData(xpData);
+        await dataService.saveUser(user, { force: true });
 
         const newStats = calculateFullCharacterStats(user);
 

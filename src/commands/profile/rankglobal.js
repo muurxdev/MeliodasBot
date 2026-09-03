@@ -1,5 +1,5 @@
 /**
- * MeliodasBot — Comando .rankglobal
+ * Comando .rankglobal
  * Exibe o Ranking Global de Nível e XP unificado de todos os grupos (Top 50)
  */
 

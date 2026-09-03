@@ -1,5 +1,5 @@
 /**
- * MeliodasBot — Comando .biblioteca / .acervo / .catalogo
+ * Comando .biblioteca / .acervo / .catalogo
  * Exploração de seções temáticas e recomendações de leitura com Live Wallpaper HD
  */
 

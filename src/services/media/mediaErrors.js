@@ -1,5 +1,5 @@
 /**
- * MeliodasBot — Utilitário de Erros do yt-dlp
+ * Utilitário de Erros do yt-dlp
  * Extrai a causa raiz da saída de erro do yt-dlp/FFmpeg para diagnóstico real
  * (URL inválida, extrator quebrado, 403/429, geo-restrição, login necessário, etc.)
  * sem esconder o stderr e sem expor credenciais (linhas ERROR já não contêm tokens).
@@ -28,12 +28,22 @@ function lastErrorLines(stderr) {
  * @returns {string}
  */
 function toMessage(base, stderr) {
-    if (stderr && /Sign in to confirm you[’']re not a bot/i.test(stderr)) {
-        let msg = `⚠️ *Restrição Anti-Bot do YouTube no IP da VPS.*\n\n`;
-        msg += `💡 *Soluções Rápidas:*\n`;
-        msg += `• 🎵 *Para baixar em Áudio/Música:* Use \`.play <música>\` ou \`.spotify <link>\` (funciona 100% sem bloqueio).\n`;
-        msg += `• 🎬 *Para liberar vídeos do YouTube:* O Dono pode ativar os cookies com o comando \`.setcookies\` (digite \`.setcookies\` para ver o passo a passo de 1 minuto).`;
-        return msg;
+    if (stderr && /Sign in to confirm you['']re not a bot/i.test(stderr)) {
+        let msg = `⚠️ *Restrição Anti-Bot do YouTube no IP da VPS.*\n\n`
+        msg += `💡 *Soluções Rápidas:*\n`
+        msg += `• 🎵 *Áudio/Música:* Use \`.play <música>\` ou \`.spotify <link>\` (sem bloqueio).\n`
+        msg += `• 🍪 *Cookie pessoal:* Envie seus cookies com \`.cookies\` (cada usuário pode usar o seu).\n`
+        msg += `• 👑 *Cookie global:* O Dono pode setar com \`.cookies global <conteúdo>\`.`
+        return msg
+    }
+    if (stderr && /HTTP Error 403/i.test(stderr)) {
+        return `${base}\n🗒️ *Detalhe:* Acesso negado (403). Tente com outro formato ou use \`.cookies\` para autenticar.`
+    }
+    if (stderr && /HTTP Error 429/i.test(stderr)) {
+        return `${base}\n🗒️ *Detalhe:* Rate limit atingido (429). Aguarde alguns minutos e tente novamente.`
+    }
+    if (stderr && /Requested format is not available/i.test(stderr)) {
+        return `${base}\n🗒️ *Detalhe:* O formato solicitado não está disponível para este vídeo. Tente outro formato.`
     }
     const detail = lastErrorLines(stderr)
     return detail ? `${base}\n🗒️ *Detalhe:* ${detail}` : base

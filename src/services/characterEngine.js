@@ -1,5 +1,5 @@
 /**
- * MeliodasBot — Character Engine & Procedural Visual Avatar
+ * Character Engine & Procedural Visual Avatar
  * Responsável por:
  * 1. Renderização visual do Boneco de Emoji com níveis de armadura e equipamentos.
  * 2. Cálculo matemático completo e honesto de atributos, dano explosivo, fogueira, pets e títulos.

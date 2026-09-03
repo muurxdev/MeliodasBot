@@ -1,5 +1,5 @@
 /**
- * MeliodasBot — Comando .entrar
+ * Comando .entrar
  * Faz o bot entrar em um grupo a partir de um link de convite do WhatsApp
  */
 

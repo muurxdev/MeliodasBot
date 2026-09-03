@@ -1,10 +1,11 @@
 /**
- * MeliodasBot — Jogo da Velha Interativo (Tic-Tac-Toe)
+ * Jogo da Velha Interativo (Tic-Tac-Toe)
  * Suporte a 1v1 entre membros ou contra o Bot com persistência de XP e moedas
  */
 
 const dataService = require('../../services/dataService')
 const { initializeUser } = require('../../services/xpService')
+const { getBotName } = require('../../config/botConfig')
 const logger = require('../../core/logger')
 
 // Map<from, { playerX, playerO, board, turn, isBot, lastMove }>
@@ -154,7 +155,7 @@ module.exports = {
                 }
 
                 const winnerJid = winner === 'X' ? game.playerX : game.playerO
-                const winnerName = (winner === 'O' && game.isBot) ? '🤖 MeliodasBot' : `@${winnerJid.split('@')[0]}`
+                const winnerName = (winner === 'O' && game.isBot) ? '🤖 ' + getBotName() : `@${winnerJid.split('@')[0]}`
 
                 endMsg += `🏆 *VITÓRIA!* ${winnerName} venceu a partida!\n`
                 endMsg += `💰 *+200 Coins* | ⭐ *+150 XP* concedidos ao vencedor!`
@@ -172,7 +173,7 @@ module.exports = {
 
             // Jogo continua: Mostra tabuleiro
             const nextTurnJid = game.turn === 'X' ? game.playerX : game.playerO
-            const nextTurnName = (game.turn === 'O' && game.isBot) ? '🤖 MeliodasBot' : `@${nextTurnJid.split('@')[0]}`
+            const nextTurnName = (game.turn === 'O' && game.isBot) ? '🤖 ' + getBotName() : `@${nextTurnJid.split('@')[0]}`
 
             let statusMsg = `╔══════════════════════════════╗\n`
             statusMsg += `║     🎮 *JOGO DA VELHA* 🎮     ║\n`
@@ -209,7 +210,7 @@ module.exports = {
         }
         games.set(from, newGame)
 
-        const opponentLabel = isVsBot ? '🤖 *MeliodasBot*' : `@${playerO.split('@')[0]}`
+        const opponentLabel = isVsBot ? '🤖 *' + getBotName() + '*' : `@${playerO.split('@')[0]}`
 
         let startMsg = `╔══════════════════════════════╗\n`
         startMsg += `║     🎮 *JOGO DA VELHA* 🎮     ║\n`

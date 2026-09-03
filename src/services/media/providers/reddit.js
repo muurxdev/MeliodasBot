@@ -1,5 +1,5 @@
 /**
- * MeliodasBot — Reddit Media Provider
+ * Reddit Media Provider
  */
 
 const BaseProvider = require('./baseProvider')

@@ -1,5 +1,6 @@
 const { esperar } = require('../../utils/helpers')
 const dataService = require('../../services/dataService')
+const { getBotName } = require('../../config/botConfig')
 const logger = require('../../core/logger')
 
 module.exports = {
@@ -26,7 +27,7 @@ module.exports = {
         for (const grupo of grupos) {
             try {
                 await client.sendMessage(grupo, {
-                    text: `📢 *COMUNICADO OFICIAL DO BOT*\n\n${text}\n\n━━━━━━━━━━━━━━━━━━\n👨‍💻 *Administração MeliodasBot*`
+                    text: `📢 *COMUNICADO OFICIAL DO BOT*\n\n${text}\n\n━━━━━━━━━━━━━━━━━━\n👨‍💻 *Administração ${getBotName()}*`
                 })
                 enviados++
                 await esperar(1500) // Delay anti-ban entre envios

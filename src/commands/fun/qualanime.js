@@ -1,5 +1,5 @@
 /**
- * MeliodasBot — Comando .qualanime
+ * Comando .qualanime
  * Adivinhe o anime pela sinopse descrita
  */
 

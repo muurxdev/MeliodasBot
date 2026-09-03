@@ -1,5 +1,5 @@
 /**
- * MeliodasBot — Comando .antispamlink / .blockexternallinks
+ * Comando .antispamlink / .blockexternallinks
  * Filtro inteligente para bloquear canais Telegram, links encurtados e grupos de spam
  */
 

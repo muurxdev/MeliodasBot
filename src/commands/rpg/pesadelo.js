@@ -1,5 +1,5 @@
 /**
- * MeliodasBot — Comando .pesadelo (Modo Pesadelo do Purgatório)
+ * Comando .pesadelo (Modo Pesadelo do Purgatório)
  * Batalha de dificuldade Extrema contra entidades do Purgatório com 3x multiplicador de recompensas
  */
 

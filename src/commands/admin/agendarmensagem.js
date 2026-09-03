@@ -1,5 +1,5 @@
 /**
- * MeliodasBot — Comando .agendarmensagem / .avisoprogramado
+ * Comando .agendarmensagem / .avisoprogramado
  * Agenda o envio de um lembrete ou comunicado no grupo após um intervalo de tempo
  */
 

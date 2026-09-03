@@ -1,5 +1,5 @@
 /**
- * MeliodasBot — Comando .qrcode / .qr / .gerarqr
+ * Comando .qrcode / .qr / .gerarqr
  * Gerador de imagem de QR Code HD a partir de texto, PIX ou link informado
  */
 

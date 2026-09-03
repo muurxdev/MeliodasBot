@@ -1,5 +1,5 @@
 /**
- * MeliodasBot — Comando .gaymaster
+ * Comando .gaymaster
  * Calcula a porcentagem cômica no medidor gay com barra visual e títulos
  */
 

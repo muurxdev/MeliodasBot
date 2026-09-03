@@ -1,5 +1,5 @@
 /**
- * MeliodasBot — Comando .restringir / .onlyadmin / .admonly
+ * Comando .restringir / .onlyadmin / .admonly
  * Restringe a utilização de comandos no grupo exclusivamente para Administradores do grupo e Donos do bot
  */
 

@@ -1,5 +1,5 @@
 /**
- * MeliodasBot — Comando .resumolivro / .sinopse / .resumo
+ * Comando .resumolivro / .sinopse / .resumo
  * Consulta inteligente de sinopses e resumos estruturados de obras literárias
  */
 

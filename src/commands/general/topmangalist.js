@@ -1,5 +1,5 @@
 /**
- * MeliodasBot — Comando .topmangalist
+ * Comando .topmangalist
  * Ranking dos mangás mais vendidos e aclamados de todos os tempos
  */
 

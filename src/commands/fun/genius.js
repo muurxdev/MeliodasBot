@@ -1,5 +1,5 @@
 /**
- * MeliodasBot — Comando .genius
+ * Comando .genius
  * Memorize e repita a sequência de cores mágicas
  */
 
@@ -10,7 +10,7 @@ module.exports = {
     name: "genius",
     aliases: ["jogogenius", "sequenciacores", "simonsays"],
     category: "fun",
-    description: "Memorize e repita a sequência de cores mágicas",
+    description: "Exibe uma sequência aleatória de cores para décor",
     cooldownMs: 2000,
     execute: async ({ sender, reply }) => {
     const seq = ["🔴 Vermelho", "🔵 Azul", "🟢 Verde", "🟡 Amarelo"];
@@ -25,7 +25,7 @@ module.exports = {
                 fields: [seq.join(" ➔ ")]
             }
         ],
-        tip: "Envie as cores na ordem correta para ganhar bônus de XP!",
+            tip: "Sequência decorativa — jogo interativo em breve!",
         mentions: [sender]
     });
     return reply(card, [sender]);

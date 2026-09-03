@@ -1,10 +1,11 @@
 /**
- * MeliodasBot — Comando .shutdown
+ * Comando .shutdown
  * Encerra o processo do bot de forma graciosa e segura
  */
 
 const { closeDatabase } = require('../../database/connection')
 const { closeBot } = require('../../core/connection')
+const { getBotName } = require('../../config/botConfig')
 const logger = require('../../core/logger')
 
 module.exports = {
@@ -29,7 +30,7 @@ module.exports = {
                 closeDatabase()
             } catch (e) {}
 
-            logger.info('👋 MeliodasBot desligado com sucesso.')
+            logger.info(`👋 ${getBotName()} desligado com sucesso.`)
             process.exit(0)
         }, 1500)
     }

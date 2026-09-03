@@ -1,5 +1,5 @@
 /**
- * MeliodasBot — Comando .setnomegrupo / .setsubject
+ * Comando .setnomegrupo / .setsubject
  * Altera o título/nome do grupo diretamente pelo WhatsApp
  */
 

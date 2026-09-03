@@ -1,5 +1,5 @@
 /**
- * MeliodasBot — Media Search Service
+ * Media Search Service
  */
 
 const { spawn } = require('child_process')
@@ -16,7 +16,7 @@ const logger = require('../../core/logger')
  * @param {number} [options.timeoutMs=20000]
  * @returns {Promise<Array<object>>}
  */
-async function searchMedia(query, { limit = MEDIA_LIMITS.SEARCH_LIMIT, timeoutMs = 20000 } = {}) {
+async function searchMedia(query, { limit = MEDIA_LIMITS.SEARCH_LIMIT, timeoutMs = 20000, userJid = null } = {}) {
     if (!query || typeof query !== 'string' || !query.trim()) {
         const err = new Error('Termo de pesquisa inválido.')
         err.code = MEDIA_ERRORS.SEARCH_FAILED
@@ -33,7 +33,7 @@ async function searchMedia(query, { limit = MEDIA_LIMITS.SEARCH_LIMIT, timeoutMs
             '--no-playlist',
             '--skip-download',
             `ytsearch${safeLimit}:${cleanQuery}`
-        ])
+        ], { userJid })
 
         let proc
         try {

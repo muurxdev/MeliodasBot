@@ -1,5 +1,5 @@
 /**
- * MeliodasBot — Comando .cassino
+ * Comando .cassino
  * Caça-níqueis animado (Slots 🎰) com multiplicadores de até 10x
  */
 

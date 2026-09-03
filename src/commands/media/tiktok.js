@@ -1,5 +1,5 @@
 /**
- * MeliodasBot — Comando .tiktok
+ * Comando .tiktok
  * Download direto de vídeos e carrossel de fotos do TikTok em alta resolução sem marca d'água
  */
 

@@ -1,5 +1,5 @@
 /**
- * MeliodasBot — Comando .tarot / .cartas-tarot
+ * Comando .tarot / .cartas-tarot
  * Tiragem diária de cartas de Tarô arcano com bênçãos cósmicas, bônus de XP e recompensas
  */
 

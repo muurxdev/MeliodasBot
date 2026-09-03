@@ -1,5 +1,5 @@
 /**
- * MeliodasBot — Security, Anti-Abuse & Rate Limiting Core Service
+ * Security, Anti-Abuse & Rate Limiting Core Service
  * Implementa controle de janelas múltiplas, auto-silenciamento, auto-blacklist,
  * proteção contra flood e monitoramento de exaustão de memória na VPS.
  */

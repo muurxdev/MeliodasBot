@@ -1,5 +1,5 @@
 /**
- * MeliodasBot — Comando .afiliado / .linkafiliado / .permissaolink
+ * Comando .afiliado / .linkafiliado / .permissaolink
  * Gestão de permissões de postagem de links e afiliados com cotas diárias e punição progressiva
  */
 

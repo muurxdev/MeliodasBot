@@ -1,5 +1,5 @@
 /**
- * MeliodasBot — Comando .setnickrpg / .nomerrpg / .codinomerpg
+ * Comando .setnickrpg / .nomerrpg / .codinomerpg
  * Define o codinome oficial do guerreiro no RPG de Britânia
  */
 

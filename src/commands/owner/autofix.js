@@ -1,5 +1,5 @@
 /**
- * MeliodasBot — Comando .autofix / .reparar / .selfheal
+ * Comando .autofix / .reparar / .selfheal
  * Executa diagnóstico profundo autônomo, corrige falhas e retorna o relatório de saúde
  */
 

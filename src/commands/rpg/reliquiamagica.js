@@ -1,5 +1,5 @@
 /**
- * MeliodasBot — Comando .reliquiamagica / .usarreliquia
+ * Comando .reliquiamagica / .usarreliquia
  * Ativa poderes ocultos de relíquias mágicas
  */
 

@@ -1,5 +1,5 @@
 /**
- * MeliodasBot — Comando .joias / .engastar
+ * Comando .joias / .engastar
  * Cravação e engaste de gemas mágicas em equipamentos
  */
 

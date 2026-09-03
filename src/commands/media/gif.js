@@ -1,5 +1,5 @@
 /**
- * MeliodasBot — Comando .gif / .toimg / .tovideo
+ * Comando .gif / .toimg / .tovideo
  * Converte figurinhas (estáticas ou animadas) de volta para Imagem ou Vídeo/GIF, e mídias em figurinhas
  */
 

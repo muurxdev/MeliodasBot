@@ -1,5 +1,5 @@
 /**
- * MeliodasBot — Live Progress Engine
+ * Live Progress Engine
  *
  * Gerencia a máquina de estados e renderização visual de progresso em tempo real
  * para operações de mídia e downloads:

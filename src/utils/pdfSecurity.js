@@ -1,5 +1,5 @@
 /**
- * MeliodasBot — PDF Security, Decryption & Password Inspector
+ * PDF Security, Decryption & Password Inspector
  * Detecta se um PDF possui criptografia/senha, remove restrições via qpdf
  * e informa status de acesso e senha para o usuário
  */

@@ -1,5 +1,5 @@
 /**
- * MeliodasBot — Comando .slayer / .statusrpg / .cp
+ * Comando .slayer / .statusrpg / .cp
  * Tabela de pontuação e atributos de combate estilo Slayer Legends
  */
 

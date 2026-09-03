@@ -1,5 +1,5 @@
 /**
- * MeliodasBot — Comando .rebaixartodos / .demoteall
+ * Comando .rebaixartodos / .demoteall
  * Rebaixa administradores do grupo em lote de forma segura
  */
 

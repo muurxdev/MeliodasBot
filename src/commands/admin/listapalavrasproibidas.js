@@ -1,5 +1,5 @@
 /**
- * MeliodasBot — Comando .listapalavrasproibidas
+ * Comando .listapalavrasproibidas
  * Consulta a lista de termos e palavras bloqueadas no grupo
  */
 

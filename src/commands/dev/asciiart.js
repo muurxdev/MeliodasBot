@@ -1,5 +1,5 @@
 /**
- * MeliodasBot — Comando .asciiart
+ * Comando .asciiart
  * Gera títulos e banners em arte ASCII
  */
 

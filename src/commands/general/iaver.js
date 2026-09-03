@@ -1,5 +1,5 @@
 /**
- * MeliodasBot — Comando .iaver / .lerimagem / .descrever
+ * Comando .iaver / .lerimagem / .descrever
  * Inteligência Artificial e Reconhecimento Visual de Imagens
  */
 

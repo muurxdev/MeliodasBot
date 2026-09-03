@@ -1,5 +1,5 @@
 /**
- * MeliodasBot — Comando .torneio / .campeonato / .vaizel
+ * Comando .torneio / .campeonato / .vaizel
  * Festival de Luta de Vaizel: Torneio eliminatório com chave de lutas, inscrições e premiação
  */
 

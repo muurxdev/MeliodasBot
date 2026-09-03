@@ -1,5 +1,5 @@
 /**
- * MeliodasBot — Comando .pocaoimunidade / .antimaldicao
+ * Comando .pocaoimunidade / .antimaldicao
  * Poção de imunidade contra maldições demoníacas
  */
 

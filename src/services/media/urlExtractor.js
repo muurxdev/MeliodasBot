@@ -1,5 +1,5 @@
 /**
- * MeliodasBot — Media URL & Argument Parser
+ * Media URL & Argument Parser
  * Extrai links limpos, formatos (MP3/MP4) e parâmetros de busca
  */
 

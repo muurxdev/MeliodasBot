@@ -1,5 +1,5 @@
 /**
- * MeliodasBot — AI & Web Search Intelligence Service v3
+ * AI & Web Search Intelligence Service v3
  * Motor de pesquisa Web em tempo real com fontes verificadas, síntese factual e links oficiais
  */
 
@@ -99,7 +99,7 @@ async function askAI(prompt) {
         card += `✨ *Olá! Sou o ${botName}*, um assistente e sistema modular completo para WhatsApp.\n\n`
         card += `╭━〔 ⚙️ ARQUITETURA & TECNOLOGIA 〕━⬣\n`
         card += `┃ 🧠 *Linguagem:* Node.js moderno de alta performance\n`
-        card += `┃ 🌐 *Bot:* MeliodasBot\n`
+        card += `┃ 🌐 *Bot:* ${botName}\n`
         card += `┃ 🗄️ *Banco de Dados:* SQLite WAL (100% Persistente e Atômico)\n`
         card += `┃ 📦 *Módulos:* 200+ comandos em 14 categorias\n`
         card += `╰━━━━━━━━━━━━━━━━━━⬣\n\n`
@@ -110,7 +110,7 @@ async function askAI(prompt) {
         card += `┃ 🛡️ *Moderação:* Anti-Link, Warnings, Banimento e Aluguel\n`
         card += `┃ 🔍 *Pesquisa & IA:* Web Search em tempo real com fontes verificadas\n`
         card += `╰━━━━━━━━━━━━━━━━━━⬣\n\n`
-        card += `👑 *Dono:* MeliodasBot\n`
+        card += `👑 *Dono:* ${botName}\n`
         card += `💡 _Digite_ \`.menu\` _para navegar por todos os comandos!_`
         return card
     }

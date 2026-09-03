@@ -1,5 +1,5 @@
 /**
- * MeliodasBot — Serviço de saudações de grupo (welcome / leave)
+ * Serviço de saudações de grupo (welcome / leave)
  *
  * Fonte ÚNICA das mensagens de entrada/saída. Tanto o handler de eventos real
  * quanto os comandos `.welcome -config` / `.leave -config` usam estas funções,

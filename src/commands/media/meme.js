@@ -1,5 +1,5 @@
 /**
- * MeliodasBot — Comando .meme
+ * Comando .meme
  * Gerador Automático de Memes em Imagens com FFmpeg
  */
 

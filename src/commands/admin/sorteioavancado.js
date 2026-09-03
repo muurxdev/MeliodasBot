@@ -1,5 +1,5 @@
 /**
- * MeliodasBot — Comando .sorteioavancado / .sorteiomembros
+ * Comando .sorteioavancado / .sorteiomembros
  * Realiza sorteios inteligentes no grupo filtrando apenas não-admins ou membros comuns
  */
 

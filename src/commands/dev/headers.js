@@ -1,5 +1,5 @@
 /**
- * MeliodasBot — Comando .headers
+ * Comando .headers
  * Inspeciona cabeçalhos HTTP de uma URL com proteção SSRF
  */
 

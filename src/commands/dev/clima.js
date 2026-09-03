@@ -1,5 +1,5 @@
 /**
- * MeliodasBot — Comando .clima / .tempo / .previsao
+ * Comando .clima / .tempo / .previsao
  * Previsão Meteorológica e Condições Climáticas em Tempo Real
  */
 

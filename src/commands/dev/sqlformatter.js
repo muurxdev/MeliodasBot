@@ -1,5 +1,5 @@
 /**
- * MeliodasBot — Comando .sqlformatter
+ * Comando .sqlformatter
  * Formata e embeleza queries SQL básicas
  */
 

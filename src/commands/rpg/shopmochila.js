@@ -1,5 +1,5 @@
 /**
- * MeliodasBot — Comando .shopmochila / .upgrademochila / .aumentarmochila
+ * Comando .shopmochila / .upgrademochila / .aumentarmochila
  * Expande os slots de inventário e capacidade da mochila
  */
 

@@ -1,5 +1,5 @@
 /**
- * MeliodasBot — Developer Utility Service (Dev Hub)
+ * Developer Utility Service (Dev Hub)
  * Utilitários ativos para engenharia de software, criptografia, encoding, formatação e rede segura
  */
 

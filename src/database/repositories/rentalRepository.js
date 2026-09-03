@@ -1,5 +1,5 @@
 /**
- * MeliodasBot — Rental Repository (SQLite WAL)
+ * Rental Repository (SQLite WAL)
  * Gerencia a persistência de aluguéis de grupos com prazos e status
  */
 

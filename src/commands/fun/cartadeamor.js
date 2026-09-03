@@ -1,5 +1,5 @@
 /**
- * MeliodasBot — Comando .cartadeamor
+ * Comando .cartadeamor
  * Gera uma declaração romântica poética
  */
 

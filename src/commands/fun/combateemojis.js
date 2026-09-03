@@ -1,5 +1,5 @@
 /**
- * MeliodasBot — Comando .combateemojis
+ * Comando .combateemojis
  * Duelo épico entre emojis elementais no chat
  */
 

@@ -1,5 +1,5 @@
 /**
- * MeliodasBot — Comando .caraoucoroa
+ * Comando .caraoucoroa
  * Aposta Rápida 1v1 com probabilidade justa (50/50) e multiplicador 2x
  */
 

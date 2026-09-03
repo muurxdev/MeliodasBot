@@ -1,5 +1,5 @@
 /**
- * MeliodasBotXP — Suíte de Testes de Owner & Security Core (ETAPA 2)
+ * BotXP — Suíte de Testes de Owner & Security Core (ETAPA 2)
  * Valida Hierarquia de 5 Níveis, .up, .down, .bandm, .banstatus, .trust, Rate Limiter e Blacklist
  */
 

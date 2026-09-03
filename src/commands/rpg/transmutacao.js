@@ -1,5 +1,5 @@
 /**
- * MeliodasBot — Comando .transmutacao / .transmutar
+ * Comando .transmutacao / .transmutar
  * Transmutação de itens comuns em minérios raros
  */
 

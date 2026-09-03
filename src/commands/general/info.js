@@ -20,7 +20,7 @@ module.exports = {
 
         const { getBotName } = require('../../config/botConfig')
         const botName = getBotName()
-        const info = '🤖 *' + botName + ' — INFORMAÇÕES*\n\n⚡ *Versão:* 2.0.0 (Modular Engine + SQLite)\n🧠 *Linguagem:* Node.js (' + process.version + ')\n🌐 *Bot:* MeliodasBot\n⏱️ *Uptime:* ' + horas + 'h ' + minutos + 'm ' + segundos + 's\n💾 *Memória RAM:* ' + ramMb + ' MB\n🎖️ *Dono:* MeliodasBot'
+        const info = '🤖 *' + botName + ' — INFORMAÇÕES*\n\n⚡ *Versão:* 2.0.0 (Modular Engine + SQLite)\n🧠 *Linguagem:* Node.js (' + process.version + ')\n🌐 *Bot:* ' + botName + '\n⏱️ *Uptime:* ' + horas + 'h ' + minutos + 'm ' + segundos + 's\n💾 *Memória RAM:* ' + ramMb + ' MB\n🎖️ *Dono:* ' + botName
         await reply(info)
     }
 }

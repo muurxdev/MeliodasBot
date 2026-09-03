@@ -1,5 +1,5 @@
 /**
- * MeliodasBot — Comando .quemdisse
+ * Comando .quemdisse
  * Adivinhe qual personagem de anime disse a frase famosa
  */
 

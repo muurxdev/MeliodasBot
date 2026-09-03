@@ -1,5 +1,5 @@
 /**
- * MeliodasBot — Comando .jwt
+ * Comando .jwt
  * Decodificador e inspetor de cabeçalho e payload de JSON Web Tokens (JWT)
  */
 

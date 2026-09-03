@@ -1,5 +1,5 @@
 /**
- * MeliodasBot — Comando .locknick / .antifakenick
+ * Comando .locknick / .antifakenick
  * Ativa o monitoramento contra alteração de apelidos ofensivos no grupo
  */
 

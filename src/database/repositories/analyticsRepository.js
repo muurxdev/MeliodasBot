@@ -1,5 +1,5 @@
 /**
- * MeliodasBot — Command Analytics Repository (SQLite)
+ * Command Analytics Repository (SQLite)
  * Métricas e telemetria de uso dos comandos em tempo real
  */
 

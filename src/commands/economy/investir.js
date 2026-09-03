@@ -1,5 +1,5 @@
 /**
- * MeliodasBot — Comando .investir
+ * Comando .investir
  * Investe moedas no Mercado Financeiro e Criptomoedas com flutuação de rendimento
  */
 

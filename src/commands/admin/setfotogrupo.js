@@ -1,5 +1,5 @@
 /**
- * MeliodasBot — Comando .setfotogrupo / .setppgrupo
+ * Comando .setfotogrupo / .setppgrupo
  * Altera o ícone/foto de perfil do grupo respondendo a uma imagem
  */
 

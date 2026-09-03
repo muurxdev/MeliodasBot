@@ -1,5 +1,5 @@
 /**
- * MeliodasBot — Media Engine Constants & Error Enums
+ * Media Engine Constants & Error Enums
  */
 
 const PLATFORMS = {

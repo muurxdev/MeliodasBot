@@ -1,5 +1,5 @@
 /**
- * MeliodasBot — Comando .encantamento / .encantararma
+ * Comando .encantamento / .encantararma
  * Encantamento elemental em armas com runas sagradas
  */
 

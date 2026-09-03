@@ -1,5 +1,5 @@
 /**
- * MeliodasBot — Comando .acoes / .bolsadevalores
+ * Comando .acoes / .bolsadevalores
  * Mercado de ações fictício com flutuação de cotações em tempo real
  */
 

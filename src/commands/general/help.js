@@ -1,5 +1,5 @@
 /**
- * MeliodasBot — Dynamic Command Discovery & Help System
+ * Dynamic Command Discovery & Help System
  * Guia de comandos categorizado e documentação detalhada com previews e variáveis (.help <categoria|comando>)
  */
 

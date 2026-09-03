@@ -1,5 +1,5 @@
 /**
- * MeliodasBot — Comando .device / .conexao / .pinguser / .netinfo
+ * Comando .device / .conexao / .pinguser / .netinfo
  * Diagnóstico avançado de conexão, tipo de rede, latência, DNS, provedor e modelo de hardware
  */
 

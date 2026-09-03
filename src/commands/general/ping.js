@@ -1,5 +1,5 @@
 /**
- * MeliodasBot — Comando .ping / .pingvps / .vpsping
+ * Comando .ping / .pingvps / .vpsping
  * Telemetria de latência do servidor VPS, banco de dados SQLite e Node.js
  */
 

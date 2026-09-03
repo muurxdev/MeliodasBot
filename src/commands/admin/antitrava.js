@@ -1,5 +1,5 @@
 /**
- * MeliodasBot — Comando .antitrava
+ * Comando .antitrava
  * Ativa ou desativa o bloqueio e expulsão automática por envio de travas de texto
  */
 

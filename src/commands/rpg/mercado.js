@@ -1,5 +1,5 @@
 /**
- * MeliodasBot — Comando .mercado / .market
+ * Comando .mercado / .market
  * Mercado Central de Britannia: compra e venda de equipamentos, minérios, poções e pergaminhos
  */
 

@@ -1,10 +1,11 @@
 /**
- * MeliodasBot — Jogo de Damas Interativo (Checkers)
+ * Jogo de Damas Interativo (Checkers)
  * Tabuleiro 8x8 com coordenadas e captura de peças
  */
 
 const dataService = require('../../services/dataService')
 const { initializeUser } = require('../../services/xpService')
+const { getBotName } = require('../../config/botConfig')
 const logger = require('../../core/logger')
 
 // Map<from, CheckersGame>
@@ -212,7 +213,7 @@ module.exports = {
         let startDoc = `╔══════════════════════════════╗\n`
         startDoc += `║     👑 *JOGO DE DAMAS* 👑     ║\n`
         startDoc += `╚══════════════════════════════╝\n\n`
-        startDoc += `⚔️ ⚪ @${playerWhite.split('@')[0]} *VS* 🔴 ${isVsBot ? '🤖 MeliodasBot' : '@' + playerBlack.split('@')[0]}\n\n`
+        startDoc += `⚔️ ⚪ @${playerWhite.split('@')[0]} *VS* 🔴 ${isVsBot ? '🤖 ' + getBotName() : '@' + playerBlack.split('@')[0]}\n\n`
         startDoc += '```\n' + newGame.render() + '\n```\n\n'
         startDoc += `👉 *Início:* ⚪ Brancas (@${playerWhite.split('@')[0]})\n`
         startDoc += `💡 _Faça sua jogada:_ \`.dama c3-d4\` ou \`.dama e3-f4\``

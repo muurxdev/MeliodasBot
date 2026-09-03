@@ -1,5 +1,5 @@
 /**
- * MeliodasBot — Comando .ia / .search
+ * Comando .ia / .search
  * Inteligência Artificial e Pesquisa Web em tempo real
  */
 

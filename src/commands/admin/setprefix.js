@@ -1,5 +1,5 @@
 /**
- * MeliodasBot — Comando .setprefix
+ * Comando .setprefix
  * Altera ou consulta o prefixo de comandos no grupo ou globalmente
  */
 

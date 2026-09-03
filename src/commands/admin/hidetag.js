@@ -1,5 +1,5 @@
 /**
- * MeliodasBot — Comando .hidetag / .marcar / .ghosttag
+ * Comando .hidetag / .marcar / .ghosttag
  * Marca todos os participantes do grupo de forma oculta/fantasma
  */
 

@@ -1,5 +1,5 @@
 /**
- * MeliodasBot — Comando .botclose
+ * Comando .botclose
  * Controla o fechamento temporário, programado ou imediato do bot
  */
 

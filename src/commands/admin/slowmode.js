@@ -1,5 +1,5 @@
 /**
- * MeliodasBot — Comando .slowmode / .modolento / .limitermensagens
+ * Comando .slowmode / .modolento / .limitermensagens
  * Ativa ou desativa modo lento de envio de mensagens no grupo
  */
 

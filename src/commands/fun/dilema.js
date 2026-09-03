@@ -1,5 +1,5 @@
 /**
- * MeliodasBot — Comando .dilema
+ * Comando .dilema
  * Apresenta um dilema moral intrigante para o grupo debater
  */
 

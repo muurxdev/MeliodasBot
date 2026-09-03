@@ -1,5 +1,5 @@
 /**
- * MeliodasBot — Comando .setdevice / .meudispositivo / .alterardispositivo
+ * Comando .setdevice / .meudispositivo / .alterardispositivo
  * Define ou atualiza o modelo de dispositivo utilizado pelo usuário (ex: Acer Aspire V15, Samsung A25)
  */
 

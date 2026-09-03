@@ -1,5 +1,5 @@
 /**
- * MeliodasBot — TikTok Media Provider & Fast Downloader (TikWM API)
+ * TikTok Media Provider & Fast Downloader (TikWM API)
  * Download direto de vídeos do TikTok em alta resolução sem marca d'água e suporte a Carrossel de Fotos
  */
 

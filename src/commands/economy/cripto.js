@@ -1,5 +1,5 @@
 /**
- * MeliodasBot — Comando .cripto / .trade / .criptomoedas
+ * Comando .cripto / .trade / .criptomoedas
  * Simulador de bolsa cripto e trading virtual de moedas mágicas
  */
 

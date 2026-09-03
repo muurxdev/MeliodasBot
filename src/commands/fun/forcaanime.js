@@ -1,5 +1,5 @@
 /**
- * MeliodasBot — Comando .forcaanime
+ * Comando .forcaanime
  * Jogo da forca temático com personagens e armas de animes
  */
 

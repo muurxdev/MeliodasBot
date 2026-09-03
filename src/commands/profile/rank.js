@@ -1,5 +1,5 @@
 /**
- * MeliodasBot — Comando .rank / .top / .ranking
+ * Comando .rank / .top / .ranking
  * Rankings separados para Grupo, Privado (PV) e Geral Global com persistência SQLite
  */
 

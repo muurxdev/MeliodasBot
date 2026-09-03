@@ -1,5 +1,5 @@
 /**
- * MeliodasBot — Comando .bancmd / .unbancmd
+ * Comando .bancmd / .unbancmd
  * Permite que os Donos do bot suspendam ou reativem comandos globalmente
  * Suporta: por categoria (.bancmd rpg), por nome (.bancmd ytmp4) ou todos (.bancmd all)
  * Duração padrão: Indeterminada (permanente até o dono desbanir)

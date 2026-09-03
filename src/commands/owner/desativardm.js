@@ -1,5 +1,5 @@
 /**
- * MeliodasBot — Comando .desativardm / .ativardm
+ * Comando .desativardm / .ativardm
  * Desativa (ou reativa) o atendimento no PRIVADO do bot para TODOS — sem ser um
  * ban. É uma desativação limpa e reversível, separada do sistema de ban por
  * usuário (.bandm). Ninguém é punido; o PV só fica fechado.

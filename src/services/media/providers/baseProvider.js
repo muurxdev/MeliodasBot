@@ -1,5 +1,5 @@
 /**
- * MeliodasBot — Base Media Provider Interface
+ * Base Media Provider Interface
  */
 
 class BaseProvider {

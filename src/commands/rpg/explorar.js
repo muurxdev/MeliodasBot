@@ -1,5 +1,5 @@
 /**
- * MeliodasBot — Comando .explorar
+ * Comando .explorar
  * Expedição em biomas desconhecidos para coleta de gemas e artefatos
  */
 

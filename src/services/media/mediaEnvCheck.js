@@ -1,5 +1,5 @@
 /**
- * MeliodasBot — Validação de Ambiente de Mídia
+ * Validação de Ambiente de Mídia
  * Verifica a disponibilidade e versão de yt-dlp, ffmpeg e ffprobe no processo do bot.
  *
  * O PATH do processo Node NÃO é necessariamente igual ao do terminal interativo:

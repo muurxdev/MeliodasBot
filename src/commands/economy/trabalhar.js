@@ -1,5 +1,5 @@
 /**
- * MeliodasBot — Comando .trabalhar / .work
+ * Comando .trabalhar / .work
  * Trabalha honestamente para ganhar Coins e XP com cooldown
  */
 

@@ -1,5 +1,5 @@
 /**
- * MeliodasBot — Comando .rankingrpg / .toprpg
+ * Comando .rankingrpg / .toprpg
  * Mural supremo dos maiores guerreiros de Britânia por poder e nível
  */
 

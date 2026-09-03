@@ -1,5 +1,5 @@
 /**
- * MeliodasBot — Comando .botopen
+ * Comando .botopen
  * Reabre o bot imediatamente ou programa um horário de abertura
  */
 

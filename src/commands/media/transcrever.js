@@ -1,5 +1,5 @@
 /**
- * MeliodasBot — Comando .transcrever
+ * Comando .transcrever
  * Transcreve o áudio/mensagem de voz citado em texto (Whisper local).
  */
 

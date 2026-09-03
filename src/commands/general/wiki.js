@@ -1,5 +1,5 @@
 /**
- * MeliodasBot — Comando .wiki / .wikipedia
+ * Comando .wiki / .wikipedia
  * Consulta enciclopédica na Wikipédia em português
  */
 

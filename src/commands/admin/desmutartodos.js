@@ -1,5 +1,5 @@
 /**
- * MeliodasBot — Comando .desmutartodos
+ * Comando .desmutartodos
  * Destranca o chat permitindo o envio de mensagens por todos os membros
  */
 

@@ -1,5 +1,5 @@
 /**
- * MeliodasBot — Comando .masmorrainfinita / .torreinfinita / .torre
+ * Comando .masmorrainfinita / .torreinfinita / .torre
  * Desafio de escalada na Torre Infinita de Britânia (Andares 1 ao 100)
  */
 

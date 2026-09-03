@@ -1,5 +1,5 @@
 /**
- * MeliodasBot — Comando .ipinfo
+ * Comando .ipinfo
  * Consulta dados geográficos, ISP e ASN de endereços IP ou domínios
  */
 

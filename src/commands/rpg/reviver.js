@@ -1,5 +1,5 @@
 /**
- * MeliodasBot — Comando .reviver / .lagrimadadeusa
+ * Comando .reviver / .lagrimadadeusa
  * Revive um aliado ou restaura toda a estamina e HP sem penalidade
  */
 

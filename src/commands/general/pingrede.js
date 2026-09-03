@@ -1,5 +1,5 @@
 /**
- * MeliodasBot — Comando .pingrede / .speed / .netinfo
+ * Comando .pingrede / .speed / .netinfo
  * Diagnóstico completo de rede, resolução de DNS e conectividade
  */
 

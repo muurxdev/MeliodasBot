@@ -1,5 +1,5 @@
 /**
- * MeliodasBot — Comando .subnetcalc
+ * Comando .subnetcalc
  * Calculadora de máscaras de sub-rede e prefixos CIDR
  */
 

@@ -1,10 +1,11 @@
 /**
- * MeliodasBot — Xadrez Interativo (Chess)
+ * Xadrez Interativo (Chess)
  * Tabuleiro com peças Unicode reais e notação algébrica
  */
 
 const dataService = require('../../services/dataService')
 const { initializeUser } = require('../../services/xpService')
+const { getBotName } = require('../../config/botConfig')
 const logger = require('../../core/logger')
 
 // Map<from, ChessGame>
@@ -93,6 +94,32 @@ class ChessGame {
         this.turn = this.turn === 'W' ? 'B' : 'W'
         return { success: true, capturedKing: target?.toLowerCase() === 'k' }
     }
+
+    botBestMove() {
+        const isBlackTurn = this.turn === 'B'
+        if (!isBlackTurn) return null
+
+        const candidates = []
+        for (let r = 0; r < 8; r++) {
+            for (let c = 0; c < 8; c++) {
+                const piece = this.board[r][c]
+                if (!piece || piece === piece.toUpperCase()) continue
+                for (let tr = 0; tr < 8; tr++) {
+                    for (let tc = 0; tc < 8; tc++) {
+                        if (r === tr && c === tc) continue
+                        const target = this.board[tr][tc]
+                        if (target && target === target.toUpperCase()) {
+                            candidates.push({ from: [r, c], to: [tr, tc] })
+                        } else if (!target) {
+                            candidates.push({ from: [r, c], to: [tr, tc] })
+                        }
+                    }
+                }
+            }
+        }
+        if (candidates.length === 0) return null
+        return candidates[Math.floor(Math.random() * candidates.length)]
+    }
 }
 
 module.exports = {
@@ -146,6 +173,19 @@ module.exports = {
                 return reply(`🏆 *XEQUE-MATE!*\n\n${winnerLabel} (@${winnerJid.split('@')[0]}) capturaram o Rei adversário!\n💰 *+1000 Coins* | ⭐ *+500 XP* concedidos ao Grão-Mestre!`, [winnerJid])
             }
 
+            if (game.isBot && game.turn === 'B') {
+                const botMove = game.botBestMove()
+                if (botMove) {
+                    const fromCoord = String.fromCharCode(97 + botMove.from[1]) + (8 - botMove.from[0])
+                    const toCoord = String.fromCharCode(97 + botMove.to[1]) + (8 - botMove.to[0])
+                    const botRes = game.makeMove(fromCoord, toCoord)
+                    if (botRes.capturedKing) {
+                        chessGames.delete(from)
+                        return reply(`🏆 *XEQUE-MATE!*\n\n🤖 Bot (♚ Pretas) capturaram o Rei!\n💰 *+1000 Coins* | ⭐ *+500 XP* concedidos ao Bot!`)
+                    }
+                }
+            }
+
             const nextLabel = game.turn === 'W' ? '♔ Brancas (@' + game.playerWhite.split('@')[0] + ')' : '♚ Pretas (@' + game.playerBlack.split('@')[0] + ')'
 
             let statusDoc = `╔══════════════════════════════╗\n`
@@ -174,7 +214,7 @@ module.exports = {
         let startDoc = `╔══════════════════════════════╗\n`
         startDoc += `║     ♟️ *PARTIDA DE XADREZ* ♟️   ║\n`
         startDoc += `╚══════════════════════════════╝\n\n`
-        startDoc += `⚔️ ♔ @${playerWhite.split('@')[0]} *VS* ♚ ${isVsBot ? '🤖 MeliodasBot' : '@' + playerBlack.split('@')[0]}\n\n`
+        startDoc += `⚔️ ♔ @${playerWhite.split('@')[0]} *VS* ♚ ${isVsBot ? '🤖 ' + getBotName() : '@' + playerBlack.split('@')[0]}\n\n`
         startDoc += '```\n' + newGame.render() + '\n```\n\n'
         startDoc += `👉 *Início:* ♔ Brancas (@${playerWhite.split('@')[0]})\n`
         startDoc += `💡 _Faça seu lance:_ \`.xadrez e2-e4\` ou \`.xadrez d2-d4\``

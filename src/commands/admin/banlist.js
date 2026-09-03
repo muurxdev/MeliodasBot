@@ -1,5 +1,5 @@
 /**
- * MeliodasBot — Comando .banlist / .listabanidos / .banidos
+ * Comando .banlist / .listabanidos / .banidos
  * Consulta a lista negra e histórico de membros banidos/punidos no grupo
  */
 

@@ -1,5 +1,5 @@
 /**
- * MeliodasBot — Comando .cacaaotesouro / .tesourochat
+ * Comando .cacaaotesouro / .tesourochat
  * Esconde um baú de moedas no chat e premia o primeiro participante que resgatar
  */
 

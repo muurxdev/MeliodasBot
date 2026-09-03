@@ -1,5 +1,5 @@
 /**
- * MeliodasBot — Comando .backuplist
+ * Comando .backuplist
  * Lista todos os snapshots de backup disponíveis localmente
  */
 

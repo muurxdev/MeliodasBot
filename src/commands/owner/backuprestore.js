@@ -1,5 +1,5 @@
 /**
- * MeliodasBot — Comando .backuprestore
+ * Comando .backuprestore
  * Restaura um snapshot específico do SQLite com criação automática de backup de segurança
  */
 

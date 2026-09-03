@@ -1,5 +1,5 @@
 /**
- * MeliodasBot — Comando .fig / .sticker / .s
+ * Comando .fig / .sticker / .s
  * Converte imagens ou vídeos curtos em figurinhas do WhatsApp
  */
 

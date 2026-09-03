@@ -1,5 +1,5 @@
 /**
- * MeliodasBot — Comando .timezonelist
+ * Comando .timezonelist
  * Consulta o horário atual nas principais metrópoles globais
  */
 

@@ -1,5 +1,5 @@
 /**
- * MeliodasBot — Comando .setdono / .adddono
+ * Comando .setdono / .adddono
  * Nomeia ou altera Donos seguindo a hierarquia militar rígida
  * Suporta menção (@user), resolução profunda de LID para número real, nome do perfil e quem nomeou
  */

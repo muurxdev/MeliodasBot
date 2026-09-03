@@ -1,5 +1,5 @@
 /**
- * MeliodasBot — Comando .forjar / .upgrade / .aprimorar / .refinar
+ * Comando .forjar / .upgrade / .aprimorar / .refinar
  * Sistema de aprimoramento de equipamentos com progressão dinâmica, upgrades múltiplos e exibição de atributos totais reais
  */
 

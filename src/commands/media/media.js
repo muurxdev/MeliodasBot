@@ -1,5 +1,5 @@
 /**
- * MeliodasBot — Comando Central .media / .video / .play
+ * Comando Central .media / .video / .play
  * Central unificada de download inteligente de vídeos, músicas e playlists de toda a web
  */
 
@@ -356,7 +356,7 @@ module.exports = {
             await reply(initialCard);
 
             try {
-                const meta = await extractMetadata(cleanQuery, { isSearch: !looksLikeUrl(cleanQuery) });
+                const meta = await extractMetadata(cleanQuery, { isSearch: !looksLikeUrl(cleanQuery), userJid: sender });
                 const targetUrl = meta.webpageUrl || meta.url || cleanQuery;
 
                 const downloaded = await mediaQueue.enqueue({
@@ -367,7 +367,8 @@ module.exports = {
                         source: targetUrl,
                         url: targetUrl,
                         requestedFormat: "mp4",
-                        format: "mp4"
+                        format: "mp4",
+                        userJid: sender
                     })
                 });
 
@@ -379,8 +380,8 @@ module.exports = {
                     const cleanTitle = (meta.title || "video").replace(/[\\/:*?"<>|]/g, "_").slice(0, 50);
 
                     const caption = formatMediaCaption({
-                filePath: mediaData.filePath,
-                elapsedMs: mediaData.elapsedMs,
+                filePath: downloaded.filePath || downloaded.primaryFile,
+                elapsedMs: downloaded.elapsedMs,
                         platform: platformName,
                         title: meta.title,
                         author: meta.author,

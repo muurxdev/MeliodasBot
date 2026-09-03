@@ -1,5 +1,5 @@
 /**
- * MeliodasBot — Comando .pocaoenergia / .recargastamina
+ * Comando .pocaoenergia / .recargastamina
  * Poção de restauração imediata de energia de batalha
  */
 

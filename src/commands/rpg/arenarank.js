@@ -1,5 +1,5 @@
 /**
- * MeliodasBot — Comando .arenarank / .ranqueada
+ * Comando .arenarank / .ranqueada
  * Ranqueada competitiva com Ligas (Bronze, Prata, Ouro, Mestre, Desafiante)
  */
 

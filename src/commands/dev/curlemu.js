@@ -1,5 +1,5 @@
 /**
- * MeliodasBot — Comando .curlemu / .requester / .httptest
+ * Comando .curlemu / .requester / .httptest
  * Emulador de requisições HTTP curl rápidas para testar endpoints
  */
 

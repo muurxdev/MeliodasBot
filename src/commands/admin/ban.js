@@ -1,5 +1,5 @@
 /**
- * MeliodasBot — Comando .ban
+ * Comando .ban
  * Remove participantes do grupo com suporte a menção e número
  */
 

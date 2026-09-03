@@ -1,5 +1,5 @@
 /**
- * MeliodasBot — Audio Stream & High Fidelity Audio Service
+ * Audio Stream & High Fidelity Audio Service
  * Download e extração de áudios em MP3 320 kbps Master Studio sem distorção ou slow
  */
 

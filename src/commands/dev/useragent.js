@@ -1,5 +1,5 @@
 /**
- * MeliodasBot — Comando .useragent
+ * Comando .useragent
  * Gera strings realistas de User-Agent de navegadores modernos
  */
 

@@ -1,5 +1,5 @@
 /**
- * MeliodasBot — Comando .health
+ * Comando .health
  * Diagnóstico de integridade e saúde operacional (SQLite, RAM, Heap, Uptime)
  */
 

@@ -1,5 +1,5 @@
 /**
- * MeliodasBot — Transaction Repository (SQLite)
+ * Transaction Repository (SQLite)
  * Persistência e consulta do extrato e histórico financeiro dos usuários
  */
 

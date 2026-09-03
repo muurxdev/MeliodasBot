@@ -1,5 +1,5 @@
 /**
- * MeliodasBot — Comando .setcookies / .cookies
+ * Comando .setcookies / .cookies
  * Permite ao Dono enviar e atualizar o arquivo de cookies do YouTube/Instagram/TikTok diretamente pelo WhatsApp
  */
 

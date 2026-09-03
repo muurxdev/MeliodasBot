@@ -1,5 +1,5 @@
 /**
- * MeliodasBot — Comando .chance
+ * Comando .chance
  * Calcula a probabilidade aleatória de qualquer pergunta ou evento
  */
 

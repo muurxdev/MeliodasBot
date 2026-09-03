@@ -1,5 +1,5 @@
 /**
- * MeliodasBot — Comando .calc / .calculadora / .math
+ * Comando .calc / .calculadora / .math
  * Central Inteligente de Cálculos Matemáticos, Financeiros e Científicos Reais
  */
 

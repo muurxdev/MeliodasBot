@@ -1,5 +1,5 @@
 /**
- * MeliodasBot — Comando .desequipar / .unequip / .tirarequip
+ * Comando .desequipar / .unequip / .tirarequip
  * Remove equipamentos de um slot específico do boneco
  */
 

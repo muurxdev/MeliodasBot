@@ -1,5 +1,5 @@
 /**
- * MeliodasBot — Comando .menu
+ * Comando .menu
  * Menu gerado dinamicamente a partir do registro de comandos (menuService).
  * Todo comando com `category` aparece automaticamente — nunca mais desatualiza.
  */

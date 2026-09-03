@@ -1,5 +1,5 @@
 /**
- * MeliodasBot — Central UI & Card Rendering Engine
+ * Central UI & Card Rendering Engine
  * Padronização visual premium, caixas decorativas Unicode perfeitas para WhatsApp
  */
 

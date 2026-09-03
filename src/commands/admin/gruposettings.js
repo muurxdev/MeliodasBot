@@ -1,5 +1,5 @@
 /**
- * MeliodasBot — Comando .gruposettings / .modogrupo
+ * Comando .gruposettings / .modogrupo
  * Configura permissões do grupo (quem pode editar dados do grupo, aprovação de entrada, etc.)
  */
 

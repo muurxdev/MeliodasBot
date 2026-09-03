@@ -1,5 +1,5 @@
 /**
- * MeliodasBot — Serviço de transcrição de áudio (Speech-to-Text)
+ * Serviço de transcrição de áudio (Speech-to-Text)
  *
  * Usa Whisper LOCAL (grátis, offline) via CLI. Suporta whisper.cpp
  * (whisper-cli / main) e o openai-whisper (python). Configurável por env:

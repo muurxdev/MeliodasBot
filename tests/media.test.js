@@ -1,5 +1,5 @@
 /**
- * MeliodasBotXP — Suíte de Testes do Media Engine Multiplataforma (FASE 3)
+ * BotXP — Suíte de Testes do Media Engine Multiplataforma (FASE 3)
  */
 
 process.env.NODE_ENV = 'test'

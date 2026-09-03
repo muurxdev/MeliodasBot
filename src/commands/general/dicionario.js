@@ -1,5 +1,5 @@
 /**
- * MeliodasBot — Comando .dicionario / .significado / .definicao
+ * Comando .dicionario / .significado / .definicao
  * Consulta definições completas e significados de palavras em Português
  */
 

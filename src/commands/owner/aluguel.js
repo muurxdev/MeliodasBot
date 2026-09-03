@@ -1,10 +1,11 @@
 /**
- * MeliodasBot — Comando .aluguel / .rent
+ * Comando .aluguel / .rent
  * Sistema completo de gerenciamento de aluguel de grupos exclusivo para os 5 Donos do bot.
  */
 
 const rentalService = require('../../services/rentalService')
 const { getOwnerRank } = require('../../services/ownerService')
+const { getBotName } = require('../../config/botConfig')
 const env = require('../../config/env')
 const logger = require('../../core/logger')
 
@@ -229,7 +230,7 @@ module.exports = {
             doc += `1. Realize o Pix no valor indicado acima.\n`
             doc += `2. Envie o comprovante para um dos Donos do bot.\n`
             doc += `3. O bot será ativado e renovado imediatamente no grupo!\n\n`
-            doc += `👑 *Atendimento:* Donos Oficiais do MeliodasBot`
+            doc += `👑 *Atendimento:* Donos Oficiais do ${getBotName()}`
 
             return reply(doc.trim(), clientJid ? [clientJid] : [])
         }

@@ -1,5 +1,5 @@
 /**
- * MeliodasBot — Comando .setwallpaper / .setvideo / .personalizacao
+ * Comando .setwallpaper / .setvideo / .personalizacao
  * Permite aos Donos e Administradores personalizar TODOS os menus com Vídeos Animados (.mp4) ou Imagens Estáticas (.jpg)
  */
 

@@ -1,5 +1,5 @@
 /**
- * MeliodasBot — Comando .warn
+ * Comando .warn
  * Aplica advertência com contador e remoção automática ao atingir o limite configurável do grupo
  */
 

@@ -1,5 +1,5 @@
 /**
- * MeliodasBot — Comando .horario / .hora / .time / .fusohorario
+ * Comando .horario / .hora / .time / .fusohorario
  * Relógio mundial em tempo real com conversão de fusos horários e pesquisa de países/cidades
  */
 

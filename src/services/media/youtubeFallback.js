@@ -1,5 +1,5 @@
 /**
- * MeliodasBot — YouTube Anti-Bot Resilient Fallback Engine v3
+ * YouTube Anti-Bot Resilient Fallback Engine v3
  * Estratégia: RACE paralelo entre múltiplas APIs — pega a primeira que responder
  * Sem esperar falhar uma por uma → muito mais rápido
  */

@@ -1,5 +1,5 @@
 /**
- * MeliodasBot — Comando .jwtdecode
+ * Comando .jwtdecode
  * Decodificador rápido de cabeçalho e payload de tokens JWT
  */
 

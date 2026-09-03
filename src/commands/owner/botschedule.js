@@ -1,5 +1,5 @@
 /**
- * MeliodasBot — Comando .botschedule
+ * Comando .botschedule
  * Consulta o status operacional atual e os agendamentos ativos do ciclo de vida
  */
 

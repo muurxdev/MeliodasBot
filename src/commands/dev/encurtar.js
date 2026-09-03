@@ -1,5 +1,5 @@
 /**
- * MeliodasBot — Comando .encurtar
+ * MoeliodasBt — Comando .encurtar
  * Encurtador de links e URLs via is.gd
  */
 

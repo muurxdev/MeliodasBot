@@ -1,5 +1,5 @@
 /**
- * MeliodasBot — Comando .lostvayne
+ * Comando .lostvayne
  * Tesouro Sagrado do Capitão Meliodas: Cria 4 clones físicos e multiplica o dano em 3x a 5x
  */
 

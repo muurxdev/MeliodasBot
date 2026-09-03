@@ -1,5 +1,5 @@
 /**
- * MeliodasBot — Comando .config / .configuracoes / .painelconfig
+ * Comando .config / .configuracoes / .painelconfig
  * Painel Central de Configurações do Grupo e Personalização de Menus/Wallpapers
  */
 

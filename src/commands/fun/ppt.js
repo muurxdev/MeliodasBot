@@ -1,5 +1,5 @@
 /**
- * MeliodasBot — Comando .ppt
+ * Comando .ppt
  * Pedra, Papel e Tesoura clássico contra o bot
  */
 

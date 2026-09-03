@@ -1,5 +1,5 @@
 /**
- * MeliodasBot — Comando .dungeon / .masmorra
+ * Comando .dungeon / .masmorra
  * Desafio de Masmorra em andares progressivos (1 a 10) com hordas de monstros, bosses e drops raros
  */
 

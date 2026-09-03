@@ -1,5 +1,5 @@
 /**
- * MeliodasBot — Comando .autoreject
+ * Comando .autoreject
  * Ativa ou desativa a recusa automática de convites de grupos no privado
  */
 

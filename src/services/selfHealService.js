@@ -1,5 +1,5 @@
 /**
- * MeliodasBot — Self-Healing & Diagnostic Engine
+ * Self-Healing & Diagnostic Engine
  * Motor autônomo de diagnóstico, reparação de integridade, limpeza e otimização
  */
 

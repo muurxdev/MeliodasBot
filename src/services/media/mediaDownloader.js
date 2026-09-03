@@ -1,5 +1,5 @@
 /**
- * MeliodasBot — Media Downloader Service
+ * Media Downloader Service
  * Execução segura de download com diretório isolado por Job, timeouts e cancelamento ativo
  */
 
@@ -45,7 +45,7 @@ async function downloadMedia(job, onProgress = null) {
         '-o', outputTemplate,
         ...formatConfig.args,
         job.source
-    ])
+    ], { userJid: job.user })
 
     return new Promise((resolve, reject) => {
         let proc

@@ -1,5 +1,5 @@
 /**
- * MeliodasBot — Comando .regex
+ * Comando .regex
  * Testador seguro de Expressões Regulares (RegExp)
  */
 

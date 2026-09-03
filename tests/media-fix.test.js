@@ -1,5 +1,5 @@
 /**
- * MeliodasBotXP — FASE ADMIN+MEDIA FIX
+ * BotXP — FASE ADMIN+MEDIA FIX
  * Testes de diagnóstico/correção: ambiente de mídia, erros reais, retry seletivo,
  * spawn seguro e integração real via PATH do processo.
  */

@@ -1,5 +1,5 @@
 /**
- * MeliodasBot — Comando .arcanjo / .gracas
+ * Comando .arcanjo / .gracas
  * Guia e Despertar das Quatro Graças Divinas dos Quatro Grandes Arcanjos
  */
 

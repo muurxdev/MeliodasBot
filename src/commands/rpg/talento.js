@@ -1,5 +1,5 @@
 /**
- * MeliodasBot — Comando .talento / .arvoredetalentos
+ * Comando .talento / .arvoredetalentos
  * Árvore de talentos e habilidades passivas permanentes
  */
 

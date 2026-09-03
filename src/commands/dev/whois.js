@@ -1,5 +1,5 @@
 /**
- * MeliodasBot — Comando .whois / .dominio / .consultadominio
+ * Comando .whois / .dominio / .consultadominio
  * Consulta de informações de registro WHOIS e DNS de domínios na Web
  */
 

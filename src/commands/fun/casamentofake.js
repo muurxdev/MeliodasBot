@@ -1,5 +1,5 @@
 /**
- * MeliodasBot — Comando .casamentofake
+ * Comando .casamentofake
  * Cerimônia divertida de casamento fictício no grupo
  */
 

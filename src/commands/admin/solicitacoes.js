@@ -1,5 +1,5 @@
 /**
- * MeliodasBot — Comando .solicitacoes / .aceitar / .rejeitar
+ * Comando .solicitacoes / .aceitar / .rejeitar
  * Gerenciamento seguro de solicitações de entrada no grupo com throttling anti-ban
  */
 

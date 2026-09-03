@@ -1,5 +1,5 @@
 /**
- * MeliodasBotXP — Testes das Novas Funcionalidades (YouTube Mobile Fix, .bancmd all, Bot Name Global)
+ * BotXP — Testes das Novas Funcionalidades (YouTube Mobile Fix, .bancmd all, Bot Name Global)
  */
 
 const assert = require('assert')

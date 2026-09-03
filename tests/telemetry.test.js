@@ -1,5 +1,5 @@
 /**
- * MeliodasBotXP — Suíte de Testes de Observability & Telemetria (FASE 11)
+ * BotXP — Suíte de Testes de Observability & Telemetria (FASE 11)
  */
 
 process.env.NODE_ENV = 'test'

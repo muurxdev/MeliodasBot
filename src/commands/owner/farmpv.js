@@ -1,5 +1,5 @@
 /**
- * MeliodasBot — Comando .farmpv / .xppv
+ * Comando .farmpv / .xppv
  * Permite que os donos ativem ou desativem o ganho de XP e farm no PV (privado)
  */
 

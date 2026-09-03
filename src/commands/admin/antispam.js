@@ -1,5 +1,5 @@
 /**
- * MeliodasBot — Comando .antispam
+ * Comando .antispam
  * Ativa ou desativa o monitoramento de flood e spam de mensagens no grupo
  */
 

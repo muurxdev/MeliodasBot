@@ -1,5 +1,5 @@
 /**
- * MeliodasBot — Comando .curiosidade
+ * Comando .curiosidade
  * Exibe fatos e curiosidades científicas, históricas e tecnológicas
  */
 

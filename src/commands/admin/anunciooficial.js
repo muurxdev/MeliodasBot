@@ -1,5 +1,5 @@
 /**
- * MeliodasBot — Comando .anunciooficial
+ * Comando .anunciooficial
  * Envia um comunicado oficial formatado e destacado para o grupo
  */
 

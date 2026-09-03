@@ -1,5 +1,5 @@
 /**
- * MeliodasBot — Comando .shoparmas / .lojaarmas / .comprararma
+ * Comando .shoparmas / .lojaarmas / .comprararma
  * Arsenal e loja de armas brancas, mágicas e tesouros sagrados
  */
 

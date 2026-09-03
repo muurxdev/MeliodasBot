@@ -1,5 +1,5 @@
 /**
- * MeliodasBot — Title Repository (SQLite)
+ * Title Repository (SQLite)
  * Catálogo e gerenciamento de títulos honorários e condecorações de RPG
  */
 

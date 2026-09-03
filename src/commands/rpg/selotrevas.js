@@ -1,5 +1,5 @@
 /**
- * MeliodasBot — Comando .selotrevas / .chamasnegras
+ * Comando .selotrevas / .chamasnegras
  * Liberação do Selo das Chamas Negras do Clã dos Demônios
  */
 

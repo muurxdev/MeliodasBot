@@ -1,5 +1,5 @@
 /**
- * MeliodasBotXP — Suíte de Testes da Fase 3: Persistência & SQLite
+ * BotXP — Suíte de Testes da Fase 3: Persistência & SQLite
  */
 
 process.env.NODE_ENV = 'test'

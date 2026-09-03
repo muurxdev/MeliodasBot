@@ -1,5 +1,5 @@
 /**
- * MeliodasBot — Comando .fullcounter
+ * Comando .fullcounter
  * Habilidade Suprema de Meliodas: Reflete ataques mágicos multiplicando o dano com força avassaladora
  */
 

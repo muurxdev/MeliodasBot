@@ -1,5 +1,5 @@
 /**
- * MeliodasBot — Comando .dueloaposta / .aposta1v1 / .x1aposta
+ * Comando .dueloaposta / .aposta1v1 / .x1aposta
  * Duelo 1v1 apostado onde o vencedor leva 100% da aposta do adversário
  */
 

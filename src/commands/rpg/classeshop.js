@@ -1,5 +1,5 @@
 /**
- * MeliodasBot — Loja de Classes e Classes Lendárias
+ * Loja de Classes e Classes Lendárias
  */
 
 module.exports = {

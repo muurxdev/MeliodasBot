@@ -1,5 +1,5 @@
 /**
- * MeliodasBot — Comando .link / .linkgrupo / .convite
+ * Comando .link / .linkgrupo / .convite
  * Gera e lista o link oficial de convite do grupo
  */
 

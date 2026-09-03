@@ -1,5 +1,5 @@
 /**
- * MeliodasBot — Comando .dono / .donos / .owner
+ * Comando .dono / .donos / .owner
  * Exibe a hierarquia militar oficial dos 10 Donos do bot com menções e identificador de nomeação
  */
 

@@ -1,5 +1,5 @@
 /**
- * MeliodasBot — Gerador de Documentos e Livros Digitais em PDF (Deluxe Multi-Page Pure Node.js)
+ * Gerador de Documentos e Livros Digitais em PDF (Deluxe Multi-Page Pure Node.js)
  * Gera volumes digitais completos em páginas estruturadas, 100% compatíveis com WhatsApp, Android e iOS
  */
 
@@ -38,7 +38,7 @@ function generateEbookPdf({
     pages = "Volume Completo",
     genre = "Literatura e Conhecimento",
     description = "Sinopse completa registrada no acervo digital de obras literarias.",
-    botName = "MeliodasBot"
+    botName = require('../config/botConfig').getBotName()
 }) {
     const safeTitle = sanitizeText(title);
     const safeAuthor = sanitizeText(author);

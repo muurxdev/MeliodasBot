@@ -1,5 +1,5 @@
 /**
- * MeliodasBot — Comando .mutartodos
+ * Comando .mutartodos
  * Tranca o grupo imediatamente permitindo apenas mensagens de administradores
  */
 

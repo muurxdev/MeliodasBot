@@ -1,5 +1,5 @@
 /**
- * MeliodasBot — Comando .cmd / .cmd all
+ * Comando .cmd / .cmd all
  * Permite que administradores ativem/desativem comandos específicos no grupo
  * e permite aos Donos realizarem auditoria completa de comandos em grupos ou no privado (.cmd all)
  */

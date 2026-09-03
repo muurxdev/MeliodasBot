@@ -1,5 +1,5 @@
 /**
- * MeliodasBot — Comando .coliseu / .gladiador / .coliseum
+ * Comando .coliseu / .gladiador / .coliseum
  * Batalhas diárias em ondas de gladiadores no Coliseu de Vaizel com premiações de XP, Coins e Fragmentos
  */
 

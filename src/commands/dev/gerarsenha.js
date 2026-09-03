@@ -1,5 +1,5 @@
 /**
- * MeliodasBot — Comando .gerarsenha / .passgen
+ * Comando .gerarsenha / .passgen
  * Gerador de senhas criptograficamente seguras com símbolos, números e letras
  */
 

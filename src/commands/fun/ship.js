@@ -1,5 +1,5 @@
 /**
- * MeliodasBot — Comando .ship
+ * Comando .ship
  * Calcula a compatibilidade amorosa e casal entre dois membros do grupo
  */
 

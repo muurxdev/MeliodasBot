@@ -1,5 +1,5 @@
 /**
- * MeliodasBot — Comando .tts / .voz
+ * Comando .tts / .voz
  * Converte texto em mensagem de áudio / nota de voz interativa
  */
 

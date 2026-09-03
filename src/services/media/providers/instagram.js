@@ -1,5 +1,5 @@
 /**
- * MeliodasBot — Instagram Media Provider (Reels, Posts, Galerias)
+ * Instagram Media Provider (Reels, Posts, Galerias)
  */
 
 const BaseProvider = require('./baseProvider')

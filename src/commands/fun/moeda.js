@@ -1,5 +1,5 @@
 /**
- * MeliodasBot — Comando .moeda
+ * Comando .moeda
  * Lança uma moeda com física e resultado de Cara ou Coroa
  */
 

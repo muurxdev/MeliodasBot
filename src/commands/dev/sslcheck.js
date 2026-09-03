@@ -1,5 +1,5 @@
 /**
- * MeliodasBot — Comando .sslcheck
+ * Comando .sslcheck
  * Verifica parâmetros de segurança de certificados SSL/HTTPS
  */
 

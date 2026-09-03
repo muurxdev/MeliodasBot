@@ -1,5 +1,5 @@
 /**
- * MeliodasBot — Comando .leilao
+ * Comando .leilao
  * Casa de Leilões de Itens Lendários, Relíquias e Armas Sagradas
  */
 

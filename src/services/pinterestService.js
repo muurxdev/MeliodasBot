@@ -1,5 +1,5 @@
 /**
- * MeliodasBot — Pinterest Service
+ * Pinterest Service
  * Download resiliente de Imagens em Alta Resolução (Originals), Vídeos MP4 e Carrosséis do Pinterest
  */
 

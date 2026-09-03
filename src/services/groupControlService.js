@@ -1,5 +1,5 @@
 /**
- * MeliodasBot — Group Control Service
+ * Group Control Service
  * Fecha e reabre grupos do WhatsApp (só admins podem falar) com duração
  * opcional ou indefinida.
  *

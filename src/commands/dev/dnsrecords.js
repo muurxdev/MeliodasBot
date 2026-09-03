@@ -1,5 +1,5 @@
 /**
- * MeliodasBot — Comando .dnsrecords
+ * Comando .dnsrecords
  * Explica os tipos de registros DNS (A, AAAA, CNAME, MX, TXT, SOA)
  */
 

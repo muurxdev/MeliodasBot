@@ -1,5 +1,5 @@
 /**
- * MeliodasBot — Comando .mandamento / .dezmandamentos
+ * Comando .mandamento / .dezmandamentos
  * Guia dos Dez Mandamentos do Rei Demônio e Maldições Demoníacas
  */
 

@@ -1,5 +1,5 @@
 /**
- * MeliodasBot — Comando .grimorio (Grimório de Magias e Habilidades)
+ * Comando .grimorio (Grimório de Magias e Habilidades)
  * Sistema de feitiços arcanos com habilidades ativas e passivas em combate
  */
 

@@ -1,5 +1,5 @@
 /**
- * MeliodasBotXP — Suíte de Testes de Backup & Disaster Recovery (FASE 12)
+ * BotXP — Suíte de Testes de Backup & Disaster Recovery (FASE 12)
  */
 
 process.env.NODE_ENV = 'test'

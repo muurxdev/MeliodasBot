@@ -1,5 +1,5 @@
 /**
- * MeliodasBot — Comando .cofre / .poupanca / .investimentocofre
+ * Comando .cofre / .poupanca / .investimentocofre
  * Sistema de cofre particular blindado com rendimento diário de juros compostos
  */
 

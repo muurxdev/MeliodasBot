@@ -1,5 +1,5 @@
 /**
- * MeliodasBot — Comando .superpoder
+ * Comando .superpoder
  * Sorteia um superpoder com um efeito colateral bizarro
  */
 

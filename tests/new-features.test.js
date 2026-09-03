@@ -1,5 +1,5 @@
 /**
- * MeliodasBotXP — Suíte de Testes dos Novos Recursos
+ * BotXP — Suíte de Testes dos Novos Recursos
  * Valida Cassino, Boss Raids, Torneios, IA Vision, Memes e Segurança Anti-Trava/Spam
  */
 
@@ -7,7 +7,7 @@ const assert = require("assert")
 const { detectTravaZap, checkGroupSpam } = require("../src/services/securityService")
 const dataService = require("../src/services/dataService")
 
-console.log("🧪 Iniciando testes dos Novos Recursos do MeliodasBotXP...\n")
+console.log("🧪 Iniciando testes dos Novos Recursos do BotXP...\n")
 
 // 1. TESTES DE SEGURANÇA: ANTI-TRAVA & ANTI-SPAM
 console.log("--- 1. Segurança: Anti-Trava & Anti-Spam ---")

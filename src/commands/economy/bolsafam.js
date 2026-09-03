@@ -1,5 +1,5 @@
 /**
- * MeliodasBot — Comando .bolsafam
+ * Comando .bolsafam
  * Resgate de auxílio emergencial para jogadores com saldo zerado na carteira e banco
  */
 

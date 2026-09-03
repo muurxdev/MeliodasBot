@@ -1,5 +1,5 @@
 /**
- * MeliodasBot — Comandos de Interação Social & Afeto
+ * Comandos de Interação Social & Afeto
  * Permite interações dinâmicas entre membros do grupo com cards, menções e controle on/off
  */
 

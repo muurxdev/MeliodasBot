@@ -1,5 +1,5 @@
 /**
- * MeliodasBotXP — Suíte de Testes de Dev Tools & Dev Hub (ETAPA 5)
+ * BotXP — Suíte de Testes de Dev Tools & Dev Hub (ETAPA 5)
  */
 
 process.env.NODE_ENV = 'test'
@@ -68,9 +68,9 @@ async function runDevToolsTests() {
     })
 
     test('encodeBase64 e decodeBase64 codificam e decodificam perfeitamente', () => {
-        const original = 'MeliodasBotXP v2.0'
+        const original = 'BotXP v2.0'
         const b64 = encodeBase64(original)
-        assert.strictEqual(b64, 'TWVsaW9kYXNCb3RYUCB2Mi4w')
+        assert.strictEqual(b64, 'Qm90WFAgdjIuMA==')
 
         const decoded = decodeBase64(b64)
         assert.strictEqual(decoded, original)

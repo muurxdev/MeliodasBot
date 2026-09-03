@@ -1,5 +1,5 @@
 /**
- * MeliodasBot — Vault (Baú Global) Repository
+ * Vault (Baú Global) Repository
  * Gerenciamento de itens e moedas armazenados com segurança no SQLite
  */
 

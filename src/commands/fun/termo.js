@@ -1,84 +1,97 @@
-/**
- * MeliodasBot — Comando .termo / .wordle / .jogotermo
- * Jogo estilo Termo / Wordle com dicas de letras coloridas (🟩, 🟨, ⬛)
- */
+const logger = require('../../core/logger')
 
-const { renderCard } = require("../../utils/uiEngine");
+const PALAVRAS = [
+    'AMIGO', 'BRUXO', 'CAVALO', 'DADOS', 'ESCOLA',
+    'FELIZ', 'GRAOS', 'HONRA', 'ILHAS', 'JOGOS',
+    'LEITE', 'MUSGO', 'NOBRE', 'OLHOS', 'PRAIA',
+    'QUASE', 'RUBRO', 'SALTO', 'TELAS', 'UNIDA',
+    'VELHO', 'XADREZ', 'ZEBRA', 'AMOR', 'BOMBA',
+    'CORPO', 'DEUS', 'FLOR', 'GATO', 'MESA'
+]
 
-const PALAVRAS = ["ANIME", "MANGA", "DEMON", "PECADO", "MAGIA", "ESPADA", "PODER", "REINO", "ARENA", "FORJA", "COROA", "FUSÃO", "ALMAS", "CHAMA", "DRAGÃO"];
-const activeGames = new Map();
+const activeGames = new Map()
+const TTL_MS = 5 * 60 * 1000
+
+function cleanupExpired() {
+    const now = Date.now()
+    for (const [key, game] of activeGames) {
+        if (now - game.createdAt > TTL_MS) activeGames.delete(key)
+    }
+}
 
 module.exports = {
-    name: "termo",
-    aliases: ["wordle", "jogotermo", "adivinharpalavra"],
-    category: "fun",
-    description: "Jogue o jogo Termo / Wordle no WhatsApp e adivinhe a palavra secreta",
+    name: 'termo',
+    aliases: ['wordle', 'jogotermo', 'adivinharpalavra'],
+    category: 'fun',
+    subcategory: 'Jogos',
+    description: 'Jogo estilo Wordle — adivinhe a palavra de 5 letras em 6 tentativas',
     cooldownMs: 2000,
     execute: async ({ from, sender, reply, args }) => {
-        const key = `${from}_${sender}`;
-        const game = activeGames.get(key);
-
-        const chute = (args[0] || "").toUpperCase().trim();
+        cleanupExpired()
+        const key = `${from}_${sender}`
+        const game = activeGames.get(key)
+        const chute = (args[0] || '').toUpperCase().trim()
 
         if (!game) {
-            const secret = PALAVRAS[Math.floor(Math.random() * PALAVRAS.length)];
-            activeGames.set(key, { secret, attempts: [], maxAttempts: 6 });
-
-            const card = renderCard({
-                title: "JOGO TERMO — INICIADO",
-                icon: "🟩",
-                subtitle: `🎯 *Jogador:* @${sender.split("@")[0]}`,
-                sections: [
-                    {
-                        title: "REGRAS DO JOGO",
-                        icon: "📜",
-                        fields: [
-                            `• A palavra secreta possui *${secret.length} letras*.`,
-                            "• Você tem *6 tentativas* para adivinhar.",
-                            "• 🟩 = Letra certa na posição certa.",
-                            "• 🟨 = Letra certa na posição errada.",
-                            "• ⬛ = Letra não existe na palavra."
-                        ]
-                    }
-                ],
-                tip: `Digite .termo <palavra de ${secret.length} letras> para enviar seu palpite!`,
-                mentions: [sender]
-            });
-
-            return reply(card, [sender]);
+            const secret = PALAVRAS[Math.floor(Math.random() * PALAVRAS.length)]
+            activeGames.set(key, { secret, attempts: [], maxAttempts: 6, createdAt: Date.now() })
+            return reply(
+                `🟩 *TERMO — JOGO INICIADO*\n\n` +
+                `🔒 A palavra secreta tem *5 letras*.\n` +
+                `📋 Você tem *6 tentativas* para adivinhar.\n\n` +
+                `💡 Feedback:\n` +
+                `🟩 = Letra certa, posição correta\n` +
+                `🟨 = Letra existe, posição errada\n` +
+                `⬛ = Letra não existe\n\n` +
+                `👉 Envie \`.termo <palavra>\` para jogar!`
+            )
         }
 
-        if (!chute || chute.length !== game.secret.length) {
-            return reply(`❌ Seu palpite deve ter exatamente *${game.secret.length} letras* (ex: \`.termo ${game.secret.slice(0, 2)}...\`).`);
+        if (!chute || chute.length !== 5) {
+            return reply(`❌ Seu palpite deve ter exatamente *5 letras*! (ex: \`.termo AMIGO\`)`)
         }
 
-        // Avaliar chute
-        let feedback = "";
-        for (let i = 0; i < chute.length; i++) {
+        let feedback = ''
+        for (let i = 0; i < 5; i++) {
             if (chute[i] === game.secret[i]) {
-                feedback += "🟩";
+                feedback += '🟩'
             } else if (game.secret.includes(chute[i])) {
-                feedback += "🟨";
+                feedback += '🟨'
             } else {
-                feedback += "⬛";
+                feedback += '⬛'
             }
         }
 
-        game.attempts.push({ chute, feedback });
+        game.attempts.push({ chute, feedback })
 
         if (chute === game.secret) {
-            activeGames.delete(key);
-            return reply(`🎉 *PARABÉNS! VOCÊ VENCEU O TERMO!*\n\n👑 *Palavra Correta:* \`${game.secret}\`\n🎯 *Tentativas:* ${game.attempts.length}/6\n🏆 Recompensa: +500 XP & +1.000 Coins!`);
+            activeGames.delete(key)
+            return reply(
+                `🎉 *PARABÉNS! VOCÊ ACERTOU!*\n\n` +
+                `👑 *Palavra:* \`${game.secret}\`\n` +
+                `📊 *Tentativas:* ${game.attempts.length}/${game.maxAttempts}\n\n` +
+                `${game.attempts.map((a, i) => `${i + 1}. \`${a.chute}\` ${a.feedback}`).join('\n')}`
+            )
         }
 
         if (game.attempts.length >= game.maxAttempts) {
-            const secretRevealed = game.secret;
-            activeGames.delete(key);
-            return reply(`❌ *FIM DE JOGO!* Você esgotou as 6 tentativas.\n\n📖 *A palavra secreta era:* \`${secretRevealed}\``);
+            const revelada = game.secret
+            activeGames.delete(key)
+            return reply(
+                `❌ *FIM DE JOGO!*\n\n` +
+                `📖 A palavra era: \`${revelada}\`\n\n` +
+                `${game.attempts.map((a, i) => `${i + 1}. \`${a.chute}\` ${a.feedback}`).join('\n')}`
+            )
         }
 
-        const lines = game.attempts.map((a, idx) => `${idx + 1}. \`${a.chute}\` ➔ ${a.feedback}`).join("\n");
+        const tentativas = game.attempts.map((a, i) =>
+            `${i + 1}. \`${a.chute}\` ${a.feedback}`
+        ).join('\n')
 
-        return reply(`🧩 *TERMO — TENTATIVA ${game.attempts.length}/6*\n\n${lines}\n\n👉 Digite \`.termo <palavra>\` para a próxima tentativa!`);
+        return reply(
+            `🧩 *TERMO — TENTATIVA ${game.attempts.length}/6*\n\n` +
+            `${tentativas}\n\n` +
+            `👉 Envie \`.termo <palavra>\` para a próxima tentativa!`
+        )
     }
-};
+}

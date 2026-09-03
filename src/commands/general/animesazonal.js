@@ -1,5 +1,5 @@
 /**
- * MeliodasBot — Comando .animesazonal / .temporadaanime / .topseason
+ * Comando .animesazonal / .temporadaanime / .topseason
  * Lista os principais animes da temporada atual com notas e episódios
  */
 

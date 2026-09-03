@@ -1,5 +1,5 @@
 /**
- * MeliodasBot — Comando .json
+ * Comando .json
  * Validador e formatador/minificador de JSON
  */
 

@@ -1,5 +1,5 @@
 /**
- * MeliodasBot — Comando .horoscopoanime
+ * Comando .horoscopoanime
  * Previsão astrológica com personagens correspondentes de anime
  */
 

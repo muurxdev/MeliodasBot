@@ -1,5 +1,5 @@
 /**
- * MeliodasBot — Comando .take / .roubarfig
+ * Comando .take / .roubarfig
  * Altera os metadados EXIF de uma figurinha (Nome do Pacote e Autor)
  */
 

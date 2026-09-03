@@ -1,5 +1,5 @@
 /**
- * MeliodasBot — Comando .ferreiro / .desmanchar / .fundir
+ * Comando .ferreiro / .desmanchar / .fundir
  * Desmanche itens antigos do inventário e obtenha minérios sagrados e lingotes
  */
 

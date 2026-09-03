@@ -1,5 +1,5 @@
 /**
- * MeliodasBot — Mock Factory
+ * Mock Factory
  * Utilitários para criação de mocks do Baileys e contextos de mensagens
  */
 

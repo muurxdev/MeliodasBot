@@ -1,5 +1,5 @@
 /**
- * MeliodasBot — Comando .patrocinar / .patrocinio / .dropevento
+ * Comando .patrocinar / .patrocinio / .dropevento
  * Crie um evento patrocinado no grupo com premiação automática para o próximo que falar
  */
 
@@ -28,6 +28,16 @@ module.exports = {
 
         user.coins -= valor;
         await dataService.saveXpData(xpData);
+
+        // Armazenar drop pendente no grupo (recompensa para o próximo que falar)
+        const configs = dataService.getConfigsData();
+        configs[from] = configs[from] || {};
+        configs[from].pendingDrop = {
+            amount: valor,
+            sponsor: sender,
+            createdAt: Date.now()
+        };
+        await dataService.saveConfigsData(configs);
 
         const card = renderCard({
             title: "EVENTO PATROCINADO NO GRUPO!",

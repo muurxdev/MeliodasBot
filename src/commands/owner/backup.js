@@ -1,5 +1,5 @@
 /**
- * MeliodasBot — Comando .backup
+ * Comando .backup
  * Cria um snapshot consistente do SQLite a quente com metadados e envia para o Dono
  */
 

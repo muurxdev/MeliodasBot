@@ -1,5 +1,5 @@
 /**
- * MeliodasBot — Comando .unmute
+ * Comando .unmute
  * Remove o silenciamento de um membro no grupo
  */
 

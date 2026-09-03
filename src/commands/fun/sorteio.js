@@ -1,5 +1,5 @@
 /**
- * MeliodasBot — Comando .sorteio
+ * Comando .sorteio
  * Sorteia aleatoriamente um ou mais membros do grupo
  */
 

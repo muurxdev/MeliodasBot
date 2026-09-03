@@ -1,5 +1,5 @@
 /**
- * MeliodasBot — Comando .bingo / .jogobingo / .cartelabingo
+ * Comando .bingo / .jogobingo / .cartelabingo
  * Rodada de bingo no grupo com cartela gerada aleatoriamente
  */
 

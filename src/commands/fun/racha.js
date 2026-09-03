@@ -1,5 +1,5 @@
 /**
- * MeliodasBot — Comando .racha / .dragrace / .corrida
+ * Comando .racha / .dragrace / .corrida
  * Corrida de arrancada com nitro e apostas de coins
  */
 

@@ -1,5 +1,5 @@
 /**
- * MeliodasBot — Motor de Combate Avançado & Balanceamento Matemático MMORPG
+ * Motor de Combate Avançado & Balanceamento Matemático MMORPG
  * Unifica cálculos de ataque, defesa, acertos críticos, esquivas, bloqueios,
  * slots de equipamentos, forja, runas, raças, classes, poções, pets e rebirths.
  */

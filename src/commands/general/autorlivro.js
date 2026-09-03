@@ -1,5 +1,5 @@
 /**
- * MeliodasBot — Comando .autorlivro / .autor / .obras
+ * Comando .autorlivro / .autor / .obras
  * Consulta as principais obras, bibliografia e lançamentos de um autor
  */
 

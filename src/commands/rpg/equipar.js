@@ -1,5 +1,5 @@
 /**
- * MeliodasBot — Comando .equipar / .equip / .vestir
+ * Comando .equipar / .equip / .vestir
  * Equipa armas, capacetes, peitorais, perneiras, botas, escudos e amuletos nos slots do boneco
  */
 

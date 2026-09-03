@@ -1,5 +1,5 @@
 /**
- * MeliodasBot — Telemetry & Device Intelligence Service
+ * Telemetry & Device Intelligence Service
  * Detecção precisa e coerente de dispositivo, latência de socket e especificações reais
  */
 

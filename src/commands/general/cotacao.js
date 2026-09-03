@@ -1,53 +1,90 @@
-/**
- * MeliodasBot — Comando .cotacao / .dolar / .euro / .btc
- * Cotações de Moedas e Criptoativos em Tempo Real com API Resiliente
- */
+const logger = require('../../core/logger');
 
-const { getCotacoes } = require('../../services/apiService');
-const { renderCard } = require('../../utils/uiEngine');
+const RATES = {
+    'USD_BRL': 5.10,
+    'EUR_BRL': 5.45,
+    'GBP_BRL': 6.30,
+    'USD_EUR': 0.92,
+    'USD_GBP': 0.79,
+    'EUR_USD': 1.09,
+    'EUR_GBP': 0.86,
+    'GBP_USD': 1.27,
+    'GBP_EUR': 1.16,
+    'BRL_USD': 0.196,
+    'BRL_EUR': 0.183,
+    'BRL_GBP': 0.159
+};
+
+const CURRENCY_NAMES = {
+    USD: 'Dólar Americano',
+    EUR: 'Euro',
+    GBP: 'Libra Esterlina',
+    BRL: 'Real Brasileiro'
+};
+
+const CURRENCY_SYMBOLS = {
+    USD: '$',
+    EUR: '\u20AC',
+    GBP: '\u00A3',
+    BRL: 'R$'
+};
 
 module.exports = {
     name: 'cotacao',
-    aliases: ['dolar', 'euro', 'btc', 'bitcoin', 'cripto', 'cambio', 'moedas', 'usd', 'eth'],
+    aliases: ['convertermoeda', 'currency', 'moedaconversor'],
     category: 'general',
-    description: 'Consulta cotações em tempo real de Dólar, Euro, Bitcoin e Ethereum',
-    cooldownMs: 2000,
-    execute: async ({ reply, sender, commandName }) => {
-        const quotes = await getCotacoes();
-
-        if (!quotes) {
-            return reply('❌ Falha ao consultar cotações de mercado no momento. Tente novamente em instantes.');
+    subcategory: 'Utilidades',
+    description: 'Converte valores entre moedas (USD, EUR, GBP, BRL)',
+    cooldownMs: 3000,
+    execute: async ({ args, text, reply }) => {
+        const input = (text || '').trim();
+        if (!input) {
+            return reply(
+                '❌ Uso: `.cotacao <valor> <de> <para>`\n\n' +
+                '📌 *Exemplos:*\n' +
+                '• `.moeda 100 USD BRL`\n' +
+                '• `.moeda 50 EUR USD`\n' +
+                '• `.moeda 200 BRL GBP`\n\n' +
+                '💱 *Moedas suportadas:* USD, EUR, GBP, BRL'
+            );
         }
 
-        const formatBRL = (val) => Number(val).toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
-        const formatPct = (pct) => `${pct >= 0 ? '🟢 +' : '🔴 '}${pct.toFixed(2)}%`;
+        const parts = input.split(/\s+/);
+        if (parts.length < 3) return reply('❌ Informe: `<valor> <moeda_origem> <moeda_destino>`.');
 
-        const doc = renderCard({
-            title: 'MERCADO FINANCEIRO & COTAÇÕES',
-            icon: '📈',
-            subtitle: `🕒 *Atualizado às:* ${quotes.atualizadoEm} (Horário de Brasília)`,
-            sections: [
-                {
-                    title: 'MOEDAS TRADICIONAIS',
-                    icon: '💵',
-                    fields: [
-                        { label: 'Dólar Comercial (USD)', value: `R$ ${formatBRL(quotes.usd.valor)} _(${formatPct(quotes.usd.variacao)})_`, icon: '🇺🇸' },
-                        { label: 'Euro (EUR)', value: `R$ ${formatBRL(quotes.eur.valor)} _(${formatPct(quotes.eur.variacao)})_`, icon: '🇪🇺' }
-                    ]
-                },
-                {
-                    title: 'CRIPTOMOEDAS & ATIVOS DIGITAIS',
-                    icon: '🪙',
-                    fields: [
-                        { label: 'Bitcoin (BTC)', value: `R$ ${formatBRL(quotes.btc.valor)} _(${formatPct(quotes.btc.variacao)})_`, icon: '₿' },
-                        { label: 'Ethereum (ETH)', value: `R$ ${formatBRL(quotes.eth.valor)} _(${formatPct(quotes.eth.variacao)})_`, icon: 'Ξ' }
-                    ]
-                }
-            ],
-            tip: 'Dados obtidos via APIs oficiais de câmbio e mercados abertos.',
-            mentions: [sender]
-        });
+        const value = parseFloat(parts[0].replace(',', '.'));
+        if (isNaN(value) || value < 0) return reply('❌ Valor inválido.');
 
-        return reply(doc, [sender]);
+        const from = parts[1].toUpperCase();
+        const to = parts[2].toUpperCase();
+
+        if (!CURRENCY_NAMES[from] || !CURRENCY_NAMES[to]) {
+            return reply('❌ Moeda inválida. Use: USD, EUR, GBP ou BRL.');
+        }
+
+        if (from === to) {
+            return reply(`✅ *${value.toLocaleString('pt-BR', { minimumFractionDigits: 2 })} ${from}* já é *${value.toLocaleString('pt-BR', { minimumFractionDigits: 2 })} ${to}*.`);
+        }
+
+        const key = `${from}_${to}`;
+        const rate = RATES[key];
+
+        if (!rate) return reply('❌ Conversão não suportada.');
+
+        const result = value * rate;
+
+        const doc = [
+            `╔══════════════════════════════╗`,
+            `║  💱 *CONVERSOR DE MOEDAS* 💱  ║`,
+            `╚══════════════════════════════╝`,
+            ``,
+            `💰 *Valor:* ${CURRENCY_SYMBOLS[from]} ${value.toLocaleString('pt-BR', { minimumFractionDigits: 2 })} (${CURRENCY_NAMES[from]})`,
+            ``,
+            `╭━〔 🔄 CONVERSÃO 〕━⬣`,
+            `┃ 📊 *Taxa:* 1 ${from} = ${rate} ${to}`,
+            `┃ 💎 *Resultado:* **${CURRENCY_SYMBOLS[to]} ${result.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}** (${CURRENCY_NAMES[to]})`,
+            `╰━━━━━━━━━━━━━━━━━━⬣`
+        ].join('\n');
+        return reply(doc);
     }
 };

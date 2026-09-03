@@ -1,5 +1,5 @@
 /**
- * MeliodasBot — Comando .setdesc / .setbio / .setdescricao
+ * Comando .setdesc / .setbio / .setdescricao
  * Altera a descrição/bio do grupo diretamente pelo WhatsApp
  */
 

@@ -1,5 +1,5 @@
 /**
- * MeliodasBot — Comando .pescaepica / .pescar-raro
+ * Comando .pescaepica / .pescar-raro
  * Pescaria mística de monstros marinhos e tesouros submersos
  */
 

@@ -1,5 +1,5 @@
 /**
- * MeliodasBot — Comando .memoria / .jogomemoria / .memory
+ * Comando .memoria / .jogomemoria / .memory
  * Jogo da memória com pares de emojis no chat
  */
 
@@ -9,7 +9,7 @@ module.exports = {
     name: "memoria",
     aliases: ["jogomemoria", "memory", "cartas-memoria"],
     category: "fun",
-    description: "Teste sua memória revelando pares idênticos de cartas",
+    description: "Exibe um grid de memória decorativo para sortear no chat",
     cooldownMs: 3000,
     execute: async ({ sender, reply }) => {
         const emojis = ["🐉", "🦊", "👑", "🗡️", "☀️", "💎"];
@@ -39,7 +39,7 @@ module.exports = {
                     ]
                 }
             ],
-            tip: "Desafie os amigos para ver quem memoriza mais rápido!",
+            tip: "Grid decorativo — jogo interativo em breve!",
             mentions: [sender]
         });
 

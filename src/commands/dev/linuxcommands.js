@@ -1,5 +1,5 @@
 /**
- * MeliodasBot — Comando .linuxcommands
+ * Comando .linuxcommands
  * Dicionário de comandos Linux essenciais
  */
 

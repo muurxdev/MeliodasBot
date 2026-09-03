@@ -11,11 +11,27 @@ module.exports = {
         const codigo = (args[0] || "").toUpperCase().trim();
         if (!codigo) return reply("❌ Informe o código promocional a ser resgatado (ex: `.resgatarpremio MELIODAS2026`).");
 
+        // Verificar se o código é válido (lista em configs['global'].coupons)
+        const configs = dataService.getConfigsData();
+        const coupons = configs['global']?.coupons || {};
+        const coupon = coupons[codigo];
+        if (!coupon) {
+            return reply("❌ *Código inválido ou inativo!* Verifique o código e tente novamente.");
+        }
+
+        // Verificar se o usuário já resgatou este código
         const xpData = dataService.getXpData();
         const user = xpData[sender] || dataService.initializeUser(sender);
-        user.coins = (user.coins || 0) + 1500;
+        user.redeemedCoupons = user.redeemedCoupons || [];
+        if (user.redeemedCoupons.includes(codigo)) {
+            return reply("❌ Você já resgatou este código anteriormente!");
+        }
+
+        const reward = coupon.amount || 1500;
+        user.coins = (user.coins || 0) + reward;
+        user.redeemedCoupons.push(codigo);
         await dataService.saveXpData(xpData);
 
-        return reply("🎉 *CÓDIGO VALIDADO COM SUCESSO!*\n\n🎟️ Código: `" + codigo + "`\n💰 Recompensa: +" + formatCoins(1500) + " creditados!");
+        return reply("🎉 *CÓDIGO VALIDADO COM SUCESSO!*\n\n🎟️ Código: `" + codigo + "`\n💰 Recompensa: +" + formatCoins(reward) + " creditados!");
     }
 };

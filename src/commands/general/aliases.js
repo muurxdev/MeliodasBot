@@ -1,5 +1,5 @@
 /**
- * MeliodasBot — Comando .aliases / .aliases-all / .alias-<categoria>
+ * Comando .aliases / .aliases-all / .alias-<categoria>
  * Central de Atalhos, Abreviações e Sinônimos de Comandos por Categoria
  */
 

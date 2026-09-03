@@ -1,5 +1,5 @@
 /**
- * MeliodasBot — Comando .blackjack (21)
+ * Comando .blackjack (21)
  * Jogo 21 Completo de Cassino com Cartas Interativas (Hit, Stand, Double Down)
  */
 

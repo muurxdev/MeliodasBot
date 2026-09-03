@@ -1,5 +1,5 @@
 /**
- * MeliodasBot — Comando .duelomorte / .dueloallin
+ * Comando .duelomorte / .dueloallin
  * Duelo mortal onde o vencedor leva 100% da aposta total
  */
 

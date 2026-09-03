@@ -1,5 +1,5 @@
 /**
- * MeliodasBot — Comando .curar / .curar-max / .heal
+ * Comando .curar / .curar-max / .heal
  * Restaura 100% da vida máxima total calculada com armaduras, classes e níveis
  */
 

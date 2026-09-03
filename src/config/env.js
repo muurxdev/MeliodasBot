@@ -63,7 +63,7 @@ module.exports = {
     botOwnerIds,
     isOwnerJid,
     formatPhoneFromJid,
-    botName: process.env.BOT_NAME || 'MeliodasBot',
+    botName: process.env.BOT_NAME || 'ᶜᴿᴬᶻᵞ𝙈𝙚𝙡𝙞𝙤𝙙𝙖𝙨✖️‿✖️•',
     debug: process.env.DEBUG === 'true' || process.env.LOG_LEVEL === 'debug',
     logLevel: process.env.LOG_LEVEL || 'info',
     defaultCooldownMs: parseInt(process.env.DEFAULT_COOLDOWN_MS) || 2000

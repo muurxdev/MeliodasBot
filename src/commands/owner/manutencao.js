@@ -1,5 +1,5 @@
 /**
- * MeliodasBot — Comando .manutencao
+ * Comando .manutencao
  * Ativa ou desativa o Modo Manutenção global
  */
 

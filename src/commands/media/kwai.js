@@ -1,5 +1,5 @@
 /**
- * MeliodasBot — Comando .kwai
+ * Comando .kwai
  * Download de vídeos e carrosséis do Kwai em alta resolução
  */
 

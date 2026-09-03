@@ -1,5 +1,5 @@
 /**
- * MeliodasBot — Comando .setname / .setbotname
+ * Comando .setname / .setbotname
  * Altera dinamicamente o nome oficial do bot em todos os menus, cards e mensagens
  */
 

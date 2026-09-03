@@ -1,9 +1,9 @@
 /**
- * MeliodasBot — Dynamic Bot Configuration & Identity
+ * Dynamic Bot Configuration & Identity
  */
 const { getDatabase } = require("../database/connection")
 
-const DEFAULT_BOT_NAME = process.env.BOT_NAME || "MeliodasBot"
+const DEFAULT_BOT_NAME = process.env.BOT_NAME || "ᶜᴿᴬᶻᵞ𝙈𝙚𝙡𝙞𝙤𝙙𝙖𝙨✖️‿✖️•"
 
 function getBotName() {
     try {

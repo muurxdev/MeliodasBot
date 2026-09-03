@@ -1,5 +1,5 @@
 /**
- * MeliodasBot — Comando .campominado
+ * Comando .campominado
  * Campo minado 4x4 interativo no chat
  */
 

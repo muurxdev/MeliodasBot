@@ -1,5 +1,5 @@
 /**
- * MeliodasBotXP — Group Control Service
+ * BotXP — Group Control Service
  * Testes do fechamento/reabertura de grupos com duração ou indefinido.
  */
 const assert = require('assert')

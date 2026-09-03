@@ -1,5 +1,5 @@
 /**
- * MeliodasBot — Comando .regexcheatsheet
+ * Comando .regexcheatsheet
  * Guia prático e rápido de Expressões Regulares (Regex)
  */
 

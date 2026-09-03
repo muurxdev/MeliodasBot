@@ -1,5 +1,5 @@
 /**
- * MeliodasBot — Comando .geradornick
+ * Comando .geradornick
  * Gera nicks estilizados com símbolos e fontes Unicode raras
  */
 

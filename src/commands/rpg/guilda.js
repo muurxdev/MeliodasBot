@@ -1,5 +1,5 @@
 /**
- * MeliodasBot — Comando .guilda / .cla / .clan
+ * Comando .guilda / .cla / .clan
  * Sistema completo de Guildas com convites pelo líder, expulsão, listagem de todas as guildas e membros
  */
 

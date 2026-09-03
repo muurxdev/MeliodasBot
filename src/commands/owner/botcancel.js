@@ -1,5 +1,5 @@
 /**
- * MeliodasBot — Comando .botcancel
+ * Comando .botcancel
  * Cancela qualquer agendamento futuro de fechamento ou abertura do bot
  */
 

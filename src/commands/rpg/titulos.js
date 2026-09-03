@@ -1,5 +1,5 @@
 /**
- * MeliodasBot — Comando .titulos / .titulo / .conquistas
+ * Comando .titulos / .titulo / .conquistas
  * Consulta, desbloqueio e equipamento de títulos de honra com persistência SQLite
  */
 

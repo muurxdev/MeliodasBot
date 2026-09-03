@@ -1,5 +1,5 @@
 /**
- * MeliodasBot — Comando Central .dossie / .perfil
+ * Comando Central .dossie / .perfil
  * Exibe o dossiê detalhado com 100% de persistência e dados reais do SQLite
  */
 
@@ -11,6 +11,7 @@ const { getOwnerRank } = require("../../services/ownerService");
 const { resolveUserRole, ROLES } = require("../../services/permissionService");
 const { getAdvancedNetworkTelemetry } = require("../../services/telemetryDeviceService");
 const groupAuthService = require("../../services/groupAuthService");
+const { getBotName } = require("../../config/botConfig");
 const env = require("../../config/env");
 const logger = require("../../core/logger");
 
@@ -260,7 +261,7 @@ module.exports = {
             }
 
             doc += "💡 _Para listar comandos de perfil e economia: .menu eco_\n";
-            doc += "👑 *MeliodasBot*";
+            doc += "👑 *" + getBotName() + "*";
 
             return reply(doc.trim(), [targetJid, sender]);
         } catch (e) {

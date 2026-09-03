@@ -1,5 +1,5 @@
 /**
- * MeliodasBot — Group Events Handler
+ * Group Events Handler
  * Processa eventos em tempo real de grupos (Entrada, Saída, Promoção e Rebaixamento de Admins)
  * com suporte completo a mensagens personalizadas e templates dinâmicos
  */

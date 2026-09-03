@@ -1,5 +1,5 @@
 /**
- * MeliodasBot — Comando .roleta
+ * Comando .roleta
  * Roleta Clássica de Cassino com Probabilidade Matemática Justa e Multiplicadores Reais
  */
 

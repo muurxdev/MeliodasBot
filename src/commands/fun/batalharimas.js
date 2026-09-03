@@ -1,5 +1,5 @@
 /**
- * MeliodasBot — Comando .batalharimas
+ * Comando .batalharimas
  * Gere uma batalha de rimas rápida entre dois guerreiros
  */
 

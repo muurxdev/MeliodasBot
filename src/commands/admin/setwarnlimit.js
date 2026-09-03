@@ -1,5 +1,5 @@
 /**
- * MeliodasBot — Comando .setwarnlimit / .limitewarn / .limiteavisos
+ * Comando .setwarnlimit / .limitewarn / .limiteavisos
  * Define o limite máximo de advertências do grupo antes da expulsão automática
  */
 

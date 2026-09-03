@@ -1,5 +1,5 @@
 /**
- * MeliodasBotXP — Testes do comando .adm unificado
+ * BotXP — Testes do comando .adm unificado
  * Garante que o .adm resolve o alvo para o namespace do grupo (LID),
  * promove membros comuns e rebaixa administradores existentes.
  */

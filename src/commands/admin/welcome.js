@@ -1,5 +1,5 @@
 /**
- * MeliodasBot — Comando .welcome / .bv / .boasvindas
+ * Comando .welcome / .bv / .boasvindas
  * Ativa, desativa, personaliza ou testa (preview) as mensagens de boas-vindas do grupo
  */
 

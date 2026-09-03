@@ -1,5 +1,5 @@
 /**
- * MeliodasBot — Comando .trust
+ * Comando .trust
  * Gerencia a lista de usuários de confiança (TRUSTED)
  */
 

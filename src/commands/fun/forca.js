@@ -1,5 +1,5 @@
 /**
- * MeliodasBot — Comando .forca
+ * Comando .forca
  * Jogo da Forca interativo com adivinhação de palavras
  */
 

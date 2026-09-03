@@ -1,5 +1,5 @@
 /**
- * MeliodasBot — Comando .sair / .sairbot / .leavebot
+ * Comando .sair / .sairbot / .leavebot
  * Faz o próprio bot sair de um grupo especificado por JID ou do grupo atual
  * Comando exclusivo dos Donos do bot
  */

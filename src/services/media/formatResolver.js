@@ -1,5 +1,5 @@
 /**
- * MeliodasBot — Format & Quality Resolver
+ * Format & Quality Resolver
  * Mapeia formatos (MP3, M4A, MP4) e resoluções para argumentos otimizados do yt-dlp e FFmpeg
  */
 

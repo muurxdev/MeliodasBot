@@ -1,5 +1,5 @@
 /**
- * MeliodasBot — Comando .lotofacil / .loto / .loteria-rapida
+ * Comando .lotofacil / .loto / .loteria-rapida
  * Loteria rápida de 5 números com sorteio instantâneo e multiplicadores altos
  */
 
@@ -15,6 +15,15 @@ module.exports = {
     execute: async ({ sender, reply, args }) => {
         const xpData = dataService.getXpData();
         const user = xpData[sender] || dataService.initializeUser(sender);
+
+        const now = Date.now();
+        const lastLoto = user.lastLoto || 0;
+        const COOLDOWN_1H = 60 * 60 * 1000;
+        if (now - lastLoto < COOLDOWN_1H) {
+            const remaining = COOLDOWN_1H - (now - lastLoto);
+            const mins = Math.ceil(remaining / (60 * 1000));
+            return reply(`⏳ Aguarde *${mins}min* para jogar novamente.`);
+        }
 
         const aposta = parseInt(args[0], 10);
         if (isNaN(aposta) || aposta < 100) {
@@ -59,6 +68,7 @@ module.exports = {
             user.coins += premio;
         }
 
+        user.lastLoto = Date.now();
         await dataService.saveXpData(xpData);
 
         const card = renderCard({

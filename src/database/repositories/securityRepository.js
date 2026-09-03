@@ -1,5 +1,5 @@
 /**
- * MeliodasBot — Repositório de Segurança e Blacklist (SQLite)
+ * Repositório de Segurança e Blacklist (SQLite)
  */
 
 const { getDatabase } = require('../connection')

@@ -1,5 +1,5 @@
 /**
- * MeliodasBot — Comando .cancel
+ * Comando .cancel
  * Cancela um download ou processamento ativo do Media Engine
  */
 

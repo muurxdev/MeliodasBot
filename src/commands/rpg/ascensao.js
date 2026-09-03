@@ -1,5 +1,5 @@
 /**
- * MeliodasBot — Comando .ascensao
+ * Comando .ascensao
  * Árvore de Ascensão Espiritual e Graus Cósmicos do Guerreiro
  */
 

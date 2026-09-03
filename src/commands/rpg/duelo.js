@@ -1,5 +1,5 @@
 /**
- * MeliodasBot — Comando .duelo / .pvp / .x1
+ * Comando .duelo / .pvp / .x1
  * Sistema completo de Duelo PvP 1v1 e 2v2 com cálculo de equipamentos, penalidades reais de moedas e marcação explícita
  */
 

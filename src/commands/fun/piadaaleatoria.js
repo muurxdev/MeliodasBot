@@ -1,5 +1,5 @@
 /**
- * MeliodasBot — Comando .piadaaleatoria
+ * Comando .piadaaleatoria
  * Conta uma piada ou trocadilho divertido no grupo
  */
 

@@ -1,5 +1,5 @@
 /**
- * MeliodasBot — Comando .reliquia / .reliquias
+ * Comando .reliquia / .reliquias
  * Catálogo e Forja de Relíquias Ancestrais de Britannia com bônus passivos permanentes
  */
 

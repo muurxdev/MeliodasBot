@@ -1,5 +1,5 @@
 /**
- * MeliodasBot — Motor de Conquistas (Achievement Engine)
+ * Motor de Conquistas (Achievement Engine)
  * Avalia critérios e concede conquistas e recompensas automáticas aos jogadores.
  */
 

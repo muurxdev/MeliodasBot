@@ -1,5 +1,5 @@
 /**
- * MeliodasBot — Comando .pinterest
+ * Comando .pinterest
  * Download de imagens em alta resolução, vídeos MP4 e extração de áudio MP3 do Pinterest
  */
 

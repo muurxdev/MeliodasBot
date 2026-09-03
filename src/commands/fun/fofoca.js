@@ -1,5 +1,5 @@
 /**
- * MeliodasBot — Comando .fofoca
+ * Comando .fofoca
  * Gera uma fofoca cômica e fictícia sobre o grupo
  */
 

@@ -1,5 +1,5 @@
 /**
- * MeliodasBot — Comando .httpstatus / .statuscode / .httpcode
+ * Comando .httpstatus / .statuscode / .httpcode
  * Dicionário interativo e técnico de códigos de status HTTP
  */
 

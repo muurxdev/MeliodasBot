@@ -1,5 +1,5 @@
 /**
- * MeliodasBot — Comando .shoparmaduras / .lojaarmaduras / .comprararmadura
+ * Comando .shoparmaduras / .lojaarmaduras / .comprararmadura
  * Forja e loja de armaduras (Capacetes, Peitorais, Calças, Botas, Escudos e Amuletos)
  */
 

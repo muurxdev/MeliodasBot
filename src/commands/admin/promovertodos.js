@@ -1,5 +1,5 @@
 /**
- * MeliodasBot — Comando .promovertodos / .promoteall
+ * Comando .promovertodos / .promoteall
  * Promove participantes em lote com intervalo seguro anti-ban
  */
 

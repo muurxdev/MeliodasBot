@@ -1,5 +1,5 @@
 /**
- * MeliodasBot — Comando .mute
+ * Comando .mute
  * Silencia um membro no grupo (registrado no SQLite)
  */
 

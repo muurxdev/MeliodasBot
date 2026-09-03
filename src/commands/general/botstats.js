@@ -1,5 +1,5 @@
 /**
- * MeliodasBot — Comando .botstats / .topcomandos / .telemetria
+ * Comando .botstats / .topcomandos / .telemetria
  * Métricas e telemetria de uso dos comandos em tempo real persistidos no SQLite
  */
 

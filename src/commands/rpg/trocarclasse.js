@@ -1,5 +1,5 @@
 /**
- * MeliodasBot — Comando .trocarclasse / .resetclasse
+ * Comando .trocarclasse / .resetclasse
  * Reatribuição de classe e redistribuição de maestria
  */
 

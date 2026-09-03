@@ -1,5 +1,5 @@
 /**
- * MeliodasBot — Comando .dns
+ * Comando .dns
  * Consulta registros DNS com segurança (A, AAAA, MX, TXT, NS, CNAME)
  */
 

@@ -1,5 +1,5 @@
 /**
- * MeliodasBot — Comando .membrosinfo
+ * Comando .membrosinfo
  * Relatório de distribuição de DDDs e perfis dos membros do grupo
  */
 

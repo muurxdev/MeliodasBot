@@ -1,5 +1,5 @@
 /**
- * MeliodasBot — Comando .b64
+ * Comando .b64
  * Codificador e decodificador Base64
  */
 

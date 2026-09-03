@@ -1,5 +1,5 @@
 /**
- * MeliodasBot — Comando .listaregras / .regras / .rules
+ * Comando .listaregras / .regras / .rules
  * Exibe e permite customizar as regras oficiais do grupo
  */
 

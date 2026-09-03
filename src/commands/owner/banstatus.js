@@ -1,5 +1,5 @@
 /**
- * MeliodasBot — Comando .banstatus
+ * Comando .banstatus
  * Bloqueia ou autoriza a marcação/interação de um usuário com o status do grupo/bot
  */
 

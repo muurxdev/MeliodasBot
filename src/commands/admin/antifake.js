@@ -1,5 +1,5 @@
 /**
- * MeliodasBot — Comando .antifake
+ * Comando .antifake
  * Bloqueia e expulsa automaticamente números estrangeiros / virtuais (+1, +44, +234, etc.)
  */
 

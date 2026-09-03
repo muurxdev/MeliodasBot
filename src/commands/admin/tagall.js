@@ -1,5 +1,5 @@
 /**
- * MeliodasBot — Comando .tagall / .todos / .marcartodos
+ * Comando .tagall / .todos / .marcartodos
  * Marca todos os participantes do grupo com layout formatado e menções reais
  */
 

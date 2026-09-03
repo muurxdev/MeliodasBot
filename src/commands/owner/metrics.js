@@ -1,5 +1,5 @@
 /**
- * MeliodasBot — Comando .metrics
+ * Comando .metrics
  * Exibe telemetria em tempo real, throughput de comandos, latência média e taxa de sucesso
  */
 

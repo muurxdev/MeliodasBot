@@ -1,5 +1,5 @@
 /**
- * MeliodasBot — Comando .jogodavelhaavancado
+ * Comando .jogodavelhaavancado
  * Desafie a Inteligência Artificial no Jogo da Velha
  */
 

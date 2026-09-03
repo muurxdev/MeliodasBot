@@ -12,6 +12,7 @@ const analyticsRepo = require('../database/repositories/analyticsRepository')
 const { validateRegistry, formatReport } = require('./commandValidator')
 const aliasOwners = require('../config/aliasOwners')
 const { resolveCategoryKey } = require('../config/categories')
+const { getBotName } = require('../config/botConfig')
 
 const commands = new Map()
 const aliases = new Map()
@@ -316,7 +317,7 @@ async function dispatch(context) {
                     let doc = `╔══════════════════════════════╗\n`
                     doc += `║   🔒 *GRUPO NÃO ALUGADO / EXPIRADO*   ║\n`
                     doc += `╚══════════════════════════════╝\n\n`
-                    doc += `⚠️ O MeliodasBot está com o *Modo Aluguel ATIVO* neste grupo.\n\n`
+                    doc += `⚠️ O bot está com o *Modo Aluguel ATIVO* neste grupo.\n\n`
                     doc += `💰 *Para liberar todos os comandos e recursos:*\n`
                     doc += `Realize o pagamento do aluguel ou contate os Donos oficiais.\n\n`
                     doc += `📋 *Opções Disponíveis:*\n`

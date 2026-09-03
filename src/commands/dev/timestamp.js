@@ -1,5 +1,5 @@
 /**
- * MeliodasBot — Comando .timestamp
+ * Comando .timestamp
  * Converte timestamps UNIX e datas para múltiplos formatos
  */
 

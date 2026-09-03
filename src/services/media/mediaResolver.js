@@ -1,5 +1,5 @@
 /**
- * MeliodasBot — Media Resolver & Security Validator
+ * Media Resolver & Security Validator
  */
 
 const { spawn } = require('child_process')
@@ -210,12 +210,12 @@ async function tryYouTubeFallback(target, isSearch, urlOrQuery) {
  * @returns {Promise<object>}
  */
 async function extractMetadata(urlOrQuery, options) {
-    // Normaliza options: suporta booleano (legado) ou objeto
     const opts = (typeof options === 'boolean')
         ? { isSearch: options }
         : (options && typeof options === 'object' ? options : {})
     const isSearch = opts.isSearch === true
     const timeoutMs = opts.timeoutMs || MEDIA_LIMITS.METADATA_TIMEOUT_MS
+    const userJid = opts.userJid || null
 
     // Se for URL do YouTube, tenta oEmbed primeiro sem precisar de yt-dlp
     if (!isSearch && isYouTubeUrl(urlOrQuery)) {
@@ -261,7 +261,7 @@ async function extractMetadata(urlOrQuery, options) {
             '--no-playlist',
             '--skip-download',
             target
-        ])
+        ], { userJid })
 
         let proc
         try {

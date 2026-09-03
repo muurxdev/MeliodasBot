@@ -1,5 +1,5 @@
 /**
- * MeliodasBot — Prioritized Media Job Queue System
+ * Prioritized Media Job Queue System
  * Gerencia a concorrência global, prioridade por nível de usuário, limites por usuário e retentativas
  */
 

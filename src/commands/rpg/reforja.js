@@ -1,5 +1,5 @@
 /**
- * MeliodasBot — Comando .reforja / .reforjar
+ * Comando .reforja / .reforjar
  * Reforja ancestral de atributos e status adicionais de armas
  */
 

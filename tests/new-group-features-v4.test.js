@@ -1,5 +1,5 @@
 /**
- * MeliodasBotXP — Testes Automatizados v4
+ * BotXP — Testes Automatizados v4
  * Validação de Solicitações de Entrada (Join Requests), Edição de Grupo, Leave/Welcome Preview,
  * Banimento por Categoria e Modo Restrito para Grupos.
  */

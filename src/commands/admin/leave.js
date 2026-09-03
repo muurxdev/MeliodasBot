@@ -1,5 +1,5 @@
 /**
- * MeliodasBot — Comando .leave / .adeus / .despedida / .saiu
+ * Comando .leave / .adeus / .despedida / .saiu
  * Ativa, desativa, personaliza ou testa (preview) as mensagens de saída/despedida de membros do grupo
  */
 

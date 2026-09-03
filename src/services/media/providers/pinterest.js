@@ -1,5 +1,5 @@
 /**
- * MeliodasBot — Pinterest Media Provider
+ * Pinterest Media Provider
  */
 
 const BaseProvider = require('./baseProvider')

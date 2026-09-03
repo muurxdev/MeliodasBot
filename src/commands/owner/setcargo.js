@@ -1,5 +1,5 @@
 /**
- * MeliodasBot — Comando .setcargo / .setpatente / .titulodono
+ * Comando .setcargo / .setpatente / .titulodono
  * Permite alterar dinamicamente o título/nome de exibição dos cargos da hierarquia de donos
  */
 

@@ -1,5 +1,5 @@
 /**
- * MeliodasBotXP — Suíte de Testes do Bot Lifecycle Scheduler
+ * BotXP — Suíte de Testes do Bot Lifecycle Scheduler
  * Valida agendamentos persistentes em SQLite, parsing, recuperação de restart e permissões
  */
 

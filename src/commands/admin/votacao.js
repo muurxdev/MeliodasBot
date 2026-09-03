@@ -1,5 +1,5 @@
 /**
- * MeliodasBot — Comando .votacao / .plebiscito / .enqueterapida
+ * Comando .votacao / .plebiscito / .enqueterapida
  * Cria uma votação rápida no chat de Sim / Não com contagem automática
  */
 

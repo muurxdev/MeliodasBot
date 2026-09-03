@@ -1,5 +1,5 @@
 /**
- * MeliodasBot — Comando .personagemanime
+ * Comando .personagemanime
  * Consulta a biografia e poderes de personagens de animes
  */
 

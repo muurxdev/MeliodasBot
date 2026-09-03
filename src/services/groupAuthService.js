@@ -1,5 +1,5 @@
 /**
- * MeliodasBot — Group Auth Service
+ * Group Auth Service
  * Autenticação de administração de grupos do WhatsApp.
  *
  * Responsável por confirmar, com dados frescos e tolerantes a LID/dispositivo:

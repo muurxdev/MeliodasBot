@@ -1,5 +1,5 @@
 /**
- * MeliodasBot — Comando .reddit
+ * Comando .reddit
  * Download de vídeos e mídias do Reddit com áudio sincronizado via Media Engine
  */
 

@@ -1,5 +1,5 @@
 /**
- * MeliodasBot — Comando .evoluirpet
+ * Comando .evoluirpet
  * Sistema de Evolução de Pets com árvores de estágios e bônus massivos de dano real
  */
 

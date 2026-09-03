@@ -1,5 +1,5 @@
 /**
- * MeliodasBot — Comando .bau / .deposito / .sacar / .armazem
+ * Comando .bau / .deposito / .sacar / .armazem
  * Armazém Seguro de Retaguarda no SQLite para guardar moedas e equipamentos sem lotar a mochila
  */
 

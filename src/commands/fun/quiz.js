@@ -1,5 +1,5 @@
 /**
- * MeliodasBot — Comando .quiz
+ * Comando .quiz
  * Quiz interativo de perguntas e respostas com prêmios de XP e Moedas
  */
 

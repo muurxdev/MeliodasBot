@@ -1,5 +1,5 @@
 /**
- * MeliodasBot — Comando .unitconverter
+ * Comando .unitconverter
  * Conversor de unidades de armazenamento digital (Bytes, MB, GB, TB)
  */
 

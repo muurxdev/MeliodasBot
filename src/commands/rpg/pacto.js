@@ -1,5 +1,5 @@
 /**
- * MeliodasBot — Comando .pacto / .pactodemonio
+ * Comando .pacto / .pactodemonio
  * Pacto das sombras que concede grande bônus de dano
  */
 

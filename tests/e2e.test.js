@@ -1,5 +1,5 @@
 /**
- * MeliodasBotXP — Suíte Completa de Testes End-to-End (E2E) & Validação de Produção (FASE 10)
+ * BotXP — Suíte Completa de Testes End-to-End (E2E) & Validação de Produção (FASE 10)
  * Valida fluxos integrados de ponta a ponta em condições reais de execução com SQLite.
  */
 

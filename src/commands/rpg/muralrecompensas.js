@@ -1,5 +1,5 @@
 /**
- * MeliodasBot — Comando .muralrecompensas / .bounties
+ * Comando .muralrecompensas / .bounties
  * Mural geral de criminosos e alvos procurados com recompensa
  */
 

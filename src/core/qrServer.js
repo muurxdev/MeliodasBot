@@ -1,11 +1,12 @@
 /**
- * MeliodasBot — Live Web & API QR Code Server
+ * Live Web & API QR Code Server
  * Permite visualizar e escanear o QR Code remotamente pelo navegador do PC ou terminal
  */
 
 const http = require('http')
 const QRCode = require('qrcode')
 const logger = require('./logger')
+const { getBotName } = require('../config/botConfig')
 
 let currentQr = null
 let isConnected = false
@@ -65,7 +66,7 @@ function startQrServer(port = process.env.PORT || 3000) {
             bodyHtml = `
                 <div style="background:#10b981; color:white; padding:30px; border-radius:12px; margin-top:20px;">
                     <h2 style="margin:0;">✅ BOT CONECTADO COM SUCESSO!</h2>
-                    <p style="margin-top:10px; font-size:18px;">ID Conectado: <strong>${connectedUser || 'MeliodasBot'}</strong></p>
+                    <p style="margin-top:10px; font-size:18px;">ID Conectado: <strong>${connectedUser || getBotName()}</strong></p>
                     <p style="opacity:0.9;">O bot já está operacional e processando comandos no WhatsApp.</p>
                 </div>
             `
@@ -90,7 +91,7 @@ function startQrServer(port = process.env.PORT || 3000) {
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>MeliodasBot — Scanner QR Code</title>
+    <title>${getBotName()} — Scanner QR Code</title>
     <meta http-equiv="refresh" content="3">
     <style>
         body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; text-align: center; background: #0f172a; color: #f8fafc; padding: 40px 20px; }
@@ -101,7 +102,7 @@ function startQrServer(port = process.env.PORT || 3000) {
 </head>
 <body>
     <div class="container">
-        <h1>🤖 MeliodasBot</h1>
+        <h1>🤖 ${getBotName()}</h1>
         <span class="badge">Scanner de Autenticação Remoto</span>
         ${bodyHtml}
     </div>

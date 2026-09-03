@@ -1,5 +1,5 @@
 /**
- * MeliodasBot — Comando .speedtest / .velocidade / .testevel
+ * Comando .speedtest / .velocidade / .testevel
  * Medidor de latência e velocidade de resposta da rede da VPS
  */
 

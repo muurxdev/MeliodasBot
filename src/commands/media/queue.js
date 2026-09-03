@@ -1,5 +1,5 @@
 /**
- * MeliodasBot — Comando .queue
+ * Comando .queue
  * Exibe o status da fila de downloads, concorrência e jobs em andamento
  */
 

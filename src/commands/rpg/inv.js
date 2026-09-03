@@ -1,5 +1,5 @@
 /**
- * MeliodasBot — Comando .inv / .inventario / .itens
+ * Comando .inv / .inventario / .itens
  * Painel completo de Inventário com visualização dos 7 Slots de Equipamentos, Loots, Minérios e Capacidade
  */
 

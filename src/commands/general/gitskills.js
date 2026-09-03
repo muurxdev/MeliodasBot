@@ -1,9 +1,10 @@
 /**
- * MeliodasBot — Comando .gitskills
+ * Comando .gitskills
  * Busca skills oficiais de agentes e inteligência artificial no GitHub, trazendo prévia do que a skill faz e o link oficial do repositório
  */
 
 const https = require('https')
+const { getBotName } = require('../../config/botConfig')
 const logger = require('../../core/logger')
 
 async function fetchGitHubSkills(query) {
@@ -13,7 +14,7 @@ async function fetchGitHubSkills(query) {
     return new Promise((resolve, reject) => {
         https.get(url, {
             headers: {
-                'User-Agent': 'MeliodasBot-SkillSearch/2.0',
+                'User-Agent': getBotName() + '-SkillSearch/2.0',
                 'Accept': 'application/vnd.github.v3+json'
             }
         }, res => {

@@ -1,5 +1,5 @@
 /**
- * MeliodasBot — Comando .dockercheatsheet
+ * Comando .dockercheatsheet
  * Guia rápido de comandos Docker e Docker Compose
  */
 

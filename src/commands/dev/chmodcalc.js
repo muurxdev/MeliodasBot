@@ -1,5 +1,5 @@
 /**
- * MeliodasBot — Comando .chmodcalc
+ * Comando .chmodcalc
  * Calculadora de permissões numéricas e simbólicas Linux (chmod)
  */
 

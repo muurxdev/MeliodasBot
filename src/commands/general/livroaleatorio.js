@@ -1,5 +1,5 @@
 /**
- * MeliodasBot — Comando .livroaleatorio
+ * Comando .livroaleatorio
  * Sorteia um livro/apostila com foco em DESENVOLVIMENTO (o grupo é de devs) e
  * delega ao comando .livro para buscar e baixar o arquivo real.
  */

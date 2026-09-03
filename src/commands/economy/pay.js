@@ -1,5 +1,5 @@
 /**
- * MeliodasBot — Comando .pay / .transferir / .pix
+ * Comando .pay / .transferir / .pix
  * Transfere Coins com segurança entre usuários com auditoria no SQLite
  */
 

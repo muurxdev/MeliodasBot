@@ -1,5 +1,5 @@
 /**
- * MeliodasBot — Bot Lifecycle Schedule Repository
+ * Bot Lifecycle Schedule Repository
  * Persistência relacional em SQLite para agendamentos de ciclo de vida e estado operacional
  */
 

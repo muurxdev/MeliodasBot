@@ -1,5 +1,5 @@
 /**
- * MeliodasBot — Comando .meusgrupos
+ * Comando .meusgrupos
  * Lista todos os grupos onde o usuário (ou o alvo marcado) e o bot participam juntos,
  * exibindo o Nome do Grupo, JID, Cargo do Usuário e Status do Bot.
  */

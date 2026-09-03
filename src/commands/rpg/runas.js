@@ -1,5 +1,5 @@
 /**
- * MeliodasBot — Comando .runas / .encantar / .runa
+ * Comando .runas / .encantar / .runa
  * Forja, compra e equipamento de runas mágicas sagradas com bônus de combate reais
  */
 

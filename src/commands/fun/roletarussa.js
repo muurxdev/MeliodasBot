@@ -1,5 +1,5 @@
 /**
- * MeliodasBot — Comando .roletarussa
+ * Comando .roletarussa
  * Jogo de azar clássico com tambor giratório e aposta
  */
 

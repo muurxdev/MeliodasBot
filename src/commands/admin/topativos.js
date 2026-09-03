@@ -1,5 +1,5 @@
 /**
- * MeliodasBot — Comando .topativos / .maisativos
+ * Comando .topativos / .maisativos
  * Ranking dos participantes com maior número de mensagens enviadas no grupo
  */
 

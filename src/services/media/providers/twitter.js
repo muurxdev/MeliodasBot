@@ -1,5 +1,5 @@
 /**
- * MeliodasBot — Twitter / X Media Provider (Twitsave API)
+ * Twitter / X Media Provider (Twitsave API)
  * Download de vídeos do Twitter/X em alta resolução
  */
 

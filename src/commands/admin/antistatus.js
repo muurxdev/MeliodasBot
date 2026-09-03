@@ -1,5 +1,5 @@
 /**
- * MeliodasBot — Comando .antistatus
+ * Comando .antistatus
  * Ativa ou desativa a proteção contra spam de status no grupo
  */
 

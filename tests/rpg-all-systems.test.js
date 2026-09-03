@@ -1,5 +1,5 @@
 /**
- * MeliodasBotXP — Comprehensive Master RPG & Hierarchy Test Suite
+ * BotXP — Comprehensive Master RPG & Hierarchy Test Suite
  * Valida todos os 16 módulos do RPG, armazém de retaguarda (Baú),
  * renderização visual do boneco, cálculos de dano, rebirth balanceado e hierarquia de comando.
  */

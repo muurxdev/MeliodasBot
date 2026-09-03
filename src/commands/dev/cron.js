@@ -1,5 +1,5 @@
 /**
- * MeliodasBot — Comando .cron / .cronjob / .explicarcron
+ * Comando .cron / .cronjob / .explicarcron
  * Decodificador e explicador de expressões Cron para desenvolvedores
  */
 

@@ -1,5 +1,5 @@
 /**
- * MeliodasBot — Media Uploader Service
+ * Media Uploader Service
  * Camada desacoplada para envio de mídias (áudio, vídeo, imagem, galerias) via Baileys
  */
 
@@ -7,6 +7,7 @@ const fs = require('fs')
 const path = require('path')
 const { MEDIA_ERRORS, FORMATS } = require('./constants')
 const logger = require('../../core/logger')
+const { getBotName } = require('../../config/botConfig')
 
 /**
  * Envia o resultado do download para o chat do WhatsApp
@@ -78,7 +79,7 @@ async function uploadMedia({ client, from, job, downloadResult, info = null }) {
                 audioPayload.contextInfo = {
                     externalAdReply: {
                         title: title.slice(0, 60),
-                        body: author ? `Artista: ${author}` : 'MeliodasBot Official Audio',
+                        body: author ? `Artista: ${author}` : `${getBotName()} Official Audio`,
                         mediaType: 2,
                         thumbnailUrl: metadata.thumbnail,
                         sourceUrl: metadata.url || 'https://youtube.com',

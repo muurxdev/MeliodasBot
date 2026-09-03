@@ -1,5 +1,5 @@
 /**
- * MeliodasBot — Comando .gitcheatsheet
+ * Comando .gitcheatsheet
  * Guia rápido de comandos Git e controle de versão
  */
 

@@ -1,5 +1,5 @@
 /**
- * MeliodasBot — Comando .spotify / .sp
+ * Comando .spotify / .sp
  * Download direto de faixas, álbuns e playlists do Spotify em MP3 320kbps Studio Master
  */
 

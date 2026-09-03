@@ -1,5 +1,5 @@
 /**
- * MeliodasBot — Media Hub Service
+ * Media Hub Service
  * Processamento e conversão de áudio, vídeo, imagens e figurinhas com transparência total
  */
 
@@ -13,6 +13,7 @@ const { downloadContentFromMessage, downloadMediaMessage, getMediaKeys } = requi
 const { tempDir } = require('../config/paths')
 const { addExif } = require('../utils/stickerUtils')
 const logger = require('../core/logger')
+const { getBotName } = require('../config/botConfig')
 
 /**
  * Baixa e descriptografa mídia do WhatsApp diretamente via HTTPS (IPv4) caso a API de fetch falhe
@@ -163,7 +164,9 @@ async function downloadWhatsAppMedia(messageWrapper, mediaType = 'image', client
  * @param {string} author - Autor da figurinha
  * @returns {Promise<Buffer>} Buffer do WebP formatado com metadados
  */
-async function criarFigurinha(buffer, isAnimated = false, packname = 'MeliodasBot', author = 'MeliodasBot') {
+async function criarFigurinha(buffer, isAnimated = false, packname, author) {
+    if (!packname) packname = getBotName()
+    if (!author) author = getBotName()
     const id = Date.now() + '_' + Math.random().toString(36).substring(2, 7)
 
     // 1. Figurinhas Estáticas: Usa Sharp para transparência alfa real e zero bordas pretas

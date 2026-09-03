@@ -1,5 +1,5 @@
 /**
- * MeliodasBot — Comando .antilinkstatus / .statusantilink / .linksbarrados
+ * Comando .antilinkstatus / .statusantilink / .linksbarrados
  * Relatório de links e canais interceptados pela moderação no grupo
  */
 

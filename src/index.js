@@ -1,5 +1,5 @@
 /**
- * 🌐 MeliodasBot — Clean Modular Architecture
+ * 🌐 Clean Modular Architecture
  * Entry Point
  */
 
@@ -21,7 +21,7 @@ const { validateCookiesFile } = require('./services/media/mediaArgs')
 
 async function bootstrap() {
     logger.info('==========================================')
-    logger.info('🚀 Inicializando MeliodasBot v2.0...')
+    logger.info('🚀 Inicializando Bot v2.0...')
     logger.info('==========================================')
 
     // 1. Registrar tratamento de sinais e erros globais

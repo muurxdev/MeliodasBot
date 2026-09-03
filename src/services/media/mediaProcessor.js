@@ -1,5 +1,5 @@
 /**
- * MeliodasBot — Media Processor Service
+ * Media Processor Service
  * Processamento e conversão de áudio e vídeo com FFmpeg garantindo 100% de compatibilidade com WhatsApp Mobile e Web
  */
 

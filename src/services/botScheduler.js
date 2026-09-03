@@ -1,5 +1,5 @@
 /**
- * MeliodasBot — Bot Lifecycle Scheduler Service
+ * Bot Lifecycle Scheduler Service
  *
  * Gerencia agendamentos de abertura, fechamento e estado operacional do bot
  * com persistência total em SQLite e recuperação após restarts (PM2 / Docker / VPS).

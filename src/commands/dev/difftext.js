@@ -1,5 +1,5 @@
 /**
- * MeliodasBot — Comando .difftext
+ * Comando .difftext
  * Compara dois textos rápidos exibindo semelhanças
  */
 

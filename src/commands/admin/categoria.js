@@ -1,5 +1,5 @@
 /**
- * MeliodasBot — Comando .categoria
+ * Comando .categoria
  * Liga/desliga uma CATEGORIA inteira de comandos no grupo. Quando desligada,
  * nenhum comando daquela categoria funciona (exceto para admins/donos), com aviso
  * para pedir reativação a um admin.

@@ -1,5 +1,5 @@
 /**
- * MeliodasBotXP — Testes do menu auto-gerado (Fase 4)
+ * BotXP — Testes do menu auto-gerado (Fase 4)
  */
 
 process.env.NODE_ENV = 'test'

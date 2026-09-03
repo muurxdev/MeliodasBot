@@ -1,5 +1,5 @@
 /**
- * MeliodasBot — Comando .insta
+ * Comando .insta
  * Download direto de Reels, Posts e Carrosséis do Instagram
  */
 

@@ -1,5 +1,5 @@
 /**
- * MeliodasBot — Comando .roubar / .rob
+ * Comando .roubar / .rob
  * Tenta furtar moedas da carteira de outro usuário com risco de indenização/multa
  */
 

@@ -1,5 +1,5 @@
 /**
- * MeliodasBot — Comando .loremipsum
+ * Comando .loremipsum
  * Gera texto fictício Lorem Ipsum para preenchimento
  */
 

@@ -1,5 +1,5 @@
 /**
- * MeliodasBot — Comando .traduzir / .translate / .tradutor
+ * Comando .traduzir / .translate / .tradutor
  * Tradutor universal multilíngue com auto-detecção de idioma e UI elegante
  */
 

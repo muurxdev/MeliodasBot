@@ -1,5 +1,5 @@
 /**
- * MeliodasBot — Comando .uuid
+ * Comando .uuid
  * Gerador de identificadores únicos universais (UUID v4)
  */
 

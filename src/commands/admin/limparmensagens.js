@@ -1,10 +1,7 @@
 /**
- * MeliodasBot — Comando .limparmensagens
+ * Comando .limparmensagens
  * Limpa as mensagens de comando recentes do chat
  */
-
-const { renderCard, formatCoins, formatXP, formatNumber } = require("../../utils/uiEngine");
-const dataService = require("../../services/dataService");
 
 module.exports = {
     name: "limparmensagens",
@@ -13,6 +10,6 @@ module.exports = {
     description: "Limpa as mensagens de comando recentes do chat",
     cooldownMs: 2000,
     execute: async ({ reply }) => {
-    return reply("🧹 *LIMPEZA CONCLUÍDA!* O histórico recente de comandos foi purgado com sucesso.");
+    return reply("❌ Funcionalidade em desenvolvimento — limpeza de mensagens ainda não implementada.");
 }
 };

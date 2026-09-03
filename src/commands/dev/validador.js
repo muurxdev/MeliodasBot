@@ -1,5 +1,5 @@
 /**
- * MeliodasBot — Comando .validador / .validarcpf / .validarcnpj
+ * Comando .validador / .validarcpf / .validarcnpj
  * Validador de dígitos verificadores de CPF e CNPJ
  */
 

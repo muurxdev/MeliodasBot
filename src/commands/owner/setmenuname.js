@@ -1,5 +1,5 @@
 /**
- * MeliodasBot — Comando .setmenuname / .menuname
+ * Comando .setmenuname / .menuname
  * Permite que os Donos alterem os títulos e cabeçalhos dos menus do bot
  */
 
@@ -62,7 +62,7 @@ module.exports = {
             const resetCat = (args[1] || "global").toLowerCase();
             delete customNames[resetCat];
             await dataService.saveConfigsData(configs);
-            return reply("🔄 *Título da categoria  + resetCat +  restaurado para o padrão oficial!*");
+            return reply(`🔄 *Título da categoria ${resetCat} restaurado para o padrão oficial!*`);
         }
 
         const newTitle = args.slice(1).join(" ").trim();

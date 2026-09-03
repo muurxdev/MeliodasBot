@@ -1,5 +1,5 @@
 /**
- * MeliodasBot — Comando .familiar / .guardiao / .espirito
+ * Comando .familiar / .guardiao / .espirito
  * Invocação e gestão de familiares guardiões místicos de Britânia
  */
 

@@ -1,5 +1,5 @@
 /**
- * MeliodasBot — Comando .soundcloud / .sc
+ * Comando .soundcloud / .sc
  * Download de faixas e áudios do SoundCloud em MP3 320 kbps Studio Master
  */
 

@@ -1,5 +1,5 @@
 /**
- * MeliodasBot — Message Handler
+ * Message Handler
  * Processa mensagens recebidas do Baileys e delega para o Command Dispatcher
  */
 
@@ -9,6 +9,7 @@ const dataService = require('../services/dataService')
 const groupAuthService = require('../services/groupAuthService')
 const { initializeUser, processarLevelUp } = require('../services/xpService')
 const { getCargo } = require('../utils/helpers')
+const { formatCoins } = require('../utils/uiEngine')
 const { getDatabase } = require('../database/connection')
 const { detectTravaZap, checkGroupSpam } = require('../services/securityService')
 const ownerService = require('../services/ownerService')
@@ -165,6 +166,42 @@ async function handleIncomingMessage(client, { messages }) {
 
     // Salva perfil atualizado no banco de dados SQLite
     dataService.saveUser(user)
+
+    // ═══════════════════════════════════════
+    // 🎁 SISTEMA DE DROP PATROCINADO / DOAÇÃO
+    // ═══════════════════════════════════════
+    if (isGroup) {
+        const configs = dataService.getConfigsData();
+        const pendingDrop = configs[from]?.pendingDrop;
+        if (pendingDrop && pendingDrop.amount > 0 && pendingDrop.sponsor !== sender) {
+            const dropAge = Date.now() - (pendingDrop.createdAt || 0);
+            const MAX_DROP_AGE = 60 * 60 * 1000; // 1h
+            if (dropAge < MAX_DROP_AGE) {
+                user.coins = (user.coins || 0) + pendingDrop.amount;
+                const dropAmount = pendingDrop.amount;
+                const dropSponsor = pendingDrop.sponsor;
+                configs[from].pendingDrop = null;
+                await dataService.saveConfigsData(configs);
+                await dataService.saveXpData({ [sender]: user });
+                await client.sendMessage(from, {
+                    text: `🎉 *DROP RESGATADO!*\n\n👤 @${sender.split('@')[0]} resgatou o drop de *${formatCoins(dropAmount)}* patrocinado por @${dropSponsor.split('@')[0]}!`,
+                    mentions: [sender, dropSponsor]
+                });
+            } else {
+                // Drop expirado — devolver coins ao patrocinador
+                const sponsorData = dataService.getXpData()[pendingDrop.sponsor];
+                if (sponsorData) {
+                    sponsorData.coins = (sponsorData.coins || 0) + pendingDrop.amount;
+                    await dataService.saveXpData({ [pendingDrop.sponsor]: sponsorData });
+                }
+                configs[from].pendingDrop = null;
+                await dataService.saveConfigsData(configs);
+                await client.sendMessage(from, {
+                    text: `⏰ *DROP EXPIRADO!*\n\nO drop de *${formatCoins(pendingDrop.amount)}* expirou. Moedas devolvidas ao patrocinador.`
+                });
+            }
+        }
+    }
 
     if (isGroup) {
         // Autenticação de admin do grupo via GroupAuthService
@@ -500,6 +537,8 @@ async function handleIncomingMessage(client, { messages }) {
         }
     }
 
+    const mentionedJid = contextInfo?.mentionedJid || []
+
     const context = {
         commandName,
         args,
@@ -522,7 +561,8 @@ async function handleIncomingMessage(client, { messages }) {
         quotedSender,
         isQuoted,
         prefix,
-        user
+        user,
+        mentionedJid
     }
 
     // Gate de registro (Fase B): usuário não registrado precisa fazer .login,

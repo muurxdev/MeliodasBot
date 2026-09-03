@@ -1,5 +1,5 @@
 /**
- * MeliodasBot — Comando .rankslayer / .rankcp
+ * Comando .rankslayer / .rankcp
  * Ranking global de Combat Power (CP) e Patentes Slayer Legends
  */
 

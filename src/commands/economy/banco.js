@@ -1,5 +1,5 @@
 /**
- * MeliodasBot — Comando .banco / .bank / .extrato / .depositar / .sacar
+ * Comando .banco / .bank / .extrato / .depositar / .sacar
  * Sistema Bancário Seguro com Extrato em Tempo Real e Persistência SQLite
  */
 

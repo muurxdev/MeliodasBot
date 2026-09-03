@@ -1,5 +1,5 @@
 /**
- * MeliodasBot — Kwai Media Provider & Direct Downloader
+ * Kwai Media Provider & Direct Downloader
  * Download de vídeos e carrosséis do Kwai em alta resolução sem falhas
  */
 

@@ -1,5 +1,5 @@
 /**
- * MeliodasBot — Comando .colorpalette / .paleta / .gerarpaleta
+ * Comando .colorpalette / .paleta / .gerarpaleta
  * Gerador de paletas de cores harmônicas para designers e desenvolvedores
  */
 

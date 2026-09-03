@@ -1,5 +1,5 @@
 /**
- * MeliodasBot — Comando .tesourocoletivo / .baucoletivo / .pote
+ * Comando .tesourocoletivo / .baucoletivo / .pote
  * Baú coletivo do grupo que acumula moedas com a atividade e é sorteado entre os membros
  */
 

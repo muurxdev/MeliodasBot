@@ -1,5 +1,5 @@
 /**
- * MeliodasBot — Resilient Multi-Provider API Service
+ * Resilient Multi-Provider API Service
  * Central de integrações externas com fallbacks (Cotações, Clima, Tradução, Dicionário, QR Code)
  */
 

@@ -1,5 +1,5 @@
 /**
- * MeliodasBotXP — Suíte de Testes da Fase 4: Progress Engine & RPG Completo
+ * BotXP — Suíte de Testes da Fase 4: Progress Engine & RPG Completo
  */
 
 process.env.NODE_ENV = 'test'

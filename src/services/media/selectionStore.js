@@ -1,5 +1,5 @@
 /**
- * MeliodasBot — Store de seleção de mídia (busca → escolha → download)
+ * Store de seleção de mídia (busca → escolha → download)
  *
  * Guarda os últimos resultados de busca por chat+usuário, para que o usuário
  * possa listar tudo com dados/álbum e depois baixar pelo número (ex.: `.play 2`).

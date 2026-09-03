@@ -1,5 +1,5 @@
 /**
- * MeliodasBot — Comando .boneco / .personagem / .avatar / .statusrpg
+ * Comando .boneco / .personagem / .avatar / .statusrpg
  * Renderização dinâmica do Boneco de Emoji com níveis de armadura e customização de atributos
  */
 

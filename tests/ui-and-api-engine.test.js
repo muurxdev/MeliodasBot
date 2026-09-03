@@ -1,5 +1,5 @@
 /**
- * MeliodasBotXP — Automated Test Suite: UI Engine, SQLite Repositories & API Service
+ * BotXP — Automated Test Suite: UI Engine, SQLite Repositories & API Service
  */
 
 const assert = require('assert');

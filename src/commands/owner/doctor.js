@@ -1,5 +1,5 @@
 /**
- * MeliodasBot — Comando .doctor
+ * Comando .doctor
  * Relatório de integridade do registro de comandos (colisões, aliases mortos,
  * conflitos e chaves desconhecidas). Espelha o validador de boot, sob demanda.
  */

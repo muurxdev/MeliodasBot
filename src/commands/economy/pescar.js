@@ -1,5 +1,5 @@
 /**
- * MeliodasBot — Comando .pescar
+ * Comando .pescar
  * Minigame de pescaria com peixes comuns, raros, lendários e venda de espólios
  */
 

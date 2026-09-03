@@ -1,5 +1,5 @@
 /**
- * MeliodasBot — Observability, Metrics & Health Telemetry Service
+ * Observability, Metrics & Health Telemetry Service
  * Rastreia latência de comandos, throughput, erros, integridade do SQLite e saúde do processo Node.js.
  */
 

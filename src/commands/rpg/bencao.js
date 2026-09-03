@@ -1,5 +1,5 @@
 /**
- * MeliodasBot — Comando .bencao / .oracao / .graca
+ * Comando .bencao / .oracao / .graca
  * Solicite a bênção divina diária da Deusa Suprema ou do Rei dos Demônios
  */
 

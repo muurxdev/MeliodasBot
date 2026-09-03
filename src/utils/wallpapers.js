@@ -1,5 +1,5 @@
 /**
- * MeliodasBot — Local Meliodas Wallpapers & Media Banner Catalog
+ * Local Meliodas Wallpapers & Media Banner Catalog
  * Gerencia papéis de parede fixos e vídeos animados para TODOS os menus do bot
  */
 

@@ -1,5 +1,5 @@
 /**
- * MeliodasBotXP — Testes de persistência de usuário (Fase 1)
+ * BotXP — Testes de persistência de usuário (Fase 1)
  *
  * Cobre os bugs de perda de dado corrigidos na migração de INSERT OR REPLACE
  * para ON CONFLICT DO UPDATE:

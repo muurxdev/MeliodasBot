@@ -1,5 +1,5 @@
 /**
- * MeliodasBot — Comando .minerar
+ * Comando .minerar
  * Mineração de jazidas profundas para extração de carvão, ouro, diamantes e fragmentos
  */
 

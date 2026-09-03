@@ -1,5 +1,5 @@
 /**
- * MeliodasBot — Comando .emojimix
+ * Comando .emojimix
  * Combina dois emojis em uma imagem ou sticker único usando a API do Google Kitchen
  */
 

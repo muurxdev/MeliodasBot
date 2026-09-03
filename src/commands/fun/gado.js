@@ -1,5 +1,5 @@
 /**
- * MeliodasBot — Comando .gado
+ * Comando .gado
  * Medidor de gado e corno com classificação divertida
  */
 

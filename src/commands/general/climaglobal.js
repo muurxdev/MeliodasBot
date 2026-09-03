@@ -1,5 +1,5 @@
 /**
- * MeliodasBot — Comando .climaglobal
+ * Comando .climaglobal
  * Previsão do tempo em tempo real nas maiores capitais globais
  */
 

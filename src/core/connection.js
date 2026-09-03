@@ -1,5 +1,5 @@
 /**
- * MeliodasBot — WhatsApp Baileys Connection Manager
+ * WhatsApp Baileys Connection Manager
  * Gerencia ciclo de vida da conexão, autenticação, eventos e reconexão com backoff
  */
 
@@ -106,7 +106,7 @@ async function startBot() {
             groupAuthService.invalidateAll()
 
             logger.info('==================================================')
-            logger.info('🚀 [READY] MeliodasBot CONECTADO COM SUCESSO!')
+            logger.info('🚀 [READY] Bot CONECTADO COM SUCESSO!')
             logger.info(`👤 Usuário Conectado: ${client.user?.id || 'Bot'}`)
             logger.info('==================================================')
             reconnectDelayMs = 2000 // Reseta o delay de reconexão

@@ -1,5 +1,5 @@
 /**
- * MeliodasBot — Comando .fakeuser / .gerarpessoa
+ * Comando .fakeuser / .gerarpessoa
  * Gerador de dados fictícios para testes de desenvolvimento (nomes, emails, dados simulados)
  */
 

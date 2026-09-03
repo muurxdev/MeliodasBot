@@ -1,5 +1,5 @@
 /**
- * MeliodasBot — YouTube Media Provider
+ * YouTube Media Provider
  */
 
 const BaseProvider = require('./baseProvider')

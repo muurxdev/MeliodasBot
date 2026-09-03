@@ -1,5 +1,5 @@
 /**
- * MeliodasBot — Comando .deldono / .removedono
+ * Comando .deldono / .removedono
  * Remove ou desativa um Dono da hierarquia militar seguindo autorização rígida
  */
 

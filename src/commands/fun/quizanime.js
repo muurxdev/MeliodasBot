@@ -1,5 +1,5 @@
 /**
- * MeliodasBot — Comando .quizanime / .perguntaanime / .otakuquiz
+ * Comando .quizanime / .perguntaanime / .otakuquiz
  * Quiz temático exclusivo sobre animes com ranking e pontuação
  */
 

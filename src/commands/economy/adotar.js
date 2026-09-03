@@ -1,5 +1,5 @@
 /**
- * MeliodasBot — Comando .adotar / .adotacao
+ * Comando .adotar / .adotacao
  * Sistema de adoção de filhos no grupo com certidão social
  */
 

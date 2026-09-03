@@ -1,5 +1,5 @@
 /**
- * MeliodasBot — Comando Unificado .adm
+ * Comando Unificado .adm
  * Promove ou rebaixa administradores do grupo em um único comando inteligente
  */
 

@@ -1,9 +1,10 @@
 /**
- * MeliodasBot — Comando .comandocount / .totalcomandos / .cmdcount
+ * Comando .comandocount / .totalcomandos / .cmdcount
  * Exibe a contagem exata e dinâmica de todos os comandos e aliases carregados no bot
  */
 
 const { renderCard, formatNumber } = require("../../utils/uiEngine");
+const { getBotName } = require("../../config/botConfig");
 
 module.exports = {
     name: "comandocount",
@@ -27,7 +28,7 @@ module.exports = {
         const card = renderCard({
             title: "CATÁLOGO OFICIAL DE COMANDOS",
             icon: "⚡",
-            subtitle: `🤖 *MeliodasBot v2.0 — Sistema Modular*`,
+            subtitle: `🤖 *${getBotName()} v2.0 — Sistema Modular*`,
             sections: [
                 {
                     title: "MÉTRICAS GERAIS",

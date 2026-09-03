@@ -1,5 +1,5 @@
 /**
- * MeliodasBot — Graceful Shutdown Manager
+ * Graceful Shutdown Manager
  * Gerencia o encerramento gracioso e idempotente do processo para SIGINT e SIGTERM
  */
 

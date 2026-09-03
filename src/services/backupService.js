@@ -1,5 +1,5 @@
 /**
- * MeliodasBot — SQLite Hot Backup & Disaster Recovery Service
+ * SQLite Hot Backup & Disaster Recovery Service
  * Cria snapshots atômicos a quente, gerencia metadados, rotação e restauração de dados.
  */
 

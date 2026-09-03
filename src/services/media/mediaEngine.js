@@ -1,5 +1,5 @@
 /**
- * MeliodasBot — Multi-Platform Media Engine Orchestrator
+ * Multi-Platform Media Engine Orchestrator
  * Arquitetura unificada para resolução, pesquisa, download, conversão e upload
  */
 
@@ -219,10 +219,12 @@ module.exports = {
     resolveDownloadFormat,
     downloadMedia: async (options) => {
         const job = mediaEngine.createJob({
+            userId: options.userJid || options.userId,
             source: options.url,
             requestedFormat: options.format || FORMATS.MP3,
             requestedQuality: options.quality || QUALITIES.BEST
         })
+        if (options.userJid) job.user = options.userJid
         return mediaEngine.processJob(job, { onProgress: options.onProgress })
     },
     uploadMedia,

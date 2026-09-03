@@ -1,5 +1,5 @@
 /**
- * MeliodasBot — Comando .detectormentira
+ * Comando .detectormentira
  * Detector de mentiras divertido para analisar afirmações
  */
 

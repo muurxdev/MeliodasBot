@@ -1,5 +1,5 @@
 /**
- * MeliodasBot — Comando .play
+ * Comando .play
  * Pesquisa e reproduz músicas com capa oficial, dados limpos e link de origem
  */
 

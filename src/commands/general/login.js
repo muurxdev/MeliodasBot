@@ -1,5 +1,5 @@
 /**
- * MeliodasBot — Comando .login / .registrar
+ * Comando .login / .registrar
  * Onboarding: o usuário se registra, define o nick pelo qual quer ser chamado e
  * escolhe se quer participar do RPG. Cada perfil fica salvo no banco, permitindo
  * contagem e separação corretas por função.

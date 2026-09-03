@@ -1,5 +1,5 @@
 /**
- * MeliodasBot — Comando .torre / .torredosdesafios
+ * Comando .torre / .torredosdesafios
  * Torre dos Desafios de 100 Andares com monstros e chefes progressivos
  */
 

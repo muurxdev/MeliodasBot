@@ -1,5 +1,5 @@
 /**
- * MeliodasBot — Comando .antidelete
+ * Comando .antidelete
  * Auditoria de histórico de mensagens e mídias apagadas no grupo
  */
 

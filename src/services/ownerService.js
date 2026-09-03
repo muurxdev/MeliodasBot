@@ -1,5 +1,5 @@
 /**
- * MeliodasBot — Owner Hierarchy Service
+ * Owner Hierarchy Service
  * Gerencia a hierarquia militar dos 10 Donos do bot com regras rígidas de autorização:
  * • Capitão: Altera e remove todos os donos. Ninguém altera o Capitão.
  * • Tenente: Altera e remove todos abaixo dele (Sargento, Cabo, Soldado). Não altera o Capitão nem a si mesmo.

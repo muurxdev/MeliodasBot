@@ -1,5 +1,5 @@
 /**
- * MeliodasBot — Comando .enquete / .poll
+ * Comando .enquete / .poll
  * Cria uma enquete interativa diretamente no WhatsApp
  */
 

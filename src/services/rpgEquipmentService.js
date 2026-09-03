@@ -1,5 +1,5 @@
 /**
- * MeliodasBot — RPG Equipment & Character Engine (Sandbox / MMORPG 2.0)
+ * RPG Equipment & Character Engine (Sandbox / MMORPG 2.0)
  * Gerenciamento de slots, armas, armaduras, poder de combate (CP) e cálculo de dano
  */
 

@@ -1,10 +1,11 @@
 /**
- * MeliodasBot — Utilitários de Figurinha (Sticker Utils)
+ * Utilitários de Figurinha (Sticker Utils)
  * Injeção de metadados EXIF em arquivos WebP para figurinhas do WhatsApp
  */
 
 const webp = require('node-webpmux')
 const logger = require('../core/logger')
+const { getBotName } = require('../config/botConfig')
 
 /**
  * Adiciona metadados de pacote e autor ao buffer de figurinha WebP
@@ -13,7 +14,9 @@ const logger = require('../core/logger')
  * @param {string} author - Autor da figurinha
  * @returns {Promise<Buffer>} Buffer WebP com EXIF injetado
  */
-async function addExif(webpBuffer, packname = 'MeliodasBot', author = 'MeliodasBot') {
+async function addExif(webpBuffer, packname, author) {
+    if (!packname) packname = getBotName()
+    if (!author) author = getBotName()
     try {
         const img = new webp.Image()
         await img.load(webpBuffer)

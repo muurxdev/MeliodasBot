@@ -1,5 +1,5 @@
 /**
- * MeliodasBot — Comando .kick / .ban / .remover
+ * Comando .kick / .ban / .remover
  * Remove um membro do grupo com validação de admin e LID
  */
 

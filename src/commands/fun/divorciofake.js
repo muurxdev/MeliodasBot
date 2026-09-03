@@ -1,5 +1,5 @@
 /**
- * MeliodasBot — Comando .divorciofake
+ * Comando .divorciofake
  * Partilha de bens e divórcio fictício no grupo
  */
 

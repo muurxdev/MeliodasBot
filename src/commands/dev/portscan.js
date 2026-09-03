@@ -1,5 +1,5 @@
 /**
- * MeliodasBot — Comando .portscan
+ * Comando .portscan
  * Consulta portas de rede padrão de serviços e protocolos
  */
 

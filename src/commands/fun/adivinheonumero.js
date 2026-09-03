@@ -1,5 +1,5 @@
 /**
- * MeliodasBot — Comando .adivinheonumero
+ * Comando .adivinheonumero
  * Tente acertar o número secreto entre 1 e 100
  */
 
@@ -12,13 +12,16 @@ module.exports = {
     category: "fun",
     description: "Tente acertar o número secreto entre 1 e 100",
     cooldownMs: 2000,
-    execute: async ({ reply, args }) => {
+    execute: async ({ reply, args, sender }) => {
     const palpite = parseInt(args[0], 10);
     if (isNaN(palpite) || palpite < 1 || palpite > 100) {
         return reply("❌ Envie um palpite de 1 a 100 (ex: `.adivinheonumero 42`).");
     }
-    const secreto = 57;
+    const secreto = Math.floor(Math.random() * 100) + 1;
     if (palpite === secreto) {
+        const user = dataService.initializeUser(sender);
+        user.coins = (user.coins || 0) + 1000;
+        dataService.saveUser(user);
         return reply("🎉 *ACERTOU O NÚMERO EXATO (" + secreto + ")!* 🏆 Parabéns! +1.000 Coins!");
     } else if (palpite < secreto) {
         return reply("📈 *O número secreto é MAIOR que " + palpite + "!* Tente um valor mais alto.");

@@ -1,5 +1,5 @@
 /**
- * MeliodasBot — Comando .curiosidadeanime
+ * Comando .curiosidadeanime
  * Fatos e curiosidades de bastidores sobre o mundo dos animes
  */
 

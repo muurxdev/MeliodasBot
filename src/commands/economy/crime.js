@@ -1,5 +1,5 @@
 /**
- * MeliodasBot — Comando .crime
+ * Comando .crime
  * Cometa crimes arriscados por altas quantias de Coins com risco de prisão/multa
  */
 
