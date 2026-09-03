@@ -126,8 +126,62 @@ function rowToUser(row) {
     }
 }
 
+/**
+ * Persiste o mapeamento de identidade (jid ↔ lid ↔ número) em `user_identities`,
+ * tornando a unificação de perfil DURÁVEL — mesmo quando o Baileys não resolve o
+ * número do @lid numa interação futura. Write-only, tolerante a falha.
+ * @param {string} jid   jid canônico observado (ex.: número@s.whatsapp.net ou @lid)
+ * @param {{lid?:string, phoneDigits?:string, linkedJid?:string}} info
+ */
+function linkIdentity(jid, info = {}) {
+    if (!jid || jid.endsWith('@g.us') || jid.endsWith('@broadcast')) return
+    const { lid = null, phoneDigits = null, linkedJid = null } = info
+    if (!lid && !phoneDigits && !linkedJid) return
+    try {
+        q(`INSERT INTO user_identities (jid, lid, phone_digits, linked_jid, updated_at)
+           VALUES (?, ?, ?, ?, CURRENT_TIMESTAMP)
+           ON CONFLICT(jid) DO UPDATE SET
+             lid          = COALESCE(excluded.lid, user_identities.lid),
+             phone_digits = COALESCE(excluded.phone_digits, user_identities.phone_digits),
+             linked_jid   = COALESCE(excluded.linked_jid, user_identities.linked_jid),
+             updated_at   = CURRENT_TIMESTAMP`
+        ).run(jid, lid, phoneDigits, linkedJid)
+    } catch (e) {
+        try { require('../../core/logger').warn(`[IDENTITY] linkIdentity falhou (${e.message})`) } catch (_) {}
+    }
+}
+
+/**
+ * Expande um conjunto de candidatos consultando `user_identities`: dado qualquer
+ * jid/lid/número conhecido, retorna todos os jids relacionados. Assim um @lid
+ * resolve para o perfil canônico do número (e vice-versa) de forma persistente.
+ */
+function resolveLinkedJids(candidates = []) {
+    const set = new Set(candidates.filter(Boolean))
+    if (!set.size) return []
+    try {
+        for (const c of Array.from(set)) {
+            const digits = String(c).replace(/[@].*$/, '').replace(/\D/g, '') || null
+            const rows = q(
+                `SELECT jid, lid, phone_digits, linked_jid FROM user_identities
+                 WHERE jid = ? OR lid = ? OR linked_jid = ? OR (phone_digits IS NOT NULL AND phone_digits = ?)`
+            ).all(c, c, c, digits)
+            for (const r of rows) {
+                if (r.jid) set.add(r.jid)
+                if (r.lid) set.add(r.lid)
+                if (r.linked_jid) set.add(r.linked_jid)
+            }
+        }
+    } catch (e) {
+        try { require('../../core/logger').warn(`[IDENTITY] resolveLinkedJids falhou (${e.message})`) } catch (_) {}
+    }
+    return Array.from(set)
+}
+
 function getUser(jid, alternativeJids = []) {
-    const allCandidates = [jid, ...(Array.isArray(alternativeJids) ? alternativeJids : [alternativeJids])].filter(Boolean)
+    const direct = [jid, ...(Array.isArray(alternativeJids) ? alternativeJids : [alternativeJids])].filter(Boolean)
+    // Expande com identidades persistidas (lid↔número) para unificação durável.
+    const allCandidates = resolveLinkedJids(direct)
 
     // 1. Registro ativo entre os candidatos diretos (usa índice em jid/lid)
     for (const c of allCandidates) {
@@ -282,6 +336,8 @@ const SQL_SAVE_FORCE = `
  */
 function saveUser(user, opts = {}) {
     if (!user || !user.jid) return
+    // Grupos (@g.us) e broadcast nunca são perfis de usuário.
+    if (user.jid.endsWith('@g.us') || user.jid.endsWith('@broadcast')) return
 
     // Normaliza inventário (aceita `inventory` como origem alternativa)
     if (!Array.isArray(user.inventario)) {
@@ -358,6 +414,8 @@ module.exports = {
     getUser,
     saveUser,
     getAllUsers,
+    linkIdentity,
+    resolveLinkedJids,
     incrementCommandCount,
     getTopRank,
     getTopCoins,

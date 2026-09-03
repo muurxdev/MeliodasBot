@@ -11,6 +11,7 @@ const { initializeUser, processarLevelUp } = require('../services/xpService')
 const { getCargo } = require('../utils/helpers')
 const { formatCoins } = require('../utils/uiEngine')
 const { getDatabase } = require('../database/connection')
+const userRepo = require('../database/repositories/userRepository')
 const { detectTravaZap, checkGroupSpam } = require('../services/securityService')
 const ownerService = require('../services/ownerService')
 const logger = require('../core/logger')
@@ -117,6 +118,16 @@ async function handleIncomingMessage(client, { messages }) {
     user.lastSeen = Date.now()
     if (senderReal) user.phone = senderReal.split('@')[0]
     if (sender.endsWith('@lid')) user.lid = sender
+
+    // Persiste o vínculo de identidade (lid ↔ número) p/ unificação durável do perfil.
+    if (senderReal && senderReal !== sender) {
+        const phoneDigits = senderReal.replace(/[@].*$/, '').replace(/\D/g, '') || null
+        userRepo.linkIdentity(user.jid || sender, {
+            lid: sender.endsWith('@lid') ? sender : (user.lid || null),
+            phoneDigits,
+            linkedJid: senderReal
+        })
+    }
 
     user.messages = (user.messages || 0) + 1
     if (isGroup) {
