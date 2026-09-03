@@ -1,0 +1,368 @@
+const { getDatabase, q } = require('../connection')
+
+function rowToUser(row) {
+    if (!row) return null
+
+    let parsedSlots = {
+        capacete: null,
+        peitoral: null,
+        calca: null,
+        botas: null,
+        arma: null,
+        escudo: null,
+        amuleto: null
+    }
+
+    try {
+        if (row.slots) {
+            const parsed = typeof row.slots === 'string' ? JSON.parse(row.slots) : row.slots
+            parsedSlots = { ...parsedSlots, ...parsed }
+        }
+    } catch (_) {}
+
+    const parseJsonArray = (val) => {
+        if (!val) return []
+        try {
+            return typeof val === 'string' ? JSON.parse(val) : val
+        } catch (_) {
+            return []
+        }
+    }
+
+    const parsedInv = parseJsonArray(row.inventario)
+    const parsedConquistas = parseJsonArray(row.conquistas)
+    const parsedPets = parseJsonArray(row.pets)
+    const parsedGrimoire = parseJsonArray(row.grimoire_spells)
+    const parsedRunes = parseJsonArray(row.active_runes)
+
+    return {
+        jid: row.jid,
+        xp: Number(row.xp || 0),
+        level: Number(row.level || 1),
+        messages: Number(row.messages || 0),
+        coins: Number(row.coins || 0),
+        rep: Number(row.rep || 0),
+        streak: Number(row.streak || 0),
+        hp: Number(row.hp || 100),
+        hpMax: Number(row.hp_max || 100),
+        mundo: row.mundo || 'floresta',
+        mochila: Number(row.mochila || 20),
+        classe: row.classe || null,
+        classeLendaria: row.classe_lendaria || null,
+        bugPower: Number(row.bug_power || 0),
+        pet: row.pet || null,
+        equipado: row.equipado || null,
+        arma: row.arma || null,
+        guilda: row.guilda || null,
+        wins: Number(row.wins || 0),
+        losses: Number(row.losses || 0),
+        bossesMortos: Number(row.bosses_mortos || 0),
+        arenaPontos: Number(row.arena_pontos || 0),
+        arenaAtual: Number(row.arena_atual || 1),
+        lastDaily: Number(row.last_daily || 0),
+        weeklyXp: Number(row.weekly_xp || 0),
+        weeklyCoins: Number(row.weekly_coins || 0),
+        messagesGroup: Number(row.messages_group || 0),
+        messagesPv: Number(row.messages_pv || 0),
+        commandsGroup: Number(row.commands_group || 0),
+        commandsPv: Number(row.commands_pv || 0),
+        xpGroup: Number(row.xp_group || 0),
+        xpPv: Number(row.xp_pv || 0),
+        forgeLevel: Number(row.forge_level || 0),
+        nicknameRpg: row.nickname_rpg || null,
+        atk: Number(row.atk || 10),
+        def: Number(row.def || 5),
+        slots: parsedSlots,
+        pocaoAtiva: row.pocao_ativa_tipo ? {
+            tipo: row.pocao_ativa_tipo,
+            expira: Number(row.pocao_ativa_expira)
+        } : null,
+        bank: Number(row.bank || 0),
+        name: row.name || null,
+        lastDevice: row.last_device || null,
+        lastPingMs: Number(row.last_ping_ms || 0),
+        netType: row.net_type || null,
+        lastSeen: Number(row.last_seen || 0),
+        phone: row.phone || null,
+        lid: row.lid || null,
+        inventario: parsedInv,
+        inventory: parsedInv,
+        conquistas: parsedConquistas,
+        pets: parsedPets,
+        // Colunas que existiam no schema mas nunca eram lidas nem persistidas.
+        // Expostas em ambas as grafias porque os comandos usam camelCase e snake_case.
+        vaultCoins: Number(row.vault_coins || 0),
+        vault_coins: Number(row.vault_coins || 0),
+        rebirthCount: Number(row.rebirth_count || 0),
+        rebirth_count: Number(row.rebirth_count || 0),
+        grimoireSpells: parsedGrimoire,
+        grimoire_spells: parsedGrimoire,
+        activeRunes: parsedRunes,
+        active_runes: parsedRunes,
+        characterRace: row.character_race || 'humano',
+        character_race: row.character_race || 'humano',
+        characterElement: row.character_element || 'fogo',
+        character_element: row.character_element || 'fogo',
+        fogueiraBuffExpira: Number(row.fogueira_buff_expira || 0),
+        fogueira_buff_expira: Number(row.fogueira_buff_expira || 0),
+        pvFarmCount: Number(row.pv_farm_count || 0),
+        pv_farm_count: Number(row.pv_farm_count || 0),
+        groupFarmCount: Number(row.group_farm_count || 0),
+        group_farm_count: Number(row.group_farm_count || 0),
+        coinsPv: Number(row.coins_pv || 0),
+        coins_pv: Number(row.coins_pv || 0),
+        coinsGroup: Number(row.coins_group || 0),
+        coins_group: Number(row.coins_group || 0),
+        // Perfil de login (Fase B)
+        registered: !!row.registered,
+        displayNick: row.display_nick || null,
+        display_nick: row.display_nick || null,
+        rpgEnabled: row.rpg_enabled === undefined || row.rpg_enabled === null ? true : row.rpg_enabled !== 0,
+        rpg_enabled: row.rpg_enabled === undefined || row.rpg_enabled === null ? 1 : row.rpg_enabled,
+        focoCategoria: row.foco_categoria || null,
+        foco_categoria: row.foco_categoria || null,
+        registeredAt: row.registered_at || null,
+        registered_at: row.registered_at || null
+    }
+}
+
+function getUser(jid, alternativeJids = []) {
+    const allCandidates = [jid, ...(Array.isArray(alternativeJids) ? alternativeJids : [alternativeJids])].filter(Boolean)
+
+    // 1. Registro ativo entre os candidatos diretos (usa índice em jid/lid)
+    for (const c of allCandidates) {
+        const row = q('SELECT * FROM users WHERE jid = ? OR lid = ? ORDER BY level DESC, xp DESC, messages DESC LIMIT 1').get(c, c)
+        if (row && (row.xp > 0 || row.messages > 0 || row.coins > 0 || row.level > 1)) {
+            return rowToUser(row)
+        }
+    }
+
+    // 2. Fallback: qualquer correspondência direta
+    for (const c of allCandidates) {
+        const row = q('SELECT * FROM users WHERE jid = ? OR lid = ?').get(c, c)
+        if (row) return rowToUser(row)
+    }
+
+    return null
+}
+
+// ---------------------------------------------------------------------------
+// Definição única das colunas de `users`, usada para gerar INSERT, placeholders,
+// cláusula ON CONFLICT e a lista de valores a partir da MESMA fonte.
+// Isso torna impossível dessincronizar `?` de valores (bug clássico de INSERT
+// com ~60 colunas escrito à mão).
+//
+//   val : (user) => valor a bindar. Ausente = coluna literal, sem placeholder.
+//   ins : expressão de INSERT (default '?'). Ex.: "COALESCE(?, 'humano')" ou "CURRENT_TIMESTAMP".
+//   set : estratégia da cláusula ON CONFLICT DO UPDATE:
+//         'skip'     -> não aparece no SET (preservada em updates)
+//         'direct'   -> col = excluded.col
+//         'max'      -> col = MAX(users.col, excluded.col)   (não regride)
+//         'coalesce' -> col = COALESCE(excluded.col, users.col)  (não sobrescreve com null)
+//         'now'      -> col = CURRENT_TIMESTAMP
+//         <string>   -> expressão bruta usada como lado direito de `col = ...`
+// ---------------------------------------------------------------------------
+const j = (v) => JSON.stringify(v || [])
+const COLUMNS = [
+    { name: 'jid',                val: u => u.jid,                                              set: 'skip' },
+    { name: 'xp',                 val: u => u.xp ?? 0,                                          set: 'CASE WHEN excluded.level > users.level THEN excluded.xp ELSE MAX(users.xp, excluded.xp) END' },
+    { name: 'level',              val: u => u.level ?? 1,                                       set: 'max' },
+    { name: 'messages',          val: u => u.messages ?? 0,                                     set: 'max' },
+    { name: 'coins',             val: u => u.coins ?? 0,                                        set: 'direct' },
+    { name: 'rep',               val: u => u.rep ?? 0,                                          set: 'direct' },
+    { name: 'streak',            val: u => u.streak ?? 0,                                       set: 'direct' },
+    { name: 'hp',                val: u => u.hp ?? 100,                                         set: 'direct' },
+    { name: 'hp_max',            val: u => u.hpMax ?? u.hp_max ?? 100,                          set: 'direct' },
+    { name: 'mundo',             val: u => u.mundo || 'floresta',                               set: 'direct' },
+    { name: 'mochila',           val: u => u.mochila ?? 20,                                     set: 'max' },
+    { name: 'classe',            val: u => u.classe || null,                                    set: 'coalesce' },
+    { name: 'classe_lendaria',   val: u => u.classeLendaria ?? u.classe_lendaria ?? null,       set: 'coalesce' },
+    { name: 'bug_power',         val: u => u.bugPower ?? u.bug_power ?? 0,                       set: 'direct' },
+    { name: 'pet',               val: u => u.pet || null,                                       set: 'direct' },
+    { name: 'equipado',          val: u => u.equipado || null,                                  set: 'coalesce' },
+    { name: 'arma',              val: u => u.arma || null,                                      set: 'coalesce' },
+    { name: 'guilda',            val: u => u.guilda || null,                                    set: 'coalesce' },
+    { name: 'wins',              val: u => u.wins ?? 0,                                         set: 'direct' },
+    { name: 'losses',            val: u => u.losses ?? 0,                                       set: 'direct' },
+    { name: 'bosses_mortos',     val: u => u.bossesMortos ?? u.bosses_mortos ?? 0,              set: 'direct' },
+    { name: 'arena_pontos',      val: u => u.arenaPontos ?? u.arena_pontos ?? 0,                set: 'direct' },
+    { name: 'arena_atual',       val: u => u.arenaAtual ?? u.arena_atual ?? 1,                  set: 'direct' },
+    { name: 'last_daily',        val: u => u.lastDaily ?? u.last_daily ?? 0,                    set: 'direct' },
+    { name: 'weekly_xp',         val: u => u.weeklyXp ?? u.weekly_xp ?? 0,                      set: 'direct' },
+    { name: 'weekly_coins',      val: u => u.weeklyCoins ?? u.weekly_coins ?? 0,                set: 'direct' },
+    { name: 'pocao_ativa_tipo',  val: u => u.pocaoAtiva?.tipo || null,                          set: 'direct' },
+    { name: 'pocao_ativa_expira', val: u => u.pocaoAtiva?.expira || null,                       set: 'direct' },
+    { name: 'inventario',        val: u => j(u.inventario),   set: "CASE WHEN excluded.inventario IN ('[]','','null') THEN users.inventario ELSE excluded.inventario END" },
+    { name: 'conquistas',        val: u => j(u.conquistas),                                     set: 'direct' },
+    { name: 'pets',              val: u => j(u.pets),                                           set: 'direct' },
+    { name: 'created_at',        ins: 'CURRENT_TIMESTAMP',                                      set: 'skip' },
+    { name: 'updated_at',        ins: 'CURRENT_TIMESTAMP',                                      set: 'now' },
+    { name: 'messages_group',    val: u => u.messagesGroup ?? u.messages_group ?? 0,            set: 'direct' },
+    { name: 'messages_pv',       val: u => u.messagesPv ?? u.messages_pv ?? 0,                  set: 'direct' },
+    { name: 'commands_group',    val: u => u.commandsGroup ?? u.commands_group ?? 0,            set: 'max' },
+    { name: 'commands_pv',       val: u => u.commandsPv ?? u.commands_pv ?? 0,                  set: 'max' },
+    { name: 'xp_group',          val: u => u.xpGroup ?? u.xp_group ?? 0,                        set: 'direct' },
+    { name: 'xp_pv',             val: u => u.xpPv ?? u.xp_pv ?? 0,                              set: 'direct' },
+    { name: 'bank',              val: u => u.bank ?? 0,                                         set: 'direct' },
+    { name: 'last_device',       val: u => u.lastDevice ?? u.last_device ?? null,               set: 'direct' },
+    { name: 'last_ping_ms',      val: u => u.lastPingMs ?? u.last_ping_ms ?? 0,                 set: 'direct' },
+    { name: 'net_type',          val: u => u.netType ?? u.net_type ?? null,                     set: 'direct' },
+    { name: 'last_seen',         val: u => u.lastSeen ?? u.last_seen ?? Date.now(),             set: 'direct' },
+    { name: 'phone',             val: u => u.phone || null,                                     set: 'coalesce' },
+    { name: 'lid',               val: u => u.lid || null,                                       set: 'coalesce' },
+    { name: 'name',              val: u => u.name || null,                                      set: 'coalesce' },
+    { name: 'slots',             val: u => JSON.stringify(u.slots || {}),                       set: 'direct' },
+    { name: 'forge_level',       val: u => u.forgeLevel ?? u.forge_level ?? 0,                  set: 'max' },
+    { name: 'nickname_rpg',      val: u => u.nicknameRpg ?? u.nickname_rpg ?? null,             set: 'coalesce' },
+    { name: 'atk',               val: u => u.atk ?? 10,                                         set: 'direct' },
+    { name: 'def',               val: u => u.def ?? 5,                                          set: 'direct' },
+    // vault_coins é gerido exclusivamente pelo vaultRepository (ON CONFLICT próprio).
+    // Entra no INSERT (linha nova = 0) mas nunca no SET, para não ser destruído por saveUser.
+    { name: 'vault_coins',       val: u => u.vaultCoins ?? u.vault_coins ?? 0,                  set: 'skip' },
+    { name: 'rebirth_count',     val: u => u.rebirthCount ?? u.rebirth_count ?? 0,              set: 'max' },
+    { name: 'grimoire_spells',   val: u => j(u.grimoireSpells ?? u.grimoire_spells),           set: 'direct' },
+    { name: 'active_runes',      val: u => j(u.activeRunes ?? u.active_runes),                  set: 'direct' },
+    { name: 'character_race',    val: u => u.characterRace ?? u.character_race ?? null,     ins: "COALESCE(?, 'humano')", set: 'coalesce' },
+    { name: 'character_element', val: u => u.characterElement ?? u.character_element ?? null, ins: "COALESCE(?, 'fogo')",  set: 'coalesce' },
+    { name: 'fogueira_buff_expira', val: u => u.fogueiraBuffExpira ?? u.fogueira_buff_expira ?? 0, set: 'direct' },
+    { name: 'pv_farm_count',     val: u => u.pvFarmCount ?? u.pv_farm_count ?? 0,               set: 'direct' },
+    { name: 'group_farm_count',  val: u => u.groupFarmCount ?? u.group_farm_count ?? 0,         set: 'direct' },
+    { name: 'coins_pv',          val: u => u.coinsPv ?? u.coins_pv ?? 0,                        set: 'direct' },
+    { name: 'coins_group',       val: u => u.coinsGroup ?? u.coins_group ?? 0,                  set: 'direct' },
+    // Perfil de login (Fase B)
+    { name: 'registered',        val: u => (u.registered ? 1 : 0),                              set: 'max' },
+    { name: 'display_nick',      val: u => u.displayNick ?? u.display_nick ?? null,             set: 'coalesce' },
+    { name: 'rpg_enabled',       val: u => (u.rpgEnabled === false || u.rpg_enabled === 0 ? 0 : 1), set: 'direct' },
+    { name: 'foco_categoria',    val: u => u.focoCategoria ?? u.foco_categoria ?? null,         set: 'coalesce' },
+    { name: 'registered_at',     val: u => u.registeredAt ?? u.registered_at ?? null,           set: 'coalesce' }
+]
+
+function setClause(c) {
+    switch (c.set) {
+        case 'skip':     return null
+        case 'direct':   return `${c.name} = excluded.${c.name}`
+        case 'max':      return `${c.name} = MAX(users.${c.name}, excluded.${c.name})`
+        case 'coalesce': return `${c.name} = COALESCE(excluded.${c.name}, users.${c.name})`
+        case 'now':      return `${c.name} = CURRENT_TIMESTAMP`
+        default:         return `${c.name} = ${c.set}`   // expressão bruta
+    }
+}
+
+// SQL montado uma vez, a partir de COLUMNS.
+const _bound = COLUMNS.filter(c => c.val)                       // colunas com placeholder
+const _insCols = COLUMNS.map(c => c.name).join(', ')
+const _insVals = COLUMNS.map(c => c.ins || '?').join(', ')
+const _setNormal = COLUMNS.map(setClause).filter(Boolean).join(',\n            ')
+// Variante "force": sobrescreve tudo direto (sem MAX/COALESCE), para rebirth/reset/penalidade.
+const _setForce = COLUMNS
+    .filter(c => c.set !== 'skip' && c.set !== 'now')
+    .map(c => `${c.name} = excluded.${c.name}`)
+    .concat(['updated_at = CURRENT_TIMESTAMP'])
+    .join(',\n            ')
+
+const SQL_SAVE = `
+        INSERT INTO users (${_insCols})
+        VALUES (${_insVals})
+        ON CONFLICT(jid) DO UPDATE SET
+            ${_setNormal}
+    `
+const SQL_SAVE_FORCE = `
+        INSERT INTO users (${_insCols})
+        VALUES (${_insVals})
+        ON CONFLICT(jid) DO UPDATE SET
+            ${_setForce}
+    `
+
+/**
+ * Persiste um usuário. Colunas fora do SET (created_at, vault_coins) são
+ * preservadas de propósito. Por padrão aplica guardas anti-regressão em
+ * level/xp/messages/mochila/forge_level via SQL.
+ * @param {object} user
+ * @param {{force?: boolean}} [opts] - force:true ignora as guardas (rebirth/reset/penalidade).
+ */
+function saveUser(user, opts = {}) {
+    if (!user || !user.jid) return
+
+    // Normaliza inventário (aceita `inventory` como origem alternativa)
+    if (!Array.isArray(user.inventario)) {
+        user.inventario = Array.isArray(user.inventory) ? user.inventory : []
+    }
+    user.inventory = user.inventario
+
+    // Merge de slots: preserva slots equipados no banco quando o objeto em
+    // memória está incompleto. Só lê o banco (coluna única, indexada por PK)
+    // quando o objeto passado não traz as 7 chaves — no caminho quente, o
+    // usuário vem completo de getUser e nenhuma leitura ocorre.
+    const slotKeys = user.slots ? Object.keys(user.slots) : []
+    if (slotKeys.length < 7) {
+        const prev = q('SELECT slots FROM users WHERE jid = ?').get(user.jid)
+        if (prev && prev.slots && prev.slots !== '{}') {
+            try {
+                const existingSlots = JSON.parse(prev.slots)
+                if (!user.slots) user.slots = existingSlots
+                else {
+                    for (const k of Object.keys(existingSlots)) {
+                        if (!user.slots[k] && existingSlots[k]) user.slots[k] = existingSlots[k]
+                    }
+                }
+            } catch (_) {}
+        }
+    }
+
+    const values = _bound.map(c => c.val(user))
+    q(opts.force ? SQL_SAVE_FORCE : SQL_SAVE).run(...values)
+}
+
+function getAllUsers() {
+    const rows = q('SELECT * FROM users').all()
+    const result = {}
+    for (const row of rows) {
+        result[row.jid] = rowToUser(row)
+    }
+    return result
+}
+
+/** Incrementa o contador de comandos sem ler/reescrever a linha inteira. */
+function incrementCommandCount(jid, isGroup) {
+    if (!jid) return
+    const col = isGroup ? 'commands_group' : 'commands_pv'
+    q(`UPDATE users SET ${col} = COALESCE(${col}, 0) + 1, updated_at = CURRENT_TIMESTAMP WHERE jid = ?`).run(jid)
+}
+
+function getTopRank(limit = 10) {
+    const rows = q('SELECT * FROM users ORDER BY level DESC, xp DESC LIMIT ?').all(limit)
+    return rows.map(r => [r.jid, rowToUser(r)])
+}
+
+function getTopCoins(limit = 10) {
+    const rows = q('SELECT * FROM users ORDER BY coins DESC LIMIT ?').all(limit)
+    return rows.map(r => [r.jid, rowToUser(r)])
+}
+
+function getTopWeekly(limit = 10) {
+    const rows = q('SELECT * FROM users ORDER BY weekly_xp DESC LIMIT ?').all(limit)
+    return rows.map(r => [r.jid, rowToUser(r)])
+}
+
+function getTopArena(limit = 10) {
+    const rows = q('SELECT * FROM users ORDER BY arena_pontos DESC LIMIT ?').all(limit)
+    return rows.map(r => [r.jid, rowToUser(r)])
+}
+
+function getTopXp(limit = 10) {
+    const rows = q('SELECT * FROM users ORDER BY xp DESC LIMIT ?').all(limit)
+    return rows.map(r => [r.jid, rowToUser(r)])
+}
+
+module.exports = {
+    getUser,
+    saveUser,
+    getAllUsers,
+    incrementCommandCount,
+    getTopRank,
+    getTopCoins,
+    getTopWeekly,
+    getTopArena,
+    getTopXp,
+    rowToUser
+}
