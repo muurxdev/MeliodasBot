@@ -137,13 +137,31 @@ async function downloadPinterestMedia(urlOrQuery, { format = "mp4" } = {}) {
             }
         }
 
-        // 1. Procura vídeo MP4
+        // 0. Chromium (headless) — LIVE WALLPAPERS/vídeo em alta qualidade. O HTML
+        //    puro costuma não trazer o mp4 (o Pinterest carrega o vídeo por JS).
+        //    Tolerante: se não houver Chromium, cai no método fetch abaixo.
+        let browserVideoUrl = null;
+        try {
+            const { resolvePinterestMedia } = require("./media/providers/pinterestBrowser");
+            const { getCookiesPathFor } = require("./media/mediaArgs");
+            const resolved = await resolvePinterestMedia(finalUrl, { cookiesPath: getCookiesPathFor(null) });
+            if (resolved) {
+                if (resolved.title && (!title || title === "Pinterest Media")) title = resolved.title;
+                if (resolved.videoUrl) browserVideoUrl = resolved.videoUrl;
+            }
+        } catch (e) {
+            if (e.code !== "BROWSER_UNAVAILABLE") {
+                logger.warn(`[PINTEREST] Chromium falhou (${e.message}); usando método fetch.`);
+            }
+        }
+
+        // 1. Procura vídeo MP4 (Chromium tem prioridade; senão, regex no HTML)
         const videoOg = html.match(/<meta[^>]+(?:property|name)=["']og:video["'][^>]+content=["']([^"']+.mp4[^"']*)["']/i)
             || html.match(/https:\/\/v\.pinimg\.com\/videos\/[a-zA-Z0-9_\/.-]+\.mp4/i)
             || html.match(/https?:\/\/[^\s"'<>]+\.mp4[^\s"'<>]*/i);
 
-        if (videoOg) {
-            const videoUrl = videoOg[1] || videoOg[0];
+        if (browserVideoUrl || videoOg) {
+            const videoUrl = browserVideoUrl || videoOg[1] || videoOg[0];
             const rawVideoPath = path.join(pinTempDir, jobId + "_raw.mp4");
             await downloadFile(videoUrl, rawVideoPath);
 

@@ -12,9 +12,16 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     curl \
     ca-certificates \
     qpdf \
+    chromium \
+    fonts-liberation \
     && curl -L https://github.com/yt-dlp/yt-dlp-nightly-builds/releases/latest/download/yt-dlp -o /usr/local/bin/yt-dlp \
     && chmod a+rx /usr/local/bin/yt-dlp \
     && rm -rf /var/lib/apt/lists/*
+
+# Chromium do sistema para o Pinterest (live wallpapers via puppeteer-core).
+# puppeteer-core NÃO baixa Chromium — usa este binário.
+ENV CHROMIUM_PATH=/usr/bin/chromium \
+    PUPPETEER_SKIP_DOWNLOAD=true
 
 WORKDIR /app
 
