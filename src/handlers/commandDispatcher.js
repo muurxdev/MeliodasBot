@@ -253,6 +253,12 @@ async function dispatch(context) {
         }
     }
 
+    // 3.1.6 Opt-in de RPG (Fase B): quem desativou RPG no perfil é convidado a reativar
+    if (catKeyForToggle === 'rpg' && context.user && context.user.registered && context.user.rpgEnabled === false) {
+        await reply(`⚔️ *RPG desativado no seu perfil.*\n\n🎮 Para jogar, ative o modo RPG:\n\`${prefix}login rpg on\``)
+        return true
+    }
+
     // 3.2 Verificação de Modo Restrito no Grupo (.restringir adm - Apenas ADMs e Donos)
     if (isGroup && configs[from]?.restrictedToAdmins && !isAdmin && !isUserOwner) {
         const allowedInRestricted = ['menu', 'help', 'dossie', 'ping']

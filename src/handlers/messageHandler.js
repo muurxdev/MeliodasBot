@@ -521,7 +521,18 @@ async function handleIncomingMessage(client, { messages }) {
         quotedText,
         quotedSender,
         isQuoted,
-        prefix
+        prefix,
+        user
+    }
+
+    // Gate de registro (Fase B): usuário não registrado precisa fazer .login,
+    // exceto comandos essenciais. Owners/admins passam para poder operar.
+    const registerAllowed = ['login', 'registrar', 'cadastrar', 'registro', 'perfilconfig', 'entrarbot', 'menu', 'help', 'dono', 'ping', 'comandos']
+    if (!user.registered && !isOwner && !isAdmin && !registerAllowed.includes(commandName)) {
+        const bn = require('../config/botConfig').getBotName()
+        await reply(`🔐 *Registro necessário!*\n\n👋 Olá @${sender.split('@')[0]}! Antes de usar o *${bn}*, faça seu registro rápido:\n\n📝 \`${prefix}login <seu nick>\`\n💡 _Ex.:_ \`${prefix}login Dragão Slayer\`\n\n_Depois escolha se quer RPG com_ \`${prefix}login rpg on\``, [sender])
+        await dataService.saveXpData(xpData)
+        return
     }
 
     await dispatch(context)
