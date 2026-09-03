@@ -125,8 +125,10 @@ async function handleIncomingMessage(client, { messages }) {
         user.messagesPv = (user.messagesPv || 0) + 1
     }
 
-    // Ganho de XP liberado em grupos OU no PV quando ativado pelo dono (.farmpv on)
-    if (isGroup || allowPvXp) {
+    // Ganho de XP liberado em grupos OU no PV quando ativado pelo dono (.farmpv on).
+    // Gate da camada opt-in: o módulo "xp" (progressão passiva) precisa estar ligado.
+    const xpModuleOn = require('../services/moduleStateService').isModuleEnabled('xp')
+    if ((isGroup || allowPvXp) && xpModuleOn) {
         // XP base + bônus por tipo de mídia (áudio/vídeo/imagem/figurinha/documento
         // rendem um pouco mais que texto puro, incentivando engajamento variado).
         const base = Math.floor(Math.random() * 11) + 15 // 15 a 25

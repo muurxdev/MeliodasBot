@@ -13,6 +13,8 @@ const { validateRegistry, formatReport } = require('./commandValidator')
 const aliasOwners = require('../config/aliasOwners')
 const { resolveCategoryKey } = require('../config/categories')
 const { getBotName } = require('../config/botConfig')
+const moduleState = require('../services/moduleStateService')
+const { resolveModuleKey, BY_KEY: MODULE_BY_KEY } = require('../config/modules')
 
 const commands = new Map()
 const aliases = new Map()
@@ -304,6 +306,25 @@ async function dispatch(context) {
     if (!permCheck.allowed) {
         await reply(permCheck.reason)
         return true
+    }
+
+    // 8.1 Camada GLOBAL opt-in (tudo OFF por padrão) — só o DONO libera (por módulo
+    // ou por comando). Roda DEPOIS de permissão/escopo: erros de "não é admin" /
+    // "só em grupo" têm prioridade; a mensagem de OFF só aparece a quem poderia usar.
+    if (!isUserOwner) {
+        const optInAllowed = ['menu', 'help', 'dono', 'ping', 'modulo', 'cmdglobal',
+            'login', 'registrar', 'cadastrar', 'registro', 'perfilconfig', 'entrarbot', 'comandos']
+        if (!optInAllowed.includes(cmd.name.toLowerCase()) && !moduleState.isCommandEnabled(cmd)) {
+            const mk = resolveModuleKey(cmd)
+            const mLabel = (MODULE_BY_KEY[mk] && MODULE_BY_KEY[mk].label) || mk
+            let offDoc = `╔══════════════════════════════╗\n`
+            offDoc += `║   🔒 *COMANDO INDISPONÍVEL* 🔒   ║\n`
+            offDoc += `╚══════════════════════════════╝\n\n`
+            offDoc += `⏸️ O comando \`.${cmd.name}\` pertence ao módulo *${mLabel}*, ainda não liberado pela administração.\n`
+            offDoc += `💡 _Um Dono do bot pode ativar com:_ \`${prefix}modulo on ${mk}\``
+            await reply(offDoc.trim())
+            return true
+        }
     }
 
     // 9. Verificação do Modo Aluguel em Grupos

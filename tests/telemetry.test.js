@@ -40,6 +40,8 @@ async function testAsync(name, fn) {
 
 async function runTelemetryTests() {
     dispatcher.loadCommands()
+    // Camada opt-in nasce OFF; libera tudo para testar o comportamento dos comandos.
+    require('../src/services/moduleStateService').enableAll()
     telemetryService.resetMetrics()
 
     // ══════════════════════════════════════════

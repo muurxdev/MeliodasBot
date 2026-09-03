@@ -8,7 +8,7 @@
     "cli": "node scripts/dev-cli.js",
     "seed": "node scripts/seed.js",
     "healthcheck": "node scripts/healthcheck.js",
-    "test": "node tests/database.test.js && node tests/user-persistence.test.js && node tests/dispatcher-integrity.test.js && node tests/menu.test.js && node tests/rpg.test.js && node tests/media.test.js && node tests/progress-engine.test.js && node tests/security.test.js && node tests/scheduler.test.js && node tests/dev-tools.test.js && node tests/telemetry.test.js && node tests/backup.test.js && node tests/deploy.test.js && node tests/e2e.test.js && node tests/core.test.js && node tests/group-auth.test.js && node tests/group-promote.test.js && node tests/group-control.test.js && node tests/media-fix.test.js",
+    "test": "node tests/database.test.js && node tests/user-persistence.test.js && node tests/dispatcher-integrity.test.js && node tests/menu.test.js && node tests/rpg.test.js && node tests/media.test.js && node tests/progress-engine.test.js && node tests/security.test.js && node tests/scheduler.test.js && node tests/dev-tools.test.js && node tests/telemetry.test.js && node tests/backup.test.js && node tests/deploy.test.js && node tests/e2e.test.js && node tests/core.test.js && node tests/module-state.test.js && node tests/group-auth.test.js && node tests/group-promote.test.js && node tests/group-control.test.js && node tests/media-fix.test.js",
     "test:group": "node tests/group-auth.test.js",
     "test:grouppromote": "node tests/group-promote.test.js",
     "test:groupcontrol": "node tests/group-control.test.js",

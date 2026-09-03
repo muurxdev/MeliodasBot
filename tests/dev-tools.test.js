@@ -42,6 +42,8 @@ async function testAsync(name, fn) {
 
 async function runDevToolsTests() {
     dispatcher.loadCommands()
+    // Camada opt-in nasce OFF; libera tudo para testar o comportamento dos comandos.
+    require('../src/services/moduleStateService').enableAll()
 
     // ══════════════════════════════════════════
     // 1. DEV SERVICE UTILITIES
