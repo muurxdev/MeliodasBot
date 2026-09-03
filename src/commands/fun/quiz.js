@@ -1,12 +1,13 @@
 /**
  * Comando .quiz
- * Quiz interativo de perguntas e respostas com prêmios de XP e Moedas
+ * Quiz interativo com prêmios de XP e Moedas. Aceita RESPOSTA LIVRE (basta
+ * responder no chat, sem precisar de `.quiz <resposta>`) via interactionService,
+ * mantendo também o modo antigo com prefixo.
  */
 
 const dataService = require("../../services/dataService");
 const { initializeUser } = require("../../services/xpService");
-
-const activeQuizzes = new Map();
+const interactionService = require("../../services/interactionService");
 
 const QUESTIONS = [
     { q: "Qual é o Tesouro Sagrado de Meliodas?", a: "LOSTVAYNE", opts: ["Rhitta", "Lostvayne", "Chastiefol", "Gideon"] },
@@ -16,45 +17,89 @@ const QUESTIONS = [
     { q: "Qual o mandamento de Zeldris?", a: "PIEDADE", opts: ["Verdade", "Piedade", "Amor", "Pureza"] }
 ];
 
+const norm = (s) => (s || "").toUpperCase().trim().normalize("NFD").replace(/[̀-ͯ]/g, "");
+
+/**
+ * Interpreta um palpite. Retorna { attempt: bool, correct: bool }.
+ * Aceita: texto da resposta, texto de uma opção, ou número da opção (1-4).
+ */
+function evaluate(input, current) {
+    const val = norm(input);
+    if (!val) return { attempt: false, correct: false };
+    const answer = norm(current.a);
+    const opts = current.opts.map(norm);
+
+    // número da opção
+    const asNum = parseInt(val, 10);
+    if (!isNaN(asNum) && asNum >= 1 && asNum <= current.opts.length) {
+        return { attempt: true, correct: opts[asNum - 1] === answer };
+    }
+    // texto = resposta exata
+    if (val === answer) return { attempt: true, correct: true };
+    // texto = alguma opção
+    if (opts.includes(val)) return { attempt: true, correct: opts[opts.indexOf(val)] === answer };
+
+    return { attempt: false, correct: false };
+}
+
+async function reward(sender) {
+    const xpData = dataService.getXpData();
+    const user = initializeUser(sender, xpData);
+    user.xp = (user.xp || 0) + 300;
+    user.coins = (user.coins || 0) + 200;
+    dataService.saveUser(user);
+}
+
+function questionDoc(picked) {
+    let doc = `╔══════════════════════════════╗\n`;
+    doc += `║          🧠 *QUIZ* 🧠          ║\n`;
+    doc += `╚══════════════════════════════╝\n\n`;
+    doc += `❓ *Pergunta:* ${picked.q}\n\n`;
+    doc += `╭━〔 📋 OPÇÕES 〕━⬣\n`;
+    picked.opts.forEach((o, i) => { doc += `┃ ${i + 1}. ${o}\n`; });
+    doc += `╰━━━━━━━━━━━━━━━━━━⬣\n\n`;
+    doc += `👉 _Responda no chat com o número ou o nome da opção._`;
+    return doc.trim();
+}
+
+function startQuiz(from, sender, reply) {
+    const picked = QUESTIONS[Math.floor(Math.random() * QUESTIONS.length)];
+
+    interactionService.register(from, {
+        type: "quiz",
+        ttlMs: 120000,
+        onText: async (text, c) => {
+            const { attempt, correct } = evaluate(text, picked);
+            if (!attempt) return false; // não parece resposta → ignora (não consome)
+            if (correct) {
+                c.clear();
+                await reward(c.userJid || sender);
+                await c.reply(`🎉 *RESPOSTA CORRETA!*\n\n👑 Resposta: *${picked.a}*\n⭐ +300 XP e +200 Coins!\n💡 _Envie \`.quiz\` para a próxima._`);
+            } else {
+                await c.reply(`❌ *Resposta incorreta!* Tente outra opção (a partida continua).`);
+            }
+            return true; // consumiu a mensagem
+        }
+    });
+
+    return reply(questionDoc(picked));
+}
+
 module.exports = {
     name: "quiz",
     aliases: ["trivia", "pergunta", "jogodeperguntas"],
     category: "fun",
-    description: "Participe de um quiz de animes e conhecimentos para ganhar XP e moedas",
+    subcategory: "Quiz",
+    description: "Participe de um quiz para ganhar XP e moedas (responda no chat)",
     execute: async ({ from, args, sender, reply }) => {
-        let current = activeQuizzes.get(from);
-        const input = (args && args.join(" ")) ? args.join(" ").toUpperCase().trim().normalize("NFD").replace(/[\u0300-\u036f]/g, "") : "";
+        const input = (args && args.join(" ")) ? args.join(" ") : "";
 
-        if (current && input) {
-            if (input === current.a || (current.opts && current.opts.some(o => o.toUpperCase() === input && o.toUpperCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "") === current.a))) {
-                activeQuizzes.delete(from);
-                const xpData = dataService.getXpData();
-                const user = initializeUser(sender, xpData);
-                user.xp = (user.xp || 0) + 300;
-                user.coins = (user.coins || 0) + 200;
-                dataService.saveUser(user);
-
-                return reply(`🎉 *RESPOSTA CORRETA! Parabéns!*\n\n👑 Resposta: *${current.a}*\n⭐ *Recompensa:* +300 XP e +200 Coins!\n💡 _Envie \`.quiz\` para a próxima pergunta!_`);
-            } else {
-                return reply(`❌ *Resposta incorreta!* Tente novamente respondendo com \`.quiz <resposta>\`.`);
-            }
+        // Modo antigo: `.quiz <resposta>` enquanto há partida ativa.
+        if (input && interactionService.has(from)) {
+            const consumed = await interactionService.consume(from, sender, input, { from, sender, reply });
+            if (consumed) return;
         }
 
-        const picked = QUESTIONS[Math.floor(Math.random() * QUESTIONS.length)];
-        activeQuizzes.set(from, picked);
-
-        let doc = `╔══════════════════════════════╗\n`;
-        doc += `║       🧠 *QUIZ MELIODAS* 🧠     ║\n`;
-        doc += `╚══════════════════════════════╝\n\n`;
-        doc += `❓ *Pergunta:* ${picked.q}\n\n`;
-        doc += `╭━〔 📋 OPÇÕES 〕━⬣\n`;
-        picked.opts.forEach((o, i) => {
-            doc += `┃ ${i + 1}. ${o}\n`;
-        });
-        doc += `╰━━━━━━━━━━━━━━━━━━⬣\n\n`;
-        doc += `👉 _Responda enviando \`.quiz <opção>\`_`;
-
-        return reply(doc.trim());
+        return startQuiz(from, sender, reply);
     }
 };
-

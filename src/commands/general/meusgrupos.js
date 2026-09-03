@@ -5,6 +5,7 @@
  */
 
 const groupAuthService = require('../../services/groupAuthService')
+const { getBotName } = require('../../config/botConfig')
 const logger = require('../../core/logger')
 
 module.exports = {
@@ -85,7 +86,7 @@ module.exports = {
                 doc += `┃ 🆔 *JID:* \`${g.id}\`\n`
                 doc += `┃ 👥 *Membros:* ${g.size} participantes\n`
                 doc += `┃ 💼 *Seu Cargo:* ${userCargo}\n`
-                doc += `┃ 🤖 *Meliodas:* ${botStatus}\n`
+                doc += `┃ 🤖 *${getBotName()}:* ${botStatus}\n`
                 doc += `╰━━━━━━━━━━━━━━━━━━⬣\n\n`
             })
 

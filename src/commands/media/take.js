@@ -27,7 +27,7 @@ module.exports = {
         const isAnimated = !!stickerMsg?.isAnimated;
 
         let packName = getBotName();
-        let authorName = "Meliodas XP";
+        let authorName = getBotName();
 
         if (text && text.trim()) {
             const parts = text.split("|");

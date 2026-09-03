@@ -465,6 +465,21 @@ async function handleIncomingMessage(client, { messages }) {
     // Verificação de prefixo dinâmico (por grupo ou global)
     const prefix = configs[from]?.prefix || configs['global']?.prefix || env.prefix || '.'
     if (!body.startsWith(prefix)) {
+        // Resposta LIVRE a um jogo/fluxo ativo (ex.: responder o .quiz sem prefixo).
+        // Oferecida ANTES do fallback de IA para não "comer" respostas de jogo.
+        if (body && body.trim()) {
+            const interactionService = require('../services/interactionService')
+            if (interactionService.has(from)) {
+                const consumed = await interactionService.consume(from, sender, body.trim(), {
+                    from, sender, reply, isGroup, client, info
+                })
+                if (consumed) {
+                    await dataService.saveXpData(xpData)
+                    return
+                }
+            }
+        }
+
         const botNumber = client.user?.id?.split(':')[0]?.split('@')[0] || ''
         const isBotMentioned = isGroup && contextInfo?.mentionedJid?.some(j => j.includes(botNumber))
 
