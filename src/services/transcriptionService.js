@@ -54,8 +54,52 @@ function run(cmd, args, timeoutMs = 180000) {
  * @param {Buffer} audioBuffer
  * @returns {Promise<{ text: string, engine: string }>}
  */
+/**
+ * Transcreve via servidor HTTP compatível com a API OpenAA (ex.: faster-whisper-server).
+ * Ativado por WHISPER_API_URL (endpoint /v1/audio/transcriptions).
+ */
+async function transcribeViaApi(audioBuffer) {
+    const url = process.env.WHISPER_API_URL
+    const model = process.env.WHISPER_API_MODEL || 'Systran/faster-whisper-small'
+    const dir = path.join(tempDir, 'stt')
+    if (!fs.existsSync(dir)) fs.mkdirSync(dir, { recursive: true })
+    const inPath = path.join(dir, 'api_' + Date.now() + '.ogg')
+    const wavPath = inPath.replace(/\.ogg$/, '.wav')
+    fs.writeFileSync(inPath, audioBuffer)
+    try {
+        // Converte para WAV 16k mono (formato universal p/ o servidor decodificar)
+        await run('ffmpeg', ['-y', '-i', inPath, '-ar', '16000', '-ac', '1', '-c:a', 'pcm_s16le', wavPath], 60000)
+        const wavBuf = fs.readFileSync(wavPath)
+        const form = new FormData()
+        form.append('file', new Blob([wavBuf], { type: 'audio/wav' }), 'audio.wav')
+        form.append('model', model)
+        form.append('response_format', 'text')
+        if (WHISPER_LANG && WHISPER_LANG !== 'auto') form.append('language', WHISPER_LANG)
+
+        const ctrl = new AbortController()
+        const to = setTimeout(() => ctrl.abort(), 180000)
+        const res = await fetch(url, { method: 'POST', body: form, signal: ctrl.signal }).finally(() => clearTimeout(to))
+        if (!res.ok) throw new Error(`API de transcrição respondeu ${res.status}`)
+        const text = (await res.text()).trim()
+        if (!text) throw new Error('Transcrição vazia da API.')
+        return { text, engine: 'faster-whisper (API)' }
+    } finally {
+        try { fs.unlinkSync(inPath) } catch (_) {}
+        try { fs.unlinkSync(wavPath) } catch (_) {}
+    }
+}
+
 async function transcribeAudio(audioBuffer) {
     if (!audioBuffer || !audioBuffer.length) throw new Error('Áudio vazio.')
+
+    // Prioriza o servidor HTTP (faster-whisper) quando configurado.
+    if (process.env.WHISPER_API_URL) {
+        try {
+            return await transcribeViaApi(audioBuffer)
+        } catch (e) {
+            logger.warn(`[STT] API falhou (${e.message}); tentando whisper local...`)
+        }
+    }
 
     const engine = detectWhisper()
     if (!engine) {

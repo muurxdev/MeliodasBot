@@ -26,7 +26,7 @@ tests/test_db.sqlite
 # Backups legados e lixo
 *.bak
 indexxxxx/
-database/
+/database/
 
 # Sistema operacional
 .DS_Store
