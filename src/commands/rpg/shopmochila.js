@@ -9,7 +9,7 @@ const { initializeUser } = require("../../services/xpService");
 
 module.exports = {
     name: "shopmochila",
-    aliases: ["upgrademochila", "aumentarmochila", "expansao", "mochila"],
+    aliases: ["upgrademochila", "aumentarmochila", "expansao"],
     category: "rpg",
     description: "Expande a capacidade e slots de armazenamento da sua mochila",
     cooldownMs: 2000,

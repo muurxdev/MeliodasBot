@@ -1,6 +1,6 @@
 module.exports = {
     name: 'hora',
-    aliases: ['horario', 'time'],
+    aliases: ['time'],
     category: 'dev',
     description: 'Exibe a hora atual do servidor',
     execute: async ({ reply }) => {

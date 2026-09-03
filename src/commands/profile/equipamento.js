@@ -13,7 +13,7 @@ const SLOTS_VALIDOS = {
 
 module.exports = {
     name: 'equipamento',
-    aliases: ['equip', 'equipar', 'gear'],
+    aliases: ['gear'],
     category: 'profile',
     subcategory: 'Perfil & Ranking',
     description: 'Sistema de equipamento — veja e equipa itens nos slots',

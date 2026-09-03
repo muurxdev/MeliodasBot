@@ -2,7 +2,7 @@ const securityService = require('../../services/securityService')
 
 module.exports = {
     name: 'blacklist',
-    aliases: ['banlist', 'banidos'],
+    aliases: ['banidos'],
     category: 'owner',
     description: 'Consulta todos os usuários atualmente na Blacklist global',
     ownerOnly: true,

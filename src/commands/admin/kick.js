@@ -9,7 +9,7 @@ const { getBotName } = require('../../config/botConfig');
 
 module.exports = {
     name: 'kick',
-    aliases: ['ban', 'remover', 'expulsar'],
+    aliases: ['remover', 'expulsar'],
     category: 'admin',
     description: 'Remove um membro do grupo',
     groupOnly: true,

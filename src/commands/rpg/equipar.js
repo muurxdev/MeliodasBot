@@ -11,7 +11,7 @@ const { getItem, calculateCharacterStats } = require("../../services/rpgEquipmen
 
 module.exports = {
     name: "equipar",
-    aliases: ["equip", "vestir", "usaritem", "colocararmadura", "empunhar"],
+    aliases: ["vestir", "usaritem", "colocararmadura", "empunhar"],
     category: "rpg",
     description: "Equipa um item do seu inventário no slot correspondente do seu boneco",
     cooldownMs: 1500,

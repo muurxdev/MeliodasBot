@@ -10,7 +10,7 @@ const SYMBOLS = ["🍒", "🍋", "🍇", "🔔", "⭐", "💎", "7️⃣"];
 
 module.exports = {
     name: "cassino",
-    aliases: ["slots", "cacaniqueis", "caca-niquel", "jackpot"],
+    aliases: ["cacaniqueis", "caca-niquel", "jackpot"],
     category: "economy",
     description: "Aposte suas moedas no caça-níqueis e tente acertar o Jackpot!",
     cooldownMs: 5000,

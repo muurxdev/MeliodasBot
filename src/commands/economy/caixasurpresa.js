@@ -8,7 +8,7 @@ const COOLDOWN_1H = 60 * 60 * 1000
 
 module.exports = {
     name: "caixasurpresa",
-    aliases: ["caixasurpresa", "mysterybox", "caixa", "surpresabox"],
+    aliases: ["mysterybox", "caixa", "surpresabox"],
     category: "economy",
     subcategory: "Itens",
     description: "Abra uma caixa surpresa por 500 coins e ganhe prêmios!",

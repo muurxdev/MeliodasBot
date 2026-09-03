@@ -7,7 +7,7 @@ const activeGames = new Map()
 
 module.exports = {
     name: "mines",
-    aliases: ["minas", "campominado"],
+    aliases: ["minas"],
     category: "economy",
     subcategory: "Jogos",
     description: "Campo minado com aposta! Encontre células seguras para multiplicar seus coins",

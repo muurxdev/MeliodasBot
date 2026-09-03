@@ -13,7 +13,7 @@ const logger = require("../../core/logger");
 
 module.exports = {
     name: "setcookies",
-    aliases: ["cookies", "addcookies", "upcookies", "youtubeauth"],
+    aliases: ["addcookies", "upcookies", "youtubeauth"],
     category: "owner",
     description: "Configura ou atualiza o arquivo de cookies (Netscape) para download do YouTube, Instagram e TikTok",
     ownerOnly: true,

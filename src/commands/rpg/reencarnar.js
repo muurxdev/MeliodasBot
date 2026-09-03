@@ -11,7 +11,7 @@ const { getBotName } = require("../../config/botConfig");
 
 module.exports = {
     name: "reencarnar",
-    aliases: ["renascer", "transcender", "ascensao-divina"],
+    aliases: ["renascer", "rebirth", "reborn", "transcender", "ascensao-divina"],
     category: "rpg",
     description: "Reencarne seu herói: reseta para nível 1 e mundo floresta em troca de +25% bônus permanente acumulativo",
     cooldownMs: 5000,

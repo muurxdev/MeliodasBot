@@ -11,7 +11,7 @@ const { calculateFullCharacterStats, renderCharacterAvatar, RACES, ELEMENTS, get
 
 module.exports = {
     name: "boneco",
-    aliases: ["personagem", "avatar", "meuboneco", "slots", "statusrpg", "meuheroi", "criarboneco"],
+    aliases: ["personagem", "avatar", "meuboneco", "statusrpg", "meuheroi", "criarboneco"],
     category: "rpg",
     description: "Exibe seu boneco personalizado renderizado em emojis, slots de armadura e poder total",
     cooldownMs: 2000,

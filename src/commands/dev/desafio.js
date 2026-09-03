@@ -2,7 +2,7 @@ const { desafios } = require('../../utils/constants')
 
 module.exports = {
     name: 'desafio',
-    aliases: ['quiz', 'pergunta'],
+    aliases: ['pergunta'],
     category: 'dev',
     description: 'Envia um desafio ou pergunta rápida de programação',
     execute: async ({ reply }) => {

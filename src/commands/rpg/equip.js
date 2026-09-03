@@ -11,7 +11,7 @@ const itensAtalho = {
 
 module.exports = {
     name: 'equip',
-    aliases: ['equipar', 'use'],
+    aliases: ['use'],
     category: 'rpg',
     description: 'Equipa um item ou equipamento forjado do seu inventário',
     execute: async ({ text, sender, reply }) => {

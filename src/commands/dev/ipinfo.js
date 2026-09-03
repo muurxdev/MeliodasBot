@@ -5,7 +5,7 @@
 
 module.exports = {
     name: "ipinfo",
-    aliases: ["whois", "lookupip", "ip", "rastrearip"],
+    aliases: ["lookupip", "ip", "rastrearip"],
     category: "dev",
     description: "Consulta informações geográficas, operadora e localização de um IP ou domínio",
     execute: async ({ args, text, reply }) => {

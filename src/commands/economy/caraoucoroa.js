@@ -10,7 +10,7 @@ const logger = require("../../core/logger")
 
 module.exports = {
     name: "caraoucoroa",
-    aliases: ["coinflip", "flip", "moeda", "cara-coroa"],
+    aliases: ["coinflip", "flip", "cara-coroa"],
     category: "economy",
     description: "Aposte moedas no cara ou coroa com 50% de chance de dobrar o valor",
     cooldownMs: 2000,

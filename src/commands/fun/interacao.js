@@ -121,10 +121,7 @@ const INTERACTIONS = {
 
 module.exports = {
     name: "interacao",
-    aliases: [
-        "social", "afeto", "abracar", "abraçar", "beijar", "beijo", "bater", "tapa", "cafune", "cafuné",
-        "matar", "dancar", "dançar", "chorar", "rir", "lamber", "casar", "divorcio", "divórcio"
-    ],
+    aliases: ["social", "afeto", "abraçar", "beijar", "beijo", "bater", "tapa", "cafune", "cafuné", "matar", "dancar", "dançar", "chorar", "rir", "lamber", "casar", "divorcio", "divórcio"],
     category: "fun",
     description: "Comandos sociais e interações de afeto, zoeira e roleplay entre membros (com controle on/off)",
     cooldownMs: 1500,

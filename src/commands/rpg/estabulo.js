@@ -12,7 +12,7 @@ const MOUNTS = {
 
 module.exports = {
     name: 'estabulo',
-    aliases: ['montaria', 'mounts', 'estabulomontaria'],
+    aliases: ['mounts', 'estabulomontaria'],
     category: 'rpg',
     subcategory: 'Exploração',
     description: 'Sistema de montarias — compre, equipe e gerencie mounts',

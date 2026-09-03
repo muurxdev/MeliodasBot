@@ -7,7 +7,7 @@ const logger = require('../../core/logger')
 
 module.exports = {
     name: 'grupos',
-    aliases: ['grouplist', 'listagrupos', 'meusgrupos'],
+    aliases: ['grouplist', 'listagrupos'],
     category: 'owner',
     description: 'Lista todos os grupos do WhatsApp onde o bot está presente',
     ownerOnly: true,

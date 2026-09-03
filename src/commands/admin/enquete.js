@@ -8,7 +8,7 @@ const logger = require("../../core/logger");
 
 module.exports = {
     name: "enquete",
-    aliases: ["poll", "votacao", "criarvotacao"],
+    aliases: ["poll", "criarvotacao"],
     category: "admin",
     description: "Cria uma enquete nativa interativa no grupo",
     groupOnly: true,

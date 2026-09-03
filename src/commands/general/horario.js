@@ -36,7 +36,7 @@ function getTimeForZone(zone) {
 
 module.exports = {
     name: "horario",
-    aliases: ["hora", "time", "worldtime", "fusohorario", "relogio", "fuso"],
+    aliases: ["time", "worldtime", "fusohorario", "relogio", "fuso"],
     category: "general",
     description: "Exibe o relógio mundial em tempo real e o horário oficial de países e cidades",
     cooldownMs: 2000,

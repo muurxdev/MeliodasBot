@@ -4,7 +4,7 @@
 
 module.exports = {
     name: 'classeshop',
-    aliases: ['lojaclasses', 'trocarclasse'],
+    aliases: ['lojaclasses'],
     category: 'rpg',
     description: 'Loja para compra e troca de classes com coins e visualização de classes lendárias',
     execute: async ({ reply }) => {

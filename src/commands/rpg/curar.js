@@ -10,7 +10,7 @@ const { getBotName } = require('../../config/botConfig');
 
 module.exports = {
     name: 'curar',
-    aliases: ['heal', 'recuperar', 'curar-max', 'curarmax', 'fullheal', 'curatotal'],
+    aliases: ['heal', 'recuperar', 'curarmax', 'fullheal', 'curatotal'],
     category: 'rpg',
     description: 'Restaura a vida total do jogador (HP Máximo com armaduras) com poções ou taxa de moedas',
     cooldownMs: 2000,

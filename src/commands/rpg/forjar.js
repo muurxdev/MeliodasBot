@@ -15,7 +15,7 @@ function getCostForLevel(targetLevel) {
 
 module.exports = {
     name: "forjar",
-    aliases: ["upgrade", "aprimorar", "ferreiro", "refinar", "upgradearma", "upgradearmadura"],
+    aliases: ["upgrade", "aprimorar", "refinar", "upgradearma", "upgradearmadura"],
     category: "rpg",
     description: "Aprimora suas armas e armaduras no ferreiro para aumentar o dano, defesa e poder de combate total",
     cooldownMs: 3000,

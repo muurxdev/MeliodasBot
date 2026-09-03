@@ -6,7 +6,7 @@ const logger = require('../../core/logger')
 
 module.exports = {
     name: 'boss',
-    aliases: ['chefe', 'raid'],
+    aliases: ['chefe'],
     category: 'rpg',
     description: 'Sistema completo de Bosses: criar, atacar, ajudar e consultar recompensas',
     execute: async ({ text, args, from, sender, info, reply }) => {

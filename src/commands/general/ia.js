@@ -18,7 +18,7 @@ function cleanSearchQuery(rawText) {
 
 module.exports = {
     name: 'ia',
-    aliases: ['gpt', 'ai', 'perguntar', 'search', 'pesquisar', 'busca', 'google'],
+    aliases: ['gpt', 'ai', 'perguntar', 'pesquisar', 'busca', 'google'],
     category: 'general',
     description: 'Responde dúvidas e realiza pesquisas em tempo real na Web',
     cooldownMs: 3000,

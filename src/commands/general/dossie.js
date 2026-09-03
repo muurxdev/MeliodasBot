@@ -17,7 +17,7 @@ const logger = require("../../core/logger");
 
 module.exports = {
     name: "dossie",
-    aliases: ["perfil", "dossier", "ficha", "investigar", "info-user", "perfilcompleto", "meuperfil"],
+    aliases: ["dossier", "ficha", "investigar", "info-user", "perfilcompleto", "meuperfil"],
     category: "general",
     description: "Exibe o dossiê de inteligência, dispositivo, telemetria e perfil completo com dados reais do SQLite",
     cooldownMs: 2000,

@@ -16,7 +16,7 @@ const STOCKS = [
 
 module.exports = {
     name: "acoes",
-    aliases: ["bolsa", "bolsadevalores", "investiracoes", "stockmarket"],
+    aliases: ["bolsa", "investiracoes", "stockmarket"],
     category: "economy",
     description: "Consulta cotações e opera na Bolsa de Valores de Britânia",
     cooldownMs: 3000,

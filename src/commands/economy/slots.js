@@ -7,8 +7,8 @@ const logger = require("../../core/logger")
 const SYMBOLS = ["🍒", "🍋", "🍊", "🍇", "⭐", "💎"]
 
 module.exports = {
-    name: "slotmachine",
-    aliases: ["slot", "cacaniquel", "girar"],
+    name: "slots",
+    aliases: ["slotmachine", "slot", "cacaniquel", "girar"],
     category: "economy",
     subcategory: "Jogos",
     description: "Caça-níquel 3 rolos! 3 iguais = 10x, 2 iguais = 2x",

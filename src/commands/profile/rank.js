@@ -10,7 +10,7 @@ const { getBotName } = require("../../config/botConfig");
 
 module.exports = {
     name: "rank",
-    aliases: ["top", "ranking", "leaderboard", "rankgrupo", "topgrupo", "rankpv", "rankgeral"],
+    aliases: ["top", "leaderboard", "rankgrupo", "topgrupo", "rankpv", "rankgeral"],
     category: "profile",
     description: "Exibe os rankings separados de Grupo, Privado (PV) ou Geral Global",
     cooldownMs: 2500,

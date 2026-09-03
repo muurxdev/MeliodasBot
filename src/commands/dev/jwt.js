@@ -7,7 +7,7 @@ const { decodeJWT } = require('../../services/devService')
 
 module.exports = {
     name: 'jwt',
-    aliases: ['jwtdecode', 'token'],
+    aliases: ['token'],
     category: 'dev',
     description: 'Decodifica e inspeciona o Header e Payload de um JSON Web Token (JWT)',
     execute: async ({ text, reply }) => {

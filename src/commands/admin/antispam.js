@@ -9,7 +9,7 @@ const logger = require("../../core/logger");
 
 module.exports = {
     name: "antispam",
-    aliases: ["antiflood", "flood", "bloquearspam"],
+    aliases: ["antiflood", "bloquearspam"],
     category: "admin",
     description: "Ativa ou desativa a proteção contra excesso de mensagens e flood no grupo",
     groupOnly: true,

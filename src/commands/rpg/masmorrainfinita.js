@@ -8,7 +8,7 @@ const dataService = require("../../services/dataService");
 
 module.exports = {
     name: "masmorrainfinita",
-    aliases: ["torreinfinita", "torre", "andartorre", "escalartorre"],
+    aliases: ["torreinfinita", "andartorre", "escalartorre"],
     category: "rpg",
     description: "Escale a Torre Infinita de Britânia enfrentando guardiões a cada andar",
     cooldownMs: 4000,

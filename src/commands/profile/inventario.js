@@ -5,7 +5,7 @@ const logger = require('../../core/logger')
 
 module.exports = {
     name: 'inventario',
-    aliases: ['inv', 'inventory'],
+    aliases: ['inventory'],
     category: 'profile',
     subcategory: 'Perfil & Ranking',
     description: 'Inventário expandido — veja, use e descarte itens',

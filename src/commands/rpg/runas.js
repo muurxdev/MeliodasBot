@@ -17,7 +17,7 @@ const RUNAS_INFO = {
 
 module.exports = {
     name: "runas",
-    aliases: ["runa", "encantar", "encantamento", "forjar-runa", "equipar-runa"],
+    aliases: ["runa", "encantar", "forjar-runa", "equipar-runa"],
     category: "rpg",
     description: "Forje, compre e equipe runas mágicas sagradas em suas armas e armaduras",
     cooldownMs: 3000,

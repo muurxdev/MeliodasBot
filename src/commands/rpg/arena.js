@@ -5,7 +5,7 @@ const { arenas } = require('../../utils/constants')
 
 module.exports = {
     name: 'arena',
-    aliases: ['arenas', 'coliseu'],
+    aliases: ['arenas'],
     category: 'rpg',
     description: 'Lista todas as 20 arenas do bot e mostra sua arena atual',
     execute: async ({ sender, reply }) => {

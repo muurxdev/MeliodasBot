@@ -5,7 +5,7 @@ const logger = require('../../core/logger')
 
 module.exports = {
     name: 'craft',
-    aliases: ['craftar', 'forjar'],
+    aliases: ['craftar'],
     category: 'rpg',
     description: 'Sistema de forja de equipamentos através de receitas de loots',
     execute: async ({ text, args, sender, reply }) => {

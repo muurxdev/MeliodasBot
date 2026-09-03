@@ -11,7 +11,7 @@ const { getBotName } = require('../../config/botConfig');
 
 module.exports = {
     name: 'inv',
-    aliases: ['inventario', 'itens', 'meusitens', 'equipamentos', 'inventory'],
+    aliases: ['itens', 'meusitens', 'equipamentos', 'inventory'],
     category: 'rpg',
     description: 'Exibe seus slots de equipamentos ativos, itens da mochila, minérios e loots',
     cooldownMs: 2000,
