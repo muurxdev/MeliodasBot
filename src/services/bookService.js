@@ -789,6 +789,45 @@ async function searchBooks(query, limit = 5, requestedLang = 'pt') {
         logger.warn(`[BOOK SERVICE] Falha ao consultar OpenLibrary: ${err.message}`);
     }
 
+    // 4. Project Gutenberg (gutendex) — domínio público, ~70 idiomas, download direto.
+    //    Best-effort: se estiver fora do ar, ignora e mantém as outras fontes.
+    try {
+        const gLang = LANG_CODE_MAP[requestedLang] ? `&languages=${LANG_CODE_MAP[requestedLang]}` : '';
+        const gUrl = `https://gutendex.com/books?search=${encodeURIComponent(cleanQuery)}${gLang}`;
+        const gData = await fetchJson(gUrl, { timeout: 6000 });
+        if (gData?.results && Array.isArray(gData.results)) {
+            for (const b of gData.results) {
+                if (results.length >= limit * 2) break;
+                const title = b.title || cleanQuery;
+                const normTitleKey = title.toLowerCase().replace(/[^a-z0-9]/g, '');
+                if (seenTitles.has(normTitleKey) || seenTitles.has(title.toLowerCase())) continue;
+                // só adiciona se houver formato baixável
+                const fmts = b.formats || {};
+                const dl = fmts['application/pdf'] || fmts['application/epub+zip'] ||
+                           fmts['text/plain; charset=utf-8'] || fmts['text/plain'] || null;
+                if (!dl || /\.zip$/i.test(dl)) continue;
+                seenTitles.add(normTitleKey);
+                results.push({
+                    id: `gt_${b.id}`,
+                    title,
+                    author: (b.authors && b.authors[0] && b.authors[0].name) || 'Domínio Público',
+                    year: (b.authors && b.authors[0] && b.authors[0].birth_year) ? String(b.authors[0].birth_year) : '—',
+                    edition: 'Project Gutenberg',
+                    publisher: 'Project Gutenberg',
+                    pagesCount: 0,
+                    pages: '—',
+                    genre: (b.subjects && b.subjects[0]) || 'Domínio Público',
+                    description: `Obra de domínio público no Project Gutenberg (${b.download_count || 0} downloads).`,
+                    source: 'Project Gutenberg',
+                    language: requestedLang,
+                    identifier: `gt_${b.id}`
+                });
+            }
+        }
+    } catch (err) {
+        logger.warn(`[BOOK SERVICE] Gutenberg indisponível: ${err.message}`);
+    }
+
     return results.slice(0, limit);
 }
 
@@ -797,6 +836,27 @@ async function searchBooks(query, limit = 5, requestedLang = 'pt') {
  */
 async function resolvePdfUrl(identifier, fallbackQuery = '', lang = 'pt') {
     let targetId = identifier;
+
+    // Project Gutenberg: identifier gt_<id> → resolve o formato baixável direto.
+    if (targetId && targetId.startsWith('gt_')) {
+        try {
+            const gid = targetId.slice(3);
+            const b = await fetchJson(`https://gutendex.com/books/${encodeURIComponent(gid)}`, { timeout: 6000 });
+            const fmts = (b && b.formats) || {};
+            const pdf = fmts['application/pdf'];
+            const epub = fmts['application/epub+zip'];
+            const url = pdf || epub;
+            if (url && !/\.zip$/i.test(url)) {
+                return {
+                    downloadUrl: url,
+                    detailsUrl: `https://www.gutenberg.org/ebooks/${gid}`,
+                    fileName: `${(b.title || 'livro').slice(0, 40).replace(/[^a-z0-9]+/gi, '_')}.${pdf ? 'pdf' : 'epub'}`,
+                    sizeBytes: 0
+                };
+            }
+        } catch (_) {}
+        return null;
+    }
 
     if (!targetId && fallbackQuery) {
         const iaLangFilter = LANG_CODE_MAP[lang] ? `+AND+language:(${LANG_CODE_MAP[lang]})` : '';
