@@ -827,6 +827,236 @@ async function searchBooks(query, limit = 5, requestedLang = 'pt') {
         logger.warn(`[BOOK SERVICE] Gutenberg indisponível: ${err.message}`);
     }
 
+    // 5. HathiTrust Digital Library — milhões de livros digitalizados
+    try {
+        const htQuery = parsed.authorPart ? `${parsed.titlePart || cleanQuery} ${parsed.authorPart}` : cleanQuery;
+        const htUrl = `https://catalog.hathitrust.org/api/volumes/brief/oclc/${encodeURIComponent(htQuery)}.json`;
+        // Fallback: busca simples via IA
+        const htSearchUrl = `https://catalog.hathitrust.org/Search/Home?lookfor=${encodeURIComponent(cleanQuery)}&type=all&sethtftonly=true`;
+        // Tenta buscar por título via API do HathiTrust
+        const htApiUrl = `https://catalog.hathitrust.org/api/volumes/brief/oclc/${encodeURIComponent(cleanQuery)}.json`;
+        const htData = await fetchJson(htApiUrl, { timeout: 6000 }).catch(() => null);
+        if (htData?.records) {
+            const recordIds = Object.keys(htData.records).slice(0, 3);
+            for (const recId of recordIds) {
+                if (results.length >= limit * 2) break;
+                const rec = htData.records[recId];
+                const title = rec.title || cleanQuery;
+                const normTitleKey = title.toLowerCase().replace(/[^a-z0-9]/g, '');
+                if (seenTitles.has(normTitleKey)) continue;
+                const inst = htData.items?.[recId]?.[0]?.fromRecordAPI ? 'UMN' : 'HATHI';
+                const pdfUrl = `https://babel.hathitrust.org/cgi/pt?id=${recId}&format=pdf`;
+                seenTitles.add(normTitleKey);
+                results.push({
+                    id: `ht_${recId}`,
+                    title,
+                    author: rec.contributor || rec.author || 'Various Authors',
+                    year: rec.pubDate || '—',
+                    edition: 'HathiTrust Digital Library',
+                    publisher: rec.publisher || 'HathiTrust',
+                    pagesCount: rec.numPages || 0,
+                    pages: rec.numPages ? `${rec.numPages} pages` : 'Full Document',
+                    genre: 'Digital Library',
+                    description: `Preserved in HathiTrust Digital Library (${rec.rights || 'open access'}).`,
+                    source: 'HathiTrust',
+                    language: requestedLang,
+                    identifier: `ht_${recId}`,
+                    directPdfUrl: pdfUrl
+                });
+            }
+        }
+    } catch (err) {
+        logger.warn(`[BOOK SERVICE] HathiTrust indisponível: ${err.message}`);
+    }
+
+    // 6. DOAB — Directory of Open Access Books (livros acadêmicos abertos)
+    try {
+        const doabUrl = `https://www.doabooks.org/rest/search?query=${encodeURIComponent(cleanQuery)}&rows=${limit}&mode=and`;
+        const doabData = await fetchJson(doabUrl, { timeout: 6000 }).catch(() => null);
+        if (doabData?.searchResult?.resultList) {
+            for (const doc of doabData.searchResult.resultList) {
+                if (results.length >= limit * 2) break;
+                const title = doc.title || cleanQuery;
+                const normTitleKey = title.toLowerCase().replace(/[^a-z0-9]/g, '');
+                if (seenTitles.has(normTitleKey)) continue;
+                const authors = doc.authors?.map(a => a.name || a.surname).join(', ') || '';
+                const isbn = doc.identifiers?.[0]?.value || '';
+                seenTitles.add(normTitleKey);
+                results.push({
+                    id: `doab_${doc.id || doc.handle || Math.random().toString(36).substring(2, 8)}`,
+                    title,
+                    author: authors || 'Open Access Author',
+                    year: doc.publicationDate?.substring(0, 4) || '—',
+                    edition: 'DOAB Open Access',
+                    publisher: doc.publisherName || 'Directory of Open Access Books',
+                    pagesCount: doc.numberedPagesCount || 0,
+                    pages: doc.numberedPagesCount ? `${doc.numberedPagesCount} pages` : 'Full Document',
+                    genre: 'Open Access Academic',
+                    description: `Open access academic book from DOAB. DOI: ${doc.doi || 'N/A'}.`,
+                    source: 'DOAB',
+                    language: requestedLang,
+                    identifier: `doab_${doc.id || doc.handle || ''}`
+                });
+            }
+        }
+    } catch (err) {
+        logger.warn(`[BOOK SERVICE] DOAB indisponível: ${err.message}`);
+    }
+
+    // 7. OAPEN — Open Access Publishing in European Networks
+    try {
+        const oapenUrl = `https://api.oapen.org/rest/search?query=${encodeURIComponent(cleanQuery)}&rows=${limit}&mode=and`;
+        const oapenData = await fetchJson(oapenUrl, { timeout: 6000 }).catch(() => null);
+        if (oapenData?.searchResult?.resultList) {
+            for (const doc of oapenData.searchResult.resultList) {
+                if (results.length >= limit * 2) break;
+                const title = doc.title || cleanQuery;
+                const normTitleKey = title.toLowerCase().replace(/[^a-z0-9]/g, '');
+                if (seenTitles.has(normTitleKey)) continue;
+                const authors = doc.authors?.map(a => a.name || a.surname).join(', ') || '';
+                seenTitles.add(normTitleKey);
+                results.push({
+                    id: `oapen_${doc.id || doc.handle || Math.random().toString(36).substring(2, 8)}`,
+                    title,
+                    author: authors || 'European Author',
+                    year: doc.publicationDate?.substring(0, 4) || '—',
+                    edition: 'OAPEN Open Access',
+                    publisher: doc.publisherName || 'OAPEN',
+                    pagesCount: doc.numberedPagesCount || 0,
+                    pages: doc.numberedPagesCount ? `${doc.numberedPagesCount} pages` : 'Full Document',
+                    genre: 'Open Access Academic',
+                    description: `Open access academic book from OAPEN. DOI: ${doc.doi || 'N/A'}.`,
+                    source: 'OAPEN',
+                    language: requestedLang,
+                    identifier: `oapen_${doc.id || doc.handle || ''}`
+                });
+            }
+        }
+    } catch (err) {
+        logger.warn(`[BOOK SERVICE] OAPEN indisponível: ${err.message}`);
+    }
+
+    // 8. SpringerOpen — livros acadêmicos de acesso aberto
+    try {
+        const sprUrl = `https://api.springernature.com/openaccess/json?q=title:${encodeURIComponent(cleanQuery)}&p=${limit}`;
+        const sprData = await fetchJson(sprUrl, { timeout: 6000 }).catch(() => null);
+        if (sprData?.records) {
+            for (const doc of sprData.records) {
+                if (results.length >= limit * 2) break;
+                const title = doc.title || cleanQuery;
+                const normTitleKey = title.toLowerCase().replace(/[^a-z0-9]/g, '');
+                if (seenTitles.has(normTitleKey)) continue;
+                const pdfUrl = doc.url?.find(u => u.format === 'pdf')?.value || '';
+                if (!pdfUrl) continue;
+                seenTitles.add(normTitleKey);
+                results.push({
+                    id: `spr_${doc.doi?.replace('10.1007/', '') || Math.random().toString(36).substring(2, 8)}`,
+                    title,
+                    author: doc.creators?.map(c => c.creator).join(', ') || 'Springer Author',
+                    year: doc.publicationDate?.substring(0, 4) || '—',
+                    edition: 'SpringerOpen',
+                    publisher: doc.publisher || 'Springer Nature',
+                    pagesCount: 0,
+                    pages: 'Full Document',
+                    genre: 'Open Access Academic',
+                    description: `Open access book from Springer Nature. DOI: ${doc.doi || 'N/A'}.`,
+                    source: 'SpringerOpen',
+                    language: requestedLang,
+                    identifier: `spr_${doc.doi?.replace('10.1007/', '') || ''}`,
+                    directPdfUrl: pdfUrl
+                });
+            }
+        }
+    } catch (err) {
+        logger.warn(`[BOOK SERVICE] SpringerOpen indisponível: ${err.message}`);
+    }
+
+    // 9. Google Books — livros gratuitos com preview completo
+    try {
+        const gbUrl = `https://www.googleapis.com/books/v1/volumes?q=${encodeURIComponent(cleanQuery)}&filter=free-ebooks&maxResults=${limit}`;
+        const gbData = await fetchJson(gbUrl, { timeout: 6000 }).catch(() => null);
+        if (gbData?.items) {
+            for (const item of gbData.items) {
+                if (results.length >= limit * 2) break;
+                const vi = item.volumeInfo;
+                const title = vi.title || cleanQuery;
+                const normTitleKey = title.toLowerCase().replace(/[^a-z0-9]/g, '');
+                if (seenTitles.has(normTitleKey)) continue;
+                const authors = vi.authors?.join(', ') || '';
+                const pdfUrl = vi.accessInfo?.pdf?.downloadLink || vi.accessInfo?.webReaderLink || '';
+                if (!pdfUrl) continue;
+                seenTitles.add(normTitleKey);
+                results.push({
+                    id: `gb_${item.id}`,
+                    title,
+                    author: authors || 'Google Books Author',
+                    year: vi.publishedDate?.substring(0, 4) || '—',
+                    edition: 'Google Books Free',
+                    publisher: vi.publisher || 'Google Books',
+                    pagesCount: vi.pageCount || 0,
+                    pages: vi.pageCount ? `${vi.pageCount} pages` : 'Full Document',
+                    genre: vi.categories?.[0] || 'Literature',
+                    description: vi.description || `Free ebook available on Google Books.`,
+                    source: 'Google Books',
+                    language: requestedLang,
+                    identifier: `gb_${item.id}`,
+                    directPdfUrl: pdfUrl
+                });
+            }
+        }
+    } catch (err) {
+        logger.warn(`[BOOK SERVICE] Google Books indisponível: ${err.message}`);
+    }
+
+    // 10. arXiv — papers e livros científicos (XML parsing)
+    try {
+        const arxivUrl = `http://export.arxiv.org/api/query?search_query=all:${encodeURIComponent(cleanQuery)}&start=0&max_results=${limit}`;
+        const arxivXml = await new Promise((resolve, reject) => {
+            const client = arxivUrl.startsWith('https:') ? https : http;
+            const req = client.get(arxivUrl, { timeout: 6000 }, (res) => {
+                const chunks = [];
+                res.on('data', c => chunks.push(c));
+                res.on('end', () => resolve(Buffer.concat(chunks).toString()));
+            });
+            req.on('error', reject);
+            req.on('timeout', () => { req.destroy(); reject(new Error('timeout')); });
+        });
+        // Parse XML simples para extrair entries
+        const entries = arxivXml.split('<entry>').slice(1);
+        for (const entry of entries) {
+            if (results.length >= limit * 2) break;
+            const titleMatch = entry.match(/<title>([\s\S]*?)<\/title>/);
+            const authorMatch = entry.match(/<name>([\s\S]*?)<\/name>/);
+            const idMatch = entry.match(/<id>([\s\S]*?)<\/id>/);
+            const summaryMatch = entry.match(/<summary>([\s\S]*?)<\/summary>/);
+            const publishedMatch = entry.match(/<published>([\s\S]*?)<\/published>/);
+            const title = (titleMatch?.[1] || cleanQuery).replace(/\s+/g, ' ').trim();
+            const normTitleKey = title.toLowerCase().replace(/[^a-z0-9]/g, '');
+            if (seenTitles.has(normTitleKey)) continue;
+            const arxivId = idMatch?.[1]?.split('/abs/')?.[1] || '';
+            if (!arxivId) continue;
+            seenTitles.add(normTitleKey);
+            results.push({
+                id: `arxiv_${arxivId}`,
+                title,
+                author: authorMatch?.[1] || 'arXiv Author',
+                year: publishedMatch?.[1]?.substring(0, 4) || '—',
+                edition: 'arXiv Preprint',
+                publisher: 'arXiv.org',
+                pagesCount: 0,
+                pages: 'Full Document',
+                genre: 'Scientific Paper',
+                description: (summaryMatch?.[1] || '').replace(/\s+/g, ' ').trim().substring(0, 200),
+                source: 'arXiv',
+                language: 'en',
+                identifier: `arxiv_${arxivId}`,
+                directPdfUrl: `https://arxiv.org/pdf/${arxivId}.pdf`
+            });
+        }
+    } catch (err) {
+        logger.warn(`[BOOK SERVICE] arXiv indisponível: ${err.message}`);
+    }
+
     return results.slice(0, limit);
 }
 
@@ -855,6 +1085,81 @@ async function resolvePdfUrl(identifier, fallbackQuery = '', lang = 'pt') {
             }
         } catch (_) {}
         return null;
+    }
+
+    // arXiv — PDF direto
+    if (targetId && targetId.startsWith('arxiv_')) {
+        const arxivId = targetId.slice(6);
+        return {
+            downloadUrl: `https://arxiv.org/pdf/${arxivId}.pdf`,
+            detailsUrl: `https://arxiv.org/abs/${arxivId}`,
+            fileName: `arxiv_${arxivId}.pdf`,
+            sizeBytes: 0
+        };
+    }
+
+    // Google Books — PDF direto
+    if (targetId && targetId.startsWith('gb_')) {
+        const gbId = targetId.slice(3);
+        try {
+            const gbUrl = `https://www.googleapis.com/books/v1/volumes/${encodeURIComponent(gbId)}`;
+            const gbData = await fetchJson(gbUrl, { timeout: 6000 });
+            const pdfUrl = gbData?.volumeInfo?.accessInfo?.pdf?.downloadLink ||
+                           gbData?.volumeInfo?.accessInfo?.webReaderLink || '';
+            if (pdfUrl) {
+                return {
+                    downloadUrl: pdfUrl,
+                    detailsUrl: `https://books.google.com/books?id=${gbId}`,
+                    fileName: `${(gbData.volumeInfo?.title || 'livro').slice(0, 40).replace(/[^a-z0-9]+/gi, '_')}.pdf`,
+                    sizeBytes: 0
+                };
+            }
+        } catch (_) {}
+        return null;
+    }
+
+    // SpringerOpen — PDF direto via DOI
+    if (targetId && targetId.startsWith('spr_')) {
+        const doi = `10.1007/${targetId.slice(4)}`;
+        return {
+            downloadUrl: `https://link.springer.com/content/pdf/${doi}.pdf`,
+            detailsUrl: `https://doi.org/${doi}`,
+            fileName: `${targetId}.pdf`,
+            sizeBytes: 0
+        };
+    }
+
+    // HathiTrust — PDF via babel
+    if (targetId && targetId.startsWith('ht_')) {
+        const htId = targetId.slice(3);
+        return {
+            downloadUrl: `https://babel.hathitrust.org/cgi/pt?id=${htId}&format=pdf`,
+            detailsUrl: `https://catalog.hathitrust.org/Record/${htId}`,
+            fileName: `hathitrust_${htId}.pdf`,
+            sizeBytes: 0
+        };
+    }
+
+    // DOAB — PDF via handle
+    if (targetId && targetId.startsWith('doab_')) {
+        const doabId = targetId.slice(5);
+        return {
+            downloadUrl: `https://directory.doabooks.org/rest/bitstreams/${doabId}/retrieve`,
+            detailsUrl: `https://directory.doabooks.org/handle/${doabId}`,
+            fileName: `doab_${doabId}.pdf`,
+            sizeBytes: 0
+        };
+    }
+
+    // OAPEN — PDF via handle
+    if (targetId && targetId.startsWith('oapen_')) {
+        const oapenId = targetId.slice(6);
+        return {
+            downloadUrl: `https://library.oapen.org/bitstream/${oapenId}/1/1006451.pdf`,
+            detailsUrl: `https://library.oapen.org/handle/${oapenId}`,
+            fileName: `oapen_${oapenId}.pdf`,
+            sizeBytes: 0
+        };
     }
 
     if (!targetId && fallbackQuery) {
