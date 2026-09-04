@@ -141,6 +141,8 @@ function buildYtDlpArgs(extra = [], opts = {}) {
         args.push('--js-runtimes', JS_RUNTIME)
     }
 
+    args.push('--remote-components', 'ejs:github')
+
     const extractorGroups = []
     const youtubeArgs = []
     if (YOUTUBE_CLIENTS) youtubeArgs.push(`player_client=${YOUTUBE_CLIENTS}`)

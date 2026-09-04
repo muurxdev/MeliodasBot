@@ -19,9 +19,11 @@ function resolveDownloadFormat({ format = FORMATS.MP3, quality = QUALITIES.BEST 
     if (fmt === FORMATS.MP3) {
         return {
             args: [
+                '-f', 'bestaudio/best',
                 '-x',
                 '--audio-format', 'mp3',
                 '--audio-quality', '0',
+                '--prefer-free-formats',
                 '--embed-thumbnail',
                 '--add-metadata'
             ],

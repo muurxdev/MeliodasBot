@@ -197,9 +197,11 @@ async function resolveSpotifyMetadata(url) {
 function downloadDirectYtDlpAudio(targetUrl, outputPath) {
     return new Promise((resolve, reject) => {
         const baseArgs = buildYtDlpArgs([
+            "-f", "bestaudio/best",
             "-x",
             "--audio-format", "mp3",
             "--audio-quality", "0",
+            "--prefer-free-formats",
             "--no-playlist",
             "--no-warnings",
             "-o", outputPath,

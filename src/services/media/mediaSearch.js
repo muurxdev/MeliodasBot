@@ -16,7 +16,7 @@ const logger = require('../../core/logger')
  * @param {number} [options.timeoutMs=20000]
  * @returns {Promise<Array<object>>}
  */
-async function searchMedia(query, { limit = MEDIA_LIMITS.SEARCH_LIMIT, timeoutMs = 20000, userJid = null } = {}) {
+async function searchMedia(query, { limit = MEDIA_LIMITS.SEARCH_LIMIT, timeoutMs = 25000, userJid = null } = {}) {
     if (!query || typeof query !== 'string' || !query.trim()) {
         const err = new Error('Termo de pesquisa inválido.')
         err.code = MEDIA_ERRORS.SEARCH_FAILED
@@ -26,6 +26,37 @@ async function searchMedia(query, { limit = MEDIA_LIMITS.SEARCH_LIMIT, timeoutMs
     const cleanQuery = query.replace(/[`$\";&|<>]/g, '').trim()
     const safeLimit = Math.max(1, Math.min(10, limit))
 
+    // 1. Busca via yt-search (endpoint público — NÃO sofre o bot-check do
+    //    "Sign in to confirm you're not a bot" que o `yt-dlp ytsearch` leva).
+    //    Só o DOWNLOAD do link resolvido usa yt-dlp (esse funciona com cookies).
+    try {
+        const yts = require('yt-search')
+        const res = await yts(cleanQuery)
+        const vids = (res && Array.isArray(res.videos)) ? res.videos.slice(0, safeLimit) : []
+        if (vids.length > 0) {
+            return vids.map((v, idx) => ({
+                id: v.videoId || `search_${idx}`,
+                index: idx + 1,
+                title: v.title || 'Sem título',
+                author: (v.author && v.author.name) || 'Desconhecido',
+                duration: v.seconds || 0,
+                durationFormatted: v.timestamp || formatDuration(v.seconds || 0),
+                thumbnail: v.thumbnail || v.image || null,
+                url: v.url || `https://www.youtube.com/watch?v=${v.videoId}`,
+                platform: PLATFORMS.YOUTUBE,
+                type: 'audio'
+            }))
+        }
+        logger.warn('[MEDIA SEARCH] yt-search sem resultados; tentando yt-dlp ytsearch...')
+    } catch (e) {
+        logger.warn(`[MEDIA SEARCH] yt-search falhou (${e.message}); fallback yt-dlp ytsearch...`)
+    }
+
+    // 2. Fallback: yt-dlp ytsearch (pode cair no bot-check em IP de datacenter).
+    return ytdlpSearch(cleanQuery, safeLimit, timeoutMs, userJid)
+}
+
+function ytdlpSearch(cleanQuery, safeLimit, timeoutMs, userJid) {
     return new Promise((resolve, reject) => {
         const args = buildYtDlpArgs([
             '--dump-single-json',
