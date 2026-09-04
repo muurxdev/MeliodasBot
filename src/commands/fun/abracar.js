@@ -17,7 +17,9 @@ module.exports = {
     description: 'Dê um abraço carinhoso em alguém do grupo',
     cooldownMs: 3000,
     execute: async ({ sender, reply, mentionedJid, from }) => {
-        const target = mentionedJid
+        // mentionedJid é um ARRAY (o dispatcher entrega a lista de marcados).
+        // Tratá-lo como string quebrava o comando com "target.split is not a function".
+        const target = Array.isArray(mentionedJid) ? mentionedJid[0] : mentionedJid
         if (!target || target === sender) {
             return reply(
                 `🤗 @${sender.split('@')[0]} está precisando de um abraço...\n` +

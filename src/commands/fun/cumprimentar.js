@@ -14,7 +14,10 @@ module.exports = {
     subcategory: 'Interação',
     description: 'Cumprimente alguém com bom dia/boa tarde/boa noite',
     cooldownMs: 3000,
-    execute: async ({ sender, reply, mentionedJid }) => {
+    execute: async ({ sender, reply, mentionedJid: _mencoes }) => {
+        // mentionedJid chega como ARRAY; usar direto quebrava com
+        // "mentionedJid.split is not a function".
+        const mentionedJid = Array.isArray(_mencoes) ? _mencoes[0] : _mencoes
         const { periodo, emoji } = getPeriodo()
 
         if (!mentionedJid || mentionedJid === sender) {
