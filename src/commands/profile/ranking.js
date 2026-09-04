@@ -1,6 +1,6 @@
 const dataService = require('../../services/dataService')
-const { formatCoins, formatXP } = require('../../utils/uiEngine')
 const { getCargo, getRank } = require('../../utils/helpers')
+const ui = require('../../utils/ui')
 const logger = require('../../core/logger')
 
 module.exports = {
@@ -31,9 +31,7 @@ module.exports = {
             return reply('🏆 Nenhum jogador registrado no ranking ainda.')
         }
 
-        let doc = `┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓\n`
-        doc += `┃   ${titulo}   \n`
-        doc += `┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛\n\n`
+        let doc = ui.header(`${titulo}`)
 
         const mentions = []
 
@@ -51,11 +49,12 @@ module.exports = {
             } else {
                 doc += `${medal} *#${i + 1}* ${nome}\n`
                 doc += `📈 *Nv. ${u.level || 1}* | ⭐ ${(u.xp || 0).toLocaleString('pt-BR')} XP\n`
-                doc += `💼 ${getCargo(u.level || 1)}\n\n`
+                doc += `🎖️ ${getCargo(u.level || 1)}\n\n`
             }
         })
 
-        doc += `💡 _Alternativas:_ \`.ranking coins\` | \`.ranking messages\``
+        doc += `💡 _Alternativas:_ \`.ranking coins\` | \`.ranking messages\`\n`
+        doc += ui.footer()
 
         await reply(doc.trim(), mentions)
     }
