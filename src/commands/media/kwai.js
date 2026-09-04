@@ -21,7 +21,7 @@ module.exports = {
         const { url: cleanUrl, isMp3 } = extractUrlAndFormat(rawInput);
 
         if (!cleanUrl) {
-            return reply('❌ Envie o link do vídeo do Kwai.\n\n📌 *Exemplos:*\n• `.kwai https://www.kwai.com/...` (Vídeo HD)\n• `.kwai mp3 https://www.kwai.com/...` (Áudio MP3)');
+            return reply('❌ Envie o link do vídeo do Kwai.\n\n📌 *Exemplos:*\n• `.kwai https://www.kwai.com/...` (Vídeo na melhor qualidade)\n• `.kwai mp3 https://www.kwai.com/...` (Áudio MP3)');
         }
 
         await reply(isMp3 ? '🧡 *Extraindo áudio MP3 do Kwai...* Aguarde.' : '🧡 *Baixando vídeo/mídia do Kwai...* Aguarde.');
@@ -40,7 +40,7 @@ module.exports = {
                 let carrosselCard = "╔══════════════════════════════╗\n";
                 carrosselCard += "║   📸 *CARROSSEL DO KWAI DETECTADO* 📸   ║\n";
                 carrosselCard += "╚══════════════════════════════╝\n\n";
-                carrosselCard += "📦 *Total de Fotos:* *" + total + " imagens HD*\n";
+                carrosselCard += "📦 *Total de Fotos:* *" + total + " imagens em resolução original*\n";
                 carrosselCard += "🎬 *Título:* " + mediaData.title + "\n";
                 carrosselCard += "👤 *Autor:* " + mediaData.author + "\n";
                 carrosselCard += "🔗 *Link:* " + mediaData.url + "\n\n";

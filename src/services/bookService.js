@@ -1214,7 +1214,10 @@ async function resolvePdfUrl(identifier, fallbackQuery = '', lang = 'pt') {
                 logger.info(`[BOOK RESOLVE] Archive.org ${targetId}: ${pdfFiles.length} PDFs encontrados de ${meta.result.length} arquivos`);
 
                 if (pdfFiles.length > 0) {
-                    pdfFiles.sort((a, b) => Number(a.size || 0) - Number(b.size || 0));
+                    // SEMPRE o MAIOR arquivo: o menor costuma ser a capa/amostra
+                    // (era isso que entregava um PDF de 1 página, ~50 KB, em vez
+                    // do livro inteiro).
+                    pdfFiles.sort((a, b) => Number(b.size || 0) - Number(a.size || 0));
                     const chosenFile = pdfFiles[0];
                     const encodedFileName = encodeURIComponent(chosenFile.name).replace(/%2F/g, '/');
                     const downloadUrl = `https://archive.org/download/${encodeURIComponent(targetId)}/${encodedFileName}`;
@@ -1244,7 +1247,10 @@ async function downloadPdfBuffer(downloadUrl, bookMeta = {}) {
             const bufPromise = new Promise((resolve, reject) => {
                 const client = downloadUrl.startsWith('https:') ? https : http;
                 const req = client.get(downloadUrl, {
-                    headers: { 'User-Agent': `Mozilla/5.0 (Windows NT 10.0; Win64; x64) ${require('../config/botConfig').getBotName()}/2.0` },
+                    // ATENÇÃO: header HTTP só aceita ASCII/latin1. Injetar o nome do
+                    // bot aqui quebrava TODO download de livro quando o nick tinha
+                    // caracteres unicode ("Invalid character in header content").
+                    headers: { 'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/128.0.0.0 Safari/537.36' },
                     family: 4,
                     timeout: 45000
                 }, (res) => {

@@ -1,6 +1,6 @@
 /**
  * Comando .ytmp4
- * Download direto de vídeo em formato MP4 HD do YouTube com otimização mobile
+ * Download direto de vídeo em MP4 na melhor qualidade do YouTube com otimização mobile
  */
 
 const fs = require('fs')
@@ -16,7 +16,7 @@ module.exports = {
     name: 'ytmp4',
     aliases: ['ytvideo', 'ytv', 'youtubevideo'],
     category: 'media',
-    description: 'Baixa vídeos do YouTube em formato MP4 HD',
+    description: 'Baixa vídeos do YouTube em MP4 na melhor qualidade disponível',
     cooldownMs: 4000,
     execute: async ({ sender, text, reply, client, from, info }) => {
         if (!text) {
@@ -83,7 +83,7 @@ module.exports = {
                     document: videoBuf,
                     mimetype: 'video/mp4',
                     fileName: `${cleanTitle}.mp4`,
-                    caption: `${caption}\n\n📦 *Enviado como documento (${sizeMb} MB) para manter 100% da qualidade HD original.*`
+                    caption: `${caption}\n\n📦 *Enviado como documento (${sizeMb} MB) para preservar a qualidade original do arquivo.*`
                 }, { quoted: info })
             }
 

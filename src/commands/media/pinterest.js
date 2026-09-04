@@ -14,7 +14,7 @@ module.exports = {
     name: "pinterest",
     aliases: ["pin", "pindl", "pint", "pinterestvideo", "pinterestfoto"],
     category: "media",
-    description: "Baixa imagens originais, vídeos em HD e áudio MP3 do Pinterest",
+    description: "Baixa imagens originais, vídeos na melhor qualidade e áudio MP3 do Pinterest",
     cooldownMs: 3000,
     execute: async ({ text, quotedText, from, info, client, reply, sender }) => {
         const rawInput = (text || quotedText || "").trim();
@@ -23,7 +23,7 @@ module.exports = {
             doc += "║    📌 *PINTEREST DOWNLOAD* 📌    ║\n";
             doc += "╚══════════════════════════════╝\n\n";
             doc += "📌 *Como usar:*\n";
-            doc += "• \`.pinterest <link>\` — Baixar imagem original ou vídeo em HD\n";
+            doc += "• \`.pinterest <link>\` — Baixar imagem original ou vídeo na melhor qualidade\n";
             doc += "• \`.pinterest mp3 <link>\` — Extrair áudio em MP3 do vídeo\n";
             doc += "• \`.pinterest <pesquisa>\` — Buscar imagens e wallpapers\n\n";
             doc += "📝 *Exemplos:*\n";
@@ -51,7 +51,7 @@ module.exports = {
                 let carrosselCard = "╔══════════════════════════════╗\n";
                 carrosselCard += "║   📸 *CARROSSEL DO PINTEREST* 📸   ║\n";
                 carrosselCard += "╚══════════════════════════════╝\n\n";
-                carrosselCard += "📦 *Total de Fotos:* *" + total + " imagens HD*\n";
+                carrosselCard += "📦 *Total de Fotos:* *" + total + " imagens em resolução original*\n";
                 carrosselCard += "🎬 *Título:* " + mediaData.title + "\n";
                 carrosselCard += "👤 *Autor:* " + mediaData.author + "\n";
                 carrosselCard += "🔗 *Link:* " + mediaData.url + "\n\n";

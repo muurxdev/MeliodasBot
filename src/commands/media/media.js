@@ -146,7 +146,7 @@ module.exports = {
                     let carrosselCard = "╔══════════════════════════════╗\n";
                     carrosselCard += "║   📸 *CARROSSEL DO PINTEREST* 📸   ║\n";
                     carrosselCard += "╚══════════════════════════════╝\n\n";
-                    carrosselCard += "📦 *Total de Fotos:* *" + total + " imagens HD*\n";
+                    carrosselCard += "📦 *Total de Fotos:* *" + total + " imagens em resolução original*\n";
                     carrosselCard += "🎬 *Título:* " + mediaData.title + "\n";
                     carrosselCard += "👤 *Autor:* " + mediaData.author + "\n";
                     carrosselCard += "🔗 *Link:* " + mediaData.url + "\n\n";
@@ -398,7 +398,7 @@ module.exports = {
                             document: videoBuf,
                             mimetype: "video/mp4",
                             fileName: `${cleanTitle}.mp4`,
-                            caption: `${caption}\n\n📦 *Enviado como documento (${sizeMb} MB) para manter 100% da qualidade HD original.*`
+                            caption: `${caption}\n\n📦 *Enviado como documento (${sizeMb} MB) para preservar a qualidade original do arquivo.*`
                         }, { quoted: info });
                     }
 

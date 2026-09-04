@@ -1,6 +1,6 @@
 /**
  * Comando .youtube / .yt / .ytb
- * Central inteligente de download do YouTube (Vídeo MP4 HD por padrão ou Áudio MP3 com --mp3)
+ * Central inteligente de download do YouTube (Vídeo MP4 na melhor qualidade por padrão ou Áudio MP3 com --mp3)
  * Compatível 100% com WhatsApp Mobile (Android/iOS) e Web
  */
 

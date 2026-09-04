@@ -159,8 +159,8 @@ function formatDuration(seconds) {
  */
 function formatSearchResults(query, results, { cmd = 'play', isAudio = true } = {}) {
     const icon = isAudio ? '🎵' : '🎬'
-    const formatLabel = isAudio ? 'MP3' : 'MP4 HD'
-    const formatDetail = isAudio ? 'Áudio (MP3)' : 'Vídeo (MP4 HD)'
+    const formatLabel = isAudio ? 'MP3' : 'MP4'
+    const formatDetail = isAudio ? 'Áudio (MP3)' : 'Vídeo (MP4)'
     let msg = `╔══════════════════════════════╗\n`
     msg += `║   🔎 *RESULTADOS DA BUSCA* 🔎   ║\n`
     msg += `╚══════════════════════════════╝\n\n`

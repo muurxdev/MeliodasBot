@@ -108,6 +108,27 @@ const { getBotName } = require('../../config/botConfig')
 const { spawnSync } = require('child_process')
 const fs = require('fs')
 
+
+/**
+ * Traduz a ALTURA REAL do vídeo (do ffprobe) no rótulo de qualidade que o usuário
+ * espera ver — 4K / 2K / 1080p ..., em vez de um "HD" genérico e mentiroso.
+ * @param {number} height
+ * @param {number} [width]
+ * @returns {string|null}
+ */
+function qualityLabel(height, width) {
+    const h = Number(height) || 0
+    const w = Number(width) || 0
+    if (!h) return null
+    if (h >= 2160 || w >= 3840) return '4K (2160p)'
+    if (h >= 1440 || w >= 2560) return '2K (1440p)'
+    if (h >= 1080) return '1080p'
+    if (h >= 720) return '720p'
+    if (h >= 480) return '480p'
+    if (h >= 360) return '360p'
+    return h + 'p'
+}
+
 /** Formata bytes em KB / MB / GB legível (nunca mostra bytes crus). */
 function formatBytes(bytes) {
     const n = Number(bytes) || 0
@@ -196,7 +217,11 @@ function formatMediaCaption({ platform = 'Web', title = 'Mídia', author = 'Desc
 
     if (probe) {
         // Dados 100% reais do arquivo
-        if (!audio && probe.resolution) doc += `┃ 🖥️ *Resolução:* ${probe.resolution}${probe.vcodec ? ' (' + probe.vcodec + ')' : ''}\n`
+        if (!audio && probe.resolution) {
+            const q = qualityLabel(probe.height, probe.width)
+            doc += `┃ 🎬 *Qualidade:* ${q || probe.resolution}\n`
+            doc += `┃ 🖥️ *Resolução:* ${probe.resolution}${probe.vcodec ? ' (' + probe.vcodec + ')' : ''}\n`
+        }
         // Formato: só mostra codec se for diferente do container (evita "MP3 / mp3")
         const codecInfo = audio && probe.acodec && probe.acodec.toLowerCase() !== probe.container.toLowerCase()
             ? ` (${probe.acodec})` : ''
@@ -277,6 +302,7 @@ function formatDownloadProgressCard({ platform = 'YouTube', title = '', isAudio 
 }
 
 module.exports = {
+    qualityLabel,
     resolveDownloadFormat,
     getPlatformDisplayName,
     formatMediaCaption,

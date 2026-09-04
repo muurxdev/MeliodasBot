@@ -21,7 +21,7 @@ module.exports = {
         const { url: queryUrl, isMp3 } = extractUrlAndFormat(rawInput);
 
         if (!queryUrl || (!queryUrl.includes('twitter.com') && !queryUrl.includes('x.com'))) {
-            return reply('❌ Informe um link válido do Twitter / X.\n\n📌 *Exemplos:*\n• `.twitter https://x.com/...` (Vídeo HD ou Fotos)\n• `.twitter mp3 https://x.com/...` (Áudio MP3)');
+            return reply('❌ Informe um link válido do Twitter / X.\n\n📌 *Exemplos:*\n• `.twitter https://x.com/...` (Vídeo na melhor qualidade ou Fotos)\n• `.twitter mp3 https://x.com/...` (Áudio MP3)');
         }
 
         await reply(isMp3 ? '🐦 *Extraindo áudio MP3 do Twitter / X...* Aguarde.' : '🐦 *Baixando mídia do Twitter / X...* Aguarde.');
@@ -40,7 +40,7 @@ module.exports = {
                 let carrosselCard = "╔══════════════════════════════╗\n";
                 carrosselCard += "║   📸 *CARROSSEL DO TWITTER / X* 📸   ║\n";
                 carrosselCard += "╚══════════════════════════════╝\n\n";
-                carrosselCard += "📦 *Total de Fotos:* *" + total + " imagens HD*\n";
+                carrosselCard += "📦 *Total de Fotos:* *" + total + " imagens em resolução original*\n";
                 carrosselCard += "🎬 *Tweet:* " + mediaData.title + "\n";
                 carrosselCard += "👤 *Autor:* " + mediaData.author + "\n";
                 carrosselCard += "🔗 *Link:* " + mediaData.url + "\n\n";

@@ -1,7 +1,7 @@
 /**
  * Comando .play
  * Pesquisa e reproduz músicas (MP3) ou vídeos (MP4) com capa oficial, dados limpos e link de origem
- * Suporta: .play <query> → MP3 | .play mp4 <query> → MP4 HD
+ * Suporta: .play <query> → MP3 | .play mp4 <query> → MP4 (melhor qualidade)
  */
 
 const fs = require('fs')
@@ -28,7 +28,7 @@ module.exports = {
             doc += `📖 *Descrição:* Pesquisa e baixa músicas (MP3) ou vídeos (MP4) em alta qualidade.\n\n`
             doc += `📝 *Exemplos de Uso:*\n`
             doc += `👉 \`.play Rap do Meliodas 7 Minutoz\` — baixa em MP3\n`
-            doc += `👉 \`.play mp4 Rap do Meliodas 7 Minutoz\` — baixa em MP4 HD\n`
+            doc += `👉 \`.play mp4 Rap do Meliodas 7 Minutoz\` — baixa em MP4 (melhor qualidade)\n`
             doc += `👉 \`.play https://www.youtube.com/watch?v=...\` — baixa link direto\n\n`
             doc += `💡 *Dica:* Use \`mp4\` antes do nome para baixar como vídeo!`
             return reply(doc.trim())
@@ -95,7 +95,7 @@ module.exports = {
                     try {
                         for (let i = 0; i < thumbs.length; i++) {
                             const fmtIcon = wantsMp4 ? '🎬' : '🎵'
-                            const fmtLabel = wantsMp4 ? 'MP4 HD' : 'MP3'
+                            const fmtLabel = wantsMp4 ? 'MP4' : 'MP3'
                             await client.sendMessage(from, {
                                 image: { url: thumbs[i].thumbnail },
                                 caption: `*${i + 1}º* — ${thumbs[i].title.slice(0, 55)}\n👤 ${thumbs[i].author} | ⏱️ ${thumbs[i].durationFormatted}\n${fmtIcon} *Formato:* ${fmtLabel}`
@@ -184,7 +184,7 @@ module.exports = {
                         document: videoBuf,
                         mimetype: 'video/mp4',
                         fileName: `${cleanTitle}.mp4`,
-                        caption: `${caption}\n\n📦 *Enviado como documento (${sizeMb} MB) para manter 100% da qualidade HD original.*`
+                        caption: `${caption}\n\n📦 *Enviado como documento (${sizeMb} MB) para preservar a qualidade original do arquivo.*`
                     }, { quoted: info })
                 }
 

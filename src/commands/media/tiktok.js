@@ -21,7 +21,7 @@ module.exports = {
         const { url: queryUrl, isMp3 } = extractUrlAndFormat(rawInput);
 
         if (!queryUrl || !queryUrl.includes("tiktok.com")) {
-            return reply("❌ Informe um link válido do TikTok.\n\n📌 *Exemplos:*\n• `.tiktok https://vt.tiktok.com/xxxxxx/` (Vídeo HD ou Carrossel de Fotos)\n• `.tiktok mp3 https://vt.tiktok.com/xxxxxx/` (Áudio MP3)");
+            return reply("❌ Informe um link válido do TikTok.\n\n📌 *Exemplos:*\n• `.tiktok https://vt.tiktok.com/xxxxxx/` (Vídeo na melhor qualidade ou Carrossel)\n• `.tiktok mp3 https://vt.tiktok.com/xxxxxx/` (Áudio MP3)");
         }
 
         await reply(isMp3 ? "🎵 *Extraindo áudio MP3 do TikTok...* Aguarde." : "🎵 *Processando mídia do TikTok sem marca d'água...* Aguarde.");
@@ -41,7 +41,7 @@ module.exports = {
                 card += "╚══════════════════════════════╝\n\n";
                 card += "📝 *Título:* " + mediaData.title + "\n";
                 card += "👤 *Criador:* " + mediaData.author + "\n";
-                card += "📦 *Total de Fotos:* *" + mediaData.carouselCount + " imagens HD*\n";
+                card += "📦 *Total de Fotos:* *" + mediaData.carouselCount + " imagens em resolução original*\n";
                 card += "🔗 *Link:* " + mediaData.url + "\n\n";
                 card += "⏳ _Enviando todas as imagens do carrossel abaixo..._";
 

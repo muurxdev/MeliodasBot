@@ -21,7 +21,7 @@ module.exports = {
         const { url: queryUrl, isMp3 } = extractUrlAndFormat(rawInput);
 
         if (!queryUrl || (!queryUrl.includes('instagram.com') && !queryUrl.includes('instagr.am'))) {
-            return reply('❌ Informe um link válido do Instagram.\n\n📌 *Exemplos:*\n• `.insta https://www.instagram.com/reel/C_xxxxxx/` (Vídeo HD ou Carrossel)\n• `.insta mp3 https://www.instagram.com/reel/C_xxxxxx/` (Áudio MP3)');
+            return reply('❌ Informe um link válido do Instagram.\n\n📌 *Exemplos:*\n• `.insta https://www.instagram.com/reel/C_xxxxxx/` (Vídeo na melhor qualidade ou Carrossel)\n• `.insta mp3 https://www.instagram.com/reel/C_xxxxxx/` (Áudio MP3)');
         }
 
         await reply(isMp3 ? '📸 *Extraindo áudio MP3 do Instagram...* Aguarde.' : '📸 *Baixando Reels/Post do Instagram...* Aguarde.');
