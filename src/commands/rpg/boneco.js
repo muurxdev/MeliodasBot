@@ -79,13 +79,13 @@ module.exports = {
         const barra = barraXP(currentXp, user.level || 1);
         const cargo = getCargo(user.level || 1);
 
-        let doc = `┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓\n`;
-        doc += `┃   🛡️ *FICHA & BONECO DO GUERREIRO* 🛡️   \n`;
-        doc += `┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛\n\n`;
+        let doc = `╔══════════════════════════════╗\n`;
+        doc += `║   🛡️ *FICHA & BONECO DO GUERREIRO* 🛡️   \n`;
+        doc += `╚══════════════════════════════╝\n\n`;
 
-        doc += `╭━━━〔 🧙‍♂️ AVATAR VISUAL DE COMBATE 〕━━━┈⊷\n`;
+        doc += `╭━〔 🧙‍♂️ AVATAR VISUAL DE COMBATE 〕━⬣\n`;
         doc += `${avatarVisual}\n`;
-        doc += `╰━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┈⊷\n\n`;
+        doc += `╰━━━━━━━━━━━━━━━━━━⬣\n\n`;
 
         doc += `👑 *Nome:* **${codinome}** (@${cleanNumber})\n`;
         doc += `🧬 *Raça:* ${stats.race}  |  🔥 *Elemento:* ${stats.element}\n`;
@@ -94,7 +94,7 @@ module.exports = {
         doc += `🌀 *Rebirths:* **${rebirthInfo.rebirths} / ${rebirthInfo.maxRebirths}** (+${rebirthInfo.bonusDmgPercent}% Dano/XP)\n`;
         doc += `⚡ *Poder de Combate (CP):* **${stats.cp.toLocaleString("pt-BR")} CP**\n\n`;
 
-        doc += `╭━━━〔 🧰 EQUIPAMENTOS POR SLOT 〕━━━┈⊷\n`;
+        doc += `╭━〔 🧰 EQUIPAMENTOS POR SLOT 〕━⬣\n`;
         doc += `┃ 👑 *Cabeça:* ${getSlotDisplay("capacete", "Sem Elmo")}\n`;
         doc += `┃ 🛡️ *Tronco:* ${getSlotDisplay("peitoral", "Sem Armadura")}\n`;
         doc += `┃ 👖 *Pernas:* ${getSlotDisplay("calca", "Sem Calças")}\n`;
@@ -102,9 +102,9 @@ module.exports = {
         doc += `┃ 🗡️ *Arma Principal:* ${getSlotDisplay("arma", "Punhos Desarmados")} (+${user.forgeLevel || 0} Forja)\n`;
         doc += `┃ 🛡️ *Mão Secundária:* ${getSlotDisplay("escudo", "Sem Escudo")}\n`;
         doc += `┃ 💍 *Amuleto:* ${getSlotDisplay("amuleto", "Sem Amuleto")}\n`;
-        doc += `╰━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┈⊷\n\n`;
+        doc += `╰━━━━━━━━━━━━━━━━━━⬣\n\n`;
 
-        doc += `╭━━━〔 📊 ATRIBUTOS TOTAIS REAIS 〕━━━┈⊷\n`;
+        doc += `╭━〔 📊 ATRIBUTOS TOTAIS REAIS 〕━⬣\n`;
         const _hp = resolveHp(user);
         doc += `┃ ❤️ *Vida (HP):* **${_hp.atual.toLocaleString("pt-BR")} / ${_hp.max.toLocaleString("pt-BR")} HP** (${_hp.percent}%)\n`;
         doc += `┃ ${_hp.barra}\n`;
@@ -112,7 +112,7 @@ module.exports = {
         doc += `┃ 🛡️ *Defesa Real (DEF):* **+${stats.def.toLocaleString("pt-BR")}**\n`;
         doc += `┃ 🎯 *Crítico:* **${stats.crit}%** | 💨 *Esquiva:* **${stats.esq}%** | 🛡️ *Bloqueio:* **${stats.bloq}%**\n`;
         if (stats.hasFogueira) doc += `┃ 🔥 *Fogueira Ativa:* +20% Dano de Queimadura\n`;
-        doc += `╰━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┈⊷\n\n`;
+        doc += `╰━━━━━━━━━━━━━━━━━━⬣\n\n`;
 
         doc += `💡 _Customizar:_ \`.boneco nome <nome>\` | \`.boneco raca <raca>\` | \`.boneco elemento <elemento>\`\n`;
         doc += `👑 *${botName}*`;

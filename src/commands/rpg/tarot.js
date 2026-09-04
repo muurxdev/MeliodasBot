@@ -33,17 +33,17 @@ module.exports = {
         user.coins = (user.coins || 0) + sorteada.coins;
         await dataService.saveXpData(xpData);
 
-        let doc = `┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓\n`;
-        doc += `┃   🔮 *ORÁCULO DO TARÔ ARCANO* 🔮   \n`;
-        doc += `┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛\n\n`;
+        let doc = `╔══════════════════════════════╗\n`;
+        doc += `║   🔮 *ORÁCULO DO TARÔ ARCANO* 🔮   \n`;
+        doc += `╚══════════════════════════════╝\n\n`;
         doc += `✨ *O destino desdobrou as cartas sobre a mesa de Merlin...*\n\n`;
-        doc += `╭━━━〔 🃏 CARTA REVELADA 〕━━━┈⊷\n`;
+        doc += `╭━〔 🃏 CARTA REVELADA 〕━⬣\n`;
         doc += `┃ 🎴 *Carta:* **${sorteada.carta}**\n`;
         doc += `┃ 📜 *Presságio:* _"${sorteada.significado}"_\n`;
         doc += `┃ 🌟 *Bênção Concedida:* ${sorteada.buff}\n`;
         doc += `┃ ⭐ *XP Obtido:* +${sorteada.xp.toLocaleString("pt-BR")} XP\n`;
         doc += `┃ 💰 *Coins Coletados:* +${sorteada.coins.toLocaleString("pt-BR")} Coins\n`;
-        doc += `╰━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┈⊷\n\n`;
+        doc += `╰━━━━━━━━━━━━━━━━━━⬣\n\n`;
         doc += `💡 _Volte periodicamente para consultar novamente as profecias do destino!_\n`;
         doc += `👑 *${botName}*`;
 

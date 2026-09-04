@@ -79,9 +79,9 @@ module.exports = {
             return reply(`❌ Falha ao atualizar o cargo \`${targetRank}\`.`);
         }
 
-        let res = "┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓\n";
-        res += "┃  👑 *TÍTULO DO CARGO ATUALIZADO!*  \n";
-        res += "┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛\n\n";
+        let res = "╔══════════════════════════════╗\n";
+        res += "║  👑 *TÍTULO DO CARGO ATUALIZADO!*  \n";
+        res += "╚══════════════════════════════╝\n\n";
         res += `🎖️ *Patente Base:* ${updated.rank} (Nível ${updated.level})\n`;
         res += `✨ *Novo Título Oficial:* **${updated.customTitle}**\n`;
         res += `👤 *Titular Atual:* ${updated.name || "Vago"}\n`;

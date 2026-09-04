@@ -29,14 +29,14 @@ module.exports = {
         const info = getRebirthInfo(user);
         const stats = calculateFullCharacterStats(user);
 
-        let doc = `┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓\n`;
-        doc += `┃   🌌 *ÁRVORE DE ASCENSÃO CÓSMICA* 🌌   \n`;
-        doc += `┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛\n\n`;
+        let doc = `╔══════════════════════════════╗\n`;
+        doc += `║   🌌 *ÁRVORE DE ASCENSÃO CÓSMICA* 🌌   \n`;
+        doc += `╚══════════════════════════════╝\n\n`;
         doc += `👤 *Guerreiro:* @${sender.split("@")[0]}\n`;
         doc += `🌀 *Rebirths Concluídos:* **${info.rebirths} / ${info.maxRebirths} Graus**\n`;
         doc += `💥 *Bônus Permanente Atual:* **+${info.bonusDmgPercent}% Dano & XP Totais**\n\n`;
 
-        doc += `╭━━━〔 📜 GRAUS DE TRANSCENDÊNCIA 〕━━━┈⊷\n`;
+        doc += `╭━〔 📜 GRAUS DE TRANSCENDÊNCIA 〕━⬣\n`;
         ASCENSION_TIERS.forEach(t => {
             const alcancado = info.rebirths >= t.nivel;
             const icon = alcancado ? "🟢 [ATINGIDO]" : "🔒 [BLOQUEADO]";
@@ -44,7 +44,7 @@ module.exports = {
             doc += `┃    📜 *Bônus:* ${t.bonus}\n`;
             doc += `┃    📌 *Requisito:* ${t.req}\n┃\n`;
         });
-        doc += `╰━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┈⊷\n\n`;
+        doc += `╰━━━━━━━━━━━━━━━━━━⬣\n\n`;
 
         doc += `💡 _Para avançar na árvore de ascensão, atinja o nível 100 e use \`.reencarnar\`!_\n`;
         doc += `👑 *${botName}*`;

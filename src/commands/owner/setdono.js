@@ -117,9 +117,9 @@ module.exports = {
         if (targetJid) mentions.push(targetJid);
         if (sender) mentions.push(sender);
 
-        let res = "┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓\n";
-        res += "┃  👑 *PATENTE DE DONO ATUALIZADA!*  \n";
-        res += "┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛\n\n";
+        let res = "╔══════════════════════════════╗\n";
+        res += "║  👑 *PATENTE DE DONO ATUALIZADA!*  \n";
+        res += "╚══════════════════════════════╝\n\n";
         res += `🎖️ *Patente:* **${updated.rank}** (Nível ${updated.level})\n`;
         res += `👤 *Nome Registrado:* @${(updated.jid || targetJid || sender).split("@")[0]} (${updated.name})\n`;
         res += `📱 *WhatsApp/Contato:* ${updated.phone || "Manter atual"}\n`;

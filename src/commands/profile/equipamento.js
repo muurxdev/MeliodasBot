@@ -68,18 +68,18 @@ module.exports = {
             return reply(`✅ *${itemEncontrado.name || itemEncontrado.nome}* equipado no slot *${SLOTS_VALIDOS[slotInput]}*!`)
         }
 
-        let doc = `┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓\n`
-        doc += `┃   🛡️ *SEU EQUIPAMENTO* 🛡️   \n`
-        doc += `┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛\n\n`
+        let doc = `╔══════════════════════════════╗\n`
+        doc += `║   🛡️ *SEU EQUIPAMENTO* 🛡️   \n`
+        doc += `╚══════════════════════════════╝\n\n`
 
         const slots = user.equipment
-        doc += `╭━━━〔 ⚔️ SLOTS 〕━━━┈⊷\n`
+        doc += `╭━〔 ⚔️ SLOTS 〕━⬣\n`
         doc += `┃ ⚔️ *Arma:* ${slots.weapon || '❌ Vazio'}\n`
         doc += `┃ 🛡️ *Armadura:* ${slots.armor || '❌ Vazio'}\n`
         doc += `� 🧥 *Capa:* ${slots.cape || '❌ Vazio'}\n`
         doc += `� 💍 *Anel:* ${slots.ring || '❌ Vazio'}\n`
         doc += `� 📿 *Amuleto:* ${slots.amulet || '❌ Vazio'}\n`
-        doc += `╰━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┈⊷\n\n`
+        doc += `╰━━━━━━━━━━━━━━━━━━⬣\n\n`
 
         const itensEquipados = Object.values(slots).filter(Boolean).length
         doc += `📊 *Slots preenchidos:* ${itensEquipados}/5\n\n`

@@ -14,7 +14,7 @@ module.exports = {
     execute: async ({ reply }) => {
         const stats = mediaQueue.getStats()
 
-        let msg = `╭━━━〔 🚦 *FILA DE DOWNLOADS* 〕━━━┈⊷\n`
+        let msg = `╭━〔 🚦 *FILA DE DOWNLOADS* 〕━⬣\n`
         msg += `┃ ⚡ *Workers Ativos:* ${stats.activeWorkers} / ${stats.maxConcurrency}\n`
         msg += `┃ 📋 *Na Fila de Espera:* ${stats.queueLength}\n`
         msg += `┣━━━━━━━━━━━━━━━━━━━━━━━━━\n`
@@ -39,7 +39,7 @@ module.exports = {
             }
         }
 
-        msg += `╰━━━━━━━━━━━━━━━━━━━━━━━━━┈⊷\n`
+        msg += `╰━━━━━━━━━━━━━━━━━━⬣\n`
         msg += `_Para cancelar seu download:_ \`.cancel <jobId>\``
 
         await reply(msg.trim())

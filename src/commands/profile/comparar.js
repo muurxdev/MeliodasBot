@@ -38,18 +38,18 @@ module.exports = {
         const xp1 = user1.xp || 0
         const xp2 = user2.xp || 0
 
-        let doc = `┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓\n`
-        doc += `┃   ⚔️ *COMPARAÇÃO DE PERFIS* ⚔️   \n`
-        doc += `┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛\n\n`
+        let doc = `╔══════════════════════════════╗\n`
+        doc += `║   ⚔️ *COMPARAÇÃO DE PERFIS* ⚔️   \n`
+        doc += `╚══════════════════════════════╝\n\n`
 
-        doc += `╭━━━〔 📊 ESTATÍSTICAS 〕━━━┈⊷\n`
+        doc += `╭━〔 📊 ESTATÍSTICAS 〕━⬣\n`
         doc += `┃                          🟢 Você  🔴 Ele\n`
         doc += `┃ ${medalha(nivel1, nivel2)} *Nível:*     ${String(nivel1).padStart(4)} vs ${String(nivel2).padStart(4)}\n`
         doc += `┃ ${medalha(xp1, xp2)} *XP:*        ${String(xp1).padStart(6)} vs ${String(xp2).padStart(6)}\n`
         doc += `┃ ${medalha(coins1, coins2)} *Coins:*     ${String(coins1).padStart(6)} vs ${String(coins2).padStart(6)}\n`
         doc += `┃ ${medalha(msgs1, msgs2)} *Mensagens:* ${String(msgs1).padStart(6)} vs ${String(msgs2).padStart(6)}\n`
         doc += `┃ ${medalha(conquistas1, conquistas2)} *Conquistas:* ${String(conquistas1).padStart(3)} vs ${String(conquistas2).padStart(3)}\n`
-        doc += `╰━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┈⊷\n\n`
+        doc += `╰━━━━━━━━━━━━━━━━━━⬣\n\n`
 
         let vitorias1 = 0
         if (nivel1 > nivel2) vitorias1++
@@ -60,7 +60,7 @@ module.exports = {
 
         const vitorias2 = 5 - vitorias1
 
-        doc += `╭━━━〔 🏆 PLACAR FINAL 〕━━━┈⊷\n`
+        doc += `╭━〔 🏆 PLACAR FINAL 〕━⬣\n`
         doc += `┃ 🟢 *Você:* ${vitorias1} | 🔴 *Eles:* ${vitorias2}\n`
         if (vitorias1 > vitorias2) {
             doc += `┃ 🎉 *Você está na frente!*\n`
@@ -69,12 +69,12 @@ module.exports = {
         } else {
             doc += `┃ 🤝 *Empate perfeito!*\n`
         }
-        doc += `╰━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┈⊷\n\n`
+        doc += `╰━━━━━━━━━━━━━━━━━━⬣\n\n`
 
-        doc += `╭━━━〔 👤 RANKS 〕━━━┈⊷\n`
+        doc += `╭━〔 👤 RANKS 〕━⬣\n`
         doc += `┃ 🟢 *Você:* ${getRank(nivel1)} — ${getCargo(nivel1)}\n`
         doc += `┃ 🔴 *Eles:* ${getRank(nivel2)} — ${getCargo(nivel2)}\n`
-        doc += `╰━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┈⊷\n`
+        doc += `╰━━━━━━━━━━━━━━━━━━⬣\n`
 
         await reply(doc.trim(), [sender, alvo])
     }

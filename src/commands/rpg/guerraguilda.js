@@ -24,13 +24,13 @@ module.exports = {
             let doc = '╔══════════════════════════════╗\n'
             doc += '║   ⚔️ *GUERRA DE GUILDAS* ⚔️   ║\n'
             doc += '╚══════════════════════════════╝\n\n'
-            doc += '╭━━━〔 📋 COMANDOS 〕━━━┈⊷\n'
+            doc += '╭━〔 📋 COMANDOS 〕━⬣\n'
             doc += '┃ • \`.guerraguilda criar <nome>\` — Criar guilda (5000 coins)\n'
             doc += '┃ • \`.guerraguilda ver\` — Ver info da sua guilda\n'
             doc += '┃ • \`.guerraguilda recrutar @user\` — Recrutar membro\n'
             doc += '┃ • \`.guerraguilda sair\` — Sair da guilda\n'
             doc += '┃ • \`.guerraguilda lista\` — Listar todas as guildas\n'
-            doc += '╰━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┈⊷\n\n'
+            doc += '╰━━━━━━━━━━━━━━━━━━⬣\n\n'
             doc += `👑 *${botName}*`
 
             return reply(doc.trim(), [sender])
@@ -55,11 +55,11 @@ module.exports = {
                     return `@${m.split('@')[0]}`
                 }).join(', ')
 
-                doc += `╭━〔 ${idx + 1}. 🛡️ *${gName}* 〕━━━┈⊷\n`
+                doc += `╭━〔 ${idx + 1}. 🛡️ *${gName}* 〕━⬣\n`
                 doc += `┃ 👑 *Líder:* @${(g.dono || '').split('@')[0]}\n`
                 doc += `┃ 📈 *Nível:* ${g.level || 1}  |  ⭐ *XP:* ${(g.xp || 0).toLocaleString('pt-BR')}\n`
                 doc += `┃ 👥 *Membros (${(g.membros || []).length}):* ${membros || 'Nenhum'}\n`
-                doc += `╰━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┈⊷\n\n`
+                doc += `╰━━━━━━━━━━━━━━━━━━⬣\n\n`
             })
 
             doc += `👑 *${botName}*`
@@ -163,12 +163,12 @@ module.exports = {
             doc += `📈 *Nível:* ${g.level || 1}  |  ⭐ *XP:* ${(g.xp || 0).toLocaleString('pt-BR')}\n`
             doc += `💰 *Cofre:* ${formatCoins(g.coins || 0)}\n\n`
 
-            doc += `╭━━━〔 👥 MEMBROS (${(g.membros || []).length}) 〕━━━┈⊷\n`
+            doc += `╭━〔 👥 MEMBROS (${(g.membros || []).length}) 〕━⬣\n`
             ;(g.membros || []).forEach((m, idx) => {
                 const isLeader = m === g.dono
                 doc += `┃ ${idx + 1}. @${m.split('@')[0]} ${isLeader ? '👑 *(Líder)*' : '⚔️ *(Guerreiro)*'}\n`
             })
-            doc += '╰━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┈⊷\n\n'
+            doc += '╰━━━━━━━━━━━━━━━━━━⬣\n\n'
             doc += `👑 *${botName}*`
 
             return reply(doc.trim(), mentions)

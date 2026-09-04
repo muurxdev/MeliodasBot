@@ -34,9 +34,9 @@ module.exports = {
                 return reply("🏆 Nenhum farm no PV registrado no momento.");
             }
 
-            let doc = `┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓\n`;
-            doc += `┃   📱 *TOP 10 RANKING DO PRIVADO (PV)* 📱   \n`;
-            doc += `┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛\n\n`;
+            let doc = `╔══════════════════════════════╗\n`;
+            doc += `║   📱 *TOP 10 RANKING DO PRIVADO (PV)* 📱   \n`;
+            doc += `╚══════════════════════════════╝\n\n`;
             const mentions = [];
 
             rankingPv.forEach(([jid, u], i) => {
@@ -61,9 +61,9 @@ module.exports = {
         if (mode === "geral" || mode === "global" || !isGroup) {
             const rankingGlobal = dataService.userRepo.getTopRank(10);
 
-            let doc = `┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓\n`;
-            doc += `┃   👑 *TOP 10 RANKING GERAL GLOBAL* 👑   \n`;
-            doc += `┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛\n\n`;
+            let doc = `╔══════════════════════════════╗\n`;
+            doc += `║   👑 *TOP 10 RANKING GERAL GLOBAL* 👑   \n`;
+            doc += `╚══════════════════════════════╝\n\n`;
             const mentions = [];
 
             rankingGlobal.forEach(([jid, u], i) => {
@@ -108,9 +108,9 @@ module.exports = {
             return reply("🏆 Nenhum participante deste grupo registrado no ranking ainda.");
         }
 
-        let doc = `┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓\n`;
-        doc += `┃   🏆 *TOP 10 RANKING DESTE GRUPO* 🏆   \n`;
-        doc += `┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛\n\n`;
+        let doc = `╔══════════════════════════════╗\n`;
+        doc += `║   🏆 *TOP 10 RANKING DESTE GRUPO* 🏆   \n`;
+        doc += `╚══════════════════════════════╝\n\n`;
         const mentions = [];
 
         rankingGrupo.forEach(([jid, u], i) => {

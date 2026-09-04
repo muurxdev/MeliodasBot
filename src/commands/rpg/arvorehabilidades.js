@@ -35,7 +35,7 @@ module.exports = {
             doc += `📈 *Nível Atual:* ${user.level || 1}\n`
             doc += `💡 _1 ponto a cada 5 níveis_\n\n`
 
-            doc += '╭━━━〔 📋 SKILLS DISPONÍVEIS 〕━━━┈⊷\n'
+            doc += '╭━〔 📋 SKILLS DISPONÍVEIS 〕━⬣\n'
             Object.entries(SKILLS).forEach(([key, s]) => {
                 const has = unlockedSkills.includes(key)
                 const status = has ? '✅ Desbloqueada' : `🔒 Custo: ${s.custo} pts`
@@ -44,7 +44,7 @@ module.exports = {
                 doc += `┃ Status: ${status}\n`
                 doc += `┃ ─────────────────\n`
             })
-            doc += '╰━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┈⊷\n\n'
+            doc += '╰━━━━━━━━━━━━━━━━━━⬣\n\n'
             doc += '💡 _Desbloqueie com_ \`.arvorehabilidades desbloquear <nome>\`_\n'
             doc += '💡 _Skills desbloqueadas dão bônus passivos + desbloqueiam .habilidade em batalha!_'
 

@@ -41,16 +41,16 @@ module.exports = {
 
         await dataService.saveXpData(xpData);
 
-        let doc = `┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓\n`;
-        doc += `┃   💖 *CURA TOTAL REALIZADA!* 💖   \n`;
-        doc += `┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛\n\n`;
+        let doc = `╔══════════════════════════════╗\n`;
+        doc += `║   💖 *CURA TOTAL REALIZADA!* 💖   \n`;
+        doc += `╚══════════════════════════════╝\n\n`;
         doc += `✨ *Sua energia vital foi 100% restaurada pela magia sagrada!* ✨\n\n`;
-        doc += `╭━━━〔 ❤️ STATUS VITAL 〕━━━┈⊷\n`;
+        doc += `╭━〔 ❤️ STATUS VITAL 〕━⬣\n`;
         doc += `┃ 💖 *HP Restaurado:* **${realMaxHp.toLocaleString('pt-BR')} / ${realMaxHp.toLocaleString('pt-BR')} HP** (100%)\n`;
         doc += `┃ 🩹 *Vida Recuperada:* +${missingHp.toLocaleString('pt-BR')} HP\n`;
         doc += `┃ 💸 *Custo da Cura:* -${custo.toLocaleString('pt-BR')} Coins\n`;
         doc += `┃ 🪙 *Saldo Restante:* ${(user.coins || 0).toLocaleString('pt-BR')} Coins\n`;
-        doc += `╰━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┈⊷\n\n`;
+        doc += `╰━━━━━━━━━━━━━━━━━━⬣\n\n`;
         doc += `👑 *${botName}*`;
 
         return reply(doc.trim(), [sender]);

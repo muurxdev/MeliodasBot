@@ -87,9 +87,9 @@ module.exports = {
             return reply(`🗑️ Item *${nome}* descartado do inventário.`)
         }
 
-        let doc = `┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓\n`
-        doc += `┃   🎒 *SEU INVENTÁRIO* 🎒   \n`
-        doc += `┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛\n\n`
+        let doc = `╔══════════════════════════════╗\n`
+        doc += `║   🎒 *SEU INVENTÁRIO* 🎒   \n`
+        doc += `╚══════════════════════════════╝\n\n`
 
         if (inventario.length === 0) {
             doc += `📦 *Inventário vazio*\n\n`
@@ -97,7 +97,7 @@ module.exports = {
             return reply(doc.trim())
         }
 
-        doc += `╭━━━〔 📦 ITENS (${inventario.length}) 〕━━━┈⊷\n`
+        doc += `╭━〔 📦 ITENS (${inventario.length}) 〕━⬣\n`
         for (const item of inventario) {
             const nome = item.name || item.nome || 'Item Desconhecido'
             const qty = item.qty || item.quantidade || 1
@@ -105,12 +105,12 @@ module.exports = {
             doc += `┃ 📦 *${nome}* x${qty}\n`
             doc += `┃   📂 Tipo: ${tipo}\n`
         }
-        doc += `╰━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┈⊷\n\n`
+        doc += `╰━━━━━━━━━━━━━━━━━━⬣\n\n`
 
-        doc += `╭━━━〔 🔧 COMANDOS 〕━━━┈⊷\n`
+        doc += `╭━〔 🔧 COMANDOS 〕━⬣\n`
         doc += `┃ 🧪 \`.inventario usar <item>\` — usa um item\n`
         doc += `┃ 🗑️ \`.inventario descartar <item>\` — descarta um item\n`
-        doc += `╰━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┈⊷\n`
+        doc += `╰━━━━━━━━━━━━━━━━━━⬣\n`
 
         await reply(doc.trim())
     }

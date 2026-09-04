@@ -62,14 +62,14 @@ module.exports = {
         }
 
         // 2. Exibição Geral do Grimório
-        let doc = `┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓\n`;
-        doc += `┃    📜 *GRIMÓRIO DE MAGIAS ARCANAS* 📜  \n`;
-        doc += `┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛\n\n`;
+        let doc = `╔══════════════════════════════╗\n`;
+        doc += `║    📜 *GRIMÓRIO DE MAGIAS ARCANAS* 📜  \n`;
+        doc += `╚══════════════════════════════╝\n\n`;
         doc += `👤 *Mago / Guerreiro:* @${sender.split("@")[0]}\n`;
         doc += `⭐ *Nível:* ${user.level || 1}  |  ⚡ *Poder de Combate:* ${stats.cp} CP\n`;
         doc += `📖 *Magias Dominadas:* ${user.grimoireSpells.length} / ${SPELLS_DB.length}\n\n`;
 
-        doc += `╭━━━〔 ✨ CATÁLOGO DE FEITIÇOS 〕━━━┈⊷\n`;
+        doc += `╭━〔 ✨ CATÁLOGO DE FEITIÇOS 〕━⬣\n`;
         SPELLS_DB.forEach(sp => {
             const unlocked = user.grimoireSpells.includes(sp.id);
             const canLearn = (user.level || 1) >= sp.minLevel;
@@ -83,7 +83,7 @@ module.exports = {
             }
             doc += `┃\n`;
         });
-        doc += `╰━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┈⊷\n\n`;
+        doc += `╰━━━━━━━━━━━━━━━━━━⬣\n\n`;
 
         doc += `💡 _Para aprender uma magia:_ \`.grimorio aprender <nome>\`\n`;
         doc += `👑 *${botName}*`;

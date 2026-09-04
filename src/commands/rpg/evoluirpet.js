@@ -80,15 +80,15 @@ module.exports = {
             user.pet = nextStage.nome;
             await dataService.saveXpData(xpData);
 
-            let evoDoc = `┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓\n`;
-            evoDoc += `┃   🐾 *EVOLUÇÃO DE PET CONCLUÍDA!* 🐾   \n`;
-            evoDoc += `┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛\n\n`;
+            let evoDoc = `╔══════════════════════════════╗\n`;
+            evoDoc += `║   🐾 *EVOLUÇÃO DE PET CONCLUÍDA!* 🐾   \n`;
+            evoDoc += `╚══════════════════════════════╝\n\n`;
             evoDoc += `✨ *Seu companheiro absorveu a energia primordial e ascendeu para uma nova forma!*\n\n`;
-            evoDoc += `╭━━━〔 🌟 NOVO ESTÁGIO 〕━━━┈⊷\n`;
+            evoDoc += `╭━〔 🌟 NOVO ESTÁGIO 〕━⬣\n`;
             evoDoc += `┃ 🐾 *Novo Nome:* ${nextStage.nome}\n`;
             evoDoc += `┃ 💥 *Bônus em Combate:* ${nextStage.bonus}\n`;
             evoDoc += `┃ 💸 *Custo Pago:* -${nextStage.custo.toLocaleString("pt-BR")} Coins\n`;
-            evoDoc += `╰━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┈⊷\n\n`;
+            evoDoc += `╰━━━━━━━━━━━━━━━━━━⬣\n\n`;
             evoDoc += `💡 _Seu pet agora causará muito mais dano ao atacar bosses (\`.atkboss\`) e masmorras (\`.dungeon\`)!_\n`;
             evoDoc += `👑 *${botName}*`;
 
@@ -96,13 +96,13 @@ module.exports = {
         }
 
         // 2. EXIBIR ÁRVORE DE EVOLUÇÃO
-        let doc = `┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓\n`;
-        doc += `┃   🐾 *ÁRVORE DE EVOLUÇÃO DE PETS* 🐾   \n`;
-        doc += `┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛\n\n`;
+        let doc = `╔══════════════════════════════╗\n`;
+        doc += `║   🐾 *ÁRVORE DE EVOLUÇÃO DE PETS* 🐾   \n`;
+        doc += `╚══════════════════════════════╝\n\n`;
         doc += `👤 *Mestre:* @${sender.split("@")[0]}\n`;
         doc += `🐾 *Pet Atual:* **${currentPet}**\n\n`;
 
-        doc += `╭━━━〔 📜 ESTÁGIOS DA ESPÉCIE 〕━━━┈⊷\n`;
+        doc += `╭━〔 📜 ESTÁGIOS DA ESPÉCIE 〕━⬣\n`;
         tree.forEach((st, i) => {
             const isCurrent = i === currentStageIdx;
             const tag = isCurrent ? " 🟢 *(Atual)*" : (i < currentStageIdx ? " ✔️ *(Superado)*" : " 🔒 *(Próximo)*");
@@ -111,7 +111,7 @@ module.exports = {
             if (st.custo > 0) doc += `┃    💰 *Custo:* ${st.custo.toLocaleString("pt-BR")} Coins (Requer Nível ${st.reqNivel})\n`;
             doc += `┃\n`;
         });
-        doc += `╰━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┈⊷\n\n`;
+        doc += `╰━━━━━━━━━━━━━━━━━━⬣\n\n`;
 
         if (!isMaxStage) {
             doc += `💡 _Para evoluir seu pet agora:_ \`.evoluirpet evoluir\`\n`;

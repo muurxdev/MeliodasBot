@@ -44,16 +44,16 @@ module.exports = {
             }
         }
 
-        let doc = `┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓\n`
-        doc += `┃   👤 *PERFIL COMPLETO* 👤   \n`
-        doc += `┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛\n\n`
+        let doc = `╔══════════════════════════════╗\n`
+        doc += `║   👤 *PERFIL COMPLETO* 👤   \n`
+        doc += `╚══════════════════════════════╝\n\n`
 
         doc += `👤 @${alvo.split('@')[0]}\n`
         if (user.name || user.displayNick) {
             doc += `📛 *Nome:* ${user.name || user.displayNick}\n`
         }
 
-        doc += `\n╭━━━〔 📊 ESTATÍSTICAS 〕━━━┈⊷\n`
+        doc += `\n╭━〔 📊 ESTATÍSTICAS 〕━⬣\n`
         doc += `┃ 📈 *Nível:* ${level} | 🏆 *Rank:* ${rank}\n`
         doc += `┃ 🎖️ *Patente:* ${cargo}\n`
         doc += `┃ ⭐ *XP:* ${xpAtual.toLocaleString('pt-BR')} / ${prog.necessario.toLocaleString('pt-BR')}\n`
@@ -63,7 +63,7 @@ module.exports = {
         const _hp = resolveHp(user)
         doc += `┃ ❤️ *HP:* ${_hp.atual}/${_hp.max} ${_hp.barra}\n`
         doc += `┃ ⚔️ *ATK:* ${user.atk || 10} | 🛡️ *DEF:* ${user.def || 5}\n`
-        doc += `╰━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┈⊷\n\n`
+        doc += `╰━━━━━━━━━━━━━━━━━━⬣\n\n`
 
         if (equippedBadge) {
             const badgeInfo = require('./badges')
@@ -72,40 +72,40 @@ module.exports = {
         }
 
         if (conquistas.length > 0) {
-            doc += `╭━━━〔 🏆 CONQUISTAS (${conquistas.length}) 〕━━━┈⊷\n`
+            doc += `╭━〔 🏆 CONQUISTAS (${conquistas.length}) 〕━⬣\n`
             for (const cid of conquistas) {
                 const ach = achievementsCatalog.find(a => a.id === cid)
                 doc += `┃ ✅ ${ach ? ach.titulo : cid}\n`
             }
-            doc += `╰━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┈⊷\n\n`
+            doc += `╰━━━━━━━━━━━━━━━━━━⬣\n\n`
         }
 
         if (badges.length > 0) {
-            doc += `╭━━━〔 🏅 BADGES (${badges.length}) 〕━━━┈⊷\n`
+            doc += `╭━〔 🏅 BADGES (${badges.length}) 〕━⬣\n`
             for (const bid of badges) {
                 doc += `┃ 🏅 ${bid}\n`
             }
-            doc += `╰━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┈⊷\n\n`
+            doc += `╰━━━━━━━━━━━━━━━━━━⬣\n\n`
         }
 
         if (user.equipment) {
             const eq = user.equipment
             const itens = [eq.weapon, eq.armor, eq.cape, eq.ring, eq.amulet].filter(Boolean)
             if (itens.length > 0) {
-                doc += `╭━━━〔 🛡️ EQUIPAMENTO 〕━━━┈⊷\n`
+                doc += `╭━〔 🛡️ EQUIPAMENTO 〕━⬣\n`
                 if (eq.weapon) doc += `┃ ⚔️ ${eq.weapon}\n`
                 if (eq.armor) doc += `┃ 🛡️ ${eq.armor}\n`
                 if (eq.cape) doc += `� 🧥 ${eq.cape}\n`
                 if (eq.ring) doc += `┃ 💍 ${eq.ring}\n`
                 if (eq.amulet) doc += `┃ 📿 ${eq.amulet}\n`
-                doc += `╰━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┈⊷\n\n`
+                doc += `╰━━━━━━━━━━━━━━━━━━⬣\n\n`
             }
         }
 
-        doc += `╭━━━〔 ⏱️ TEMPO NO BOT 〕━━━┈⊷\n`
+        doc += `╭━〔 ⏱️ TEMPO NO BOT 〕━⬣\n`
         doc += `┃ 📅 *Membro há:* ${tempoNoBot}\n`
         doc += `┃ 🔥 *Streak:* ${user.streak || 0} dias\n`
-        doc += `╰━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┈⊷\n`
+        doc += `╰━━━━━━━━━━━━━━━━━━⬣\n`
 
         await reply(doc.trim(), [alvo])
     }

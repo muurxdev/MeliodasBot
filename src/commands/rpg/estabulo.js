@@ -36,7 +36,7 @@ module.exports = {
                 doc += `✨ *Bônus:* ${mData.bonus || 'N/A'}\n\n`
             }
 
-            doc += '╭━━━〔 🐾 MONTARIAS DISPONÍVEIS 〕━━━┈⊷\n'
+            doc += '╭━〔 🐾 MONTARIAS DISPONÍVEIS 〕━⬣\n'
             Object.entries(MOUNTS).forEach(([key, m]) => {
                 const owned = (user.mounts || []).includes(key)
                 doc += `┃ ${m.nome} (${key})\n`
@@ -44,7 +44,7 @@ module.exports = {
                 doc += `┃ 📦 *Status:* ${owned ? '✅ Possuído' : '🔒 Não possui'}\n`
                 doc += `┃ ─────────────────\n`
             })
-            doc += '╰━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┈⊷\n\n'
+            doc += '╰━━━━━━━━━━━━━━━━━━⬣\n\n'
             doc += '💡 _Use_ \`.estabulo montar <nome>\` _para equipar uma montaria!_'
 
             return reply(doc.trim(), [sender])
@@ -91,13 +91,13 @@ module.exports = {
                 doc += `╰━━━━━━━━━━━━━━━━━━⬣\n\n`
             }
 
-            doc += `╭━〔 🎒 MONTARIAS POSSEÍDAS (${owned.length}) 〕━━━┈⊷\n`
+            doc += `╭━〔 🎒 MONTARIAS POSSEÍDAS (${owned.length}) 〕━⬣\n`
             owned.forEach(m => {
                 const mData = MOUNTS[m] || {}
                 const isEquipped = equipped && (equipped.name === m || equipped.name === m.name)
                 doc += `┃ ${mData.nome || m} ${isEquipped ? '✅ *(Equipada)*' : ''}\n`
             })
-            doc += '╰━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┈⊷\n\n'
+            doc += '╰━━━━━━━━━━━━━━━━━━⬣\n\n'
             doc += '💡 _Montar:_ \`.estabulo montar <nome>\`'
 
             return reply(doc.trim(), [sender])

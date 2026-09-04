@@ -171,11 +171,11 @@ module.exports = {
             const securityStatus = secResult.isEncrypted && !secResult.isUnlocked ? `🔐 ${secResult.password}` : `${i18n.unlocked}`;
 
             // Ficha técnica completa diretamente no idioma solicitado
-            let caption = `┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓\n`;
-            caption += `┃   📖 *${i18n.headerTitle}* 📖\n`;
-            caption += `┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛\n\n`;
+            let caption = `╔══════════════════════════════╗\n`;
+            caption += `║   📖 *${i18n.headerTitle}* 📖\n`;
+            caption += `╚══════════════════════════════╝\n\n`;
             caption += `📚 *${targetBook.title}*\n\n`;
-            caption += `╭━━━〔 📋 ${i18n.headerTitle} 〕━━━┈⊷\n`;
+            caption += `╭━〔 📋 ${i18n.headerTitle} 〕━⬣\n`;
             caption += `┃ 📚 *${i18n.officialTitle}:* ${targetBook.title}\n`;
             caption += `┃ 👤 *${i18n.author}:* ${targetBook.author}\n`;
             caption += `┃ 📅 *${i18n.year}:* ${targetBook.year}\n`;
@@ -187,12 +187,12 @@ module.exports = {
             caption += `┃ 🏛️ *${i18n.source}:* ${targetBook.source}\n`;
             caption += `┃ 🔗 *${i18n.sourceLink}:* ${sourceUrl}\n`;
             caption += `┃ 🔐 *${i18n.securityLabel}:* ${securityStatus}\n`;
-            caption += `╰━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┈⊷\n\n`;
+            caption += `╰━━━━━━━━━━━━━━━━━━⬣\n\n`;
 
             if (targetBook.description) {
-                caption += `╭━━━〔 📝 ${i18n.synopsisTitle} 〕━━━┈⊷\n`;
+                caption += `╭━〔 📝 ${i18n.synopsisTitle} 〕━⬣\n`;
                 caption += `┃ ${targetBook.description}\n`;
-                caption += `╰━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┈⊷\n\n`;
+                caption += `╰━━━━━━━━━━━━━━━━━━⬣\n\n`;
             }
 
             caption += `💡 *Dica:* ${dynamicAuthorTip}\n`;

@@ -149,15 +149,15 @@ module.exports = {
         }
 
         // 5. EXIBIR VISÃO GERAL DO BAÚ
-        let doc = `┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓\n`;
-        doc += `┃   🏛️ *BAÚ DE RETAGUARDA SEGURO* 🏛️   \n`;
-        doc += `┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛\n\n`;
+        let doc = `╔══════════════════════════════╗\n`;
+        doc += `║   🏛️ *BAÚ DE RETAGUARDA SEGURO* 🏛️   \n`;
+        doc += `╚══════════════════════════════╝\n\n`;
         doc += `👤 *Proprietário:* @${sender.split('@')[0]}\n`;
         doc += `🪙 *Saldo no Baú:* **${vaultCoins.toLocaleString('pt-BR')} Coins** (Protegido contra roubo)\n`;
         doc += `💵 *Saldo na Carteira:* ${(user.coins || 0).toLocaleString('pt-BR')} Coins\n`;
         doc += `📦 *Total de Itens Estocados:* ${vaultItems.length} tipos de itens\n\n`;
 
-        doc += `╭━━━〔 🛡️ ITENS ARMAZENADOS NO COFRE 〕━━━┈⊷\n`;
+        doc += `╭━〔 🛡️ ITENS ARMAZENADOS NO COFRE 〕━⬣\n`;
         if (vaultItems.length > 0) {
             vaultItems.forEach((it, idx) => {
                 doc += `┃ ${idx + 1}. *${it.item_name}* (x${it.quantity})\n`;
@@ -165,14 +165,14 @@ module.exports = {
         } else {
             doc += `┃ _Nenhum equipamento guardado ainda._\n`;
         }
-        doc += `╰━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┈⊷\n\n`;
+        doc += `╰━━━━━━━━━━━━━━━━━━⬣\n\n`;
 
-        doc += `╭━━━〔 ⚙️ COMANDOS DO BAÚ 〕━━━┈⊷\n`;
+        doc += `╭━〔 ⚙️ COMANDOS DO BAÚ 〕━⬣\n`;
         doc += `┃ • \`.bau depositar <qtd>\` ➔ Guardar moedas no cofre\n`;
         doc += `┃ • \`.bau sacar <qtd>\` ➔ Retirar moedas para a carteira\n`;
         doc += `┃ • \`.bau guardar <item>\` ➔ Guardar item do inventário\n`;
         doc += `┃ • \`.bau retirar <item>\` ➔ Retirar item para a mochila\n`;
-        doc += `╰━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┈⊷\n\n`;
+        doc += `╰━━━━━━━━━━━━━━━━━━⬣\n\n`;
         doc += `👑 *${botName}*`;
 
         return reply(doc.trim(), [sender]);

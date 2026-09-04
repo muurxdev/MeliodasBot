@@ -35,7 +35,7 @@ module.exports = {
             doc += `🏰 *Guilda:* ${user.guilda}\n`
             doc += `💰 *Guild Coins:* ${user.guildCoins || 0} gc\n\n`
 
-            doc += '╭━━━〔 🛒 ITENS DISPONÍVEIS 〕━━━┈⊷\n'
+            doc += '╭━〔 🛒 ITENS DISPONÍVEIS 〕━⬣\n'
             Object.entries(GUILD_ITEMS).forEach(([key, item]) => {
                 doc += `┃ ${item.nome}\n`
                 doc += `┃ 💰 *Preço:* ${item.preco} gc\n`
@@ -43,7 +43,7 @@ module.exports = {
                 doc += `┃ 🆔 *ID:* ${key}\n`
                 doc += `┃ ─────────────────\n`
             })
-            doc += '╰━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┈⊷\n\n'
+            doc += '╰━━━━━━━━━━━━━━━━━━⬣\n\n'
             doc += '💡 _Use_ \`.lojaguilda comprar <item>\` _para comprar!_'
 
             return reply(doc.trim(), [sender])
@@ -108,11 +108,11 @@ module.exports = {
             if (guildItems.length === 0) {
                 doc += '📭 *Nenhum item da guilda no inventário.*\n💡 _Compre na loja com_ \`.lojaguilda\`'
             } else {
-                doc += '╭━━━〔 🎒 SEUS ITENS 〕━━━┈⊷\n'
+                doc += '╭━〔 🎒 SEUS ITENS 〕━⬣\n'
                 guildItems.forEach(item => {
                     doc += `┃ ${item}\n`
                 })
-                doc += '╰━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┈⊷'
+                doc += '╰━━━━━━━━━━━━━━━━━━⬣'
             }
 
             return reply(doc.trim(), [sender])

@@ -26,17 +26,17 @@ module.exports = {
         const xpData = dataService.getXpData();
         const user = initializeUser(sender, xpData);
 
-        let doc = `┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓\n`;
-        doc += `┃   🏺 *RELÍQUIAS ANCESTRAIS DE BRITANNIA* 🏺   \n`;
-        doc += `┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛\n\n`;
+        let doc = `╔══════════════════════════════╗\n`;
+        doc += `║   🏺 *RELÍQUIAS ANCESTRAIS DE BRITANNIA* 🏺   \n`;
+        doc += `╚══════════════════════════════╝\n\n`;
         doc += `✨ *Artefatos antigos imbuídos com o poder dos Quatro Clãs que concedem atributos passivos permanentes.*\n\n`;
 
         RELICS.forEach((r, i) => {
-            doc += `╭━━━〔 ${i + 1}. ${r.nome} 〕━━━┈⊷\n`;
+            doc += `╭━〔 ${i + 1}. ${r.nome} 〕━⬣\n`;
             doc += `┃ 🏛️ *Origem / Clã:* ${r.tipo}\n`;
             doc += `┃ 📜 *Bônus Passivo:* ${r.bonus}\n`;
             doc += `┃ 💰 *Custo de Restauração:* ${r.custo.toLocaleString("pt-BR")} Coins\n`;
-            doc += `╰━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┈⊷\n\n`;
+            doc += `╰━━━━━━━━━━━━━━━━━━⬣\n\n`;
         });
 
         doc += `💡 _Para obter fragmentos de relíquias, explore masmorras com \`.dungeon\` ou vença o modo \`.pesadelo\`!_\n`;

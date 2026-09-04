@@ -186,7 +186,7 @@ module.exports = {
                     return c.category === isCategory
                 })
 
-                let catDoc = `╭━━━〔 ${CATEGORY_NAMES[isCategory]} 〕━━━┈⊷\n`
+                let catDoc = `╭━〔 ${CATEGORY_NAMES[isCategory]} 〕━⬣\n`
                 catDoc += `┃ 📊 *Total de Comandos:* ${categoryCmds.length}\n`
                 catDoc += `┣━━━━━━━━━━━━━━━━━━━━━━━━━\n`
 
@@ -195,7 +195,7 @@ module.exports = {
                     catDoc += `┃ ➤ \`${p}${c.name}\` ${desc}\n`
                 })
 
-                catDoc += `╰━━━━━━━━━━━━━━━━━━━━━━━━━┈⊷\n`
+                catDoc += `╰━━━━━━━━━━━━━━━━━━⬣\n`
                 catDoc += `💡 _Para ver detalhes e preview de um comando:_ \`${p}help .${categoryCmds[0]?.name || 'comando'}\``
 
                 const { getMenuMedia } = require('../../utils/wallpapers');

@@ -67,7 +67,7 @@ module.exports = {
         doc += `👑 *Classe Lendária:* *${lendariaAtual}*\n`;
         doc += `💰 *Saldo:* ${(user.coins || 0).toLocaleString('pt-BR')} Coins\n\n`;
 
-        doc += `╭━━━〔 🛡️ CLASSES BÁSICAS 〕━━━┈⊷\n`;
+        doc += `╭━〔 🛡️ CLASSES BÁSICAS 〕━⬣\n`;
         Object.entries(classes).forEach(([id, c]) => {
             const preco = precosClasses[id];
             const isAtual = user.classe === id;
@@ -79,15 +79,15 @@ module.exports = {
             }
             doc += `\n┃\n`;
         });
-        doc += `╰━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┈⊷\n\n`;
+        doc += `╰━━━━━━━━━━━━━━━━━━⬣\n\n`;
 
-        doc += `╭━━━〔 👑 CLASSES LENDÁRIAS 〕━━━┈⊷\n`;
+        doc += `╭━〔 👑 CLASSES LENDÁRIAS 〕━⬣\n`;
         Object.entries(classesLendarias).forEach(([id, l]) => {
             doc += `┃ ${l.nome}\n`;
             doc += `┃   📌 Req: ${l.requisito}\n`;
             doc += `┃   🌟 ${l.habilidade}\n┃\n`;
         });
-        doc += `╰━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┈⊷\n\n`;
+        doc += `╰━━━━━━━━━━━━━━━━━━⬣\n\n`;
 
         doc += `💡 _Comprar:_ \`.comprarclasse <id>\`\n`;
         doc += `💡 _Info:_ \`.classeshop info <id>\`\n`;

@@ -38,16 +38,16 @@ module.exports = {
                 inicio: Date.now()
             };
 
-            let doc = `┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓\n`;
-            doc += `┃   🏆 *FESTIVAL DE LUTA DE VAIZEL* 🏆   \n`;
-            doc += `┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛\n\n`;
+            let doc = `╔══════════════════════════════╗\n`;
+            doc += `║   🏆 *FESTIVAL DE LUTA DE VAIZEL* 🏆   \n`;
+            doc += `╚══════════════════════════════╝\n\n`;
             doc += `⚔️ *As trombetas ecoaram! Um grande torneio de artes marciais foi anunciado!*\n\n`;
-            doc += `╭━━━〔 📜 REGRAS DO FESTIVAL 〕━━━┈⊷\n`;
+            doc += `╭━〔 📜 REGRAS DO FESTIVAL 〕━⬣\n`;
             doc += `┃ 💰 *Premiação do Campeão:* **50.000 Coins** + Título de Campeão\n`;
             doc += `┃ 👥 *Mínimo de Lutadores:* 2 Guerreiros (Máx: 8)\n`;
             doc += `┃ 🥊 *Como Participar:* Digite \`.torneio entrar\`\n`;
             doc += `┃ ⚡ *Iniciar Lutas:* O criador pode digitar \`.torneio lutar\`\n`;
-            doc += `╰━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┈⊷\n\n`;
+            doc += `╰━━━━━━━━━━━━━━━━━━⬣\n\n`;
             doc += `👑 *${botName}*`;
 
             return reply(doc.trim(), [sender]);
@@ -91,17 +91,17 @@ module.exports = {
             campeaoUser.xp = (campeaoUser.xp || 0) + 15000;
             await dataService.saveXpData(xpData);
 
-            let doc = `┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓\n`;
-            doc += `┃   🏆 *GRANDE FINAL DE VAIZEL!* 🏆   \n`;
-            doc += `┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛\n\n`;
+            let doc = `╔══════════════════════════════╗\n`;
+            doc += `║   🏆 *GRANDE FINAL DE VAIZEL!* 🏆   \n`;
+            doc += `╚══════════════════════════════╝\n\n`;
             doc += `💥 *Após combates brutais nas semifinais e uma final inesquecível...*\n\n`;
             doc += `🥇 *GRANDE CAMPEÃO:* @${campeaoJid.split("@")[0]} 👑\n`;
             doc += `🥈 *Vice-Campeão:* @${viceJid.split("@")[0]}\n\n`;
-            doc += `╭━━━〔 🎁 PREMIAÇÃO CONCEDIDA 〕━━━┈⊷\n`;
+            doc += `╭━〔 🎁 PREMIAÇÃO CONCEDIDA 〕━⬣\n`;
             doc += `┃ 💰 *Prêmio Máximo:* +50.000 Coins\n`;
             doc += `┃ ⭐ *Experiência de Mestre:* +15.000 XP\n`;
             doc += `┃ 📜 *Título:* "🏆 Campeão de Vaizel"\n`;
-            doc += `╰━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┈⊷\n\n`;
+            doc += `╰━━━━━━━━━━━━━━━━━━⬣\n\n`;
             doc += `👑 *${botName}*`;
 
             activeTournament = null; // Reseta torneio
@@ -110,15 +110,15 @@ module.exports = {
         }
 
         // 4. GUIA DO TORNEIO
-        let doc = `┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓\n`;
-        doc += `┃   🏆 *FESTIVAL DE LUTA DE VAIZEL* 🏆   \n`;
-        doc += `┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛\n\n`;
-        doc += `╭━━━〔 📜 COMANDOS DO TORNEIO 〕━━━┈⊷\n`;
+        let doc = `╔══════════════════════════════╗\n`;
+        doc += `║   🏆 *FESTIVAL DE LUTA DE VAIZEL* 🏆   \n`;
+        doc += `╚══════════════════════════════╝\n\n`;
+        doc += `╭━〔 📜 COMANDOS DO TORNEIO 〕━⬣\n`;
         doc += `┃ • \`.torneio criar\` ➔ Abrir inscrições para o torneio\n`;
         doc += `┃ • \`.torneio entrar\` ➔ Inscrever-se na chave de lutas\n`;
         doc += `┃ • \`.torneio lutar\` ➔ Iniciar os confrontos e coroar o campeão\n`;
         doc += `┃ • \`.torneio status\` ➔ Ver lutadores inscritos\n`;
-        doc += `╰━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┈⊷\n\n`;
+        doc += `╰━━━━━━━━━━━━━━━━━━⬣\n\n`;
         doc += `👑 *${botName}*`;
 
         return reply(doc.trim(), [sender]);

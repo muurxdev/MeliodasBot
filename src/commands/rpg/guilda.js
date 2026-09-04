@@ -25,10 +25,10 @@ module.exports = {
 
         // 1. MENU PRINCIPAL DE AJUDA
         if (!acao || acao === 'ajuda' || acao === 'help') {
-            let doc = `┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓\n`;
-            doc += `┃   🏰 *SISTEMA DE GUILDAS & CLÃS* 🏰   \n`;
-            doc += `┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛\n\n`;
-            doc += `╭━━━〔 📜 COMANDOS DISPONÍVEIS 〕━━━┈⊷\n`;
+            let doc = `╔══════════════════════════════╗\n`;
+            doc += `║   🏰 *SISTEMA DE GUILDAS & CLÃS* 🏰   \n`;
+            doc += `╚══════════════════════════════╝\n\n`;
+            doc += `╭━〔 📜 COMANDOS DISPONÍVEIS 〕━⬣\n`;
             doc += `┃ • \`.guilda criar [nome]\` ➔ Criar uma nova guilda (500 coins)\n`;
             doc += `┃ • \`.guilda convidar @user\` ➔ Líder convida um guerreiro\n`;
             doc += `┃ • \`.guilda aceitar [nome]\` ➔ Aceitar convite de guilda\n`;
@@ -37,7 +37,7 @@ module.exports = {
             doc += `┃ • \`.guilda sair\` ➔ Sair da sua guilda atual\n`;
             doc += `┃ • \`.guilda info [nome]\` ➔ Ver detalhes e lista de membros\n`;
             doc += `┃ • \`.guilda lista\` ➔ Listar todas as guildas e seus membros\n`;
-            doc += `╰━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┈⊷\n\n`;
+            doc += `╰━━━━━━━━━━━━━━━━━━⬣\n\n`;
             doc += `👑 *${botName}*`;
             return reply(doc.trim(), [sender]);
         }
@@ -49,9 +49,9 @@ module.exports = {
                 return reply(`🏰 *Nenhuma guilda foi fundada ainda!*\n\n💡 _Seja o primeiro líder a fundar uma guilda com \`.guilda criar [nome]\`!_`);
             }
 
-            let doc = `┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓\n`;
-            doc += `┃   🏰 *CATÁLOGO GERAL DE GUILDAS* 🏰   \n`;
-            doc += `┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛\n\n`;
+            let doc = `╔══════════════════════════════╗\n`;
+            doc += `║   🏰 *CATÁLOGO GERAL DE GUILDAS* 🏰   \n`;
+            doc += `╚══════════════════════════════╝\n\n`;
             doc += `📊 *Total de Guildas Ativas:* ${guildNames.length}\n\n`;
 
             const mentions = [];
@@ -66,11 +66,11 @@ module.exports = {
                     return `@${m.split('@')[0]}`;
                 }).join(', ');
 
-                doc += `╭━━━〔 ${idx + 1}. 🛡️ *${gName}* 〕━━━┈⊷\n`;
+                doc += `╭━〔 ${idx + 1}. 🛡️ *${gName}* 〕━⬣\n`;
                 doc += `┃ 👑 *Líder:* @${liderJid.split('@')[0]}\n`;
                 doc += `┃ 📈 *Nível:* ${g.level || 1}  |  ⭐ *XP:* ${(g.xp || 0).toLocaleString('pt-BR')}\n`;
                 doc += `┃ 👥 *Membros (${(g.membros || []).length}):* ${membrosStr || 'Nenhum'}\n`;
-                doc += `╰━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┈⊷\n\n`;
+                doc += `╰━━━━━━━━━━━━━━━━━━⬣\n\n`;
             });
 
             doc += `👑 *${botName}*`;
@@ -245,20 +245,20 @@ module.exports = {
             const g = guilds[gName];
             const mentions = [g.dono, ...(g.membros || [])];
 
-            let doc = `┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓\n`;
-            doc += `┃   🏰 *DETALHES DA GUILDA* 🏰   \n`;
-            doc += `┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛\n\n`;
+            let doc = `╔══════════════════════════════╗\n`;
+            doc += `║   🏰 *DETALHES DA GUILDA* 🏰   \n`;
+            doc += `╚══════════════════════════════╝\n\n`;
             doc += `📛 *Nome:* ${gName}\n`;
             doc += `👑 *Líder:* @${g.dono.split('@')[0]}\n`;
             doc += `📈 *Nível:* ${g.level || 1}  |  ⭐ *XP Total:* ${(g.xp || 0).toLocaleString('pt-BR')}\n`;
             doc += `💰 *Cofre da Guilda:* ${(g.coins || 0).toLocaleString('pt-BR')} coins\n\n`;
 
-            doc += `╭━━━〔 👥 MEMBROS REGISTRADOS (${(g.membros || []).length}) 〕━━━┈⊷\n`;
+            doc += `╭━〔 👥 MEMBROS REGISTRADOS (${(g.membros || []).length}) 〕━⬣\n`;
             (g.membros || []).forEach((m, idx) => {
                 const isLeader = m === g.dono;
                 doc += `┃ ${idx + 1}. @${m.split('@')[0]} ${isLeader ? '👑 *(Líder)*' : '⚔️ *(Guerreiro)*'}\n`;
             });
-            doc += `╰━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┈⊷\n\n`;
+            doc += `╰━━━━━━━━━━━━━━━━━━⬣\n\n`;
             doc += `👑 *${botName}*`;
 
             return reply(doc.trim(), mentions);

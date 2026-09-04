@@ -115,19 +115,19 @@ module.exports = {
         }
 
         // 3. CATÁLOGO GERAL
-        let doc = `┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓\n`;
-        doc += `┃   🏪 *MERCADO CENTRAL DE BRITANNIA* 🏪   \n`;
-        doc += `┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛\n\n`;
+        let doc = `╔══════════════════════════════╗\n`;
+        doc += `║   🏪 *MERCADO CENTRAL DE BRITANNIA* 🏪   \n`;
+        doc += `╚══════════════════════════════╝\n\n`;
         doc += `👤 *Comprador:* @${sender.split("@")[0]}  |  🪙 *Saldo:* ${(user.coins || 0).toLocaleString("pt-BR")} Coins\n\n`;
 
-        doc += `╭━━━〔 🛒 ITENS & EQUIPAMENTOS À VENDA 〕━━━┈⊷\n`;
+        doc += `╭━〔 🛒 ITENS & EQUIPAMENTOS À VENDA 〕━⬣\n`;
         MARKET_STOCK.forEach(it => {
             doc += `┃ ${it.nome} [${it.tipo}]\n`;
             doc += `┃    📜 *Descrição:* ${it.desc}\n`;
             doc += `┃    💰 *Preço:* ${it.preco.toLocaleString("pt-BR")} Coins  (ID: \`${it.id}\`)\n`;
             doc += `┃    👉 *Comprar:* \`.mercado comprar ${it.id}\`\n┃\n`;
         });
-        doc += `╰━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┈⊷\n\n`;
+        doc += `╰━━━━━━━━━━━━━━━━━━⬣\n\n`;
 
         doc += `💡 _Para vender itens de caça ou mobs:_ \`.mercado vender <item>\`\n`;
         doc += `👑 *${botName}*`;

@@ -24,17 +24,17 @@ module.exports = {
         const mult = (2.5 + Math.random() * 1.5).toFixed(1);
         const danoRefletido = Math.floor(stats.atk * parseFloat(mult));
 
-        let doc = `┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓\n`;
-        doc += `┃   ⚡ *FULL COUNTER ATIVADO!* ⚡   \n`;
-        doc += `┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛\n\n`;
+        let doc = `╔══════════════════════════════╗\n`;
+        doc += `║   ⚡ *FULL COUNTER ATIVADO!* ⚡   \n`;
+        doc += `╚══════════════════════════════╝\n\n`;
         doc += `⚔️ *Meliodas empunha a Lostvayne e assume a postura de reflexão mágica absoluta!*\n\n`;
-        doc += `╭━━━〔 💥 REFLEXÃO MÁGICA 〕━━━┈⊷\n`;
+        doc += `╭━〔 💥 REFLEXÃO MÁGICA 〕━⬣\n`;
         doc += `┃ 👤 *Guerreiro:* @${sender.split("@")[0]}\n`;
         doc += `┃ 🗡️ *Técnica:* Full Counter (全反撃)\n`;
         doc += `┃ 📈 *Multiplicador de Reflexão:* **${mult}x**\n`;
         doc += `┃ 💥 *Dano Mágico Refletido:* **-${danoRefletido.toLocaleString("pt-BR")} HP**\n`;
         doc += `┃ 🛡️ *Efeito:* Absorve 100% da magia ofensiva e devolve com o dobro de força!\n`;
-        doc += `╰━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┈⊷\n\n`;
+        doc += `╰━━━━━━━━━━━━━━━━━━⬣\n\n`;
         doc += `💡 _Use \`.fullcounter\` em combate contra chefes de raid e na arena para virar o rumo da batalha!_\n`;
         doc += `👑 *${botName}*`;
 

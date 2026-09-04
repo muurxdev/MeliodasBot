@@ -96,13 +96,13 @@ module.exports = {
                 doc += `╰━━━━━━━━━━━━━━━━━━⬣\n\n`
             }
 
-            doc += `╭━〔 🎒 PETS POSSEÍDOS (${owned.length}) 〕━━━┈⊷\n`
+            doc += `╭━〔 🎒 PETS POSSEÍDOS (${owned.length}) 〕━⬣\n`
             owned.forEach(p => {
                 const pData = PETS[p] || PETS[p.name] || {}
                 const isEquipped = (equipped && (equipped.name === p || equipped.name === p.name))
                 doc += `┃ ${pData.nome || p} ${isEquipped ? '✅ *(Equipado)*' : ''}\n`
             })
-            doc += '╰━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┈⊷\n\n'
+            doc += '╰━━━━━━━━━━━━━━━━━━⬣\n\n'
             doc += '💡 _Equipar:_ \`.petshop equipar <nome>\`'
 
             return reply(doc.trim(), [sender])

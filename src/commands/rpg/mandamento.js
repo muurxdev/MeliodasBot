@@ -26,17 +26,17 @@ module.exports = {
         const xpData = dataService.getXpData();
         const user = initializeUser(sender, xpData);
 
-        let doc = `┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓\n`;
-        doc += `┃   🌑 *OS DEZ MANDAMENTOS DO PURGATÓRIO* 🌑   \n`;
-        doc += `┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛\n\n`;
+        let doc = `╔══════════════════════════════╗\n`;
+        doc += `║   🌑 *OS DEZ MANDAMENTOS DO PURGATÓRIO* 🌑   \n`;
+        doc += `╚══════════════════════════════╝\n\n`;
         doc += `🔥 *Fragmentos do poder absoluto divididos pelo Rei Demônio aos guerreiros de elite.*\n\n`;
 
         MANDAMENTOS.forEach((m) => {
-            doc += `╭━━━〔 ${m.nome} 〕━━━┈⊷\n`;
+            doc += `╭━〔 ${m.nome} 〕━⬣\n`;
             doc += `┃ 👤 *Portador de Elite:* ${m.portador}\n`;
             doc += `┃ 📜 *Maldição:* _${m.efeito}_\n`;
             doc += `┃ 💥 *Bônus em Combate:* ${m.bonus}\n`;
-            doc += `╰━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┈⊷\n\n`;
+            doc += `╰━━━━━━━━━━━━━━━━━━⬣\n\n`;
         });
 
         doc += `💡 _Para invocar entidades demoníacas em combate, digite \`.invocardemonio\` ou enfrente o pesadelo com \`.pesadelo\`!_\n`;

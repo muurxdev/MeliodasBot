@@ -64,7 +64,7 @@ module.exports = {
                 doc += '❌ Você não possui nenhuma skill desbloqueada!\n'
                 doc += '💡 _Desbloqueie com_ \`.arvorehabilidades\`'
             } else {
-                doc += '╭━━━〔 📋 SKILLS 〕━━━┈⊷\n'
+                doc += '╭━〔 📋 SKILLS 〕━⬣\n'
                 Object.entries(SKILL_EFFECTS).forEach(([key, s]) => {
                     const has = (user.skills || []).includes(key)
                     if (has) {
@@ -73,7 +73,7 @@ module.exports = {
                         doc += `┃ ─────────────────\n`
                     }
                 })
-                doc += '╰━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┈⊷\n\n'
+                doc += '╰━━━━━━━━━━━━━━━━━━⬣\n\n'
                 doc += '💡 _Use_ \`.habilidade <nome>\` _durante uma batalha!_'
             }
 

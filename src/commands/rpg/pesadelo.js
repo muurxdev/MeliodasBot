@@ -29,21 +29,21 @@ module.exports = {
         const sub = (args[0] || '').toLowerCase();
 
         if (sub === 'info' || sub === 'regras' || (!sub && user.level < 10)) {
-            let doc = `┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓\n`;
-            doc += `┃   🌑 *MODO PESADELO DO PURGATÓRIO* 🌑\n`;
-            doc += `┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛\n\n`;
+            let doc = `╔══════════════════════════════╗\n`;
+            doc += `║   🌑 *MODO PESADELO DO PURGATÓRIO* 🌑\n`;
+            doc += `╚══════════════════════════════╝\n\n`;
             doc += `⚠️ *AVISO:* O Modo Pesadelo é uma arena de alta dificuldade recomendada para guerreiros experientes (Nível 10+).\n\n`;
-            doc += `╭━━━〔 📜 REGRAS DO PESADELO 〕━━━┈⊷\n`;
+            doc += `╭━〔 📜 REGRAS DO PESADELO 〕━⬣\n`;
             doc += `┃ ⚔️ Inimigos possuem 3x mais vida e ataque.\n`;
             doc += `┃ 🎁 Vitórias concedem 3x mais XP, Coins e Drops Míticos.\n`;
             doc += `┃ 💀 Em caso de derrota, você perde 50% do seu HP atual.\n`;
-            doc += `╰━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┈⊷\n\n`;
-            doc += `╭━━━〔 👹 CHEFES DO PESADELO 〕━━━┈⊷\n`;
+            doc += `╰━━━━━━━━━━━━━━━━━━⬣\n\n`;
+            doc += `╭━〔 👹 CHEFES DO PESADELO 〕━⬣\n`;
             NIGHTMARE_BOSSES.forEach((b, i) => {
                 doc += `┃ ${i + 1}. *${b.name}* (Nível Mínimo: ${b.minLevel})\n`;
                 doc += `┃    ❤️ HP: ${b.hp.toLocaleString('pt-BR')} | 💥 Recompensa: +${b.xp.toLocaleString('pt-BR')} XP\n`;
             });
-            doc += `╰━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┈⊷\n\n`;
+            doc += `╰━━━━━━━━━━━━━━━━━━⬣\n\n`;
             doc += `💡 _Para entrar na batalha agora:_ \`.pesadelo entrar\`\n`;
             doc += `👑 *${botName}*`;
             return reply(doc.trim(), [sender]);
@@ -81,9 +81,9 @@ module.exports = {
 
         if (!venceu) {
             await dataService.saveXpData(xpData);
-            let failDoc = `┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓\n`;
-            failDoc += `┃   💀 *DERROTADO NO PESADELO* 💀\n`;
-            failDoc += `┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛\n\n`;
+            let failDoc = `╔══════════════════════════════╗\n`;
+            failDoc += `║   💀 *DERROTADO NO PESADELO* 💀\n`;
+            failDoc += `╚══════════════════════════════╝\n\n`;
             failDoc += `👹 *Oponente:* ${boss.name}\n`;
             failDoc += `💥 *Dano Causado:* -${danoTotalPlayer.toLocaleString('pt-BR')} HP\n`;
             failDoc += `💔 *Dano Sofrido:* -${danoTotalBoss.toLocaleString('pt-BR')} HP (Seu HP restante: ${user.hp}/${stats.hpMax})\n\n`;
@@ -101,17 +101,17 @@ module.exports = {
         }
         await dataService.saveXpData(xpData);
 
-        let winDoc = `┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓\n`;
-        winDoc += `┃   🏆 *PESADELO CONQUISTADO!* 🏆\n`;
-        winDoc += `┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛\n\n`;
+        let winDoc = `╔══════════════════════════════╗\n`;
+        winDoc += `║   🏆 *PESADELO CONQUISTADO!* 🏆\n`;
+        winDoc += `╚══════════════════════════════╝\n\n`;
         winDoc += `👤 *Campeão:* @${sender.split('@')[0]}\n`;
         winDoc += `👹 *Chefe Eliminado:* ${boss.name}\n`;
         winDoc += `💥 *Dano Desferido:* -${danoTotalPlayer.toLocaleString('pt-BR')} HP em ${turnos} turnos\n\n`;
-        winDoc += `╭━━━〔 🎁 RECOMPENSAS TRIPLAS (3x) 〕━━━┈⊷\n`;
+        winDoc += `╭━〔 🎁 RECOMPENSAS TRIPLAS (3x) 〕━⬣\n`;
         winDoc += `┃ ⭐ *XP Ganho:* +${boss.xp.toLocaleString('pt-BR')} XP\n`;
         winDoc += `┃ 💰 *Coins Coletados:* +${boss.coins.toLocaleString('pt-BR')} Coins\n`;
         winDoc += `┃ 🔮 *Drop Raro do Purgatório:* ${boss.drop}\n`;
-        winDoc += `╰━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┈⊷\n\n`;
+        winDoc += `╰━━━━━━━━━━━━━━━━━━⬣\n\n`;
         winDoc += `👑 *${botName}*`;
         return reply(winDoc.trim(), [sender]);
     }

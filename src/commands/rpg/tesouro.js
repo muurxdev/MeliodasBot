@@ -24,16 +24,16 @@ module.exports = {
     execute: async ({ sender, reply }) => {
         const botName = getBotName();
 
-        let doc = `┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓\n`;
-        doc += `┃   👑 *OS 7 TESOUROS SAGRADOS DE BRITANNIA* 👑   \n`;
-        doc += `┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛\n\n`;
+        let doc = `╔══════════════════════════════╗\n`;
+        doc += `║   👑 *OS 7 TESOUROS SAGRADOS DE BRITANNIA* 👑   \n`;
+        doc += `╚══════════════════════════════╝\n\n`;
         doc += `✨ *Armas forjadas pelo Rei Demônio e Rei das Fadas para liberar o potencial máximo dos Pecados Capitais.*\n\n`;
 
         SACRED_TREASURES.forEach((t) => {
-            doc += `╭━━━〔 ${t.nome} 〕━━━┈⊷\n`;
+            doc += `╭━〔 ${t.nome} 〕━⬣\n`;
             doc += `┃ 👤 *Portador Original:* ${t.dono}\n`;
             doc += `┃ 📜 *Habilidade Oculta:* _${t.poder}_\n`;
-            doc += `╰━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┈⊷\n\n`;
+            doc += `╰━━━━━━━━━━━━━━━━━━⬣\n\n`;
         });
 
         doc += `💡 _Para liberar o poder de Meliodas, digite \`.lostvayne\` ou veja seus equipamentos com \`.inv\`!_\n`;

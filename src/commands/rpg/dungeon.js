@@ -37,12 +37,12 @@ module.exports = {
 
         // 1. LISTA DE ANDARES / INFO
         if (sub === "lista" || sub === "andares" || sub === "info") {
-            let doc = `┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓\n`;
-            doc += `┃   🏰 *MASMORRA DE BRITANNIA — ANDARES* 🏰   \n`;
-            doc += `┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛\n\n`;
+            let doc = `╔══════════════════════════════╗\n`;
+            doc += `║   🏰 *MASMORRA DE BRITANNIA — ANDARES* 🏰   \n`;
+            doc += `╚══════════════════════════════╝\n\n`;
             doc += `👤 *Guerreiro:* @${sender.split("@")[0]}  |  ⚡ *CP:* ${stats.cp} CP\n\n`;
 
-            doc += `╭━━━〔 🏛️ ANDARES DA MASMORRA 〕━━━┈⊷\n`;
+            doc += `╭━〔 🏛️ ANDARES DA MASMORRA 〕━⬣\n`;
             DUNGEON_FLOORS.forEach(f => {
                 const canEnter = (user.level || 1) >= f.minLevel;
                 const icon = canEnter ? "🟢" : "🔒";
@@ -50,7 +50,7 @@ module.exports = {
                 doc += `┃    📌 Requer Nível ${f.minLevel} (${f.reqCp} CP) | 💰 +${f.coins.toLocaleString("pt-BR")} Coins | ⭐ +${f.xp.toLocaleString("pt-BR")} XP\n`;
                 doc += `┃    🎁 Drop: ${f.drop}\n┃\n`;
             });
-            doc += `╰━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┈⊷\n\n`;
+            doc += `╰━━━━━━━━━━━━━━━━━━⬣\n\n`;
             doc += `💡 _Para explorar o andar mais avançado liberado para você:_ \`.dungeon\`\n`;
             doc += `👑 *${botName}*`;
             return reply(doc.trim(), [sender]);
@@ -70,9 +70,9 @@ module.exports = {
             user.hp = Math.max(1, (user.hp || stats.hpMax) - hpLoss);
             await dataService.saveXpData(xpData);
 
-            let failDoc = `┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓\n`;
-            failDoc += `┃   ☠️ *DERROTADO NA MASMORRA!* ☠️   \n`;
-            failDoc += `┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛\n\n`;
+            let failDoc = `╔══════════════════════════════╗\n`;
+            failDoc += `║   ☠️ *DERROTADO NA MASMORRA!* ☠️   \n`;
+            failDoc += `╚══════════════════════════════╝\n\n`;
             failDoc += `🏰 *Andar:* Andar ${currentFloor.andar} — ${currentFloor.nome}\n`;
             failDoc += `💥 *Resultado:* Você foi encurralado pelos monstros do calabouço!\n`;
             failDoc += `💔 *Dano Sofrido:* -${hpLoss} HP (Seu HP: ${user.hp}/${stats.hpMax})\n\n`;
@@ -95,13 +95,13 @@ module.exports = {
 
         await dataService.saveXpData(xpData);
 
-        let winDoc = `┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓\n`;
-        winDoc += `┃   🏆 *ANDAR DA MASMORRA CONQUISTADO!* 🏆   \n`;
-        winDoc += `┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛\n\n`;
+        let winDoc = `╔══════════════════════════════╗\n`;
+        winDoc += `║   🏆 *ANDAR DA MASMORRA CONQUISTADO!* 🏆   \n`;
+        winDoc += `╚══════════════════════════════╝\n\n`;
         winDoc += `🏰 *Andar:* **Andar ${currentFloor.andar} — ${currentFloor.nome}**\n`;
         winDoc += `👤 *Guerreiro:* @${sender.split("@")[0]}\n\n`;
 
-        winDoc += `╭━━━〔 🎁 RECOMPENSAS DO CALABOUÇO 〕━━━┈⊷\n`;
+        winDoc += `╭━〔 🎁 RECOMPENSAS DO CALABOUÇO 〕━⬣\n`;
         winDoc += `┃ ⭐ *XP Ganho:* +${currentFloor.xp.toLocaleString("pt-BR")} XP\n`;
         winDoc += `┃ 💰 *Coins Coletados:* +${currentFloor.coins.toLocaleString("pt-BR")} Coins\n`;
         if (dropGanho) {
@@ -109,7 +109,7 @@ module.exports = {
         } else {
             winDoc += `┃ ⚠️ *Mochila Cheia:* Drop não pôde ser guardado. Aumente com \`.mochila up\`!\n`;
         }
-        winDoc += `╰━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┈⊷\n\n`;
+        winDoc += `╰━━━━━━━━━━━━━━━━━━⬣\n\n`;
         winDoc += `👑 *${botName}*`;
 
         return reply(winDoc.trim(), [sender]);

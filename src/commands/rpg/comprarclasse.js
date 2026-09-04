@@ -41,9 +41,9 @@ module.exports = {
                 `║   ⚔️ *ESCOLHA SUA CLASSE* ⚔️   ║\n` +
                 `╚══════════════════════════════╝\n\n` +
                 `💰 *Seu Saldo:* ${(precosClasses[0] || 0).toLocaleString('pt-BR')} Coins\n\n` +
-                `╭━━━〔 🛡️ CLASSES DISPONÍVEIS 〕━━━┈⊷\n` +
+                `╭━〔 🛡️ CLASSES DISPONÍVEIS 〕━⬣\n` +
                 lista + '\n' +
-                `╰━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┈⊷\n\n` +
+                `╰━━━━━━━━━━━━━━━━━━⬣\n\n` +
                 `💡 _Exemplo:_ \`.comprarclasse guerreiro\`\n` +
                 `👑 *${botName}*`
             )

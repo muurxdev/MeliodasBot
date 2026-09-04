@@ -65,15 +65,15 @@ module.exports = {
         const lootMobs = inventario.filter(i => itemMatchesFilter(i, mobFilters));
         const outrosItens = inventario.filter(i => !lootBoss.includes(i) && !lootMobs.includes(i));
 
-        let doc = `┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓\n`;
-        doc += `┃   📦 *INVENTÁRIO DO GUERREIRO* 📦   \n`;
-        doc += `┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛\n\n`;
+        let doc = `╔══════════════════════════════╗\n`;
+        doc += `║   📦 *INVENTÁRIO DO GUERREIRO* 📦   \n`;
+        doc += `╚══════════════════════════════╝\n\n`;
         doc += `👤 *Guerreiro:* @${sender.split('@')[0]}\n`;
         doc += `⚡ *Poder de Combate (CP):* **${stats.cp.toLocaleString('pt-BR')} CP**\n`;
         doc += `🎒 *Capacidade da Mochila:* **${inventario.length} / ${limiteMochila} espaços**\n`;
         doc += `🪙 *Saldo Atual:* ${(user.coins || 0).toLocaleString('pt-BR')} Coins\n\n`;
 
-        doc += `╭━━━〔 🛡️ SLOTS DE EQUIPAMENTOS ATIVOS 〕━━━┈⊷\n`;
+        doc += `╭━〔 🛡️ SLOTS DE EQUIPAMENTOS ATIVOS 〕━⬣\n`;
         doc += `┃ 👑 *Cabeça:* ${helmStr}\n`;
         doc += `┃ 🛡️ *Tronco:* ${chestStr}\n`;
         doc += `┃ 👖 *Pernas:* ${pantsStr}\n`;
@@ -81,27 +81,27 @@ module.exports = {
         doc += `┃ 🗡️ *Arma Principal:* ${weaponStr} (+${user.forgeLevel || 0} Forja)\n`;
         doc += `┃ 🛡️ *Mão Secundária:* ${shieldStr}\n`;
         doc += `┃ 💍 *Amuleto:* ${amuletStr}\n`;
-        doc += `╰━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┈⊷\n\n`;
+        doc += `╰━━━━━━━━━━━━━━━━━━⬣\n\n`;
 
-        doc += `╭━━━〔 🎒 ITENS & CONSUMÍVEIS NA MOCHILA 〕━━━┈⊷\n`;
+        doc += `╭━〔 🎒 ITENS & CONSUMÍVEIS NA MOCHILA 〕━⬣\n`;
         if (outrosItens.length > 0) {
             outrosItens.forEach(i => { doc += `┃ • ${itemDisplayName(i)}\n`; });
         } else {
             doc += `┃ _Nenhum consumível no momento._\n`;
         }
-        doc += `╰━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┈⊷\n\n`;
+        doc += `╰━━━━━━━━━━━━━━━━━━⬣\n\n`;
 
         if (lootBoss.length > 0) {
-            doc += `╭━━━〔 🐉 LOOTS DE BOSSES 〕━━━┈⊷\n`;
+            doc += `╭━〔 🐉 LOOTS DE BOSSES 〕━⬣\n`;
             lootBoss.forEach(i => { doc += `┃ • ${itemDisplayName(i)}\n`; });
-            doc += `╰━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┈⊷\n\n`;
+            doc += `╰━━━━━━━━━━━━━━━━━━⬣\n\n`;
         }
 
         if (lootMobs.length > 0) {
-            doc += `╭━━━〔 👾 MATERIAIS & DROPS DE MOBS 〕━━━┈⊷\n`;
+            doc += `╭━〔 👾 MATERIAIS & DROPS DE MOBS 〕━⬣\n`;
             lootMobs.slice(0, 8).forEach(i => { doc += `┃ • ${itemDisplayName(i)}\n`; });
             if (lootMobs.length > 8) doc += `┃ _...e mais ${lootMobs.length - 8} itens._\n`;
-            doc += `╰━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┈⊷\n\n`;
+            doc += `╰━━━━━━━━━━━━━━━━━━⬣\n\n`;
         }
 
         doc += `💡 _Para equipar:_ \`.equipar <nome>\` | _Para guardar no baú:_ \`.bau guardar <item>\`\n`;

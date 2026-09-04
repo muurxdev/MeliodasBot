@@ -25,18 +25,18 @@ module.exports = {
         const xpData = dataService.getXpData();
         const user = initializeUser(sender, xpData);
 
-        let doc = `┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓\n`;
-        doc += `┃   🪽 *SANTUÁRIO DOS QUATRO ARCANJOS* 🪽   \n`;
-        doc += `┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛\n\n`;
+        let doc = `╔══════════════════════════════╗\n`;
+        doc += `║   🪽 *SANTUÁRIO DOS QUATRO ARCANJOS* 🪽   \n`;
+        doc += `╚══════════════════════════════╝\n\n`;
         doc += `✨ *Bênçãos Supremas concedidas pela Suprema Divindade aos Quatro Guerreiros Celestiais.*\n\n`;
 
         ARCANJOS.forEach((arc, i) => {
-            doc += `╭━━━〔 ${arc.nome} 〕━━━┈⊷\n`;
+            doc += `╭━〔 ${arc.nome} 〕━⬣\n`;
             doc += `┃ 🎖️ *Arcanjo Guardião:* ${arc.lider}\n`;
             doc += `┃ 📜 *Efeito Sagrado:* ${arc.bonus}\n`;
             doc += `┃ 📌 *Requisito:* ${arc.req}\n`;
             doc += `┃ 📖 _"${arc.desc}"_\n`;
-            doc += `╰━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┈⊷\n\n`;
+            doc += `╰━━━━━━━━━━━━━━━━━━⬣\n\n`;
         });
 
         doc += `💡 _Para invocar os guerreiros celestiais em batalha, use \`.invocaranjo\` ou busque bênçãos com \`.bencao\`!_\n`;

@@ -50,7 +50,7 @@ module.exports = {
             doc += `❤️ ${Math.max(0, raid.hp).toLocaleString('pt-BR')} / ${raid.hpMax.toLocaleString('pt-BR')} HP\n\n`
 
             const participantes = Object.entries(raid.dano || {}).sort((a, b) => b[1] - a[1])
-            doc += '╭━━━〔 ⚔️ RANKING 〕━━━┈⊷\n'
+            doc += '╭━〔 ⚔️ RANKING 〕━⬣\n'
             if (participantes.length > 0) {
                 participantes.slice(0, 10).forEach(([pUser, dmg], i) => {
                     const medal = i === 0 ? '🥇' : i === 1 ? '🥈' : i === 2 ? '🥉' : '🎖️'
@@ -59,7 +59,7 @@ module.exports = {
             } else {
                 doc += '┃ ▫️ Nenhum ataque ainda.\n'
             }
-            doc += '╰━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┈⊷\n\n'
+            doc += '╰━━━━━━━━━━━━━━━━━━⬣\n\n'
             doc += '💡 _Ataque:_ \`.raidevento atk\`'
 
             const mentions = participantes.map(p => p[0])
@@ -206,13 +206,13 @@ async function handleVictory(sender, user, raid, xpData, bossData, eventKey, rep
     doc += `💰 *Recompensa por Jogador:* ${formatCoins(coinsPorJogador)}\n`
     doc += `⭐ *XP por Jogador:* ${xpPorJogador} XP\n\n`
 
-    doc += '╭━━━〔 🏅 PARTICIPANTES 〕━━━┈⊷\n'
+    doc += '╭━〔 🏅 PARTICIPANTES 〕━⬣\n'
     participantes.forEach((pUser, i) => {
         const dmg = (raid.dano || {})[pUser] || 0
         const medal = i === 0 ? '🥇' : i === 1 ? '🥈' : i === 2 ? '🥉' : '🎖️'
         doc += `┃ ${medal} @${pUser.split('@')[0]} — *${dmg.toLocaleString('pt-BR')} dmg*\n`
     })
-    doc += '╰━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┈⊷\n\n'
+    doc += '╰━━━━━━━━━━━━━━━━━━⬣\n\n'
     doc += '🎁 _Itens raros sorteados entre os participantes!_'
 
     return reply(doc.trim(), participantes)

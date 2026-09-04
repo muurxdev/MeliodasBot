@@ -46,23 +46,23 @@ module.exports = {
             return reply(`🔨 *LANCE REGISTRADO NO LEILÃO!*\n\n📦 *Lote:* ${lot.nome}\n👤 *Licitante:* @${sender.split("@")[0]}\n💰 *Valor do Lance:* **${valorLance.toLocaleString("pt-BR")} Coins**\n⏳ *Status:* O martelo baterá ao término da rodada!`, [sender]);
         }
 
-        let doc = `┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓\n`;
-        doc += `┃   🏛️ *CASA DE LEILÕES DE BRITANNIA* 🏛️   \n`;
-        doc += `┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛\n\n`;
+        let doc = `╔══════════════════════════════╗\n`;
+        doc += `║   🏛️ *CASA DE LEILÕES DE BRITANNIA* 🏛️   \n`;
+        doc += `╚══════════════════════════════╝\n\n`;
         doc += `✨ *Itens Míticos e Relíquias Divinas leiloadas periodicamente.*\n\n`;
 
-        doc += `╭━━━〔 📦 LOTE ATUAL EM LEILÃO 〕━━━┈⊷\n`;
+        doc += `╭━〔 📦 LOTE ATUAL EM LEILÃO 〕━⬣\n`;
         doc += `┃ 🏆 *Item:* **${lot.nome}**\n`;
         doc += `┃ 👑 *Origem:* ${lot.donoOriginal}\n`;
         doc += `┃ 💰 *Lance Inicial Mínimo:* ${lot.lanceMinimo.toLocaleString("pt-BR")} Coins\n`;
         doc += `┃ 🔨 *Como ofertar:* \`.leilao lance <valor>\`\n`;
-        doc += `╰━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┈⊷\n\n`;
+        doc += `╰━━━━━━━━━━━━━━━━━━⬣\n\n`;
 
-        doc += `╭━━━〔 📜 PRÓXIMOS LOTES DA CASA 〕━━━┈⊷\n`;
+        doc += `╭━〔 📜 PRÓXIMOS LOTES DA CASA 〕━⬣\n`;
         AUCTION_LOTS.slice(1).forEach((l, i) => {
             doc += `┃ ${i + 2}. ${l.nome} (Mín: ${l.lanceMinimo.toLocaleString("pt-BR")} Coins)\n`;
         });
-        doc += `╰━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┈⊷\n\n`;
+        doc += `╰━━━━━━━━━━━━━━━━━━⬣\n\n`;
 
         doc += `👑 *${botName}*`;
         return reply(doc.trim(), [sender]);
