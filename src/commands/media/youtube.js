@@ -40,7 +40,7 @@ module.exports = {
         const initialCard = formatDownloadProgressCard({
             platform: platformName,
             isAudio,
-            quality: isAudio ? null : '1080p Full HD'
+            quality: isAudio ? null : 'Máxima disponível'
         })
         await reply(initialCard)
 

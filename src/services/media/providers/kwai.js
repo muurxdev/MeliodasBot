@@ -64,16 +64,39 @@ async function downloadKwaiVideo(rawInput) {
     const finalUrl = res.url || cleanUrl;
 
     let videoUrl = null;
-    const ogVideo = html.match(/<meta[^>]*property=["']og:video["'][^>]*content=["']([^"']+\.mp4[^"']*)["']/i)
-        || html.match(/<meta[^>]*content=["']([^"']+\.mp4[^"']*)["'][^>]*property=["']og:video["']/i);
-    
-    if (ogVideo) {
-        videoUrl = ogVideo[1];
-    } else {
-        const mp4Matches = html.match(/https?:\/\/[^\s"'<>]+\.mp4[^\s"'<>]*/gi);
-        if (mp4Matches && mp4Matches.length > 0) {
-            videoUrl = mp4Matches[0].replace(/\\u002F/g, '/').replace(/\\/g, '');
-        }
+
+    // Busca TODOS os links .mp4 no HTML e ordena por qualidade (maior primeiro)
+    const allMp4Matches = html.match(/https?:\/\/[^\s"'<>\\]+\.mp4[^\s"'<>\\]*/gi) || [];
+    const cleanedUrls = allMp4Matches.map(u => u.replace(/\\u002F/g, '/').replace(/\\/g, ''));
+
+    if (cleanedUrls.length > 0) {
+        // Scora cada URL por resolução/qualidade aparente
+        const scored = cleanedUrls.map(u => {
+            let score = 0;
+            const lower = u.toLowerCase();
+            // URLs com /expmp4/ ou /originals/ são as de maior qualidade
+            if (/expmp4|originals|\/video\/\d+p/.test(lower)) score += 1000;
+            // Padrões de resolução na URL
+            if (/1080p|1080/i.test(lower)) score += 500;
+            if (/720p|720/i.test(lower)) score += 300;
+            if (/540p|540/i.test(lower)) score += 100;
+            if (/480p|480/i.test(lower)) score += 50;
+            // URLs maiores tendem a ser de melhor qualidade
+            if (lower.includes('v1')) score += 10;
+            if (lower.includes('v2')) score += 20;
+            // Penaliza previews e thumbnails
+            if (/thumb|preview|poster|_s\./i.test(lower)) score -= 500;
+            return { url: u, score };
+        }).sort((a, b) => b.score - a.score);
+
+        videoUrl = scored[0].url;
+    }
+
+    // Fallback: og:video (pode ser preview de baixa qualidade)
+    if (!videoUrl) {
+        const ogVideo = html.match(/<meta[^>]*property=["']og:video["'][^>]*content=["']([^"']+\.mp4[^"']*)["']/i)
+            || html.match(/<meta[^>]*content=["']([^"']+\.mp4[^"']*)["'][^>]*property=["']og:video["']/i);
+        if (ogVideo) videoUrl = ogVideo[1];
     }
 
     let thumbnail = null;

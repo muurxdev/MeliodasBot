@@ -100,7 +100,7 @@ async function tryCobalt(videoId, format) {
     const url = `https://www.youtube.com/watch?v=${videoId}`;
     const body = JSON.stringify({
         url,
-        videoQuality: format === "mp3" ? "144" : "1080",
+        videoQuality: format === "mp3" ? "144" : "2160",
         audioFormat: format === "mp3" ? "mp3" : "best",
         downloadMode: format === "mp3" ? "audio" : "auto",
         youtubeVideoCodec: "h264"
@@ -170,7 +170,7 @@ async function tryYt1s(videoId, format) {
  */
 async function tryLoaderTo(videoId, format) {
     const standardUrl = `https://www.youtube.com/watch?v=${videoId}`;
-    const targetFmt = format === "mp3" ? "mp3" : "720";
+    const targetFmt = format === "mp3" ? "mp3" : "1080";
     try {
         const initUrl = `https://loader.to/ajax/download.php?button=1&start=1&end=1&format=${targetFmt}&url=${encodeURIComponent(standardUrl)}`;
         const initRes = await fetch(initUrl, { signal: AbortSignal.timeout(8000) });
