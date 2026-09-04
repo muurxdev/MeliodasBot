@@ -136,7 +136,7 @@ module.exports = {
                 } catch (_) {}
             }
 
-            // 4. Envia o arquivo de áudio MP3 (320 kbps Master)
+            // 4. Envia o arquivo de áudio MP3
             if (fs.existsSync(mediaData.filePath)) {
                 const audioBuffer = fs.readFileSync(mediaData.filePath)
 

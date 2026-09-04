@@ -126,7 +126,7 @@ const COMMAND_HELP_EXTRAS = {
         usage: '.youtube <link|busca> [--mp3]',
         examples: [
             '.youtube https://youtu.be/cBpUZJ0qxqs — Baixa vídeo em MP4 HD',
-            '.youtube https://youtu.be/cBpUZJ0qxqs --mp3 — Baixa áudio MP3 320k',
+            '.youtube https://youtu.be/cBpUZJ0qxqs --mp3 — Baixa áudio em MP3',
             '.youtube Linkin Park Numb — Pesquisa e baixa vídeo'
         ],
         variables: ['Compatível com WhatsApp Mobile e Web até 2GB']

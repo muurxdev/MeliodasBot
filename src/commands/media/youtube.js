@@ -26,7 +26,7 @@ module.exports = {
                 '❌ *Informe o link ou nome do vídeo do YouTube!*\n\n' +
                 '📌 *Exemplos:*\n' +
                 '• `.youtube https://youtu.be/cBpUZJ0qxqs` → Baixa vídeo MP4 HD\n' +
-                '• `.youtube https://youtu.be/cBpUZJ0qxqs --mp3` → Baixa áudio MP3 320k\n' +
+                '• `.youtube https://youtu.be/cBpUZJ0qxqs --mp3` → Baixa áudio em MP3\n' +
                 '• `.youtube Nanatsu no Taizai AMV` → Pesquisa e baixa vídeo HD'
             )
         }

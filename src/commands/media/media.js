@@ -412,7 +412,7 @@ module.exports = {
             }
         }
 
-        // 7. ÁUDIO MP3 DE ALTA FIDELIDADE (320 kbps)
+        // 7. ÁUDIO MP3 DE ALTA FIDELIDADE
         const { formatDownloadProgressCard } = require("../../services/media/formatResolver");
         const initialAudioCard = formatDownloadProgressCard({
             platform: platformName,

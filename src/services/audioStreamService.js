@@ -1,6 +1,6 @@
 /**
  * Audio Stream & High Fidelity Audio Service
- * Download e extração de áudios em MP3 320 kbps Master Studio sem distorção ou slow
+ * Download e extração de áudios em MP3 de alta fidelidade, sem distorção ou slow
  */
 
 const play = require("play-dl");
@@ -32,7 +32,7 @@ async function initSoundCloud() {
 }
 
 /**
- * Converte stream de áudio para MP3 320 kbps via ffmpeg
+ * Converte stream de áudio para MP3 via ffmpeg
  */
 function streamToMp3(inputStream, outputPath) {
     return new Promise((resolve, reject) => {
@@ -228,7 +228,7 @@ function downloadDirectYtDlpAudio(targetUrl, outputPath) {
 }
 
 /**
- * Pesquisa e baixa áudio de alta fidelidade convertido para MP3 320 kbps Studio Master
+ * Pesquisa e baixa áudio de alta fidelidade convertido para MP3
  * @param {string} query - Nome da música ou URL direta
  * @returns {Promise<object>}
  */

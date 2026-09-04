@@ -1,6 +1,6 @@
 /**
  * Comando .soundcloud / .sc
- * Download de faixas e áudios do SoundCloud em MP3 320 kbps Studio Master
+ * Download de faixas e áudios do SoundCloud em MP3 de alta fidelidade
  */
 
 const fs = require("fs");

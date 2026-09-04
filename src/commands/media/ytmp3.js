@@ -1,6 +1,6 @@
 /**
  * Comando .ytmp3
- * Download direto de áudio em formato MP3 (320kbps) do YouTube
+ * Download direto de áudio em formato MP3 do YouTube
  */
 
 const fs = require('fs')

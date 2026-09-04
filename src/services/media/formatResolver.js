@@ -127,7 +127,7 @@ function formatElapsed(ms) {
 /**
  * Inspeciona o arquivo REAL com ffprobe e retorna dados verdadeiros — nada inventado.
  * @param {string} filePath
- * @returns {null | { container, vcodec, acodec, width, height, resolution, sizeBytes, sizeMB, bitrateKbps, durationSec, isAudio }}
+ * @returns {null | { container, vcodec, acodec, width, height, resolution, sizeBytes, sizeMB, durationSec, isAudio }}
  */
 function probeMedia(filePath) {
     try {
@@ -143,7 +143,6 @@ function probeMedia(filePath) {
         const fmt = data.format || {}
         const sizeBytes = Number(fmt.size || (fs.statSync(filePath).size)) || 0
         const durationSec = Math.round(Number(fmt.duration || (v?.duration) || (a?.duration) || 0))
-        const bitrateKbps = fmt.bit_rate ? Math.round(Number(fmt.bit_rate) / 1000) : (a?.bit_rate ? Math.round(Number(a.bit_rate) / 1000) : 0)
         // ffprobe reporta a família "mov,mp4,m4a,3gp,..." — normaliza para MP4/M4A.
         const rawContainer = (fmt.format_name || '')
         let container = rawContainer.split(',')[0] || filePath.split('.').pop()
@@ -159,7 +158,6 @@ function probeMedia(filePath) {
             resolution: v ? `${v.width}x${v.height}` : null,
             sizeBytes,
             sizeMB: sizeBytes ? (sizeBytes / 1024 / 1024).toFixed(2) : null,
-            bitrateKbps,
             durationSec,
             isAudio: !v
         }
