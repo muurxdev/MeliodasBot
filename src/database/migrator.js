@@ -496,6 +496,20 @@ const migrations = [
                 `)
             } catch (_) {}
         }
+    },
+    {
+        id: '016_user_extra',
+        description: 'Coluna extra (JSON): guarda campos sem coluna própria. Sem isto, 37 campos gravados pelos comandos (cooldowns, banco, cofre, badges, títulos, montaria...) eram descartados silenciosamente no saveUser.',
+        up: (db) => {
+            try { db.exec('ALTER TABLE users ADD COLUMN extra TEXT;') } catch (_) {}
+        }
+    },
+    {
+        id: '015_user_skills',
+        description: 'Coluna skills (árvore de habilidades). Sem ela o .arvorehabilidades dizia "SKILL DESBLOQUEADA" e o valor era descartado no saveUser.',
+        up: (db) => {
+            try { db.exec('ALTER TABLE users ADD COLUMN skills TEXT;') } catch (_) {}
+        }
     }
 ]
 

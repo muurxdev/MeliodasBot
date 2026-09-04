@@ -1,5 +1,41 @@
 const { getDatabase, q } = require('../connection')
 
+
+// Chaves que JÁ têm coluna própria (ou são derivadas/efêmeras). Tudo fora desta
+// lista vai para a coluna `extra` em JSON — foi assim que 37 campos gravados
+// pelos comandos (cooldowns de trabalhar/crime/roubar, banco, cofre, badges,
+// títulos, montaria, andar da torre...) deixaram de ser descartados no save.
+const COLUMN_BACKED = new Set([
+    'jid','xp','level','messages','coins','rep','streak','hp','hpMax','hp_max','mundo','mochila',
+    'classe','classeLendaria','classe_lendaria','bugPower','bug_power','pet','equipado','arma','guilda',
+    'wins','losses','bossesMortos','bosses_mortos','arenaPontos','arena_pontos','arenaAtual','arena_atual',
+    'lastDaily','last_daily','weeklyXp','weekly_xp','weeklyCoins','weekly_coins',
+    'messagesGroup','messages_group','messagesPv','messages_pv','commandsGroup','commands_group',
+    'commandsPv','commands_pv','xpGroup','xp_group','xpPv','xp_pv','forgeLevel','forge_level',
+    'nicknameRpg','nickname_rpg','atk','def','slots','pocaoAtiva','pocao_ativa_tipo','pocao_ativa_expira',
+    'bank','name','lastDevice','last_device','lastPingMs','last_ping_ms','netType','net_type',
+    'lastSeen','last_seen','phone','lid','inventario','inventory','conquistas','pets',
+    'vaultCoins','vault_coins','rebirthCount','rebirth_count','grimoireSpells','grimoire_spells',
+    'activeRunes','active_runes','skills','characterRace','character_race','characterElement','character_element',
+    'fogueiraBuffExpira','fogueira_buff_expira','pvFarmCount','pv_farm_count','groupFarmCount','group_farm_count',
+    'coinsPv','coins_pv','coinsGroup','coins_group','registered','displayNick','display_nick',
+    'rpgEnabled','rpg_enabled','focoCategoria','foco_categoria','registeredAt','registered_at',
+    'created_at','updated_at','extra'
+])
+
+/** Extrai os campos que não têm coluna própria, para serem salvos em `extra`. */
+function extraOf(user) {
+    const out = {}
+    if (!user || typeof user !== 'object') return out
+    for (const k of Object.keys(user)) {
+        if (COLUMN_BACKED.has(k)) continue
+        const v = user[k]
+        if (v === undefined || typeof v === 'function') continue
+        out[k] = v
+    }
+    return Object.keys(out).length ? out : null
+}
+
 function rowToUser(row) {
     if (!row) return null
 
@@ -34,8 +70,14 @@ function rowToUser(row) {
     const parsedPets = parseJsonArray(row.pets)
     const parsedGrimoire = parseJsonArray(row.grimoire_spells)
     const parsedRunes = parseJsonArray(row.active_runes)
+    const parsedSkills = parseJsonArray(row.skills)
+    // Campos sem coluna própria (cooldowns, banco, cofre, badges, títulos...).
+    // Entram primeiro para que qualquer coluna real prevaleça sobre eles.
+    let parsedExtra = {}
+    try { if (row.extra) parsedExtra = typeof row.extra === 'string' ? JSON.parse(row.extra) : row.extra } catch (_) {}
 
     return {
+        ...parsedExtra,
         jid: row.jid,
         xp: Number(row.xp || 0),
         level: Number(row.level || 1),
@@ -99,6 +141,7 @@ function rowToUser(row) {
         grimoire_spells: parsedGrimoire,
         activeRunes: parsedRunes,
         active_runes: parsedRunes,
+        skills: parsedSkills,
         characterRace: row.character_race || 'humano',
         character_race: row.character_race || 'humano',
         characterElement: row.character_element || 'fogo',
@@ -276,6 +319,8 @@ const COLUMNS = [
     { name: 'rebirth_count',     val: u => u.rebirthCount ?? u.rebirth_count ?? 0,              set: 'max' },
     { name: 'grimoire_spells',   val: u => j(u.grimoireSpells ?? u.grimoire_spells),           set: 'direct' },
     { name: 'active_runes',      val: u => j(u.activeRunes ?? u.active_runes),                  set: 'direct' },
+    { name: 'skills',            val: u => j(u.skills),                                        set: 'direct' },
+    { name: 'extra',             val: u => j(extraOf(u)),                                      set: 'direct' },
     { name: 'character_race',    val: u => u.characterRace ?? u.character_race ?? null,     ins: "COALESCE(?, 'humano')", set: 'coalesce' },
     { name: 'character_element', val: u => u.characterElement ?? u.character_element ?? null, ins: "COALESCE(?, 'fogo')",  set: 'coalesce' },
     { name: 'fogueira_buff_expira', val: u => u.fogueiraBuffExpira ?? u.fogueira_buff_expira ?? 0, set: 'direct' },
