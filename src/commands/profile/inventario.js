@@ -14,7 +14,15 @@ module.exports = {
         const xpData = dataService.getXpData()
         const user = initializeUser(sender, xpData)
 
-        const inventario = user.inventario || user.inventory || []
+        // O inventário do RPG guarda itens como STRING ("Poção de Vida"), enquanto
+        // este comando assumia objetos {name, qty, type} — por isso o mesmo item
+        // aparecia no `.inv` e sumia aqui. Normaliza os dois formatos na leitura.
+        const bruto = user.inventario || user.inventory || []
+        const inventario = (Array.isArray(bruto) ? bruto : []).map(it =>
+            (typeof it === 'string')
+                ? { name: it, nome: it, qty: 1, type: 'item', tipo: 'item', __str: true }
+                : it
+        )
         const acao = (args[0] || '').toLowerCase()
 
         if (acao === 'usar') {
