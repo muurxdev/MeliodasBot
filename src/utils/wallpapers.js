@@ -93,7 +93,9 @@ const CATEGORY_MAP = {
 
 function normalizeCategory(cat) {
     const clean = String(cat || "main").toLowerCase().trim().replace(/[^a-z0-9]/g, "");
-    return CATEGORY_MAP[clean] || "main";
+    // Preserva a chave quando ela não está no mapa: antes TUDO virava "main", o que
+    // fazia menus como `general` e `profile` mostrarem exatamente a mesma mídia.
+    return CATEGORY_MAP[clean] || clean || "main";
 }
 
 /**
@@ -101,6 +103,62 @@ function normalizeCategory(cat) {
  * @param {string} category
  * @returns {{ type: "video" | "image" | null, buffer: Buffer | null, mimetype: string, path?: string }}
  */
+// Ordem estável das telas — usada só para dar a cada categoria SEM mídia própria
+// um arquivo diferente (e sempre o mesmo), evitando menus visualmente idênticos.
+const MENU_KEYS_ORDER = [
+    "main", "rpg", "economy", "media", "fun", "dev", "general", "admin", "profile",
+    "owner", "help", "config", "pesquisa", "calc", "rede", "interacao", "arquivos",
+    "aluguel", "leave"
+];
+
+/**
+ * Escolhe um asset FIXO e distinto para uma categoria que não tem mídia própria.
+ * Prefere vídeos (mesma pegada dos demais menus) e cai para imagens.
+ * @param {string} targetKey
+ * @returns {{type:string, buffer:Buffer, mimetype:string, path:string}|null}
+ */
+function pickDistinctFallback(targetKey) {
+    try {
+        const root = fs.readdirSync(WALLPAPERS_DIR).filter(f => /\.(mp4|jpg|png)$/i.test(f));
+        // Prioriza arquivos LIVRES (que não são a mídia própria de outro menu),
+        // para não repetir a mídia de uma categoria existente.
+        const semExt = (f) => f.replace(/\.(mp4|jpg|png)$/i, "").toLowerCase();
+        const reivindicado = (f) => MENU_KEYS_ORDER.includes(semExt(f));
+        const ordena = (arr) => arr.slice().sort();
+
+        const livresVid = ordena(root.filter(f => /\.mp4$/i.test(f) && !reivindicado(f)));
+        const livresImg = ordena(root.filter(f => /\.(jpg|png)$/i.test(f) && !reivindicado(f)));
+        const usadosVid = ordena(root.filter(f => /\.mp4$/i.test(f) && reivindicado(f)));
+        const usadosImg = ordena(root.filter(f => /\.(jpg|png)$/i.test(f) && reivindicado(f)));
+
+        // Se houver arquivo livre, escolhe SÓ entre eles (garante não repetir a
+        // mídia de outro menu). Sem livres, aí sim reaproveita os já usados.
+        const livres = livresVid.concat(livresImg);
+        const pool = livres.length > 0 ? livres : usadosVid.concat(usadosImg);
+        if (pool.length === 0) return null;
+
+        let idx = MENU_KEYS_ORDER.indexOf(targetKey);
+        if (idx < 0) {
+            // categoria desconhecida: índice estável derivado do nome
+            let h = 0;
+            for (const ch of String(targetKey)) h = (h * 31 + ch.charCodeAt(0)) >>> 0;
+            idx = h;
+        }
+        const escolhido = pool[idx % pool.length];
+        const fPath = path.join(WALLPAPERS_DIR, escolhido);
+        if (!resolvedExists(fPath)) return null;
+        const isVideo = /\.mp4$/i.test(escolhido);
+        return {
+            type: isVideo ? "video" : "image",
+            buffer: readCached(fPath),
+            mimetype: isVideo ? "video/mp4" : (/\.png$/i.test(escolhido) ? "image/png" : "image/jpeg"),
+            path: fPath
+        };
+    } catch (_) {
+        return null;
+    }
+}
+
 function getMenuMedia(category = "main") {
     const targetKey = normalizeCategory(category);
     const catDir = path.join(WALLPAPERS_DIR, targetKey);
@@ -138,7 +196,14 @@ function getMenuMedia(category = "main") {
             }
         }
 
-        // 3. Fallback: Vídeo Global
+        // 3. Fallback DISTINTO por categoria: em vez de cair todo mundo no mesmo
+        //    "main" (que fazia vários menus ficarem idênticos), cada categoria sem
+        //    mídia própria recebe um arquivo FIXO e diferente do acervo. Assim que
+        //    existir um `<categoria>.mp4/.jpg`, ele assume automaticamente (acima).
+        const distinto = pickDistinctFallback(targetKey);
+        if (distinto) return distinto;
+
+        // 3.1 Fallback: Vídeo Global
         const globalVideoPath = path.join(WALLPAPERS_DIR, "menu.mp4");
         if (resolvedExists(globalVideoPath)) {
             return { type: "video", buffer: readCached(globalVideoPath), mimetype: "video/mp4", path: globalVideoPath };
