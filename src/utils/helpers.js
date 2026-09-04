@@ -26,14 +26,16 @@ function barraXP(atual, level) {
     return `${barra} ${porcentagem}%`
 }
 
+// Patente do MUNDO DEV por nível de XP (progressão de carreira em tecnologia).
+// NÃO confundir com "Cargo" (dono/admin do grupo) — isto é senioridade de XP.
 function getCargo(level) {
-    if (level >= 1000) return `🌌 Entidade Cósmica Divina (Tier ${Math.floor(level / 100)})`
-    if (level >= 500) return `👑 Rei Demônio Supremo (Tier ${Math.floor(level / 50)})`
-    if (level >= 300) return `🐉 Dragão da Destruição (Tier ${Math.floor(level / 30)})`
-    if (level >= 200) return `⚡ Deus dos Sete Pecados (Tier ${Math.floor(level / 20)})`
-    if (level >= 150) return `⚔️ Grande Mestre Sagrado (Tier ${Math.floor(level / 15)})`
-    if (level >= 100) return `🌟 Arcanjo Celestial (Tier ${Math.floor(level / 10)})`
-    if (level >= 75) return '👑 Cavaleiro Sagrado de Diamante'
+    if (level >= 1000) return `🌌 Lenda da Computação (Tier ${Math.floor(level / 100)})`
+    if (level >= 500) return `🏛️ CTO Lendário (Tier ${Math.floor(level / 50)})`
+    if (level >= 300) return `🧙 Fellow Engineer (Tier ${Math.floor(level / 30)})`
+    if (level >= 200) return `🚀 Distinguished Engineer (Tier ${Math.floor(level / 20)})`
+    if (level >= 150) return `🏗️ Arquiteto de Software (Tier ${Math.floor(level / 15)})`
+    if (level >= 100) return `🌟 Principal Engineer (Tier ${Math.floor(level / 10)})`
+    if (level >= 75) return '💎 Staff Engineer'
     if (level >= 50) return '👑 Tech Lead'
     if (level >= 40) return '🔥 Dev Senior'
     if (level >= 30) return '⚡ Dev Pleno'

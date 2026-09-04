@@ -54,7 +54,7 @@ module.exports = {
 
         doc += `\n╭━━━〔 📊 ESTATÍSTICAS 〕━━━┈⊷\n`
         doc += `┃ 📈 *Nível:* ${level} | 🏆 *Rank:* ${rank}\n`
-        doc += `┃ 💼 *Cargo:* ${cargo}\n`
+        doc += `┃ 🎖️ *Patente:* ${cargo}\n`
         doc += `┃ ⭐ *XP:* ${xpAtual.toLocaleString('pt-BR')} / ${prog.necessario.toLocaleString('pt-BR')}\n`
         doc += `┃ ${prog.barra} ${prog.percent}%\n`
         doc += `┃ 💰 *Coins:* ${user.coins.toLocaleString('pt-BR')}\n`

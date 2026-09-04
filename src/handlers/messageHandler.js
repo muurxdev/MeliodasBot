@@ -167,7 +167,7 @@ async function handleIncomingMessage(client, { messages }) {
                 up += `╚══════════════════════════════╝\n\n`
                 up += `👤 @${sender.split('@')[0]} subiu para o *Nível ${user.level}*!`
                 if (lvlRes.levelsGanhos > 1) up += ` (+${lvlRes.levelsGanhos} níveis)`
-                up += `\n💼 *Cargo:* ${getCargo(user.level)}\n`
+                up += `\n🎖️ *Patente:* ${getCargo(user.level)}\n`
                 up += `❤️ *HP Total:* ${user.hpMax} (+${lvlRes.ganhoHp}) | ⚡ *Poder:* ${prog.poder}\n`
                 up += `💰 *Bônus:* +${lvlRes.ganhoCoins} Coins\n\n`
                 up += `📊 *Progresso p/ Nv. ${user.level + 1}:*\n${prog.barra} ${prog.percent}%\n`

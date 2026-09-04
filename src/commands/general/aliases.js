@@ -121,12 +121,15 @@ module.exports = {
                     return cCat === catKey;
                 });
 
-                catCmds = catCmds.filter(c => c.aliases && c.aliases.length > 0);
+                // Lista TODOS os comandos da categoria (com ou sem alias).
+                catCmds.sort((a, b) => a.name.localeCompare(b.name));
 
                 if (catCmds.length > 0) {
                     doc += `╭━〔 ${label} (${catCmds.length} cmds) 〕━⬣\n`;
                     catCmds.forEach(c => {
-                        const aliasStr = c.aliases.map(a => `\`${p}${a}\``).join(', ');
+                        const aliasStr = (c.aliases && c.aliases.length > 0)
+                            ? c.aliases.map(a => `\`${p}${a}\``).join(', ')
+                            : '—';
                         doc += `┃ ➤ \`${p}${c.name}\` ➔ ${aliasStr}\n`;
                     });
                     doc += `╰━━━━━━━━━━━━━━━━━━⬣\n\n`;

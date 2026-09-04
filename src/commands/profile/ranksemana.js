@@ -21,7 +21,7 @@ module.exports = {
             const cargo = getCargo(user[1].level)
             mentions.push(user[0])
 
-            textoRank += medalha + ' *#' + (i + 1) + '* @' + user[0].split('@')[0] + '\n⭐ *XP Semanal:* ' + (user[1].weeklyXp || 0) + '\n📈 *Nível:* ' + user[1].level + ' | 💼 *Cargo:* ' + cargo + '\n\n'
+            textoRank += medalha + ' *#' + (i + 1) + '* @' + user[0].split('@')[0] + '\n⭐ *XP Semanal:* ' + (user[1].weeklyXp || 0) + '\n📈 *Nível:* ' + user[1].level + ' | 🎖️ *Patente:* ' + cargo + '\n\n'
         })
 
         await reply(textoRank, mentions)

@@ -121,7 +121,7 @@ module.exports = {
             doc += `${medal} *#${i + 1}* @${jid.split("@")[0]}\n`;
             doc += `📈 *Nível:* ${u.level || 1} | ⭐ *XP:* ${(u.xp || 0).toLocaleString("pt-BR")}\n`;
             doc += `💬 *Mensagens:* ${(u.messages || 0).toLocaleString("pt-BR")} | 💰 *Coins:* ${(u.coins || 0).toLocaleString("pt-BR")}\n`;
-            doc += `💼 *Cargo:* ${cargo}\n\n`;
+            doc += `🎖️ *Patente:* ${cargo}\n\n`;
         });
 
         doc += `💡 _Ver Ranking Global:_ \`.rank geral\` | _Ver Ranking no PV:_ \`.rank pv\`\n`;

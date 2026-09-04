@@ -19,7 +19,7 @@ module.exports = {
         doc += `╚══════════════════════════════╝\n\n`
         doc += `👤 @${alvo.split('@')[0]}\n`
         doc += `📈 *Nível:* ${perfil.level || 1} | 🏆 *Rank:* ${getRank(perfil.level || 1)}\n`
-        doc += `💼 *Cargo:* ${getCargo(perfil.level || 1)}\n`
+        doc += `🎖️ *Patente:* ${getCargo(perfil.level || 1)}\n`
         doc += `⚡ *Poder:* ${prog.poder} | ❤️ *HP:* ${perfil.hpMax || 100}\n\n`
 
         doc += `╭━〔 📊 RUMO AO NÍVEL ${(perfil.level || 1) + 1} 〕━⬣\n`
