@@ -61,11 +61,20 @@ function renderCharacterAvatar(user, stats = null) {
     const raceInfo = RACES[raceKey] || RACES.humano;
     let bodyEmoji = raceInfo.emoji;
 
-    if (user.classe === 'arquimago') bodyEmoji = '🧙‍♂️';
-    else if (user.classe === 'guardiao') bodyEmoji = '🛡️🧔';
+    if (user.classe === 'guerreiro') bodyEmoji = '⚔️';
+    else if (user.classe === 'mago') bodyEmoji = '🔮';
+    else if (user.classe === 'arqueiro') bodyEmoji = '🏹';
+    else if (user.classe === 'curandeiro') bodyEmoji = '💚';
+    else if (user.classe === 'ladino') bodyEmoji = '🗡️';
+    else if (user.classe === 'paladino') bodyEmoji = '🛡️';
     else if (user.classe === 'necromante') bodyEmoji = '💀';
+    else if (user.classe === 'berserker') bodyEmoji = '🪓';
     else if (user.classeLendaria === 'meliodas_assault') bodyEmoji = '👑😈';
     else if (user.classeLendaria === 'pecado_ira') bodyEmoji = '🐉🧒';
+    else if (user.classeLendaria === 'dragonite') bodyEmoji = '🐉';
+    else if (user.classeLendaria === 'lordesombras') bodyEmoji = '🌑';
+    else if (user.classeLendaria === 'arcanosupremo') bodyEmoji = '✨';
+    else if (user.classeLendaria === 'sentinela') bodyEmoji = '🛡️';
 
     // 4. Aura e Asas
     let auraLeft = '✨';

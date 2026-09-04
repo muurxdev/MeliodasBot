@@ -569,120 +569,84 @@ const mundos = {
 // 🎓 CLASSES & CLASSES LENDÁRIAS
 // ═══════════════════════════════════════
 const classes = {
-    arquimago: {
-        nome: '🧙 Arquimago do Código',
-        descricao: 'Mestre das magias de programação.',
-        habilidade: '25% de chance de causar 3x dano.'
+    guerreiro: {
+        nome: '⚔️ Guerreiro de Britânia',
+        descricao: 'Guerreiro corpo a corpo com alta vida e força bruta.',
+        habilidade: '+30 ATK e +50 HP máximo.'
     },
-    guardiao: {
-        nome: '🛡️ Guardião do Servidor',
-        descricao: 'Protege sistemas e servidores.',
-        habilidade: '+50 dano e +20 XP em Boss.'
+    mago: {
+        nome: '🔮 Mago Arcano',
+        descricao: 'Mestre das artes arcanas e feitiçaria destrutiva.',
+        habilidade: '25% de chance de causar 3x dano mágico.'
     },
-    bughunter: {
-        nome: '⚡ Bug Hunter',
-        descricao: 'Especialista em encontrar bugs.',
-        habilidade: '20% de chance de causar +300 dano.'
+    arqueiro: {
+        nome: '🏹 Arqueiro Élfico',
+        descricao: 'Atirador de elite com precisão letal à distância.',
+        habilidade: '+15% chance de crítico e +20 ATK.'
     },
-    nuvem: {
-        nome: '☁️ Mestre da Nuvem',
-        descricao: 'Especialista em cloud computing.',
-        habilidade: '+50 coins por ataque ao Boss.'
+    curandeiro: {
+        nome: '💚 Sacerdote Curandeiro',
+        descricao: 'Canaliza luz divina para restaurar e proteger aliados.',
+        habilidade: 'Cura 30% do HP a cada 3 turnos em batalha.'
     },
-    ia: {
-        nome: '🤖 Engenheiro de IA',
-        descricao: 'Controla inteligências artificiais.',
-        habilidade: '30% de chance de causar dano dobrado.'
+    ladino: {
+        nome: '🗡️ Ladino das Sombras',
+        descricao: 'Especialista em emboscadas, esquiva e golpes fatais.',
+        habilidade: '+20% esquiva e +25% chance de crítico.'
     },
-    hacker: {
-        nome: '🕶️ Hacker Fantasma',
-        descricao: 'Ataca pelas sombras.',
-        habilidade: '+0 até +400 dano aleatório.'
-    },
-    fullstack: {
-        nome: '🔥 Dev Full Stack',
-        descricao: 'Domina frontend e backend.',
-        habilidade: '+75 dano e +20 coins.'
+    paladino: {
+        nome: '🛡️ Paladino Sagrado',
+        descricao: 'Guerreiro sagrado com defesa e ataque equilibrados.',
+        habilidade: '+40 DEF e +20 ATK. Absorve 10% do dano dos aliados.'
     },
     necromante: {
-        nome: '💀 Necromante dos Bugs',
-        descricao: 'Transforma bugs e almas em poder supremo.',
-        habilidade: '2x Poder Total do jogador e +15 BugPower permanente por ataque.'
+        nome: '💀 Necromante das Trevas',
+        descricao: 'Invoca mortos-vivos e drena a vida dos inimigos.',
+        habilidade: 'Drena 15% do dano causado como HP.'
+    },
+    berserker: {
+        nome: '🪓 Berserker Furioso',
+        descricao: 'Entra em fúria e causa dano massivo, mas perde defesa.',
+        habilidade: '+60 ATK e -20 DEF. Dano aumenta conforme HP diminui.'
     }
 }
 
 const classesLendarias = {
-    deusfullstack: {
-        nome: '⚔️ Deus Full Stack',
-        requisito: 'Nível 100',
-        habilidade: 'Dobra qualquer bônus',
-        loots: []
+    dragonite: {
+        nome: '🐉 Cavaleiro Dracônico',
+        requisito: 'Nível 60, 30 Bosses derrotados',
+        habilidade: '+200 ATK e +150 DEF. Respiração de dragão causa dano em área.',
+        loots: ['🐉 Escama de Dragão', '💎 Núcleo Dracônico', '🫀 Coração do Dragão']
     },
-    reibugs: {
-        nome: '💀 Rei dos Bugs',
-        requisito: 'BugPower 1000+',
-        habilidade: '+50 dano permanente por ataque',
-        loots: []
+    lordesombras: {
+        nome: '🌑 Lorde das Sombras',
+        requisito: 'Nível 50, 1000+ dano causado',
+        habilidade: 'Golpes invisíveis ignoram 50% da defesa inimiga.',
+        loots: ['🌌 Fragmento do Void', '⚫ Matéria Escura', '☠️ Alma Sombria']
     },
-    singularidade: {
-        nome: '🤖 Singularidade IA',
-        requisito: '100 vitórias',
-        habilidade: '50% de chance de atacar duas vezes',
-        loots: []
+    arcanosupremo: {
+        nome: '✨ Arcano Supremo',
+        requisito: 'Nível 80, derrotar 50 Bosses',
+        habilidade: 'Magia suprema: 40% de chance de causar 5x dano.',
+        loots: ['🌟 Chama Arcana', '💎 Gema Suprema', '📜 Pergaminho Ancestral']
     },
-    arquiteto: {
-        nome: '👑 Arquiteto Supremo',
-        requisito: 'Nível 50',
-        habilidade: '+200 dano e +100 coins',
-        loots: []
-    },
-    cloudlord: {
-        nome: '🌌 Senhor da Cloud',
-        requisito: 'Derrotar 50 Bosses',
-        habilidade: '+300 dano em Boss',
-        loots: []
-    },
-    senhorbugs: {
-        nome: '🐛 Senhor dos Bugs',
-        requisito: 'Loots de Bug',
-        habilidade: '+400 dano em Boss',
-        loots: ['🟢 Chip Comum', '🟣 Cristal de Bug', '💎 Núcleo Instável']
-    },
-    infernal: {
-        nome: '🔥 Dev Infernal',
-        requisito: 'Loots do Erro 500',
-        habilidade: '+300 dano e +150 coins',
-        loots: ['🔥 Fragmento Infernal', '💎 Núcleo do Servidor', '🌟 Chama do Backend']
-    },
-    neural: {
-        nome: '🤖 Entidade Neural',
-        requisito: 'Loots da IA',
-        habilidade: '50% de chance de dobrar dano',
-        loots: ['🤖 Processador Neural', '🧠 Memória Quântica', '🌌 Núcleo de IA Corrompida']
-    },
-    draconico: {
-        nome: '🐉 Herdeiro Dracônico',
-        requisito: 'Loots do Dragão',
-        habilidade: '+600 dano em Boss',
-        loots: ['🐉 Escama de Código', '💎 Núcleo Dracônico', '🫀 Coração do Dragão']
-    },
-    voidking: {
-        nome: '🌌 Rei do Void',
-        requisito: 'Loots do Titã do Void',
-        habilidade: '+1000 dano em Boss',
-        loots: ['🌌 Coração do Void', '👑 Coroa Dimensional', '⚫ Núcleo Absoluto']
+    sentinela: {
+        nome: '🛡️ Sentinelas Eternos',
+        requisito: 'Nível 70, 200 defesa acumulada',
+        habilidade: 'Escudo impossível: bloqueia 40% de todo dano recebido.',
+        loots: ['🛡️ Escudo Ancestral', '👑 Coroa Sagrada', '💫 Luz Divina']
     },
     pecado_ira: {
         nome: '🐉 Pecado da Ira do Dragão',
         requisito: 'Nível 60, 30 Bosses e Loots Dracônicos',
-        habilidade: '+500 de dano e 40% de chance de ataque triplo',
-        loots: ['🐉 Escama de Código', '💎 Núcleo Dracônico']
+        habilidade: '+500 de dano e 40% de chance de ataque triplo.',
+        loots: ['🐉 Escama de Dragão', '💎 Núcleo Dracônico']
     },
     meliodas_assault: {
-        nome: '👑 Meliodas Modo Assalto (Rei Demônio)',
+        nome: '👑 Meliodas — Modo Assalto (Rei Demônio)',
         requisito: 'Nível 80, 100 Bosses, 50 Vitórias e Loots Supremos',
-        habilidade: 'Full Counter (reflete dobro de dano) +800 dano, +300 coins e +200 HP Máximo',
-        loots: ['🫀 Coração do Dragão', '⚫ Núcleo Absoluto', '🌟 Chama do Backend']
+        habilidade: 'Full Counter: reflete o dobro do dano recebido. +800 ATK, +300 coins e +200 HP.',
+        loots: ['🫀 Coração do Dragão', '⚫ Núcleo Absoluto', '🌟 Chama Arcana']
     }
 }
 

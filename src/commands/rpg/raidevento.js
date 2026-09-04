@@ -85,10 +85,14 @@ module.exports = {
                 let dano = Math.floor(userLevel * 8) + Math.floor(Math.random() * 50) + 30
 
                 const classe = user.classe || 'nenhuma'
-                if (classe === 'arquimago') dano = Math.floor(dano * 1.8)
-                if (classe === 'guardiao') dano = Math.floor(dano * 1.5)
-                if (classe === 'bughunter') dano = Math.floor(dano * 1.7)
-                if (classe === 'fullstack') dano = Math.floor(dano * 1.9)
+                if (classe === 'guerreiro') dano = Math.floor(dano * 1.5)
+                if (classe === 'mago') dano = Math.floor(dano * 1.8)
+                if (classe === 'arqueiro') dano = Math.floor(dano * 1.7)
+                if (classe === 'ladino') dano = Math.floor(dano * 1.9)
+                if (classe === 'paladino') dano = Math.floor(dano * 1.6)
+                if (classe === 'berserker') dano = Math.floor(dano * 2.0)
+                if (classe === 'necromante') dano = Math.floor(dano * 1.7)
+                if (classe === 'curandeiro') dano = Math.floor(dano * 1.4)
                 if (user.classeLendaria) dano = Math.floor(dano * 1.5)
 
                 bossRef.hp -= dano
@@ -123,10 +127,14 @@ module.exports = {
             let dano = Math.floor(userLevel * 8) + Math.floor(Math.random() * 50) + 30
 
             const classe = user.classe || 'nenhuma'
-            if (classe === 'arquimago') dano = Math.floor(dano * 1.8)
-            if (classe === 'guardiao') dano = Math.floor(dano * 1.5)
-            if (classe === 'bughunter') dano = Math.floor(dano * 1.7)
-            if (classe === 'fullstack') dano = Math.floor(dano * 1.9)
+            if (classe === 'guerreiro') dano = Math.floor(dano * 1.5)
+            if (classe === 'mago') dano = Math.floor(dano * 1.8)
+            if (classe === 'arqueiro') dano = Math.floor(dano * 1.7)
+            if (classe === 'ladino') dano = Math.floor(dano * 1.9)
+            if (classe === 'paladino') dano = Math.floor(dano * 1.6)
+            if (classe === 'berserker') dano = Math.floor(dano * 2.0)
+            if (classe === 'necromante') dano = Math.floor(dano * 1.7)
+            if (classe === 'curandeiro') dano = Math.floor(dano * 1.4)
             if (user.classeLendaria) dano = Math.floor(dano * 1.5)
 
             raid.hp -= dano

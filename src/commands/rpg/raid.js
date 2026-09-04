@@ -116,14 +116,14 @@ module.exports = {
 
             // Bônus de Classes no Raid
             const classe = user.classe || "nenhuma"
-            if (classe === "arquimago") dano = Math.floor(dano * 1.8) + 120
-            if (classe === "guardiao") dano = Math.floor(dano * 1.5) + 100
-            if (classe === "bughunter") dano = Math.floor(dano * 1.7) + 150
-            if (classe === "fullstack") dano = Math.floor(dano * 1.9) + 200
-            if (classe === "necromante") {
-                const bp = (user.bugPower || user.bug_power || 0)
-                dano = Math.floor((poderBase + bp) * 1.7) + 50
-            }
+            if (classe === "guerreiro") dano = Math.floor(dano * 1.5) + 100
+            if (classe === "mago") dano = Math.floor(dano * 1.8) + 120
+            if (classe === "arqueiro") dano = Math.floor(dano * 1.7) + 150
+            if (classe === "ladino") dano = Math.floor(dano * 1.9) + 200
+            if (classe === "paladino") dano = Math.floor(dano * 1.6) + 130
+            if (classe === "berserker") dano = Math.floor(dano * 2.0) + 250
+            if (classe === "necromante") dano = Math.floor(dano * 1.7) + 100
+            if (classe === "curandeiro") dano = Math.floor(dano * 1.4) + 80
 
             if (user.classeLendaria) {
                 dano += 500

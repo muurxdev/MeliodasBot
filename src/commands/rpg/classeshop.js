@@ -1,37 +1,99 @@
 /**
- * Loja de Classes e Classes Lendárias
+ * Comando .classeshop / .lojaclasses
+ * Loja de Classes RPG — compra, visualização e informações
  */
+
+const { getBotName } = require("../../config/botConfig");
+const { classes, classesLendarias } = require("../../utils/constants");
+const dataService = require("../../services/dataService");
+const { initializeUser } = require("../../services/xpService");
+
+const precosClasses = {
+    guerreiro: 800,
+    mago: 800,
+    arqueiro: 900,
+    curandeiro: 1000,
+    ladino: 1000,
+    paladino: 1200,
+    necromante: 1500,
+    berserker: 1800
+};
 
 module.exports = {
     name: 'classeshop',
-    aliases: ['lojaclasses'],
+    aliases: ['lojaclasses', 'lojaclasse', 'escolherclasse'],
     category: 'rpg',
-    description: 'Loja para compra e troca de classes com coins e visualização de classes lendárias',
-    execute: async ({ reply }) => {
-        let loja = `╔══════════════════════════════╗\n`
-        loja += `║    🏪 *LOJA DE CLASSES* 🏪    ║\n`
-        loja += `╚══════════════════════════════╝\n\n`
+    subcategory: 'Classes',
+    description: 'Loja de Classes RPG — compre e gerencie sua classe',
+    cooldownMs: 2000,
+    execute: async ({ sender, args, reply }) => {
+        const botName = getBotName();
+        const xpData = dataService.getXpData();
+        const user = initializeUser(sender, xpData);
+        const sub = (args[0] || '').toLowerCase().trim();
 
-        loja += `╭━〔 🛡️ CLASSES BÁSICAS (COINS) 〕━⬣\n`
-        loja += `┃ 🧙 *Arquimago do Código* — 💰 800 coins\n┃   👉 \`.comprarclasse arquimago\`\n\n`
-        loja += `┃ 🛡️ *Guardião do Servidor* — 💰 800 coins\n┃   👉 \`.comprarclasse guardiao\`\n\n`
-        loja += `┃ ⚡ *Bug Hunter* — 💰 1.000 coins\n┃   👉 \`.comprarclasse bughunter\`\n\n`
-        loja += `┃ ☁️ *Mestre da Nuvem* — 💰 1.000 coins\n┃   👉 \`.comprarclasse nuvem\`\n\n`
-        loja += `┃ 🤖 *Engenheiro de IA* — 💰 1.500 coins\n┃   👉 \`.comprarclasse ia\`\n\n`
-        loja += `┃ 🕶️ *Hacker Fantasma* — 💰 1.500 coins\n┃   👉 \`.comprarclasse hacker\`\n\n`
-        loja += `┃ 🔥 *Dev Full Stack* — 💰 2.000 coins\n┃   👉 \`.comprarclasse fullstack\`\n\n`
-        loja += `┃ 💀 *Necromante dos Bugs* — 💰 2.500 coins\n┃   👉 \`.comprarclasse necromante\`\n`
-        loja += `╰━━━━━━━━━━━━━━━━━━⬣\n\n`
+        if (sub === 'info' || sub === 'ver') {
+            const classeId = (args[1] || '').toLowerCase().trim();
+            const c = classes[classeId] || classesLendarias[classeId];
+            if (!c) {
+                return reply(`❌ Classe não encontrada. Use \`.classeshop\` para ver a lista.`);
+            }
 
-        loja += `╭━〔 👑 CLASSES LENDÁRIAS SUPREMAS 〕━⬣\n`
-        loja += `┃ 👑 *Meliodas Modo Assalto (Rei Demônio)*\n┃   📌 Nível 80+, 100 Bosses, 50 Duelos, Loots Supremos\n\n`
-        loja += `┃ 🐉 *Pecado da Ira do Dragão*\n┃   📌 Nível 60+, 30 Bosses, Loots Dracônicos\n\n`
-        loja += `┃ 🌌 *Rei do Void* | ⚔️ *Deus Full Stack* | 💀 *Rei dos Bugs*\n`
-        loja += `╰━━━━━━━━━━━━━━━━━━⬣\n\n`
+            let doc = `╔══════════════════════════════╗\n`;
+            doc += `║   📋 *INFORMAÇÕES DA CLASSE* 📋   ║\n`;
+            doc += `╚══════════════════════════════╝\n\n`;
+            doc += `✨ *Nome:* ${c.nome}\n`;
+            doc += `📜 *Descrição:* ${c.descricao || c.requisito}\n`;
+            doc += `🌟 *Habilidade:* ${c.habilidade}\n\n`;
 
-        loja += `💡 _Para ver todas as lendárias e requisitos:_ \`.lendaria lista\`\n`
-        loja += `💡 _Para desbloquear:_ \`.lendaria desbloquear [nome]\``
+            if (precosClasses[classeId]) {
+                doc += `💰 *Preço:* ${precosClasses[classeId].toLocaleString('pt-BR')} Coins\n`;
+                doc += `🛒 *Comprar:* \`.comprarclasse ${classeId}\`\n`;
+            } else if (c.requisito) {
+                doc += `📌 *Requisito:* ${c.requisito}\n`;
+                doc += `🛒 *Desbloquear:* \`.lendaria desbloquear ${classeId}\`\n`;
+            }
 
-        return reply(loja.trim())
+            return reply(doc.trim());
+        }
+
+        const classeAtual = user.classe ? (classes[user.classe]?.nome || user.classe) : 'Nenhuma';
+        const lendariaAtual = user.classeLendaria ? (classesLendarias[user.classeLendaria]?.nome || user.classeLendaria) : 'Nenhuma';
+
+        let doc = `╔══════════════════════════════╗\n`;
+        doc += `║   ⚔️ *LOJA DE CLASSES DE BRITÂNIA* ⚔️   ║\n`;
+        doc += `╚══════════════════════════════╝\n\n`;
+        doc += `👤 *Sua Classe:* *${classeAtual}*\n`;
+        doc += `👑 *Classe Lendária:* *${lendariaAtual}*\n`;
+        doc += `💰 *Saldo:* ${(user.coins || 0).toLocaleString('pt-BR')} Coins\n\n`;
+
+        doc += `╭━━━〔 🛡️ CLASSES BÁSICAS 〕━━━┈⊷\n`;
+        Object.entries(classes).forEach(([id, c]) => {
+            const preco = precosClasses[id];
+            const isAtual = user.classe === id;
+            doc += `┃ ${c.nome} ${isAtual ? '✅ *(SUA CLASSE)*' : ''}\n`;
+            doc += `┃   🌟 ${c.habilidade}\n`;
+            doc += `┃   💰 ${preco.toLocaleString('pt-BR')} Coins`;
+            if (!isAtual) {
+                doc += `  |  🛒 \`.comprarclasse ${id}\``;
+            }
+            doc += `\n┃\n`;
+        });
+        doc += `╰━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┈⊷\n\n`;
+
+        doc += `╭━━━〔 👑 CLASSES LENDÁRIAS 〕━━━┈⊷\n`;
+        Object.entries(classesLendarias).forEach(([id, l]) => {
+            doc += `┃ ${l.nome}\n`;
+            doc += `┃   📌 Req: ${l.requisito}\n`;
+            doc += `┃   🌟 ${l.habilidade}\n┃\n`;
+        });
+        doc += `╰━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┈⊷\n\n`;
+
+        doc += `💡 _Comprar:_ \`.comprarclasse <id>\`\n`;
+        doc += `💡 _Info:_ \`.classeshop info <id>\`\n`;
+        doc += `💡 _Lendárias:_ \`.lendaria lista\`\n`;
+        doc += `👑 *${botName}*`;
+
+        return reply(doc.trim());
     }
-}
+};

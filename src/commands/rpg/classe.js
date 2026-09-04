@@ -46,7 +46,7 @@ module.exports = {
         }
 
         if (acao === 'info') {
-            if (!nomeClasse) return reply('❌ Use: .classe info [nome]\nExemplo: .classe info arquimago ou .classe info meliodas_assault')
+            if (!nomeClasse) return reply('❌ Use: .classe info [nome]\nExemplo: .classe info guerreiro ou .classe info meliodas_assault')
             const c = classes[nomeClasse] || classesLendarias[nomeClasse]
             if (!c) return reply('❌ Classe não encontrada. Use .classe lista.')
 
@@ -54,7 +54,7 @@ module.exports = {
         }
 
         if (acao === 'escolher') {
-            if (!nomeClasse) return reply('❌ Use: .classe escolher [nome]\nExemplo: .classe escolher arquimago')
+            if (!nomeClasse) return reply('❌ Use: .classe escolher [nome]\nExemplo: .classe escolher guerreiro')
             if (!classes[nomeClasse]) return reply('❌ Classe inválida. Use .classe lista.')
 
             if (user.classe) {

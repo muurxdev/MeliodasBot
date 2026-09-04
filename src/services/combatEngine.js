@@ -35,41 +35,47 @@ function calcularDanoPlayer(player, target = {}) {
     // 4. Passivas de Classe Básica
     const classe = (player.classe || 'nenhuma').toLowerCase();
     switch (classe) {
-        case 'arquimago':
-            dano = Math.floor(dano * 1.25);
+        case 'guerreiro':
+            dano = Math.floor(dano * 1.20);
+            player.xp = (player.xp || 0) + 15;
+            break;
+        case 'mago':
+            dano = Math.floor(dano * 1.30);
             if (Math.random() < 0.20) {
                 dano = Math.floor(dano * 1.50);
                 isDobro = true;
             }
             break;
-        case 'guardiao':
-            dano = Math.floor(dano * 1.15);
-            player.xp = (player.xp || 0) + 25;
-            break;
-        case 'bughunter':
-            dano = Math.floor(dano * 1.30);
-            break;
-        case 'nuvem':
-            dano = Math.floor(dano * 1.20);
-            player.coins = (player.coins || 0) + 100;
-            break;
-        case 'ia':
-            if (Math.random() < 0.25) {
-                dano = Math.floor(dano * 1.60);
-                isDobro = true;
+        case 'arqueiro':
+            dano = Math.floor(dano * 1.25);
+            if (Math.random() < 0.15) {
+                dano = Math.floor(dano * 1.80);
+                isCritico = true;
             }
             break;
-        case 'hacker':
-            dano = Math.floor(dano * 1.25) + Math.floor(Math.random() * 150);
+        case 'curandeiro':
+            dano = Math.floor(dano * 1.10);
+            player.hp = Math.min((player.hpMax || 100), (player.hp || player.hpMax || 100) + 30);
             break;
-        case 'fullstack':
+        case 'ladino':
             dano = Math.floor(dano * 1.35);
-            player.coins = (player.coins || 0) + 80;
-            player.xp = (player.xp || 0) + 60;
+            if (Math.random() < 0.20) {
+                dano = Math.floor(dano * 2.0);
+                isCritico = true;
+            }
+            break;
+        case 'paladino':
+            dano = Math.floor(dano * 1.15);
             break;
         case 'necromante':
-            const bp = player.bugPower || player.bug_power || 0;
-            dano = Math.floor(dano * 1.20) + Math.min(500, Math.floor(bp * 0.5));
+            dano = Math.floor(dano * 1.25);
+            const drenar = Math.floor(dano * 0.15);
+            player.hp = Math.min((player.hpMax || 100), (player.hp || player.hpMax || 100) + drenar);
+            break;
+        case 'berserker':
+            const hpPercent = (player.hp || player.hpMax || 100) / (player.hpMax || 100);
+            const bonusFuria = Math.floor(dano * (1 - hpPercent) * 0.8);
+            dano = Math.floor(dano * 1.40) + bonusFuria;
             break;
     }
 
@@ -92,12 +98,12 @@ function calcularDanoPlayer(player, target = {}) {
                     isCritico = true;
                 }
                 break;
-            case 'voidking':
-            case 'deusfullstack':
+            case 'dragonite':
+            case 'arcanosupremo':
                 dano = Math.floor(dano * 1.60);
                 break;
-            case 'draconico':
-            case 'infernal':
+            case 'lordesombras':
+            case 'sentinela':
                 dano = Math.floor(dano * 1.40);
                 break;
             default:

@@ -49,39 +49,45 @@ function calculateSlayerStats(user = {}) {
     const classe = user.classe
     if (classe) {
         switch (classe) {
-            case 'arquimago':
+            case 'guerreiro':
+                atk += 200
+                def += 80
+                hpMax += 200
+                break
+            case 'mago':
                 atk += 180
                 critRate += 15.0
                 critDamage += 50
                 break
-            case 'guardiao':
-                def += 120
-                hpMax += 300
-                break
-            case 'bughunter':
-                atk += 220
-                critRate += 12.0
-                break
-            case 'nuvem':
+            case 'arqueiro':
                 atk += 150
-                attackSpeed += 0.20
+                critRate += 20.0
+                critDamage += 40
                 break
-            case 'ia':
-                atk += 190
+            case 'curandeiro':
+                atk += 100
+                hpMax += 400
+                def += 60
+                break
+            case 'ladino':
+                atk += 250
+                critRate += 25.0
                 critDamage += 60
                 break
-            case 'hacker':
-                atk += 250
-                critRate += 8.0
-                break
-            case 'fullstack':
-                atk += 200
-                def += 80
-                hpMax += 150
+            case 'paladino':
+                atk += 120
+                def += 150
+                hpMax += 250
                 break
             case 'necromante':
-                atk += 180 + (bugPower * 2)
+                atk += 180
+                critDamage += 80
                 hpMax += 100
+                break
+            case 'berserker':
+                atk += 300
+                def -= 40
+                critRate += 10.0
                 break
         }
     }
@@ -90,44 +96,25 @@ function calculateSlayerStats(user = {}) {
     const lendaria = user.classeLendaria
     if (lendaria) {
         switch (lendaria) {
-            case 'arquiteto':
-                atk += 350
-                def += 150
-                break
-            case 'cloudlord':
-                atk += 450
-                attackSpeed += 0.35
-                break
-            case 'senhorbugs':
-                atk += 550
-                hpMax += 400
-                break
-            case 'infernal':
-                atk += 600
-                critRate += 20.0
-                critDamage += 80
-                break
-            case 'neural':
-                atk += 500
-                critRate += 25.0
-                critDamage += 100
-                break
-            case 'draconico':
+            case 'dragonite':
                 atk += 800
                 def += 300
                 hpMax += 600
                 break
-            case 'voidking':
-                atk += 1200
-                def += 450
-                hpMax += 1000
+            case 'lordesombras':
+                atk += 650
+                critRate += 25.0
+                critDamage += 100
+                break
+            case 'arcanosupremo':
+                atk += 700
+                critRate += 30.0
                 critDamage += 120
                 break
-            case 'deusfullstack':
-                atk += 1400
+            case 'sentinela':
+                atk += 400
                 def += 500
-                hpMax += 1200
-                critRate += 30.0
+                hpMax += 800
                 break
             case 'pecado_ira':
                 atk += 1600
