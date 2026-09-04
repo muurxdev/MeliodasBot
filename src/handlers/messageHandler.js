@@ -448,10 +448,14 @@ async function handleIncomingMessage(client, { messages }) {
 
     // Função de resposta com quote
     const reply = async (texto, mentions = []) => {
-        return client.sendMessage(from, {
+        const sent = await client.sendMessage(from, {
             text: String(texto),
             mentions: Array.isArray(mentions) ? mentions : []
         }, { quoted: info })
+        // Guarda a chave para o .limparbot poder apagar depois (o Baileys 7 não
+        // tem mais store embutido, então mantemos o nosso).
+        try { require('../services/botMessageStore').record(from, sent?.key) } catch (_) {}
+        return sent
     }
 
     // Extração profunda de Mensagem Citada / Marcada (Quoted Message)

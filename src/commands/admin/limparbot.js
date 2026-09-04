@@ -1,5 +1,6 @@
 const logger = require("../../core/logger");
 const { getBotName } = require("../../config/botConfig");
+const botMessageStore = require("../../services/botMessageStore");
 
 module.exports = {
     name: "limparbot",
@@ -18,17 +19,14 @@ module.exports = {
         if (count > 50) count = 50;
 
         try {
-            const chatMessages = await client.store.loadMessages(from, count + 5);
-            if (!chatMessages || chatMessages.length === 0) {
-                return reply("❌ Não foi possível carregar as mensagens do grupo.");
-            }
+            // O Baileys 7 não tem mais store embutido — `client.store` era sempre
+            // undefined e este comando quebrava 100% das vezes. Usamos o registro
+            // próprio das mensagens que o bot enviou (botMessageStore).
+            const botMessages = botMessageStore.recent(from, count).map(key => ({ key }));
 
-            const botJid = client.user?.id?.replace(/:.*@/, "@") || client.user?.id;
-            const botMessages = chatMessages.filter(msg => {
-                if (!msg.key || msg.key.fromMe !== true) return false;
-                if (botJid && msg.key.remoteJid !== from) return false;
-                return true;
-            }).slice(0, count);
+            if (botMessages.length === 0) {
+                return reply("❌ Não há mensagens recentes do bot registradas neste chat para apagar.\n\n💡 _Só consigo apagar mensagens enviadas depois da última reinicialização do bot._");
+            }
 
             if (botMessages.length === 0) {
                 return reply("❌ Nenhuma mensagem do bot encontrada para apagar.");
