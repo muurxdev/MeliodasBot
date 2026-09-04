@@ -1,48 +1,86 @@
-const dataService = require('../../services/dataService')
-const { initializeUser } = require('../../services/xpService')
-const logger = require('../../core/logger')
+/**
+ * Comando .equip / .use
+ * Wrapper para o sistema de slots — direciona para .equipar (slot-based)
+ */
 
-const itensAtalho = {
-    '1': 'VIP DEV',
-    '2': 'React Master',
-    '3': 'Node Wizard',
-    '4': 'Full Stack'
-}
+const dataService = require('../../services/dataService');
+const { initializeUser } = require('../../services/xpService');
+const { getItem } = require('../../services/rpgEquipmentService');
+const logger = require('../../core/logger');
 
 module.exports = {
     name: 'equip',
     aliases: ['use'],
     category: 'rpg',
-    description: 'Equipa um item ou equipamento forjado do seu inventário',
-    execute: async ({ text, sender, reply }) => {
+    subcategory: 'Combate',
+    description: 'Equipa um item do inventário — usa o sistema de slots do boneco',
+    cooldownMs: 1500,
+    execute: async ({ sender, text, reply }) => {
         if (!text) {
-            return reply('❌ Digite o nome ou número do item que deseja equipar. Exemplo: .equip VIP DEV ou .equip ⚔️ Espada de Bug')
+            return reply(
+                '❌ *Informe o nome do equipamento que deseja equipar!*\n\n' +
+                '📌 *Exemplo:* `.equip Espada de Ferro`\n\n' +
+                '💡 _Este comando agora usa o sistema de slots._\n' +
+                'Comando completo: `.equipar <nome>`'
+            );
         }
 
-        const xpData = dataService.getXpData()
-        const user = initializeUser(sender, xpData)
-        const inventario = user.inventario || []
+        const itemName = text.trim();
+        const item = getItem(itemName);
 
-        if (inventario.length === 0) {
-            return reply('📦 Seu inventário está vazio.')
+        if (!item) {
+            return reply(`❌ Equipamento *"${itemName}"* não encontrado nos registros de Britânia.`);
         }
 
-        const termo = text.trim()
-        const itemEscolhido = itensAtalho[termo] || inventario.find(i => i.toLowerCase().includes(termo.toLowerCase())) || termo
+        const xpData = dataService.getXpData();
+        const user = initializeUser(sender, xpData);
 
-        if (!inventario.includes(itemEscolhido)) {
-            return reply('❌ Você não possui o item "' + termo + '" no seu inventário. Use *.inv* para ver seus itens.')
+        if (!user.slots) {
+            user.slots = { capacete: null, peitoral: null, calca: null, botas: null, arma: null, escudo: null, amuleto: null };
         }
 
-        user.equipado = itemEscolhido
+        // Verifica posse no inventário — suporta AMBOS os formatos
+        const inventario = Array.isArray(user.inventario) ? user.inventario : [];
+        const hasItem = inventario.some(i => {
+            if (typeof i === 'object' && i !== null) {
+                return i.id === item.id || (i.nome && i.nome.toLowerCase().includes(item.nome.toLowerCase()));
+            }
+            if (typeof i === 'string') {
+                return i.toLowerCase().includes(item.nome.toLowerCase());
+            }
+            return false;
+        });
 
-        if (itemEscolhido === '⚔️ Espada de Bug') {
-            user.arma = 'espada_bug'
+        const env = require('../../config/env');
+        const isOwner = Boolean(user.isOwner || env.isOwnerJid(sender));
+        if (!hasItem && !isOwner && item.preco > 500) {
+            return reply(`❌ Você não possui *${item.nome}* no seu inventário. Adquira na loja com \`.shoparmas\` ou \`.shoparmaduras\`.`);
         }
 
-        await dataService.saveXpData(xpData)
-        logger.info('[EQUIP] User ' + sender + ' equipou ' + itemEscolhido)
+        // Equipa no slot correto
+        const targetSlot = item.slot;
+        const previousItem = user.slots[targetSlot];
 
-        await reply('✅ *Item equipado com sucesso!*\n\n🎖️ *Equipado:* ' + itemEscolhido)
+        user.slots[targetSlot] = item.id;
+        if (targetSlot === 'arma') {
+            user.arma = item.id;
+        }
+
+        await dataService.saveXpData(xpData);
+        logger.info(`[EQUIP] ${sender} equipou ${item.nome} no slot ${targetSlot}`);
+
+        const stats = require('../../services/characterEngine').calculateFullCharacterStats(user);
+
+        let doc = `╔══════════════════════════════╗\n`;
+        doc += `║   ⚔️ *EQUIPAMENTO EQUIPADO* ⚔️   ║\n`;
+        doc += `╚══════════════════════════════╝\n\n`;
+        doc += `✨ *Você equipou:* *${item.nome}*\n`;
+        doc += `🏷️ *Slot:* *${targetSlot.toUpperCase()}*\n`;
+        doc += `💎 *Raridade:* ${item.raridade}\n\n`;
+        doc += `⚡ *Poder de Combate (CP):* **${stats.cp.toLocaleString("pt-BR")} CP**\n\n`;
+        doc += `💡 _Veja todos os slots com_ \`.boneco\` _ou_\n`;
+        doc += `_veja os itens com_ \`.inv\``;
+
+        return reply(doc.trim());
     }
-}
+};

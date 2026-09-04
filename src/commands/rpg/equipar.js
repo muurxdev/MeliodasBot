@@ -11,8 +11,9 @@ const { getItem, calculateCharacterStats } = require("../../services/rpgEquipmen
 
 module.exports = {
     name: "equipar",
-    aliases: ["vestir", "usaritem", "colocararmadura", "empunhar"],
+    aliases: ["equip", "vestir", "usaritem", "colocararmadura", "empunhar"],
     category: "rpg",
+    subcategory: "Combate",
     description: "Equipa um item do seu inventário no slot correspondente do seu boneco",
     cooldownMs: 1500,
     execute: async ({ sender, text, reply }) => {
@@ -26,7 +27,8 @@ module.exports = {
                 "• `.equipar Espada de Ferro`\n" +
                 "• `.equipar Peitoral de Ferro`\n" +
                 "• `.equipar Lostvayne`\n" +
-                "• `.equipar Botas Aladas de Hermes`"
+                "• `.equipar Botas Aladas de Hermes`\n\n" +
+                "💡 _Para ver seus itens:_ `.inv`"
             );
         }
 
@@ -42,11 +44,18 @@ module.exports = {
             user.slots = { capacete: null, peitoral: null, calca: null, botas: null, arma: null, escudo: null, amuleto: null };
         }
 
-        // Verifica posse no inventário
-        const hasItem = Array.isArray(user.inventario) && user.inventario.some(i => {
-            const id = typeof i === "object" ? i.id : i;
-            const name = typeof i === "object" ? i.nome : i;
-            return id === item.id || name?.toLowerCase().includes(item.nome.toLowerCase());
+        // Verifica posse no inventário — suporta AMBOS os formatos (string e objeto)
+        const inventario = Array.isArray(user.inventario) ? user.inventario : [];
+        const hasItem = inventario.some(i => {
+            if (typeof i === "object" && i !== null) {
+                // Formato objeto: {id, nome, tipo, atk, ...}
+                return i.id === item.id || (i.nome && i.nome.toLowerCase().includes(item.nome.toLowerCase()));
+            }
+            // Formato string: "Espada de Ferro Britânico"
+            if (typeof i === "string") {
+                return i.toLowerCase().includes(item.nome.toLowerCase());
+            }
+            return false;
         });
 
         // Se for o dono do bot ou se tiver no inventário, ou item básico inicial
@@ -89,4 +98,3 @@ module.exports = {
         return reply(doc.trim());
     }
 };
-

@@ -8,10 +8,31 @@ const { initializeUser } = require('../../services/xpService');
 const vaultRepo = require('../../database/repositories/vaultRepository');
 const { getBotName } = require('../../config/botConfig');
 
+/** Normaliza um item do inventário para formato legível */
+function itemDisplayName(item) {
+    if (!item) return 'Item Desconhecido';
+    if (typeof item === 'object' && item !== null) {
+        return item.nome || item.name || item.id || 'Item Desconhecido';
+    }
+    return String(item);
+}
+
+/** Verifica se um item do inventário casa com o termo de busca */
+function itemMatchesSearch(item, searchTerm) {
+    const term = searchTerm.toLowerCase();
+    if (typeof item === 'object' && item !== null) {
+        return (item.id && item.id.toLowerCase().includes(term)) ||
+               (item.nome && item.nome.toLowerCase().includes(term)) ||
+               (item.name && item.name.toLowerCase().includes(term));
+    }
+    return typeof item === 'string' && item.toLowerCase().includes(term);
+}
+
 module.exports = {
     name: 'bau',
     aliases: ['vault', 'armazem', 'deposito', 'guardar', 'sacar', 'cofre-rpg'],
     category: 'rpg',
+    subcategory: 'Economia',
     description: 'Armazém seguro persistente para estocar equipamentos, minérios e moedas',
     cooldownMs: 2500,
     execute: async ({ sender, args, reply }) => {
@@ -75,16 +96,18 @@ module.exports = {
                 return reply(`📦 Seu inventário está vazio. Nenhum item para guardar.`);
             }
 
-            const itemIdx = user.inventario.findIndex(i => typeof i === 'string' && i.toLowerCase().includes(param.toLowerCase()));
+            // Suporta AMBOS os formatos (string e objeto)
+            const itemIdx = user.inventario.findIndex(i => itemMatchesSearch(i, param));
             if (itemIdx === -1) {
                 return reply(`❌ Você não possui o item *"${param}"* no seu inventário.`);
             }
 
-            const itemGuardado = user.inventario.splice(itemIdx, 1)[0];
-            vaultRepo.addVaultItem(sender, itemGuardado, 1);
+            const itemRemovido = user.inventario.splice(itemIdx, 1)[0];
+            const nomeItem = itemDisplayName(itemRemovido);
+            vaultRepo.addVaultItem(sender, nomeItem, 1);
             await dataService.saveXpData(xpData);
 
-            return reply(`🔒 *ITEM GUARDADO COM SEGURANÇA NO BAÚ!*\n\n📦 *Item:* ${itemGuardado}\n🛡️ *Status:* Protegido contra perdas em mortes ou ataques!\n🎒 *Espaço liberado na mochila:* ${user.inventario.length} / ${user.mochila || 20}`);
+            return reply(`🔒 *ITEM GUARDADO COM SEGURANÇA NO BAÚ!*\n\n📦 *Item:* ${nomeItem}\n🛡️ *Status:* Protegido contra perdas em mortes ou ataques!\n🎒 *Espaço liberado na mochila:* ${user.inventario.length} / ${user.mochila || 20}`);
         }
 
         // 4. RETIRAR ITEM DO BAÚ PARA O INVENTÁRIO
@@ -105,6 +128,7 @@ module.exports = {
             }
 
             vaultRepo.removeVaultItem(sender, targetItem.item_id, 1);
+            // Guarda como string (formato legado para compatibilidade com loots)
             user.inventario.push(targetItem.item_name);
             await dataService.saveXpData(xpData);
 
@@ -141,4 +165,3 @@ module.exports = {
         return reply(doc.trim(), [sender]);
     }
 };
-

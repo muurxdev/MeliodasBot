@@ -16,6 +16,24 @@ const MARKET_STOCK = [
     { id: "armadura_dourada", nome: "🛡️ Armadura do Leão Dourado", tipo: "Peitoral", preco: 4500, desc: "Peitoral Épico com +220 DEF" }
 ];
 
+function itemDisplayName(item) {
+    if (!item) return '';
+    if (typeof item === 'object' && item !== null) {
+        return item.nome || item.name || item.id || '';
+    }
+    return String(item);
+}
+
+function itemMatchesSearch(item, searchTerm) {
+    const term = searchTerm.toLowerCase();
+    if (typeof item === 'object' && item !== null) {
+        return (item.id && item.id.toLowerCase().includes(term)) ||
+               (item.nome && item.nome.toLowerCase().includes(term)) ||
+               (item.name && item.name.toLowerCase().includes(term));
+    }
+    return typeof item === 'string' && item.toLowerCase().includes(term);
+}
+
 module.exports = {
     name: "mercado",
     aliases: ["market", "lojarpg", "bazar", "mercantil"],
@@ -56,7 +74,13 @@ module.exports = {
             } else if (item.id === "pocao_suprema") {
                 user.hp = user.hpMax || 100;
             } else {
-                user.inventario.push(item.nome);
+                // Guarda como objeto para consistência com as lojas
+                const itemData = getItem(item.id);
+                if (itemData) {
+                    user.inventario.push({ ...itemData });
+                } else {
+                    user.inventario.push(item.nome);
+                }
             }
 
             await dataService.saveXpData(xpData);
@@ -74,18 +98,20 @@ module.exports = {
                 return reply("📦 Seu inventário está vazio. Não há nada para vender.");
             }
 
-            const itemIdx = user.inventario.findIndex(i => typeof i === "string" && i.toLowerCase().includes(itemId));
+            // Suporta AMBOS os formatos (string e objeto)
+            const itemIdx = user.inventario.findIndex(i => itemMatchesSearch(i, itemId));
             if (itemIdx === -1) {
                 return reply(`❌ Você não possui o item *"${itemId}"* no seu inventário.`);
             }
 
-            const itemVendido = user.inventario.splice(itemIdx, 1)[0];
+            const itemRemovido = user.inventario.splice(itemIdx, 1)[0];
+            const nomeItem = itemDisplayName(itemRemovido);
             const valorVenda = Math.floor(Math.random() * 800) + 400;
 
             user.coins = (user.coins || 0) + valorVenda;
             await dataService.saveXpData(xpData);
 
-            return reply(`💰 *ITEM VENDIDO NO MERCADO!*\n\n📦 *Item:* ${itemVendido}\n💵 *Moedas Recebidas:* +${valorVenda.toLocaleString("pt-BR")} Coins\n🪙 *Novo Saldo:* ${(user.coins || 0).toLocaleString("pt-BR")} Coins`);
+            return reply(`💰 *ITEM VENDIDO NO MERCADO!*\n\n📦 *Item:* ${nomeItem}\n💵 *Moedas Recebidas:* +${valorVenda.toLocaleString("pt-BR")} Coins\n🪙 *Novo Saldo:* ${(user.coins || 0).toLocaleString("pt-BR")} Coins`);
         }
 
         // 3. CATÁLOGO GERAL
