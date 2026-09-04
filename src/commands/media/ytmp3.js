@@ -13,7 +13,7 @@ module.exports = {
     name: 'ytmp3',
     aliases: ['musica', 'audio', 'song', 'ytaudio'],
     category: 'media',
-    description: 'Baixa músicas e áudios do YouTube em formato MP3 de alta fidelidade (320kbps)',
+    description: 'Baixa músicas e áudios do YouTube em formato MP3 de alta fidelidade',
     cooldownMs: 4000,
     execute: async ({ sender, text, reply, client, from, info }) => {
         if (!text) {

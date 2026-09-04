@@ -200,7 +200,6 @@ function formatMediaCaption({ platform = 'Web', title = 'Mídia', author = 'Desc
         // Dados 100% reais do arquivo
         if (!audio && probe.resolution) doc += `┃ 🖥️ *Resolução:* ${probe.resolution}${probe.vcodec ? ' (' + probe.vcodec + ')' : ''}\n`
         doc += `┃ 📦 *Formato:* ${probe.container}${audio && probe.acodec ? ' / ' + probe.acodec : ''}\n`
-        if (probe.bitrateKbps) doc += `┃ 🎚️ *Bitrate:* ${probe.bitrateKbps} kbps\n`
         const sizeStr = formatBytes(probe.sizeBytes)
         if (sizeStr) doc += `┃ 💾 *Tamanho:* ${sizeStr}\n`
     } else {

@@ -14,7 +14,7 @@ module.exports = {
     name: "soundcloud",
     aliases: ["sc", "sound", "soundcloudmusic", "scdl"],
     category: "media",
-    description: "Baixa músicas e sets do SoundCloud em alta fidelidade MP3 320 kbps",
+    description: "Baixa músicas e sets do SoundCloud em alta fidelidade (MP3)",
     cooldownMs: 3000,
     execute: async ({ text, from, info, client, reply, sender }) => {
         const botName = getBotName();

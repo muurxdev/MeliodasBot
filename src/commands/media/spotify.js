@@ -14,7 +14,7 @@ module.exports = {
     name: "spotify",
     aliases: ["sp", "spot", "spotifydl", "spotifyplaylist", "spotifyalbum"],
     category: "media",
-    description: "Baixa músicas, álbuns e playlists completas do Spotify em MP3 320 kbps com capa oficial",
+    description: "Baixa músicas, álbuns e playlists completas do Spotify em MP3 com capa oficial",
     cooldownMs: 3000,
     execute: async ({ text, from, info, client, reply, sender }) => {
         const botName = getBotName();
@@ -50,7 +50,7 @@ module.exports = {
                 playlistDoc += "╭━〔 📋 DETALHES DO ACERVO 〕━⬣\n";
                 playlistDoc += "┃ 📂 *Título:* " + playlistInfo.title + "\n";
                 playlistDoc += "┃ 📦 *Total de Músicas:* *" + totalTracks + " faixas*\n";
-                playlistDoc += "┃ 🎧 *Qualidade:* MP3 Master 320 kbps\n";
+                playlistDoc += "┃ 🎧 *Qualidade:* MP3 (alta fidelidade)\n";
                 playlistDoc += "┃ ⏳ *Status:* Enviando músicas em lote sequencial...\n";
                 playlistDoc += "╰━━━━━━━━━━━━━━━━━━⬣\n\n";
                 playlistDoc += "👑 *" + botName + "*";

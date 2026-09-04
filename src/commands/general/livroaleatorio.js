@@ -8,18 +8,19 @@ const logger = require('../../core/logger')
 
 // Temas/títulos de programação e computação (domínio público ou amplamente
 // disponíveis em acervos legais). O .livro busca em archive.org/OpenLibrary.
+// Temas em PORTUGUÊS por padrão — o grupo é BR, então o sorteio busca obras em
+// pt-BR. (Para outro idioma, use `.livroaleatorio <tema> --en`, por exemplo.)
 const DEV_TOPICS = [
-    'clean code', 'the pragmatic programmer', 'design patterns', 'refactoring',
-    'introduction to algorithms', 'structure and interpretation of computer programs',
-    'the art of computer programming', 'code complete', 'javascript the good parts',
-    'eloquent javascript', 'you dont know js', 'python crash course',
-    'automate the boring stuff with python', 'fluent python', 'effective java',
-    'the c programming language', 'the rust programming language', 'go programming language',
-    'operating systems three easy pieces', 'computer networking', 'database system concepts',
-    'linux command line', 'pro git', 'the linux programming interface',
-    'cracking the coding interview', 'domain driven design', 'working effectively with legacy code',
-    'test driven development', 'the mythical man month', 'algoritmos lógica de programação',
-    'estruturas de dados', 'engenharia de software'
+    'lógica de programação', 'algoritmos e estruturas de dados', 'introdução à programação',
+    'programação orientada a objetos', 'engenharia de software', 'banco de dados',
+    'redes de computadores', 'sistemas operacionais', 'desenvolvimento web',
+    'programação python', 'programação java', 'javascript programação',
+    'linguagem C programação', 'git controle de versão', 'linux administração',
+    'inteligência artificial', 'aprendizado de máquina', 'segurança da informação',
+    'arquitetura de software', 'padrões de projeto software', 'código limpo',
+    'análise de sistemas', 'computação teoria', 'matemática discreta',
+    'estrutura de dados em C', 'programação para iniciantes', 'testes de software',
+    'metodologias ágeis scrum', 'cloud computing', 'ciência de dados'
 ]
 
 module.exports = {
