@@ -92,15 +92,18 @@ module.exports = {
         }
 
         if (subCmd === 'atk' || subCmd === 'atacar' || subCmd === 'ajudar' || subCmd === 'ajd') {
-            if (!bossData.lutas[idLuta] || !bossData.lutas[idLuta].ativo || bossData.lutas[idLuta].vida <= 0) {
+            const bossEntry = bossData.lutas[idLuta]
+            if (!bossEntry || !bossEntry.ativo || bossEntry.vida <= 0) {
                 delete bossData.lutas[idLuta]
                 await dataService.saveBossData(bossData)
                 return reply('❌ Nenhum Boss ativo encontrado para lutar.\n\nUse: .boss criar bug')
             }
 
-            const { calculateCharacterStats, getItem } = require('../../services/rpgEquipmentService')
+            const boss = bossEntry
             const { calcularDanoPlayer, calcularDanoSofrido } = require('../../services/combatEngine')
-            const stats = calculateCharacterStats(user)
+            const { calculateFullCharacterStats } = require('../../services/characterEngine')
+            const { getItem } = require('../../services/rpgEquipmentService')
+            const stats = calculateFullCharacterStats(user)
 
             const combatResult = calcularDanoPlayer(user, boss)
             const dano = combatResult.danoFinal
@@ -190,11 +193,13 @@ module.exports = {
                         relatorioRecompensas += '🆙 *SUBIU DE NÍVEL!* Nível ' + perfilP.level + ' (+HP / +Coins)\n'
                     }
 
-                    const chanceLoot = Math.floor(Math.random() * 100) + 1
                     let lootRecebido = null
                     if (boss.loot && boss.loot.length > 0) {
+                        const chanceLoot = Math.random() * 100
+                        let chanceAcumulada = 0
                         for (const l of boss.loot) {
-                            if (chanceLoot <= l.chance) {
+                            chanceAcumulada += l.chance
+                            if (chanceLoot < chanceAcumulada) {
                                 lootRecebido = l.nome
                                 if (!perfilP.inventario) perfilP.inventario = []
                                 perfilP.inventario.push(l.nome)
