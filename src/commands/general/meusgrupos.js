@@ -34,7 +34,8 @@ module.exports = {
                 return reply('ℹ️ O bot não está participando de nenhum grupo no momento.')
             }
 
-            const botNumber = client.user?.id?.split(':')[0]?.split('@')[0] || ''
+            // Mesma correção do .grupos: comparar contra número E @lid do bot.
+            const botJids = groupAuthService.getBotJids(client)
 
             // Filtra grupos onde o usuário alvo está presente
             const userGroups = []
@@ -47,9 +48,11 @@ module.exports = {
 
                 if (participant) {
                     const isUserAdmin = participant.admin === 'admin' || participant.admin === 'superadmin'
-                    const isBotAdmin = g.participants?.some(p => {
-                        const pNum = p.id?.split(':')[0]?.split('@')[0]
-                        return pNum === botNumber && (p.admin === 'admin' || p.admin === 'superadmin')
+                    const isBotAdmin = (g.participants || []).some(p => {
+                        const isAdm = p.admin === 'admin' || p.admin === 'superadmin'
+                        if (!isAdm) return false
+                        const pj = groupAuthService.normalizeJid(p.id || p.jid || '')
+                        return [...botJids].some(b => b && pj && b === pj)
                     })
 
                     userGroups.push({

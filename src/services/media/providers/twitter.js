@@ -53,7 +53,24 @@ async function downloadTwitterVideo(twitterUrl) {
     const downloadMatches = [...html.matchAll(/href="(https:\/\/twitsave\.com\/download\?[^"]+)"/g)]
     const directVideoMatches = [...html.matchAll(/href="(https:\/\/[^"]+\.mp4[^"]*)"/g)]
 
-    let videoDownloadUrl = downloadMatches[0]?.[1] || directVideoMatches[0]?.[1]
+    // SEMPRE a maior qualidade: o twitsave lista várias resoluções e pegar o
+    // primeiro link entregava, muitas vezes, a versão pior. Pontua por resolução.
+    const scoreByRes = (u) => {
+        const s = String(u).toLowerCase()
+        if (/2160|4k/.test(s)) return 900
+        if (/1440|2k/.test(s)) return 700
+        if (/1080/.test(s)) return 500
+        if (/720/.test(s)) return 300
+        if (/480/.test(s)) return 100
+        if (/360|240/.test(s)) return 10
+        return 50
+    }
+    const candidatos = [
+        ...downloadMatches.map(m => m[1]),
+        ...directVideoMatches.map(m => m[1])
+    ].filter(Boolean)
+    candidatos.sort((a, b) => scoreByRes(b) - scoreByRes(a))
+    let videoDownloadUrl = candidatos[0]
 
     if (!videoDownloadUrl) {
         throw new Error('Nenhum vídeo em alta resolução encontrado neste link do Twitter / X.')

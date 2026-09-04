@@ -77,6 +77,8 @@ async function downloadKwaiVideo(rawInput) {
             // URLs com /expmp4/ ou /originals/ são as de maior qualidade
             if (/expmp4|originals|\/video\/\d+p/.test(lower)) score += 1000;
             // Padrões de resolução na URL
+            if (/2160p|2160|4k/i.test(lower)) score += 900;
+            if (/1440p|1440|2k/i.test(lower)) score += 700;
             if (/1080p|1080/i.test(lower)) score += 500;
             if (/720p|720/i.test(lower)) score += 300;
             if (/540p|540/i.test(lower)) score += 100;
