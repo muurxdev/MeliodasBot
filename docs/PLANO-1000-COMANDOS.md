@@ -1,5 +1,22 @@
 # Plano de Projeção — 1000 Comandos
 
+## ⚙️ Atualização (2026-09-03): modelo OPT-IN por módulo
+
+A expansão até ~1000 agora segue a regra do dono: **cada comando novo nasce
+DESLIGADO** e é liberado por MÓDULO (ou por comando) quando o dono quiser. Nada de
+"soltar tudo de uma vez sem querer".
+
+- **Camada opt-in** já implementada: `src/config/modules.js` (16 módulos/"farms") +
+  `src/services/moduleStateService.js` + gate no dispatcher. Controle: `.modulo on/off
+  <mod|all>` e `.cmdglobal on/off/auto <cmd>` (só dono). Ver memória `arquitetura-opt-in-modulos`.
+- **Como expandir**: cada lote novo já cai no módulo certo via `resolveModuleKey(cmd)`
+  (por categoria/subcategoria/nome). Ao subir um lote, ele fica OFF até o dono ligar
+  o módulo correspondente. Assim dá pra "modelar tudo" e liberar aos poucos.
+- **Estado atual real**: **494 comandos** (após a auditoria funcional Fases 0-4), não 429.
+  0 erros de carga, 0 aliases mortos. As tabelas abaixo (429) são a base histórica do
+  OpenCode; a projeção de temas/lacunas continua válida como guia de conteúdo.
+- **Pré-requisito antes de codar os novos**: aprovação do dono por módulo/lote.
+
 ## Estado Atual
 
 | Categoria | Comandos | Aliases | Subcategorias ativas |
