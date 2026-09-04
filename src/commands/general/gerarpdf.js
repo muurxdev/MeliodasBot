@@ -21,7 +21,7 @@ module.exports = {
                 caption: '📄 *PDF Gerado com Sucesso!*\n👑 *' + botName + '*'
             }, { quoted: info });
         });
-        doc.fontSize(20).text('DAIKI — DOCUMENTO', { align: 'center' });
+        doc.fontSize(20).text(`${getBotName()} — DOCUMENTO`, { align: 'center' });
         doc.moveDown();
         doc.fontSize(12).text(content);
         doc.end();
