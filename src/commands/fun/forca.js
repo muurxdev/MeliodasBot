@@ -1,7 +1,10 @@
 /**
  * Comando .forca
- * Jogo da Forca interativo com adivinhação de palavras
+ * Jogo da Forca com RESPOSTA LIVRE (envie a letra/palavra no chat, sem precisar
+ * de `.forca <letra>`), via interactionService. Modo com prefixo mantido.
  */
+
+const interactionService = require("../../services/interactionService");
 
 const forcaGames = new Map();
 
@@ -18,86 +21,101 @@ const WORDS = [
     { word: "JAVASCRIPT", hint: "A linguagem do Node.js" }
 ];
 
+const norm = (s) => (s || "").toUpperCase().trim().normalize("NFD").replace(/[̀-ͯ]/g, "");
+const mask = (g) => g.word.split("").map(l => g.guessedLetters.has(l) ? l : "_").join(" ");
+
+/** Processa um palpite (letra ou palavra). Retorna { consumed, msg }. */
+function processGuess(from, input) {
+    const game = forcaGames.get(from);
+    if (!game) return { consumed: false, msg: null };
+    const val = norm(input);
+    if (!val || !/^[A-Z]+$/.test(val)) return { consumed: false, msg: null };
+
+    // Palavra completa
+    if (val.length > 1) {
+        // só trata como chute de palavra se tiver o tamanho da palavra secreta
+        if (val.length !== game.word.length) return { consumed: false, msg: null };
+        if (val === game.word) {
+            forcaGames.delete(from);
+            return { consumed: true, msg: `🎉 *VITÓRIA!*\n\n👑 Palavra: *${game.word}*!\n💡 Digite \`.forca\` para jogar de novo.` };
+        }
+        game.lives -= 2;
+        if (game.lives <= 0) {
+            forcaGames.delete(from);
+            return { consumed: true, msg: `☠️ *FIM DE JOGO!*\n💥 A palavra era: *${game.word}*.` };
+        }
+        return { consumed: true, msg: `❌ *Palavra incorreta!* -2 vidas.\n❤️ Vidas: ${game.lives}` };
+    }
+
+    // Letra
+    const letter = val;
+    if (game.guessedLetters.has(letter)) {
+        return { consumed: true, msg: `⚠️ A letra *${letter}* já foi tentada. Tente outra.` };
+    }
+    game.guessedLetters.add(letter);
+    if (game.word.includes(letter)) {
+        const m = mask(game);
+        if (!m.includes("_")) {
+            forcaGames.delete(from);
+            return { consumed: true, msg: `🎉 *VITÓRIA!*\n🏆 Palavra: *${game.word}*!\n💡 Digite \`.forca\` para jogar de novo.` };
+        }
+        return { consumed: true, msg: `✅ *Boa!* A letra *${letter}* existe!\n🔤 \`${m}\`\n❤️ Vidas: ${game.lives}` };
+    }
+    game.lives -= 1;
+    if (game.lives <= 0) {
+        forcaGames.delete(from);
+        return { consumed: true, msg: `☠️ *FIM DE JOGO!*\n💥 A palavra era: *${game.word}*.` };
+    }
+    return { consumed: true, msg: `❌ *Errou!* A letra *${letter}* não está na palavra.\n🔤 \`${mask(game)}\`\n❤️ Vidas: ${game.lives}` };
+}
+
+function startGame(from, sender, reply) {
+    const picked = WORDS[Math.floor(Math.random() * WORDS.length)];
+    const game = { word: picked.word, hint: picked.hint, guessedLetters: new Set(), lives: 6, starter: sender };
+    forcaGames.set(from, game);
+
+    interactionService.register(from, {
+        type: "forca",
+        ttlMs: 180000,
+        onText: async (text, c) => {
+            const { consumed, msg } = processGuess(from, text);
+            if (!consumed) return false;
+            if (!forcaGames.has(from)) c.clear();
+            await c.reply(msg);
+            return true;
+        }
+    });
+
+    let doc = `╔══════════════════════════════╗\n`;
+    doc += `║       🪢 *JOGO DA FORCA* 🪢      ║\n`;
+    doc += `╚══════════════════════════════╝\n\n`;
+    doc += `💡 *Dica:* ${game.hint}\n`;
+    doc += `🔤 *Palavra:* \`${mask(game)}\` (${game.word.length} letras)\n`;
+    doc += `❤️ *Vidas:* ${"❤️".repeat(game.lives)}\n\n`;
+    doc += `👉 _Responda no chat com uma *letra* ou a *palavra* inteira._`;
+    return reply(doc.trim());
+}
+
 module.exports = {
     name: "forca",
     aliases: ["hangman", "jogodaforca"],
     category: "fun",
-    description: "Inicie ou jogue uma partida do clássico Jogo da Forca",
+    subcategory: "Jogos",
+    description: "Jogo da Forca — responda com a letra ou a palavra no chat",
     execute: async ({ from, args, sender, reply }) => {
-        let game = forcaGames.get(from);
-        const input = (args && args[0]) ? args[0].toUpperCase().trim() : "";
-
-        // Novo jogo
-        if (!game || input === "NOVO" || input === "INICIAR") {
-            const picked = WORDS[Math.floor(Math.random() * WORDS.length)];
-            game = {
-                word: picked.word,
-                hint: picked.hint,
-                guessedLetters: new Set(),
-                lives: 6,
-                starter: sender
-            };
-            forcaGames.set(from, game);
-
-            const masked = game.word.split("").map(l => game.guessedLetters.has(l) ? l : "_").join(" ");
-
-            let doc = `╔══════════════════════════════╗\n`;
-            doc += `║       🪢 *JOGO DA FORCA* 🪢      ║\n`;
-            doc += `╚══════════════════════════════╝\n\n`;
-            doc += `💡 *Dica:* ${game.hint}\n`;
-            doc += `🔤 *Palavra:* \`${masked}\` (${game.word.length} letras)\n`;
-            doc += `❤️ *Vidas:* ${"❤️".repeat(game.lives)}\n\n`;
-            doc += `👉 _Envie \`.forca <letra>\` para tentar uma letra ou \`.forca <palavra>\` para chutar!_`;
-            return reply(doc.trim());
+        const input = (args && args[0]) ? args[0] : "";
+        if (!forcaGames.has(from) || norm(input) === "NOVO" || norm(input) === "INICIAR") {
+            return startGame(from, sender, reply);
         }
-
-        if (!input) {
-            const masked = game.word.split("").map(l => game.guessedLetters.has(l) ? l : "_").join(" ");
-            return reply(`🪢 *Jogo da Forca Ativo!*\n\n💡 *Dica:* ${game.hint}\n🔤 *Palavra:* \`${masked}\`\n❤️ *Vidas Restantes:* ${game.lives}\n👉 _Envie \`.forca <letra>\`_`);
-        }
-
-        // Chute de palavra completa
-        if (input.length > 1) {
-            if (input === game.word) {
-                forcaGames.delete(from);
-                return reply(`🎉 *VITÓRIA BRILHANTE!*\n\n👑 Você acertou a palavra completa: *${game.word}*!\n🏆 Parabéns pelo raciocínio afiado!`);
-            } else {
-                game.lives -= 2;
-                if (game.lives <= 0) {
-                    forcaGames.delete(from);
-                    return reply(`☠️ *FORCA! VOCÊ PERDEU!*\n\n💥 A palavra secreta era: *${game.word}*!\n💡 Digite \`.forca\` para iniciar uma nova partida.`);
-                }
-                return reply(`❌ *Palavra incorreta!* Você perdeu 2 vidas.\n❤️ *Vidas restantes:* ${game.lives}`);
+        if (input) {
+            const { consumed, msg } = processGuess(from, input);
+            if (consumed) {
+                if (!forcaGames.has(from)) interactionService.clear(from);
+                return reply(msg);
             }
         }
-
-        // Chute de letra individual
-        const letter = input[0];
-        if (game.guessedLetters.has(letter)) {
-            return reply(`⚠️ A letra *${letter}* já foi tentada antes! Tente outra letra.`);
-        }
-
-        game.guessedLetters.add(letter);
-
-        if (game.word.includes(letter)) {
-            const masked = game.word.split("").map(l => game.guessedLetters.has(l) ? l : "_").join(" ");
-            const won = !masked.includes("_");
-
-            if (won) {
-                forcaGames.delete(from);
-                return reply(`🎉 *VITÓRIA!*\n\n🏆 Você completou a palavra: *${game.word}*!\n💡 Parabéns pela vitória! Digite \`.forca\` para jogar de novo.`);
-            }
-
-            return reply(`✅ *Boa!* A letra *${letter}* faz parte da palavra!\n\n🔤 *Progresso:* \`${masked}\`\n❤️ *Vidas:* ${game.lives}`);
-        } else {
-            game.lives -= 1;
-            if (game.lives <= 0) {
-                forcaGames.delete(from);
-                return reply(`☠️ *FORCA! FIM DE JOGO!*\n\n💥 A palavra secreta era: *${game.word}*!\n💡 Digite \`.forca\` para tentar novamente.`);
-            }
-            const masked = game.word.split("").map(l => game.guessedLetters.has(l) ? l : "_").join(" ");
-            return reply(`❌ *Errou!* A letra *${letter}* não está na palavra.\n\n🔤 *Progresso:* \`${masked}\`\n❤️ *Vidas Restantes:* ${game.lives}`);
-        }
+        // sem palpite válido: mostra o estado atual
+        const game = forcaGames.get(from);
+        return reply(`🪢 *Forca ativa!*\n💡 *Dica:* ${game.hint}\n🔤 \`${mask(game)}\`\n❤️ Vidas: ${game.lives}\n👉 _Responda com uma letra ou a palavra._`);
     }
 };
-

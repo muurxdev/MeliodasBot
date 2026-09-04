@@ -78,6 +78,47 @@ async function main() {
         } finally { Math.random = origRandom }
     })
 
+    await test('forca: letra correta por resposta livre', async () => {
+        const orig = Math.random; Math.random = () => 0 // WORDS[0] = MELIODAS
+        try {
+            const forca = require('../src/commands/fun/forca')
+            const replies = []; const reply = (t) => { replies.push(t); return Promise.resolve() }
+            const from = 'grpForca@g.us', sender = 'u@x'
+            await forca.execute({ from, sender, args: [], reply })
+            assert.ok(interactionService.has(from), 'registrou forca')
+            const consumed = await interactionService.consume(from, sender, 'M', { reply })
+            assert.strictEqual(consumed, true)
+            assert.ok(replies.some(r => /existe|VITÓRIA|Boa/i.test(r)), 'processou a letra')
+            interactionService.clear(from)
+        } finally { Math.random = orig }
+    })
+
+    await test('termo: palpite de 5 letras por resposta livre', async () => {
+        const orig = Math.random; Math.random = () => 0 // PALAVRAS[0] = AMIGO
+        try {
+            const termo = require('../src/commands/fun/termo')
+            const replies = []; const reply = (t) => { replies.push(t); return Promise.resolve() }
+            const from = 'grpTermo@g.us', sender = 'u@x'
+            await termo.execute({ from, sender, args: [], reply })
+            const consumed = await interactionService.consume(from, sender, 'AMIGO', { reply })
+            assert.strictEqual(consumed, true)
+            assert.ok(replies.some(r => /ACERTOU/i.test(r)), 'venceu o termo')
+        } finally { Math.random = orig }
+    })
+
+    await test('adivinheonumero: número por resposta livre (corrigido)', async () => {
+        const orig = Math.random; Math.random = () => 0 // secret = 1
+        try {
+            const adiv = require('../src/commands/fun/adivinheonumero')
+            const replies = []; const reply = (t) => { replies.push(t); return Promise.resolve() }
+            const from = 'grpNum@g.us', sender = '55199@s.whatsapp.net'
+            await adiv.execute({ from, sender, args: [], reply })
+            const consumed = await interactionService.consume(from, sender, '1', { reply })
+            assert.strictEqual(consumed, true)
+            assert.ok(replies.some(r => /ACERTOU/i.test(r)), 'acertou o número')
+        } finally { Math.random = orig }
+    })
+
     console.log('\n========================================')
     console.log('📊 RESULTADO — Interação:')
     console.log('   ✅ Passaram: ' + pass)
