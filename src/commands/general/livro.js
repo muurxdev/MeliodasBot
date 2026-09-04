@@ -110,19 +110,34 @@ module.exports = {
             }
 
             // Modo 2: Download e envio direto do PDF Real com Ficha Técnica Completa no Idioma Solicitado
-            const targetBook = results[0];
+            // Tenta cada resultado até encontrar um PDF disponível
+            let targetBook = null;
+            let pdfInfo = null;
+            let pdfResult = null;
 
-            // Resolução do link de download e stream do PDF real
-            const pdfInfo = await resolvePdfUrl(targetBook.identifier, targetBook.title, lang);
-            const pdfResult = await downloadPdfBuffer(pdfInfo?.downloadUrl, targetBook);
+            for (const book of results) {
+                const info = await resolvePdfUrl(book.identifier, book.title, lang);
+                const result = await downloadPdfBuffer(info?.downloadUrl, book);
+                if (result) {
+                    targetBook = book;
+                    pdfInfo = info;
+                    pdfResult = result;
+                    break;
+                }
+            }
 
-            if (!pdfResult) {
-                const noPdfLang = {
-                    pt: `❌ *Nenhum PDF real encontrado para:* _"${targetBook.title}"_\n\nO livro foi localizado no acervo, mas o arquivo PDF não está disponível para download gratuito.\n\n💡 *Sugestão:* Tente pesquisar por outro título ou autor.`,
-                    en: `❌ *No real PDF found for:* _"${targetBook.title}"_\n\nThe book was found in the archive, but the PDF file is not available for free download.\n\n💡 *Suggestion:* Try searching for a different title or author.`,
-                    es: `❌ *No se encontró ningún PDF real para:* _"${targetBook.title}"_\n\nEl libro fue encontrado en el acervo, pero el archivo PDF no está disponible para descarga gratuita.\n\n💡 *Sugerencia:* Intente buscar otro título o autor.`
+            if (!targetBook || !pdfResult) {
+                // Nenhum PDF encontrado — mostra sugestões dos resultados encontrados
+                const suggestions = results.slice(0, 5).map((r, idx) =>
+                    `*${idx + 1}.* 📖 *${r.title}*\n   └ 👤 ${r.author} | 🏛️ ${r.source}`
+                ).join('\n\n');
+
+                const notFoundMsg = {
+                    pt: `❌ *Nenhum PDF disponível para download para:* _"${cleanQuery}"_\n\n📚 *Outros livros encontrados no acervo:*\n\n${suggestions}\n\n💡 *Dica:* Use \`${prefix}livro <título>\` para tentar baixar algum desses livros listados acima.`,
+                    en: `❌ *No PDF available for download for:* _"${cleanQuery}"_\n\n📚 *Other books found in the archive:*\n\n${suggestions}\n\n💡 *Tip:* Use \`${prefix}book <title>\` to try downloading any of the books listed above.`,
+                    es: `❌ *Ningún PDF disponible para descargar para:* _"${cleanQuery}"_\n\n📚 *Otros libros encontrados en el acervo:*\n\n${suggestions}\n\n💡 *Consejo:* Use \`${prefix}libro <título>\` para intentar descargar alguno de los libros listados arriba.`
                 };
-                return reply(noPdfLang[lang] || noPdfLang.pt);
+                return reply(notFoundMsg[lang] || notFoundMsg.pt);
             }
 
             const { buffer: rawBuffer, sizeMb } = pdfResult;
