@@ -17,7 +17,7 @@ module.exports = {
     name: 'youtube',
     aliases: ['yt', 'ytb', 'ytdl', 'ytvideo'],
     category: 'media',
-    description: 'Baixa vídeos e músicas do YouTube (padrão MP4 HD). Use --mp3 para áudio.',
+    description: 'Baixa vídeos e músicas do YouTube (padrão MP4 na melhor qualidade). Use --mp3 para áudio.',
     cooldownMs: 4000,
     execute: async ({ sender, text, reply, client, from, info }) => {
         const botName = getBotName()
@@ -25,9 +25,9 @@ module.exports = {
             return reply(
                 '❌ *Informe o link ou nome do vídeo do YouTube!*\n\n' +
                 '📌 *Exemplos:*\n' +
-                '• `.youtube https://youtu.be/cBpUZJ0qxqs` → Baixa vídeo MP4 HD\n' +
+                '• `.youtube https://youtu.be/cBpUZJ0qxqs` → Baixa vídeo MP4 na melhor qualidade\n' +
                 '• `.youtube https://youtu.be/cBpUZJ0qxqs --mp3` → Baixa áudio em MP3\n' +
-                '• `.youtube Nanatsu no Taizai AMV` → Pesquisa e baixa vídeo HD'
+                '• `.youtube Nanatsu no Taizai AMV` → Pesquisa e baixa o vídeo'
             )
         }
 
@@ -108,12 +108,12 @@ module.exports = {
                         mimetype: 'video/mp4'
                     }, { quoted: info })
                 } else {
-                    // Arquivos grandes (> 100MB até 2GB): envia como documento MP4 HD sem perda
+                    // Arquivos grandes (> 100MB até 2GB): envia como documento MP4 sem perda
                     await client.sendMessage(from, {
                         document: buf,
                         mimetype: 'video/mp4',
                         fileName: `${cleanTitle}.mp4`,
-                        caption: `${caption}\n\n📦 *Enviado como documento (${sizeMb} MB) para manter 100% da qualidade HD original.*`
+                        caption: `${caption}\n\n📦 *Enviado como documento (${sizeMb} MB) para preservar a qualidade original do arquivo.*`
                     }, { quoted: info })
                 }
             }
