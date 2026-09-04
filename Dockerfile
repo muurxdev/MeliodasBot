@@ -46,7 +46,7 @@ RUN mkdir -p ytdlp_plugins \
 
 # Configura yt-dlp: habilita node como JS runtime + remote EJS scripts
 RUN mkdir -p /etc/yt-dlp \
-    && echo -e '--js-runtimes node\n--remote-components ejs:github' > /etc/yt-dlp/config
+    && printf '%s\n' '--js-runtimes node' '--remote-components ejs:github' > /etc/yt-dlp/config
 
 # Garante criação e permissões dos diretórios de dados e sessão
 RUN mkdir -p data sessao temp logs \
