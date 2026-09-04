@@ -1,19 +1,26 @@
 /**
- * Estado global de ligar/desligar comandos — camada OPT-IN (tudo nasce OFF).
+ * Estado de ligar/desligar comandos — camada OPT-IN **POR AMBIENTE** (tudo OFF).
  *
- * Duas granularidades:
- *  - MÓDULO  (ex.: cassino, rpg, downloads) — liga/desliga um bloco inteiro.
- *  - COMANDO (override) — força ON/OFF um comando específico, vencendo o módulo.
+ * Cada ambiente (ESCOPO) tem seu próprio estado, para dar isolamento/segurança:
+ *   - grupo  → o JID do grupo (ex.: "1203...@g.us"): vale só naquele grupo
+ *   - privado→ "pv": vale para as conversas no privado
+ *   - global → "global": só usado como padrão explícito do Dono (raro)
  *
- * Resolução de `isCommandEnabled(cmd)`:
- *   override do comando (se existir) > estado do módulo > DEFAULT_ENABLED (=false)
+ * Assim `.modulo on all` dentro de um grupo libera SÓ aquele grupo; no PV libera
+ * só o PV; e `.modulo on <mod> <idDoGrupo>` mira um grupo específico.
  *
- * Persistido na tabela `configs`, linha `__command_state__`, campo settings JSON:
- *   { modules: { <key>: bool }, commands: { <name>: bool } }
- * Memoizado com TTL curto (o gate roda no caminho de toda mensagem).
+ * Duas granularidades dentro do escopo:
+ *   - MÓDULO  (cassino, rpg, downloads…) — liga/desliga um bloco
+ *   - COMANDO (override) — força ON/OFF um comando, vencendo o módulo
  *
- * IMPORTANTE: esta camada é GLOBAL e controlada pelo DONO. NÃO substitui o toggle
- * por-grupo de admins (`.categoria`/`.cmd`), que continua funcionando por cima.
+ * Resolução: override do comando > estado do módulo > DEFAULT_ENABLED (=false)
+ *
+ * Persistido em `configs`, linha `__command_state__`, settings JSON:
+ *   { scopes: { "<jid|pv|global>": { modules: {k:bool}, commands: {n:bool} } } }
+ * Memoizado (o gate roda no caminho de toda mensagem).
+ *
+ * IMPORTANTE: camada GLOBAL do DONO. NÃO substitui o toggle por-grupo dos admins
+ * (`.categoria`/`.cmd`), que continua valendo por cima.
  */
 
 const configRepo = require('../database/repositories/configRepository')
@@ -22,18 +29,35 @@ const logger = require('../core/logger')
 
 const STATE_KEY = '__command_state__'
 const TTL_MS = 4000
+const PV_SCOPE = 'pv'
+const GLOBAL_SCOPE = 'global'
 
 let _cache = null
 let _at = 0
 
+/**
+ * Resolve a chave de escopo a partir do chat.
+ * @param {string} chatJid  JID do chat (grupo ou privado)
+ * @param {boolean} [isGroup]
+ */
+function scopeOf(chatJid, isGroup) {
+    if (!chatJid) return PV_SCOPE
+    const isG = (typeof isGroup === 'boolean') ? isGroup : String(chatJid).endsWith('@g.us')
+    return isG ? String(chatJid) : PV_SCOPE
+}
+
 function _load() {
     if (_cache && Date.now() - _at < TTL_MS) return _cache
-    let state = { modules: {}, commands: {} }
+    let state = { scopes: {} }
     try {
         const cfg = configRepo.getConfig(STATE_KEY)
         if (cfg && typeof cfg === 'object') {
-            state.modules = (cfg.modules && typeof cfg.modules === 'object') ? cfg.modules : {}
-            state.commands = (cfg.commands && typeof cfg.commands === 'object') ? cfg.commands : {}
+            if (cfg.scopes && typeof cfg.scopes === 'object') {
+                state.scopes = cfg.scopes
+            } else if (cfg.modules || cfg.commands) {
+                // Formato antigo (estado único global) → migra para o escopo global.
+                state.scopes[GLOBAL_SCOPE] = { modules: cfg.modules || {}, commands: cfg.commands || {} }
+            }
         }
     } catch (e) {
         logger.warn(`[MODULE STATE] Falha ao ler estado (${e.message}); assumindo tudo OFF.`)
@@ -55,77 +79,90 @@ function _save(state) {
     }
 }
 
-/** @returns {boolean} módulo ligado? (default: DEFAULT_ENABLED) */
-function isModuleEnabled(key) {
-    const state = _load()
-    if (typeof state.modules[key] === 'boolean') return state.modules[key]
+function _scopeState(scope) {
+    const s = _load()
+    return s.scopes[scope] || { modules: {}, commands: {} }
+}
+
+/** @returns {boolean} módulo ligado NESTE escopo? (default: OFF) */
+function isModuleEnabled(key, scope = GLOBAL_SCOPE) {
+    const st = _scopeState(scope)
+    if (typeof st.modules[key] === 'boolean') return st.modules[key]
     return DEFAULT_ENABLED
 }
 
 /**
  * @param {object|string} cmd - objeto de comando (preferido) ou nome
- * @returns {boolean}
+ * @param {string} scope - escopo (JID do grupo, 'pv' ou 'global')
  */
-function isCommandEnabled(cmd) {
-    const state = _load()
+function isCommandEnabled(cmd, scope = GLOBAL_SCOPE) {
+    const st = _scopeState(scope)
     const name = (typeof cmd === 'string' ? cmd : (cmd && cmd.name) || '').toLowerCase()
-    if (name && typeof state.commands[name] === 'boolean') return state.commands[name]
+    if (name && typeof st.commands[name] === 'boolean') return st.commands[name]
     const moduleKey = resolveModuleKey(typeof cmd === 'string' ? { name } : cmd)
-    return isModuleEnabled(moduleKey)
+    return isModuleEnabled(moduleKey, scope)
 }
 
-function setModule(key, enabled) {
-    if (!BY_KEY[key]) return { ok: false, reason: `Módulo "${key}" não existe.` }
+function _mutate(scope, fn) {
     const state = _load()
-    state.modules = { ...state.modules, [key]: !!enabled }
-    _save(state)
+    const cur = state.scopes[scope] || { modules: {}, commands: {} }
+    const next = fn({ modules: { ...cur.modules }, commands: { ...cur.commands } })
+    const scopes = { ...state.scopes, [scope]: next }
+    _save({ ...state, scopes })
+}
+
+function setModule(key, enabled, scope = GLOBAL_SCOPE) {
+    if (!BY_KEY[key]) return { ok: false, reason: `Módulo "${key}" não existe.` }
+    _mutate(scope, (s) => { s.modules[key] = !!enabled; return s })
     return { ok: true }
 }
 
-function setCommand(name, enabled) {
-    const state = _load()
-    state.commands = { ...state.commands, [String(name).toLowerCase()]: !!enabled }
-    _save(state)
+function setCommand(name, enabled, scope = GLOBAL_SCOPE) {
+    _mutate(scope, (s) => { s.commands[String(name).toLowerCase()] = !!enabled; return s })
     return { ok: true }
 }
 
 /** Remove o override de um comando (volta a seguir o módulo). */
-function clearCommand(name) {
-    const state = _load()
-    const commands = { ...state.commands }
-    delete commands[String(name).toLowerCase()]
-    _save({ ...state, commands })
+function clearCommand(name, scope = GLOBAL_SCOPE) {
+    _mutate(scope, (s) => { delete s.commands[String(name).toLowerCase()]; return s })
     return { ok: true }
 }
 
-function enableAll() {
+/** Liga TODOS os módulos — somente no escopo informado. */
+function enableAll(scope = GLOBAL_SCOPE) {
     const modules = {}
     for (const m of MODULES) modules[m.key] = true
-    _save({ modules, commands: {} })
+    _mutate(scope, () => ({ modules, commands: {} }))
     return { ok: true }
 }
 
-function disableAll() {
+/** Desliga TODOS os módulos — somente no escopo informado. */
+function disableAll(scope = GLOBAL_SCOPE) {
     const modules = {}
     for (const m of MODULES) modules[m.key] = false
-    _save({ modules, commands: {} })
+    _mutate(scope, () => ({ modules, commands: {} }))
     return { ok: true }
 }
 
-/** Estado atual dos módulos (para o comando .modulo). */
-function listModules() {
-    return MODULES.map(m => ({ ...m, enabled: isModuleEnabled(m.key) }))
+/** Estado atual dos módulos num escopo (para o comando .modulo). */
+function listModules(scope = GLOBAL_SCOPE) {
+    return MODULES.map(m => ({ ...m, enabled: isModuleEnabled(m.key, scope) }))
 }
 
-/** Overrides ativos por comando (para diagnóstico). */
-function listCommandOverrides() {
-    const state = _load()
-    return { ...state.commands }
+/** Overrides por comando num escopo. */
+function listCommandOverrides(scope = GLOBAL_SCOPE) {
+    return { ..._scopeState(scope).commands }
+}
+
+/** Escopos que já têm algum estado salvo (diagnóstico). */
+function listScopes() {
+    return Object.keys(_load().scopes)
 }
 
 function invalidateCache() { _cache = null; _at = 0 }
 
 module.exports = {
+    scopeOf,
     isModuleEnabled,
     isCommandEnabled,
     setModule,
@@ -135,6 +172,9 @@ module.exports = {
     disableAll,
     listModules,
     listCommandOverrides,
+    listScopes,
     invalidateCache,
-    STATE_KEY
+    STATE_KEY,
+    PV_SCOPE,
+    GLOBAL_SCOPE
 }

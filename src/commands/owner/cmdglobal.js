@@ -15,12 +15,13 @@ module.exports = {
     description: 'Liga/desliga um comando específico globalmente (override do módulo)',
     ownerOnly: true,
     cooldownMs: 1500,
-    execute: async ({ args, reply, prefix = '.' }) => {
+    execute: async ({ args, reply, prefix = '.', from, isGroup }) => {
+        const scope = moduleState.scopeOf(from, isGroup)
         const sub = (args[0] || '').toLowerCase()
         const nameArg = (args[1] || '').toLowerCase().replace(/^[./!]/, '')
 
         if (!sub || sub === 'status' || sub === 'list') {
-            const ov = moduleState.listCommandOverrides()
+            const ov = moduleState.listCommandOverrides(scope)
             const keys = Object.keys(ov)
             let doc = `╔══════════════════════════════╗\n`
             doc += `║   🎛️ *OVERRIDES POR COMANDO* 🎛️   ║\n`
@@ -54,13 +55,13 @@ module.exports = {
         }
 
         if (sub === 'auto') {
-            moduleState.clearCommand(cmd.name)
+            moduleState.clearCommand(cmd.name, scope)
             const mk = resolveModuleKey(cmd)
             return reply(`♻️ \`${cmd.name}\` voltou a seguir o módulo *${(BY_KEY[mk]?.label) || mk}*.`)
         }
 
         const enable = sub === 'on'
-        moduleState.setCommand(cmd.name, enable)
-        return reply(`${enable ? '🟢' : '🔴'} Comando \`${cmd.name}\` forçado para *${enable ? 'ON' : 'OFF'}* globalmente.`)
+        moduleState.setCommand(cmd.name, enable, scope)
+        return reply(`${enable ? '🟢' : '🔴'} Comando \`${cmd.name}\` forçado para *${enable ? 'ON' : 'OFF'}* neste ambiente.`)
     }
 }

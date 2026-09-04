@@ -312,9 +312,11 @@ async function dispatch(context) {
     // ou por comando). Roda DEPOIS de permissão/escopo: erros de "não é admin" /
     // "só em grupo" têm prioridade; a mensagem de OFF só aparece a quem poderia usar.
     if (!isUserOwner) {
+        // Escopo do ambiente: no grupo vale o estado DAQUELE grupo; no PV, o do PV.
+        const optInScope = moduleState.scopeOf(from, isGroup)
         const optInAllowed = ['menu', 'help', 'dono', 'ping', 'modulo', 'cmdglobal',
             'login', 'registrar', 'cadastrar', 'registro', 'perfilconfig', 'entrarbot', 'comandos']
-        if (!optInAllowed.includes(cmd.name.toLowerCase()) && !moduleState.isCommandEnabled(cmd)) {
+        if (!optInAllowed.includes(cmd.name.toLowerCase()) && !moduleState.isCommandEnabled(cmd, optInScope)) {
             const mk = resolveModuleKey(cmd)
             const mLabel = (MODULE_BY_KEY[mk] && MODULE_BY_KEY[mk].label) || mk
             let offDoc = `╔══════════════════════════════╗\n`

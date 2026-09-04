@@ -41,7 +41,13 @@ async function testAsync(name, fn) {
 async function runTelemetryTests() {
     dispatcher.loadCommands()
     // Camada opt-in nasce OFF; libera tudo para testar o comportamento dos comandos.
-    require('../src/services/moduleStateService').enableAll()
+    // Camada opt-in é POR AMBIENTE; libera os escopos usados nos testes.
+    {
+        const _ms = require('../src/services/moduleStateService')
+        _ms.enableAll(_ms.PV_SCOPE)
+        _ms.enableAll(_ms.GLOBAL_SCOPE)
+        for (const g of ['5511999990001-1234@g.us', '120363000000000000@g.us', 'grupo@g.us']) _ms.enableAll(g)
+    }
     telemetryService.resetMetrics()
 
     // ══════════════════════════════════════════

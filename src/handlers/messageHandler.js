@@ -138,7 +138,8 @@ async function handleIncomingMessage(client, { messages }) {
 
     // Ganho de XP liberado em grupos OU no PV quando ativado pelo dono (.farmpv on).
     // Gate da camada opt-in: o módulo "xp" (progressão passiva) precisa estar ligado.
-    const xpModuleOn = require('../services/moduleStateService').isModuleEnabled('xp')
+    const _ms = require('../services/moduleStateService')
+    const xpModuleOn = _ms.isModuleEnabled('xp', _ms.scopeOf(from, isGroup))
     if ((isGroup || allowPvXp) && xpModuleOn) {
         // XP base + bônus por tipo de mídia (áudio/vídeo/imagem/figurinha/documento
         // rendem um pouco mais que texto puro, incentivando engajamento variado).
