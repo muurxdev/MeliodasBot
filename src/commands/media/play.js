@@ -94,9 +94,11 @@ module.exports = {
                 if (thumbs.length > 0) {
                     try {
                         for (let i = 0; i < thumbs.length; i++) {
+                            const fmtIcon = wantsMp4 ? '🎬' : '🎵'
+                            const fmtLabel = wantsMp4 ? 'MP4 HD' : 'MP3'
                             await client.sendMessage(from, {
                                 image: { url: thumbs[i].thumbnail },
-                                caption: `*${i + 1}º* — ${thumbs[i].title.slice(0, 55)}\n👤 ${thumbs[i].author} | ⏱️ ${thumbs[i].durationFormatted}`
+                                caption: `*${i + 1}º* — ${thumbs[i].title.slice(0, 55)}\n👤 ${thumbs[i].author} | ⏱️ ${thumbs[i].durationFormatted}\n${fmtIcon} *Formato:* ${fmtLabel}`
                             }, { quoted: i === 0 ? info : undefined })
                         }
                     } catch (_) {}

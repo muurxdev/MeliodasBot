@@ -160,11 +160,12 @@ function formatDuration(seconds) {
 function formatSearchResults(query, results, { cmd = 'play', isAudio = true } = {}) {
     const icon = isAudio ? '🎵' : '🎬'
     const formatLabel = isAudio ? 'MP3' : 'MP4 HD'
+    const formatDetail = isAudio ? 'Áudio (MP3)' : 'Vídeo (MP4 HD)'
     let msg = `╔══════════════════════════════╗\n`
     msg += `║   🔎 *RESULTADOS DA BUSCA* 🔎   ║\n`
     msg += `╚══════════════════════════════╝\n\n`
     msg += `📌 *Você buscou:* _${query}_\n`
-    msg += `${icon} *${results.length} resultado(s) encontrado(s) para ${formatLabel}:*\n\n`
+    msg += `${icon} *${results.length} resultado(s) encontrado(s) — Formato: ${formatDetail}*\n\n`
 
     results.forEach((r, i) => {
         const n = r.index || (i + 1)
@@ -172,6 +173,7 @@ function formatSearchResults(query, results, { cmd = 'play', isAudio = true } = 
         msg += `┃ 📝 *${String(r.title || 'Sem título').slice(0, 60)}*\n`
         msg += `┃ 👤 *Canal:* ${r.author || 'Desconhecido'}\n`
         msg += `┃ ⏱️ *Duração:* ${r.durationFormatted || '—'}\n`
+        msg += `┃ ${icon} *Formato:* ${formatLabel}\n`
         if (r.url) msg += `┃ 🔗 ${r.url}\n`
         msg += `╰━━━━━━━━━━━━━━━━━━⬣\n`
     })
