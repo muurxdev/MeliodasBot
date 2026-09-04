@@ -7,7 +7,6 @@
 const https = require('https');
 const http = require('http');
 const logger = require('../core/logger');
-const { generateEbookPdf } = require('../utils/pdfGenerator');
 
 // Dicionário de internacionalização para a interface de livros
 const I18N_BOOK_LABELS = {
@@ -939,22 +938,7 @@ async function downloadPdfBuffer(downloadUrl, bookMeta = {}) {
         }
     }
 
-    const generatedBuffer = generateEbookPdf({
-        title: bookMeta.title || "Digital Book",
-        author: bookMeta.author || "Recognized Author",
-        year: bookMeta.year || "2024",
-        edition: bookMeta.edition || "Official Digital Edition",
-        publisher: bookMeta.publisher || "Digital Library",
-        pages: bookMeta.pages || "Full Volume",
-        genre: bookMeta.genre || "Literature",
-        description: bookMeta.description || "Digitalized book indexed for WhatsApp.",
-        botName: require('../config/botConfig').getBotName()
-    });
-
-    return {
-        buffer: generatedBuffer,
-        sizeMb: (generatedBuffer.length / 1024).toFixed(1) + ' KB'
-    };
+    return null;
 }
 
 module.exports = {

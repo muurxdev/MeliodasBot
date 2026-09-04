@@ -114,7 +114,18 @@ module.exports = {
 
             // Resolução do link de download e stream do PDF real
             const pdfInfo = await resolvePdfUrl(targetBook.identifier, targetBook.title, lang);
-            const { buffer: rawBuffer, sizeMb } = await downloadPdfBuffer(pdfInfo?.downloadUrl, targetBook);
+            const pdfResult = await downloadPdfBuffer(pdfInfo?.downloadUrl, targetBook);
+
+            if (!pdfResult) {
+                const noPdfLang = {
+                    pt: `❌ *Nenhum PDF real encontrado para:* _"${targetBook.title}"_\n\nO livro foi localizado no acervo, mas o arquivo PDF não está disponível para download gratuito.\n\n💡 *Sugestão:* Tente pesquisar por outro título ou autor.`,
+                    en: `❌ *No real PDF found for:* _"${targetBook.title}"_\n\nThe book was found in the archive, but the PDF file is not available for free download.\n\n💡 *Suggestion:* Try searching for a different title or author.`,
+                    es: `❌ *No se encontró ningún PDF real para:* _"${targetBook.title}"_\n\nEl libro fue encontrado en el acervo, pero el archivo PDF no está disponible para descarga gratuita.\n\n💡 *Sugerencia:* Intente buscar otro título o autor.`
+                };
+                return reply(noPdfLang[lang] || noPdfLang.pt);
+            }
+
+            const { buffer: rawBuffer, sizeMb } = pdfResult;
 
             // Verificação e remoção de senhas / restrições de criptografia
             const secResult = unlockPdfBuffer(rawBuffer);
