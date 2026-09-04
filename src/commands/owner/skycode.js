@@ -37,6 +37,12 @@ module.exports = {
         const scope = moduleState.scopeOf(from, isGroup)
         const sub = (args[0] || '').toLowerCase()
 
+        // O gate do dispatcher isenta o Dono, e este comando é só do Dono — então
+        // sem esta checagem o `.modulo off skycode` não teria efeito nenhum.
+        if (!moduleState.isModuleEnabled('skycode', scope)) {
+            return reply(`🛰️ *Painel Skycode desativado neste ambiente.*\n\n💡 _Para ativar:_ \`${prefix}modulo on skycode\``)
+        }
+
         // .skycode chaves → só a referência de variáveis das mensagens
         if (sub === 'chaves' || sub === 'variaveis' || sub === 'placeholders') {
             return reply(ui.screen({

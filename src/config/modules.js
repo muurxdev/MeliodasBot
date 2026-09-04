@@ -26,6 +26,7 @@ const MODULES = [
     { key: 'ia',              emoji: '🧠',  label: 'IA & Pesquisa' },
     { key: 'livros',          emoji: '📚',  label: 'Livros & Materiais' },
     { key: 'perfil',          emoji: '🏆',  label: 'Perfil & Ranking' },
+    { key: 'skycode',         emoji: '🛰️',  label: 'Painel Skycode' },
     { key: 'owner',           emoji: '👑',  label: 'Dono & Bot' }
 ]
 
@@ -60,6 +61,9 @@ addNames('figurinhas', [
     'wanted', 'wasted', 'triggered', 'circle', 'nobg', 'removerbg', 'pixelar'
 ])
 addNames('livros', ['livro', 'livros', 'livroaleatorio', 'apostila', 'apostilas', 'gutenberg'])
+// Painel do grupo: módulo próprio para poder ser desligado sozinho, sem mexer
+// no restante dos comandos de dono.
+addNames('skycode', ['skycode'])
 
 /**
  * Resolve o módulo de um comando.
