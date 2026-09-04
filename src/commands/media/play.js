@@ -153,7 +153,12 @@ module.exports = {
             logger.info(`[PLAY] Áudio enviado para ${sender}: ${mediaData.title}`)
         } catch (err) {
             logger.error('[PLAY ERROR]', err)
-            await reply(`❌ *Falha ao reproduzir áudio:* ${err.message}`)
+            const msg = err.message || 'Erro desconhecido'
+            if (msg.includes('⚠️') || msg.includes('❌')) {
+                await reply(msg)
+            } else {
+                await reply(`❌ *Falha ao reproduzir áudio:* ${msg}`)
+            }
         }
     }
 }

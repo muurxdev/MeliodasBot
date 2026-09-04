@@ -13,6 +13,7 @@ const { tempDir } = require("../config/paths");
 const { getPlatformDisplayName } = require("./media/formatResolver");
 const { downloadYouTubeResilient, resolveYouTubeOEmbed } = require("./media/youtubeFallback");
 const { buildYtDlpArgs, getYtDlpEnv } = require("./media/mediaArgs");
+const { toMessage: mediaErrorMessage } = require("./media/mediaErrors");
 const logger = require("../core/logger");
 
 let scInitialized = false;
@@ -216,7 +217,8 @@ function downloadDirectYtDlpAudio(targetUrl, outputPath) {
             if (code === 0 && fs.existsSync(outputPath) && fs.statSync(outputPath).size > 0) {
                 resolve(outputPath);
             } else {
-                reject(new Error("yt-dlp audio download failed: " + stderrData.slice(-200)));
+                const friendlyMsg = mediaErrorMessage("Falha ao baixar áudio do YouTube", stderrData);
+                reject(new Error(friendlyMsg));
             }
         });
         proc.on("error", reject);

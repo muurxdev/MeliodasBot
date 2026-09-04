@@ -47,7 +47,6 @@ module.exports = {
             doc += `║   🎙️ *TRANSCRIÇÃO* 🎙️   ║\n`
             doc += `╚══════════════════════════════╝\n\n`
             doc += `📝 *Texto:*\n${text}\n\n`
-            doc += `🤖 _Transcrito por ${engine}_\n`
             doc += `👑 *${botName}*`
             return reply(doc.trim())
         } catch (err) {
