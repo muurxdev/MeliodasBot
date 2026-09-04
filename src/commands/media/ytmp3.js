@@ -22,8 +22,7 @@ module.exports = {
 
         const initialCard = formatDownloadProgressCard({
             platform: 'YouTube',
-            isAudio: true,
-            estimatedTime: '~5 a 12 seg'
+            isAudio: true
         })
         await reply(initialCard)
 

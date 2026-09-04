@@ -197,7 +197,10 @@ function formatMediaCaption({ platform = 'Web', title = 'Mídia', author = 'Desc
     if (probe) {
         // Dados 100% reais do arquivo
         if (!audio && probe.resolution) doc += `┃ 🖥️ *Resolução:* ${probe.resolution}${probe.vcodec ? ' (' + probe.vcodec + ')' : ''}\n`
-        doc += `┃ 📦 *Formato:* ${probe.container}${audio && probe.acodec ? ' / ' + probe.acodec : ''}\n`
+        // Formato: só mostra codec se for diferente do container (evita "MP3 / mp3")
+        const codecInfo = audio && probe.acodec && probe.acodec.toLowerCase() !== probe.container.toLowerCase()
+            ? ` (${probe.acodec})` : ''
+        doc += `┃ 📦 *Formato:* ${probe.container}${codecInfo}\n`
         const sizeStr = formatBytes(probe.sizeBytes)
         if (sizeStr) doc += `┃ 💾 *Tamanho:* ${sizeStr}\n`
     } else {
@@ -248,7 +251,7 @@ function getEstimatedWaitTime(duration) {
  * @param {object} params
  * @returns {string}
  */
-function formatDownloadProgressCard({ platform = 'YouTube', title = '', isAudio = false, estimatedTime = null, sizeMB = null, quality = null } = {}) {
+function formatDownloadProgressCard({ platform = 'YouTube', title = '', isAudio = false, estimatedTime = null, sizeMB = null, quality = null, elapsedMs = null } = {}) {
     const botName = getBotName()
     const icon = isAudio ? '🎵' : '🎬'
     const typeLabel = isAudio ? 'Áudio (MP3)' : (quality ? `Vídeo (MP4, ${quality})` : 'Vídeo (MP4)')
@@ -262,9 +265,11 @@ function formatDownloadProgressCard({ platform = 'YouTube', title = '', isAudio 
         doc += `┃ 📝 *Título:* ${title.slice(0, 50)}\n`
     }
     doc += `┃ ${icon} *Mídia:* ${typeLabel}\n`
-    // Só mostra tamanho/tempo se forem valores REAIS vindos do metadata/progresso.
     if (sizeMB) doc += `┃ 💾 *Tamanho:* ~${sizeMB} MB\n`
-    if (estimatedTime) doc += `┃ ⏳ *Tempo estimado:* ${estimatedTime}\n`
+    // Tempo real: usa elapsedMs se disponível, senão não mostra nada
+    if (elapsedMs) {
+        doc += `┃ ⏱️ *Tempo:* ${formatElapsed(elapsedMs)}\n`
+    }
     doc += `┃ ⚡ *Status:* 📥 Baixando...\n`
     doc += `╰━━━━━━━━━━━━━━━━━━⬣\n\n`
     doc += `👑 *${botName}*`

@@ -344,13 +344,12 @@ module.exports = {
         const shouldDownloadVideo = (!isForceAudio) && (isMp4 || looksLikeUrl(cleanQuery));
 
         if (shouldDownloadVideo) {
-            const { formatDownloadProgressCard, getEstimatedWaitTime } = require("../../services/media/formatResolver");
+            const { formatDownloadProgressCard } = require("../../services/media/formatResolver");
             const { ensureMobileVideoCompatibility } = require("../../services/media/mediaProcessor");
 
             const initialCard = formatDownloadProgressCard({
                 platform: platformName,
                 isAudio: false,
-                estimatedTime: '~5 a 15 seg',
                 quality: '1080p Full HD'
             });
             await reply(initialCard);
@@ -416,8 +415,7 @@ module.exports = {
         const { formatDownloadProgressCard } = require("../../services/media/formatResolver");
         const initialAudioCard = formatDownloadProgressCard({
             platform: platformName,
-            isAudio: true,
-            estimatedTime: "~5 a 12 seg"
+            isAudio: true
         });
         await reply(initialAudioCard);
 

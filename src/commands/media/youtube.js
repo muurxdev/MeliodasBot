@@ -7,7 +7,7 @@
 const fs = require('fs')
 const path = require('path')
 const { extractMetadata, downloadMedia, looksLikeUrl } = require('../../services/mediaEngine')
-const { getPlatformDisplayName, formatMediaCaption, getEstimatedWaitTime, formatDownloadProgressCard } = require('../../services/media/formatResolver')
+const { getPlatformDisplayName, formatMediaCaption, formatDownloadProgressCard } = require('../../services/media/formatResolver')
 const { ensureMobileVideoCompatibility } = require('../../services/media/mediaProcessor')
 const { mediaQueue } = require('../../services/mediaQueue')
 const { getBotName } = require('../../config/botConfig')
@@ -40,8 +40,7 @@ module.exports = {
         const initialCard = formatDownloadProgressCard({
             platform: platformName,
             isAudio,
-            estimatedTime: '~5 a 15 seg',
-            quality: '1080p Full HD'
+            quality: isAudio ? null : '1080p Full HD'
         })
         await reply(initialCard)
 

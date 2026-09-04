@@ -27,7 +27,6 @@ module.exports = {
         const initialCard = formatDownloadProgressCard({
             platform: platformName,
             isAudio: false,
-            estimatedTime: '~5 a 15 seg',
             quality: '1080p Full HD'
         })
         await reply(initialCard)
