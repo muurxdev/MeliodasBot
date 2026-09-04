@@ -1062,17 +1062,19 @@ async function searchBooks(query, limit = 5, requestedLang = 'pt') {
  */
 async function resolvePdfUrl(identifier, fallbackQuery = '', lang = 'pt') {
     let targetId = identifier;
+    logger.info(`[BOOK RESOLVE] Resolvendo PDF para identifier=${identifier}, query=${fallbackQuery}`);
 
     // Project Gutenberg: identifier gt_<id> → resolve o formato baixável direto.
     if (targetId && targetId.startsWith('gt_')) {
         try {
             const gid = targetId.slice(3);
-            const b = await fetchJson(`https://gutendex.com/books/${encodeURIComponent(gid)}`, { timeout: 6000 });
+            const b = await fetchJson(`https://gutendex.com/books/${encodeURIComponent(gid)}`, { timeout: 8000 });
             const fmts = (b && b.formats) || {};
             const pdf = fmts['application/pdf'];
             const epub = fmts['application/epub+zip'];
             const url = pdf || epub;
             if (url && !/\.zip$/i.test(url)) {
+                logger.info(`[BOOK RESOLVE] Gutenberg OK: ${url.substring(0, 80)}`);
                 return {
                     downloadUrl: url,
                     detailsUrl: `https://www.gutenberg.org/ebooks/${gid}`,
@@ -1080,15 +1082,17 @@ async function resolvePdfUrl(identifier, fallbackQuery = '', lang = 'pt') {
                     sizeBytes: 0
                 };
             }
-        } catch (_) {}
+        } catch (e) { logger.warn(`[BOOK RESOLVE] Gutenberg falhou: ${e.message}`); }
         return null;
     }
 
     // arXiv — PDF direto
     if (targetId && targetId.startsWith('arxiv_')) {
         const arxivId = targetId.slice(6);
+        const url = `https://arxiv.org/pdf/${arxivId}.pdf`;
+        logger.info(`[BOOK RESOLVE] arXiv PDF: ${url}`);
         return {
-            downloadUrl: `https://arxiv.org/pdf/${arxivId}.pdf`,
+            downloadUrl: url,
             detailsUrl: `https://arxiv.org/abs/${arxivId}`,
             fileName: `arxiv_${arxivId}.pdf`,
             sizeBytes: 0
@@ -1100,10 +1104,11 @@ async function resolvePdfUrl(identifier, fallbackQuery = '', lang = 'pt') {
         const gbId = targetId.slice(3);
         try {
             const gbUrl = `https://www.googleapis.com/books/v1/volumes/${encodeURIComponent(gbId)}`;
-            const gbData = await fetchJson(gbUrl, { timeout: 6000 });
-            const pdfUrl = gbData?.volumeInfo?.accessInfo?.pdf?.downloadLink ||
-                           gbData?.volumeInfo?.accessInfo?.webReaderLink || '';
+            const gbData = await fetchJson(gbUrl, { timeout: 8000 });
+            const pdfUrl = gbData?.accessInfo?.pdf?.downloadLink ||
+                           gbData?.accessInfo?.webReaderLink || '';
             if (pdfUrl) {
+                logger.info(`[BOOK RESOLVE] Google Books OK: ${pdfUrl.substring(0, 80)}`);
                 return {
                     downloadUrl: pdfUrl,
                     detailsUrl: `https://books.google.com/books?id=${gbId}`,
@@ -1111,65 +1116,93 @@ async function resolvePdfUrl(identifier, fallbackQuery = '', lang = 'pt') {
                     sizeBytes: 0
                 };
             }
-        } catch (_) {}
+        } catch (e) { logger.warn(`[BOOK RESOLVE] Google Books falhou: ${e.message}`); }
         return null;
     }
 
     // SpringerOpen — PDF direto via DOI
     if (targetId && targetId.startsWith('spr_')) {
         const doi = `10.1007/${targetId.slice(4)}`;
+        const url = `https://link.springer.com/content/pdf/${doi}.pdf`;
+        logger.info(`[BOOK RESOLVE] SpringerOpen PDF: ${url}`);
         return {
-            downloadUrl: `https://link.springer.com/content/pdf/${doi}.pdf`,
+            downloadUrl: url,
             detailsUrl: `https://doi.org/${doi}`,
             fileName: `${targetId}.pdf`,
             sizeBytes: 0
         };
     }
 
-    // HathiTrust — PDF via babel
+    // HathiTrust — PDF via babel (pode exigir auth)
     if (targetId && targetId.startsWith('ht_')) {
         const htId = targetId.slice(3);
+        const url = `https://babel.hathitrust.org/cgi/pt?id=${htId}&format=pdf`;
+        logger.info(`[BOOK RESOLVE] HathiTrust PDF: ${url}`);
         return {
-            downloadUrl: `https://babel.hathitrust.org/cgi/pt?id=${htId}&format=pdf`,
+            downloadUrl: url,
             detailsUrl: `https://catalog.hathitrust.org/Record/${htId}`,
             fileName: `hathitrust_${htId}.pdf`,
             sizeBytes: 0
         };
     }
 
-    // DOAB — PDF via handle
+    // DOAB — PDF via bitstream API
     if (targetId && targetId.startsWith('doab_')) {
         const doabId = targetId.slice(5);
-        return {
-            downloadUrl: `https://directory.doabooks.org/rest/bitstreams/${doabId}/retrieve`,
-            detailsUrl: `https://directory.doabooks.org/handle/${doabId}`,
-            fileName: `doab_${doabId}.pdf`,
-            sizeBytes: 0
-        };
+        try {
+            // Busca bitstreams do item
+            const bitstreamUrl = `https://doabooks.org/rest/bitstreams/search?query=item.handle:${doabId}`;
+            const bitData = await fetchJson(bitstreamUrl, { timeout: 8000 }).catch(() => null);
+            const bitstreams = bitData?.searchResult?.resultList || [];
+            const pdfBit = bitstreams.find(b => (b.format || '').toLowerCase().includes('pdf') || (b.name || '').toLowerCase().endsWith('.pdf'));
+            if (pdfBit?.id) {
+                const url = `https://doabooks.org/rest/bitstreams/${pdfBit.id}/retrieve`;
+                logger.info(`[BOOK RESOLVE] DOAB OK: ${url}`);
+                return {
+                    downloadUrl: url,
+                    detailsUrl: `https://doabooks.org/handle/${doabId}`,
+                    fileName: pdfBit.name || `doab_${doabId}.pdf`,
+                    sizeBytes: Number(pdfBit.size || 0)
+                };
+            }
+        } catch (e) { logger.warn(`[BOOK RESOLVE] DOAB falhou: ${e.message}`); }
+        return null;
     }
 
-    // OAPEN — PDF via handle
+    // OAPEN — PDF via bitstream API
     if (targetId && targetId.startsWith('oapen_')) {
         const oapenId = targetId.slice(6);
-        return {
-            downloadUrl: `https://library.oapen.org/bitstream/${oapenId}/1/1006451.pdf`,
-            detailsUrl: `https://library.oapen.org/handle/${oapenId}`,
-            fileName: `oapen_${oapenId}.pdf`,
-            sizeBytes: 0
-        };
+        try {
+            const bitstreamUrl = `https://library.oapen.org/rest/bitstreams/search?query=item.handle:${oapenId}`;
+            const bitData = await fetchJson(bitstreamUrl, { timeout: 8000 }).catch(() => null);
+            const bitstreams = bitData?.searchResult?.resultList || [];
+            const pdfBit = bitstreams.find(b => (b.format || '').toLowerCase().includes('pdf') || (b.name || '').toLowerCase().endsWith('.pdf'));
+            if (pdfBit?.id) {
+                const url = `https://library.oapen.org/rest/bitstreams/${pdfBit.id}/retrieve`;
+                logger.info(`[BOOK RESOLVE] OAPEN OK: ${url}`);
+                return {
+                    downloadUrl: url,
+                    detailsUrl: `https://library.oapen.org/handle/${oapenId}`,
+                    fileName: pdfBit.name || `oapen_${oapenId}.pdf`,
+                    sizeBytes: Number(pdfBit.size || 0)
+                };
+            }
+        } catch (e) { logger.warn(`[BOOK RESOLVE] OAPEN falhou: ${e.message}`); }
+        return null;
     }
 
     if (!targetId && fallbackQuery) {
         const iaLangFilter = LANG_CODE_MAP[lang] ? `+AND+language:(${LANG_CODE_MAP[lang]})` : '';
         const iaSearchUrl = `https://archive.org/advancedsearch.php?q=title:(${encodeURIComponent('"' + fallbackQuery + '"')})+AND+mediatype:(texts)${iaLangFilter}&fl[]=identifier&rows=1&sort[]=downloads+desc&output=json`;
-        const iaData = await fetchJson(iaSearchUrl, { timeout: 6000 }).catch(() => ({}));
+        const iaData = await fetchJson(iaSearchUrl, { timeout: 8000 }).catch(() => ({}));
         targetId = iaData?.response?.docs?.[0]?.identifier;
+        logger.info(`[BOOK RESOLVE] Archive.org fallback: identifier=${targetId} para query="${fallbackQuery}"`);
     }
 
     if (targetId && !targetId.startsWith('ol_')) {
         try {
             const metaUrl = `https://archive.org/metadata/${encodeURIComponent(targetId)}/files`;
-            const meta = await fetchJson(metaUrl, { timeout: 8000 });
+            const meta = await fetchJson(metaUrl, { timeout: 10000 });
 
             if (meta?.result && Array.isArray(meta.result)) {
                 const pdfFiles = meta.result.filter(f => {
@@ -1178,12 +1211,15 @@ async function resolvePdfUrl(identifier, fallbackQuery = '', lang = 'pt') {
                     return (name.endsWith('.pdf') || format.includes('pdf')) && !name.includes('_thumb') && !name.includes('_cover');
                 });
 
+                logger.info(`[BOOK RESOLVE] Archive.org ${targetId}: ${pdfFiles.length} PDFs encontrados de ${meta.result.length} arquivos`);
+
                 if (pdfFiles.length > 0) {
                     pdfFiles.sort((a, b) => Number(a.size || 0) - Number(b.size || 0));
                     const chosenFile = pdfFiles[0];
                     const encodedFileName = encodeURIComponent(chosenFile.name).replace(/%2F/g, '/');
                     const downloadUrl = `https://archive.org/download/${encodeURIComponent(targetId)}/${encodedFileName}`;
 
+                    logger.info(`[BOOK RESOLVE] Archive.org OK: ${downloadUrl.substring(0, 100)}`);
                     return {
                         downloadUrl,
                         detailsUrl: `https://archive.org/details/${encodeURIComponent(targetId)}`,
@@ -1192,7 +1228,7 @@ async function resolvePdfUrl(identifier, fallbackQuery = '', lang = 'pt') {
                     };
                 }
             }
-        } catch (_) {}
+        } catch (e) { logger.warn(`[BOOK RESOLVE] Archive.org metadata falhou: ${e.message}`); }
     }
 
     return null;
@@ -1203,6 +1239,7 @@ async function resolvePdfUrl(identifier, fallbackQuery = '', lang = 'pt') {
  */
 async function downloadPdfBuffer(downloadUrl, bookMeta = {}) {
     if (downloadUrl) {
+        logger.info(`[BOOK DOWNLOAD] Baixando PDF de: ${downloadUrl.substring(0, 120)}`);
         try {
             const bufPromise = new Promise((resolve, reject) => {
                 const client = downloadUrl.startsWith('https:') ? https : http;

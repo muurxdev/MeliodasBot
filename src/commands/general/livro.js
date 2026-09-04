@@ -116,13 +116,21 @@ module.exports = {
             let pdfResult = null;
 
             for (const book of results) {
+                logger.info(`[LIVRO] Tentando baixar: "${book.title}" (${book.identifier}) de ${book.source}`);
                 const info = await resolvePdfUrl(book.identifier, book.title, lang);
-                const result = await downloadPdfBuffer(info?.downloadUrl, book);
+                if (!info?.downloadUrl) {
+                    logger.warn(`[LIVRO] Sem URL de download para: "${book.title}" (${book.identifier})`);
+                    continue;
+                }
+                const result = await downloadPdfBuffer(info.downloadUrl, book);
                 if (result) {
+                    logger.info(`[LIVRO] PDF baixado com sucesso: "${book.title}" (${result.sizeMb})`);
                     targetBook = book;
                     pdfInfo = info;
                     pdfResult = result;
                     break;
+                } else {
+                    logger.warn(`[LIVRO] Download falhou para: "${book.title}" — URL: ${info.downloadUrl.substring(0, 80)}`);
                 }
             }
 
