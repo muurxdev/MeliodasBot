@@ -159,11 +159,12 @@ function formatDuration(seconds) {
  */
 function formatSearchResults(query, results, { cmd = 'play', isAudio = true } = {}) {
     const icon = isAudio ? '🎵' : '🎬'
+    const formatLabel = isAudio ? 'MP3' : 'MP4 HD'
     let msg = `╔══════════════════════════════╗\n`
     msg += `║   🔎 *RESULTADOS DA BUSCA* 🔎   ║\n`
     msg += `╚══════════════════════════════╝\n\n`
     msg += `📌 *Você buscou:* _${query}_\n`
-    msg += `${icon} *${results.length} resultado(s) encontrado(s):*\n\n`
+    msg += `${icon} *${results.length} resultado(s) encontrado(s) para ${formatLabel}:*\n\n`
 
     results.forEach((r, i) => {
         const n = r.index || (i + 1)
@@ -176,7 +177,7 @@ function formatSearchResults(query, results, { cmd = 'play', isAudio = true } = 
     })
 
     msg += `\n💡 *Para baixar, escolha o número:* \`.${cmd} <número>\`\n`
-    msg += `📌 _Ex.:_ \`.${cmd} 1\` _baixa o primeiro resultado._\n`
+    msg += `📌 _Ex.:_ \`.${cmd} 1\` _baixa o primeiro resultado como ${formatLabel}._\n`
     msg += `_(a seleção expira em 5 minutos)_`
     return msg.trim()
 }

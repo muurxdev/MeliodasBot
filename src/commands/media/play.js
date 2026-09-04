@@ -1,12 +1,15 @@
 /**
  * Comando .play
- * Pesquisa e reproduz músicas com capa oficial, dados limpos e link de origem
+ * Pesquisa e reproduz músicas (MP3) ou vídeos (MP4) com capa oficial, dados limpos e link de origem
+ * Suporta: .play <query> → MP3 | .play mp4 <query> → MP4 HD
  */
 
 const fs = require('fs')
 const path = require('path')
 const { rootDir } = require('../../config/paths')
 const { searchAndDownloadAudio } = require('../../services/audioStreamService')
+const { extractMetadata, downloadMedia } = require('../../services/mediaEngine')
+const { ensureMobileVideoCompatibility } = require('../../services/media/mediaProcessor')
 const { mediaQueue } = require('../../services/mediaQueue')
 const logger = require('../../core/logger')
 
@@ -14,7 +17,7 @@ module.exports = {
     name: 'play',
     aliases: ['musica', 'tocar', 'yt', 'som', 'playmp3', 'audio', 'sp'],
     category: 'media',
-    description: 'Pesquisa e reproduz músicas do YouTube e Spotify com capa oficial e link de origem',
+    description: 'Pesquisa e baixa músicas (MP3) ou vídeos (MP4) do YouTube e Spotify',
     cooldownMs: 3000,
     execute: async ({ text, from, info, client, reply, sender }) => {
         if (!text) {
@@ -22,12 +25,12 @@ module.exports = {
             doc += `║    💡 *COMO USAR O COMANDO* 💡    ║\n`
             doc += `╚══════════════════════════════╝\n\n`
             doc += `📌 *Comando:* \`.play\`\n`
-            doc += `📖 *Descrição:* Pesquisa e baixa faixas em áudio MP3 de alta qualidade.\n\n`
+            doc += `📖 *Descrição:* Pesquisa e baixa músicas (MP3) ou vídeos (MP4) em alta qualidade.\n\n`
             doc += `📝 *Exemplos de Uso:*\n`
-            doc += `👉 \`.play Rap do Meliodas 7 Minutoz\`\n`
-            doc += `👉 \`.play Mc Iguinho GRWM\`\n`
-            doc += `👉 \`.play https://www.youtube.com/watch?v=...\`\n\n`
-            doc += `💡 *Dica:* Digite o nome da música, cantor ou cole o link do YouTube diretamente!`
+            doc += `👉 \`.play Rap do Meliodas 7 Minutoz\` — baixa em MP3\n`
+            doc += `👉 \`.play mp4 Rap do Meliodas 7 Minutoz\` — baixa em MP4 HD\n`
+            doc += `👉 \`.play https://www.youtube.com/watch?v=...\` — baixa link direto\n\n`
+            doc += `💡 *Dica:* Use \`mp4\` antes do nome para baixar como vídeo!`
             return reply(doc.trim())
         }
 
@@ -47,7 +50,9 @@ module.exports = {
             }, { quoted: info })
         }
 
-        let cleanQuery = text.replace(/^(mp3|audio)\s+/i, '').replace(/[`$\";&|<>]/g, '').trim()
+        // Detecta se o usuário quer MP4
+        const wantsMp4 = /^(mp4|video|vídeo)\s+/i.test(text)
+        let cleanQuery = text.replace(/^(mp3|audio|mp4|video|vídeo)\s+/i, '').replace(/[`$\";&|<>]/g, '').trim()
         if (!cleanQuery) {
             return reply('❌ Termo de pesquisa inválido.')
         }
@@ -59,13 +64,16 @@ module.exports = {
 
         // Fluxo A: número → baixa o item escolhido da última busca
         let downloadInput = cleanQuery
+        let downloadAsVideo = false
         if (isNumber) {
             const sel = pickSelection(from, sender, cleanQuery)
             if (!sel) {
                 return reply(`❌ Nenhuma busca ativa para selecionar. Faça uma busca primeiro: \`.play <nome da música>\``)
             }
             downloadInput = sel.chosen.url
-            await reply(`🎵 *Baixando o ${sel.index}º resultado:* _${sel.chosen.title.slice(0, 60)}_... Aguarde.`)
+            downloadAsVideo = !sel.isAudio
+            const formatLabel = downloadAsVideo ? '🎬 Vídeo MP4' : '🎵 Áudio MP3'
+            await reply(`${formatLabel} *Baixando o ${sel.index}º resultado:* _${sel.chosen.title.slice(0, 60)}_... Aguarde.`)
         }
         // Fluxo B: texto (não URL, não número) → mostra a lista com todos os dados + álbum
         else if (!isUrl) {
@@ -76,7 +84,10 @@ module.exports = {
                     return reply(`❌ Nenhum resultado encontrado para _${cleanQuery}_.`)
                 }
                 results.forEach((r, i) => { r.index = i + 1 })
-                setSelection(from, sender, { query: cleanQuery, results, isAudio: true })
+                setSelection(from, sender, { query: cleanQuery, results, isAudio: !wantsMp4 })
+
+                const formatIcon = wantsMp4 ? '🎬' : '🎵'
+                const formatLabel = wantsMp4 ? 'MP4' : 'MP3'
 
                 // Álbum: capas dos resultados juntas (best-effort)
                 const thumbs = results.filter(r => r.thumbnail).slice(0, 5)
@@ -90,7 +101,7 @@ module.exports = {
                         }
                     } catch (_) {}
                 }
-                return reply(formatSearchResults(cleanQuery, results, { cmd: 'play', isAudio: true }))
+                return reply(formatSearchResults(cleanQuery, results, { cmd: 'play', isAudio: !wantsMp4 }))
             } catch (e) {
                 logger.error('[PLAY SEARCH ERROR]', e)
                 return reply(`❌ *Falha na busca:* ${e.message}`)
@@ -98,66 +109,140 @@ module.exports = {
         }
         // Fluxo C: URL → baixa direto (downloadInput já é a URL)
         else {
-            await reply(`🎵 *Baixando faixa do link...* Aguarde.`)
+            downloadAsVideo = wantsMp4
+            const formatLabel = downloadAsVideo ? '🎬 Vídeo MP4' : '🎵 Áudio MP3'
+            await reply(`${formatLabel} *Baixando do link...* Aguarde.`)
         }
 
         try {
-            // 2. Download e conversão via fila prioritária
-            const mediaData = await mediaQueue.enqueue({
-                url: downloadInput,
-                format: 'mp3',
-                user: sender,
-                runFn: async () => {
-                    return searchAndDownloadAudio(downloadInput)
-                }
-            })
+            if (downloadAsVideo) {
+                // === DOWNLOAD VÍDEO MP4 ===
+                const targetUrl = downloadInput
+                const isDirectUrl = /^https?:\/\//i.test(targetUrl)
 
-            const cleanFileName = mediaData.title.replace(/[^a-zA-Z0-9_\-\s]/g, '').slice(0, 35)
-
-            // 3. Envia capa oficial com informações elegantes e link da música
-            const { formatMediaCaption } = require('../../services/media/formatResolver')
-            const audioCaption = formatMediaCaption({
-                filePath: mediaData.filePath,
-                elapsedMs: mediaData.elapsedMs,
-                platform: mediaData.platform || 'YouTube',
-                title: mediaData.title,
-                author: mediaData.author,
-                durationFormatted: mediaData.durationFormatted,
-                url: mediaData.url,
-                isAudio: true
-            })
-
-            if (mediaData.thumbnail) {
+                // Extrai metadados (rápido, sem download)
+                let meta = { title: 'Vídeo', author: 'Desconhecido', durationFormatted: '—', thumbnail: null, platform: 'YouTube' }
                 try {
-                    await client.sendMessage(from, {
-                        image: { url: mediaData.thumbnail },
-                        caption: audioCaption
-                    }, { quoted: info })
+                    meta = await extractMetadata(targetUrl, { isSearch: !isDirectUrl, userJid: sender })
                 } catch (_) {}
+
+                const downloaded = await mediaQueue.enqueue({
+                    url: targetUrl,
+                    format: 'mp4',
+                    user: sender,
+                    runFn: () => downloadMedia({
+                        source: targetUrl,
+                        url: targetUrl,
+                        requestedFormat: 'mp4',
+                        format: 'mp4',
+                        userJid: sender
+                    })
+                })
+
+                let filePath = downloaded.filePath || downloaded.primaryFile || (downloaded.files && downloaded.files[0])
+                if (!filePath || !fs.existsSync(filePath)) {
+                    throw new Error('Arquivo de vídeo não encontrado após o download.')
+                }
+
+                filePath = await ensureMobileVideoCompatibility(filePath)
+                const stats = fs.statSync(filePath)
+                const sizeMb = (stats.size / (1024 * 1024)).toFixed(1)
+                const cleanTitle = (meta.title || 'video').replace(/[\\/:*?"<>|]/g, '_').slice(0, 50)
+
+                const { formatMediaCaption } = require('../../services/media/formatResolver')
+                const caption = formatMediaCaption({
+                    filePath,
+                    elapsedMs: downloaded.elapsedMs,
+                    platform: meta.platform || 'YouTube',
+                    title: meta.title,
+                    author: meta.author,
+                    durationFormatted: meta.durationFormatted,
+                    url: targetUrl,
+                    isAudio: false
+                })
+
+                if (meta.thumbnail) {
+                    try {
+                        await client.sendMessage(from, {
+                            image: { url: meta.thumbnail },
+                            caption
+                        }, { quoted: info })
+                    } catch (_) {}
+                }
+
+                const videoBuf = fs.readFileSync(filePath)
+                if (stats.size <= 100 * 1024 * 1024) {
+                    await client.sendMessage(from, {
+                        video: videoBuf,
+                        caption,
+                        mimetype: 'video/mp4'
+                    }, { quoted: info })
+                } else {
+                    await client.sendMessage(from, {
+                        document: videoBuf,
+                        mimetype: 'video/mp4',
+                        fileName: `${cleanTitle}.mp4`,
+                        caption: `${caption}\n\n📦 *Enviado como documento (${sizeMb} MB) para manter 100% da qualidade HD original.*`
+                    }, { quoted: info })
+                }
+
+                try { fs.unlinkSync(filePath) } catch (_) {}
+                logger.info(`[PLAY] Vídeo (${sizeMb} MB) enviado para ${sender}: ${meta.title}`)
+            } else {
+                // === DOWNLOAD ÁUDIO MP3 ===
+                const mediaData = await mediaQueue.enqueue({
+                    url: downloadInput,
+                    format: 'mp3',
+                    user: sender,
+                    runFn: async () => {
+                        return searchAndDownloadAudio(downloadInput)
+                    }
+                })
+
+                const cleanFileName = mediaData.title.replace(/[^a-zA-Z0-9_\-\s]/g, '').slice(0, 35)
+
+                const { formatMediaCaption } = require('../../services/media/formatResolver')
+                const audioCaption = formatMediaCaption({
+                    filePath: mediaData.filePath,
+                    elapsedMs: mediaData.elapsedMs,
+                    platform: mediaData.platform || 'YouTube',
+                    title: mediaData.title,
+                    author: mediaData.author,
+                    durationFormatted: mediaData.durationFormatted,
+                    url: mediaData.url,
+                    isAudio: true
+                })
+
+                if (mediaData.thumbnail) {
+                    try {
+                        await client.sendMessage(from, {
+                            image: { url: mediaData.thumbnail },
+                            caption: audioCaption
+                        }, { quoted: info })
+                    } catch (_) {}
+                }
+
+                if (fs.existsSync(mediaData.filePath)) {
+                    const audioBuffer = fs.readFileSync(mediaData.filePath)
+                    await client.sendMessage(from, {
+                        audio: audioBuffer,
+                        mimetype: 'audio/mpeg',
+                        ptt: false,
+                        fileName: `${cleanFileName}.mp3`
+                    }, { quoted: info })
+                    try { fs.unlinkSync(mediaData.filePath) } catch (_) {}
+                }
+
+                logger.info(`[PLAY] Áudio enviado para ${sender}: ${mediaData.title}`)
             }
-
-            // 4. Envia o arquivo de áudio MP3
-            if (fs.existsSync(mediaData.filePath)) {
-                const audioBuffer = fs.readFileSync(mediaData.filePath)
-
-                await client.sendMessage(from, {
-                    audio: audioBuffer,
-                    mimetype: 'audio/mpeg',
-                    ptt: false,
-                    fileName: `${cleanFileName}.mp3`
-                }, { quoted: info })
-
-                try { fs.unlinkSync(mediaData.filePath) } catch (_) {}
-            }
-
-            logger.info(`[PLAY] Áudio enviado para ${sender}: ${mediaData.title}`)
         } catch (err) {
             logger.error('[PLAY ERROR]', err)
             const msg = err.message || 'Erro desconhecido'
             if (msg.includes('⚠️') || msg.includes('❌')) {
                 await reply(msg)
             } else {
-                await reply(`❌ *Falha ao reproduzir áudio:* ${msg}`)
+                const formatLabel = downloadAsVideo ? 'vídeo' : 'áudio'
+                await reply(`❌ *Falha ao baixar ${formatLabel}:* ${msg}`)
             }
         }
     }
