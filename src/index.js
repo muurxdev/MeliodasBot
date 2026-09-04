@@ -31,7 +31,14 @@ async function bootstrap() {
     try {
         const db = getDatabase()
         runMigrations(db)
-        importLegacyJsonData(db)
+        // Importador legado (JSON -> SQLite): relíquia da migração antiga. Ele roda
+        // sempre que a tabela está vazia, então REPOPULAVA o banco a cada boot depois
+        // de um reset — impossível "subir zerado". Agora só roda se pedirem
+        // explicitamente via IMPORT_LEGACY_JSON=true.
+        if (String(process.env.IMPORT_LEGACY_JSON || '').toLowerCase() === 'true') {
+            logger.warn('📥 IMPORT_LEGACY_JSON=true — importando dados legados de JSON...')
+            importLegacyJsonData(db)
+        }
     } catch (errDb) {
         logger.error('❌ Falha na inicialização do banco de dados SQLite:', errDb)
     }
