@@ -7,7 +7,7 @@ const { getBotName } = require("../../config/botConfig");
 const dataService = require("../../services/dataService");
 const { initializeUser, barraXP, calcularXpNecessario, getCargo } = require("../../services/xpService");
 const { getItem } = require("../../services/rpgEquipmentService");
-const { calculateFullCharacterStats, renderCharacterAvatar, RACES, ELEMENTS, getRebirthInfo } = require("../../services/characterEngine");
+const { calculateFullCharacterStats, renderCharacterAvatar, RACES, ELEMENTS, getRebirthInfo, resolveHp } = require("../../services/characterEngine");
 
 module.exports = {
     name: "boneco",
@@ -105,7 +105,9 @@ module.exports = {
         doc += `╰━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┈⊷\n\n`;
 
         doc += `╭━━━〔 📊 ATRIBUTOS TOTAIS REAIS 〕━━━┈⊷\n`;
-        doc += `┃ ❤️ *Vida Total (HP):* **${user.hp || stats.hpMax} / ${stats.hpMax} HP**\n`;
+        const _hp = resolveHp(user);
+        doc += `┃ ❤️ *Vida (HP):* **${_hp.atual.toLocaleString("pt-BR")} / ${_hp.max.toLocaleString("pt-BR")} HP** (${_hp.percent}%)\n`;
+        doc += `┃ ${_hp.barra}\n`;
         doc += `┃ ⚔️ *Ataque Real (ATK):* **+${stats.atk.toLocaleString("pt-BR")}**\n`;
         doc += `┃ 🛡️ *Defesa Real (DEF):* **+${stats.def.toLocaleString("pt-BR")}**\n`;
         doc += `┃ 🎯 *Crítico:* **${stats.crit}%** | 💨 *Esquiva:* **${stats.esq}%** | 🛡️ *Bloqueio:* **${stats.bloq}%**\n`;

@@ -141,7 +141,11 @@ test('processarLevelUp sobe nível com XP suficiente e concede marcos', () => {
     assert(user.coins > 0, 'Deve receber moedas de bônus ao subir de nível')
 })
 
-test('processarLevelUp incrementa HP máximo em múltiplos de 5 níveis', () => {
+test('processarLevelUp sincroniza HP com o máximo REAL do personagem', () => {
+    // O HP máximo passou a ter FONTE ÚNICA: characterEngine.resolveHp (nível +
+    // equipamento + forja + raça × rebirth) — a mesma que as telas usam. Antes o
+    // xpService mantinha um máximo próprio e a exibição saía descompassada.
+    const { resolveHp } = require('../src/services/characterEngine')
     const user = {
         level: 4,
         xp: calcularXpNecessario(4),
@@ -150,12 +154,15 @@ test('processarLevelUp incrementa HP máximo em múltiplos de 5 níveis', () => 
         coins: 0,
         conquistas: []
     }
+    const antes = resolveHp({ ...user, level: 4 }).max
 
-    const res = processarLevelUp(user)
+    processarLevelUp(user)
 
     assert.strictEqual(user.level, 5)
-    assert.strictEqual(user.hpMax, 150, 'Nível 5 deve conceder +50 de HP máximo (15/nível + 35 bônus)')
-    assert.strictEqual(user.hp, 150, 'Vida atual deve atualizar para o novo HP máximo')
+    const esperado = resolveHp(user).max
+    assert.strictEqual(user.hpMax, esperado, 'hpMax deve casar com o máximo real do personagem')
+    assert.strictEqual(user.hp, user.hpMax, 'Vida atual deve ser restaurada ao máximo')
+    assert.ok(user.hpMax > antes, 'HP máximo deve crescer ao subir de nível')
 })
 
 // ══════════════════════════════════════════

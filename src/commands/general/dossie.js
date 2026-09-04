@@ -209,8 +209,10 @@ module.exports = {
             const farmPvXp = user.xpPv || 0;
             const totalMensagens = (farmGrupoMsgs + farmPvMsgs) || user.messages || 0;
 
-            const hpMaximo = rpgStats.hpMax;
-            const hpAtual = Math.min(hpMaximo, user.hp || hpMaximo);
+            const { resolveHp } = require("../../services/characterEngine");
+            const _hp = resolveHp(user);
+            const hpMaximo = _hp.max;
+            const hpAtual = _hp.atual;
 
             let doc = "╔══════════════════════════════╗\n";
             doc += "║    📁 *DOSSIÊ DE IDENTIDADE* 📁   ║\n";

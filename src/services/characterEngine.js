@@ -243,11 +243,35 @@ function getRebirthInfo(user) {
     };
 }
 
+/**
+ * Fonte ÚNICA de verdade do HP para exibição e combate.
+ *
+ * Antes existiam DOIS máximos brigando: o `user.hpMax` salvo pelo xpService
+ * (100 + 15/nível) e o do personagem completo aqui (nível + equipamento + forja +
+ * raça × rebirth). As telas misturavam os dois e o HP saía errado.
+ * Além disso `user.hp || max` mostrava vida CHEIA para quem estava com 0.
+ *
+ * @param {object} user
+ * @returns {{atual:number, max:number, percent:number, barra:string}}
+ */
+function resolveHp(user) {
+    const stats = calculateFullCharacterStats(user || {});
+    const max = Math.max(1, Math.floor(stats.hpMax || 100));
+    const bruto = Number(user && user.hp);
+    // 0 continua 0 (morto) — só cai para o máximo quando não há valor definido.
+    const atual = Number.isFinite(bruto) ? Math.max(0, Math.min(max, Math.floor(bruto))) : max;
+    const percent = Math.round((atual / max) * 100);
+    const cheios = Math.max(0, Math.min(10, Math.round(percent / 10)));
+    const barra = '🟩'.repeat(cheios) + '⬛'.repeat(10 - cheios);
+    return { atual, max, percent, barra };
+}
+
 module.exports = {
     RACES,
     ELEMENTS,
     renderCharacterAvatar,
     calculateFullCharacterStats,
-    getRebirthInfo
+    getRebirthInfo,
+    resolveHp
 };
 

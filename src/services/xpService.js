@@ -133,7 +133,13 @@ function processarLevelUp(user) {
         user.atk = (user.atk || 10) + 2
         user.def = (user.def || 5) + 1
 
-        // Restaura a vida completa ao subir de nível
+        // Restaura a vida completa ao subir de nível — usando o máximo REAL do
+        // personagem (nível + equipamento + forja + raça × rebirth), que é a
+        // mesma fonte usada nas telas. Evita o descompasso "1.200 / 20.000".
+        try {
+            const { resolveHp } = require('./characterEngine')
+            user.hpMax = resolveHp(user).max
+        } catch (_) { /* sem engine: mantém o hpMax incremental */ }
         user.hp = user.hpMax || 100
 
         maxXp = calcularXpNecessario(user.level)
