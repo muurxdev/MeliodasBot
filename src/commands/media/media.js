@@ -230,7 +230,20 @@ module.exports = {
                     });
 
                     const audioBuf = fs.readFileSync(mp3Out);
+                    // Card medido do ARQUIVO REALMENTE ENVIADO (o mp3 convertido) —
+                    // o caption acima descreve o mp4 de origem, não o que sai daqui.
+                    const captionMp3 = formatMediaCaption({
+                        filePath: mp3Out,
+                        elapsedMs: mediaData.elapsedMs,
+                        platform: mediaData.platform || "Web",
+                        title: mediaData.title,
+                        author: mediaData.author,
+                        durationFormatted: mediaData.durationFormatted,
+                        url: mediaData.url,
+                        isAudio: true
+                    });
                     await client.sendMessage(from, { audio: audioBuf, mimetype: "audio/mpeg", ptt: false, fileName: mediaData.title.slice(0, 30) + ".mp3" }, { quoted: info });
+                    await reply(captionMp3);
                     try { fs.unlinkSync(mp3Out); } catch (_) {}
                 } else {
                     const videoBuf = fs.readFileSync(mediaData.filePath);
@@ -277,7 +290,20 @@ module.exports = {
                     });
 
                     const audioBuf = fs.readFileSync(mp3Out);
+                    // Card medido do ARQUIVO REALMENTE ENVIADO (o mp3 convertido) —
+                    // o caption acima descreve o mp4 de origem, não o que sai daqui.
+                    const captionMp3 = formatMediaCaption({
+                        filePath: mp3Out,
+                        elapsedMs: mediaData.elapsedMs,
+                        platform: mediaData.platform || "Web",
+                        title: mediaData.title,
+                        author: mediaData.author,
+                        durationFormatted: mediaData.durationFormatted,
+                        url: mediaData.url,
+                        isAudio: true
+                    });
                     await client.sendMessage(from, { audio: audioBuf, mimetype: "audio/mpeg", ptt: false, fileName: mediaData.title.slice(0, 30) + ".mp3" }, { quoted: info });
+                    await reply(captionMp3);
                     try { fs.unlinkSync(mp3Out); } catch (_) {}
                 } else {
                     const videoBuf = fs.readFileSync(mediaData.filePath);
@@ -324,7 +350,20 @@ module.exports = {
                     });
 
                     const audioBuf = fs.readFileSync(mp3Out);
+                    // Card medido do ARQUIVO REALMENTE ENVIADO (o mp3 convertido) —
+                    // o caption acima descreve o mp4 de origem, não o que sai daqui.
+                    const captionMp3 = formatMediaCaption({
+                        filePath: mp3Out,
+                        elapsedMs: mediaData.elapsedMs,
+                        platform: mediaData.platform || "Web",
+                        title: mediaData.title,
+                        author: mediaData.author,
+                        durationFormatted: mediaData.durationFormatted,
+                        url: mediaData.url,
+                        isAudio: true
+                    });
                     await client.sendMessage(from, { audio: audioBuf, mimetype: "audio/mpeg", ptt: false, fileName: mediaData.title.slice(0, 30) + ".mp3" }, { quoted: info });
+                    await reply(captionMp3);
                     try { fs.unlinkSync(mp3Out); } catch (_) {}
                 } else {
                     const videoBuf = fs.readFileSync(mediaData.filePath);

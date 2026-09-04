@@ -148,13 +148,19 @@ module.exports = {
                 return reply(notFoundMsg[lang] || notFoundMsg.pt);
             }
 
-            const { buffer: rawBuffer, sizeMb } = pdfResult;
+            const { buffer: rawBuffer } = pdfResult;
 
             // Verificação e remoção de senhas / restrições de criptografia
             const secResult = unlockPdfBuffer(rawBuffer);
             const finalBuffer = secResult.buffer;
 
             // Contagem e discriminação exata de páginas do arquivo PDF real
+            // TAMANHO EXATO: mede o buffer QUE REALMENTE É ENVIADO. Antes exibia o
+            // tamanho do buffer bruto (pré-desbloqueio) enquanto mandava o
+            // processado — daí o card dizer 61 MB e chegar um arquivo de 65 MB.
+            const sentBytes = finalBuffer ? finalBuffer.length : 0;
+            const sizeMb = (sentBytes / 1024 / 1024).toFixed(2) + ' MB';
+
             const detectedPdfPages = countPdfPages(finalBuffer);
             const formattedPages = formatPageBreakdown(detectedPdfPages, targetBook.pagesCount, lang);
 
