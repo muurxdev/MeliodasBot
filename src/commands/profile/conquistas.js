@@ -1,6 +1,6 @@
 const dataService = require('../../services/dataService')
 const { initializeUser } = require('../../services/xpService')
-const { formatCoins } = require('../../utils/uiEngine')
+const ui = require('../../utils/ui')
 const logger = require('../../core/logger')
 
 const CONQUISTAS_CATALOGO = [
@@ -91,37 +91,24 @@ module.exports = {
             }
         }
 
-        let doc = `┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓\n`
-        doc += `┃   🏆 *SISTEMA DE CONQUISTAS* 🏆   \n`
-        doc += `┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛\n\n`
-        doc += `📊 *Progresso:* ${desbloqueadas.length}/${CONQUISTAS_CATALOGO.length} desbloqueadas\n\n`
-
+        const sections = []
         if (desbloqueadas.length > 0) {
-            doc += `╭━━━〔 ✅ DESBLOQUEADAS 〕━━━┈⊷\n`
-            for (const c of desbloqueadas) {
-                doc += `┃ ${c.nome}\n`
-            }
-            doc += `╰━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┈⊷\n\n`
+            sections.push({ title: 'Desbloqueadas', icon: '✅', lines: desbloqueadas.map(c => c.nome) })
         }
-
         if (bloqueadas.length > 0) {
-            doc += `╭━━━〔 🔒 BLOQUEADAS 〕━━━┈⊷\n`
-            for (const c of bloqueadas) {
-                doc += `┃ ${c.nome} — _${c.descricao}_\n`
-            }
-            doc += `╰━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┈⊷\n\n`
+            sections.push({ title: 'Bloqueadas', icon: '🔒', lines: bloqueadas.map(c => `${c.nome} — _${c.descricao}_`) })
         }
-
         if (novas.length > 0) {
-            doc += `🎉 *NOVAS CONQUISTAS DESBLOQUEADAS!*\n`
-            for (const n of novas) {
-                doc += `→ ${n.nome}\n`
-            }
-            doc += `\n`
+            sections.push({ title: 'Novas desbloqueadas!', icon: '🎉', lines: novas.map(n => n.nome) })
         }
 
-        doc += `💡 _Use_ \`.conquistas <nome>\` _para ver detalhes de uma conquista_`
+        const doc = ui.screen({
+            title: '🏆 *CONQUISTAS* 🏆',
+            intro: `📊 *Progresso:* ${desbloqueadas.length}/${CONQUISTAS_CATALOGO.length} desbloqueadas`,
+            sections,
+            hint: `_Use_ \`.conquistas <nome>\` _para detalhes de uma conquista._`
+        })
 
-        await reply(doc.trim())
+        await reply(doc)
     }
 }

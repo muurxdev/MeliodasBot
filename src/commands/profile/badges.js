@@ -1,6 +1,6 @@
 const dataService = require('../../services/dataService')
 const { initializeUser } = require('../../services/xpService')
-const { formatCoins } = require('../../utils/uiEngine')
+const ui = require('../../utils/ui')
 const logger = require('../../core/logger')
 
 const BADGES_CATALOGO = [
@@ -52,30 +52,22 @@ module.exports = {
             return reply(`✅ Badge *${badge.nome}* equipada com sucesso!\n\nEla agora aparecerá no seu perfil.`)
         }
 
-        let doc = `┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓\n`
-        doc += `┃   🏅 *SISTEMA DE BADGES* 🏅   \n`
-        doc += `┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛\n\n`
+        const equipadaObj = user.equippedBadge ? BADGES_CATALOGO.find(b => b.id === user.equippedBadge) : null
+        const equipadaStr = equipadaObj ? equipadaObj.nome : (user.equippedBadge || 'Nenhuma')
 
-        if (user.equippedBadge) {
-            const equipada = BADGES_CATALOGO.find(b => b.id === user.equippedBadge)
-            doc += `📌 *Badge Equipada:* ${equipada ? equipada.nome : user.equippedBadge}\n\n`
-        } else {
-            doc += `📌 *Badge Equipada:* Nenhuma\n\n`
-        }
-
-        doc += `╭━━━〔 📋 DISPONÍVEIS 〕━━━┈⊷\n`
+        const linhas = []
         for (const b of BADGES_CATALOGO) {
-            const possuida = user.badges.includes(b.id)
-            const status = possuida ? '✅' : '🔒'
-            doc += `┃ ${status} ${b.nome}\n`
-            doc += `┃   _${b.descricao}_\n`
-            doc += `┃   📝 ${b.desbloqueio}\n`
+            const status = user.badges.includes(b.id) ? '✅' : '🔒'
+            linhas.push(`${status} ${b.nome} — _${b.descricao}_ · 📝 ${b.desbloqueio}`)
         }
-        doc += `╰━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┈⊷\n\n`
 
-        doc += `📊 *Possuídas:* ${user.badges.length}/${BADGES_CATALOGO.length}\n\n`
-        doc += `💡 _Use_ \`.badges equip <nome>\` _para equipar uma badge no seu perfil_`
+        const doc = ui.screen({
+            title: '🏅 *BADGES* 🏅',
+            intro: `📌 *Equipada:* ${equipadaStr}\n📊 *Possuídas:* ${user.badges.length}/${BADGES_CATALOGO.length}`,
+            sections: [{ title: 'Disponíveis', icon: '📋', lines: linhas }],
+            hint: `_Use_ \`.badges equip <nome>\` _para equipar uma badge._`
+        })
 
-        await reply(doc.trim())
+        await reply(doc)
     }
 }
