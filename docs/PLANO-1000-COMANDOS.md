@@ -17,6 +17,20 @@ DESLIGADO** e é liberado por MÓDULO (ou por comando) quando o dono quiser. Nad
   OpenCode; a projeção de temas/lacunas continua válida como guia de conteúdo.
 - **Pré-requisito antes de codar os novos**: aprovação do dono por módulo/lote.
 
+### Decisão (2026-09-03): travado em ~598 de qualidade + geração sob demanda
+
+Depois de expandir de 494 → **598 comandos reais e funcionais** (lotes A–H: texto,
+números, conversores, finanças, saúde, datas, geometria, estatística, dev, medidores,
+geradores e quizzes temáticos), o dono decidiu **NÃO encher até 1000 com filler**.
+Motivo: o espaço de comandos distintos e de alto valor já está coberto; forçar o número
+recriaria o problema de "comando fake". Em vez disso:
+
+- Fica um conjunto enxuto e funcional de ~598 comandos, todos OFF por padrão.
+- Novos comandos são criados **sob demanda por módulo** com o gerador versionado:
+  `node scripts/gen-commands.js <batch.js>` (ver `scripts/command-batch.example.js`).
+  Ele pula nomes/aliases já usados e cria comandos reais (execute serializada).
+- Quando o dono pedir (ex.: "quero 20 comandos de economia RPG"), monta-se um batch e roda.
+
 ## Estado Atual
 
 | Categoria | Comandos | Aliases | Subcategorias ativas |
