@@ -182,7 +182,7 @@ async function handleIncomingMessage(client, { messages }) {
     // (ou para o Dono). Sem isso, cada pessoa que só passa pelo grupo criava uma
     // linha vazia no banco, poluindo rankings e listas com quem nunca jogou.
     // Depois do login, tudo passa a salvar naturalmente (PV, grupo e RPG).
-    if (user.registered || isOwner) {
+    if (user.registered) {
         dataService.saveUser(user)
     }
 
@@ -599,10 +599,11 @@ async function handleIncomingMessage(client, { messages }) {
         mentionedJid
     }
 
-    // Gate de registro: LOGIN OBRIGATÓRIO. Sem `.login` ninguém usa o bot nem tem
-    // progresso salvo — só o DONO é isento (admin de grupo também precisa logar).
+    // Gate de registro: LOGIN OBRIGATÓRIO PARA TODOS — inclusive Donos e admins.
+    // Ninguém usa o bot nem tem progresso salvo sem `.login`; a regra é igual para
+    // todo mundo. (Os comandos abaixo seguem liberados para permitir o cadastro.)
     const registerAllowed = ['login', 'registrar', 'cadastrar', 'registro', 'perfilconfig', 'entrarbot', 'menu', 'help', 'dono', 'ping', 'comandos']
-    if (!user.registered && !isOwner && !registerAllowed.includes(commandName)) {
+    if (!user.registered && !registerAllowed.includes(commandName)) {
         const bn = require('../config/botConfig').getBotName()
         await reply(`🔐 *Registro necessário!*\n\n👋 Olá @${sender.split('@')[0]}! Antes de usar o *${bn}*, faça seu registro rápido:\n\n📝 \`${prefix}login <seu nick>\`\n💡 _Ex.:_ \`${prefix}login Dragão Slayer\`\n\n_Depois escolha se quer RPG com_ \`${prefix}login rpg on\``, [sender])
         await dataService.saveXpData(xpData)
