@@ -906,7 +906,7 @@ async function downloadPdfBuffer(downloadUrl, bookMeta = {}) {
             const bufPromise = new Promise((resolve, reject) => {
                 const client = downloadUrl.startsWith('https:') ? https : http;
                 const req = client.get(downloadUrl, {
-                    headers: { 'User-Agent': `Mozilla/5.0 (Windows NT 10.0; Win64; x64) ${require('../../config/botConfig').getBotName()}/2.0` },
+                    headers: { 'User-Agent': `Mozilla/5.0 (Windows NT 10.0; Win64; x64) ${require('../config/botConfig').getBotName()}/2.0` },
                     family: 4,
                     timeout: 45000
                 }, (res) => {
@@ -948,7 +948,7 @@ async function downloadPdfBuffer(downloadUrl, bookMeta = {}) {
         pages: bookMeta.pages || "Full Volume",
         genre: bookMeta.genre || "Literature",
         description: bookMeta.description || "Digitalized book indexed for WhatsApp.",
-        botName: require('../../config/botConfig').getBotName()
+        botName: require('../config/botConfig').getBotName()
     });
 
     return {
