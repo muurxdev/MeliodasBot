@@ -177,8 +177,13 @@ async function handleIncomingMessage(client, { messages }) {
         }
     }
 
-    // Salva perfil atualizado no banco de dados SQLite
-    dataService.saveUser(user)
+    // Salva perfil atualizado no banco SQLite — SOMENTE para quem já fez `.login`
+    // (ou para o Dono). Sem isso, cada pessoa que só passa pelo grupo criava uma
+    // linha vazia no banco, poluindo rankings e listas com quem nunca jogou.
+    // Depois do login, tudo passa a salvar naturalmente (PV, grupo e RPG).
+    if (user.registered || isOwner) {
+        dataService.saveUser(user)
+    }
 
     // ═══════════════════════════════════════
     // 🎁 SISTEMA DE DROP PATROCINADO / DOAÇÃO
@@ -593,10 +598,10 @@ async function handleIncomingMessage(client, { messages }) {
         mentionedJid
     }
 
-    // Gate de registro (Fase B): usuário não registrado precisa fazer .login,
-    // exceto comandos essenciais. Owners/admins passam para poder operar.
+    // Gate de registro: LOGIN OBRIGATÓRIO. Sem `.login` ninguém usa o bot nem tem
+    // progresso salvo — só o DONO é isento (admin de grupo também precisa logar).
     const registerAllowed = ['login', 'registrar', 'cadastrar', 'registro', 'perfilconfig', 'entrarbot', 'menu', 'help', 'dono', 'ping', 'comandos']
-    if (!user.registered && !isOwner && !isAdmin && !registerAllowed.includes(commandName)) {
+    if (!user.registered && !isOwner && !registerAllowed.includes(commandName)) {
         const bn = require('../config/botConfig').getBotName()
         await reply(`🔐 *Registro necessário!*\n\n👋 Olá @${sender.split('@')[0]}! Antes de usar o *${bn}*, faça seu registro rápido:\n\n📝 \`${prefix}login <seu nick>\`\n💡 _Ex.:_ \`${prefix}login Dragão Slayer\`\n\n_Depois escolha se quer RPG com_ \`${prefix}login rpg on\``, [sender])
         await dataService.saveXpData(xpData)
