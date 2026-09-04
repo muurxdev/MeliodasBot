@@ -139,7 +139,10 @@ function processarLevelUp(user) {
         try {
             const { resolveHp } = require('./characterEngine')
             user.hpMax = resolveHp(user).max
-        } catch (_) { /* sem engine: mantém o hpMax incremental */ }
+        } catch (e) { 
+            const logger = require('../core/logger')
+            logger.warn('[XP SERVICE] resolveHp fallback — mantendo hpMax incremental', e.message)
+        }
         user.hp = user.hpMax || 100
 
         maxXp = calcularXpNecessario(user.level)

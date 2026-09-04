@@ -34,7 +34,7 @@ module.exports = {
 
             user.coins -= item.preco;
             if (!Array.isArray(user.inventario)) user.inventario = [];
-            user.inventario.push({ id: item.id, nome: item.nome, tipo: "arma", atk: item.atk });
+            user.inventario.push({ ...item });
 
             if (!user.slots) user.slots = {};
             user.slots.arma = item.id;

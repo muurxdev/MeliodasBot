@@ -1,6 +1,6 @@
 /**
  * Comando .desequipar / .unequip / .tirarequip
- * Remove equipamentos de um slot específico do boneco
+ * Remove equipamento de um slot e retorna ao inventário
  */
 
 const { getBotName } = require("../../config/botConfig");
@@ -12,7 +12,8 @@ module.exports = {
     name: "desequipar",
     aliases: ["unequip", "tirarequip", "removerarmadura", "desarmar"],
     category: "rpg",
-    description: "Remove um equipamento de um slot do seu boneco (ex: .desequipar capacete)",
+    subcategory: "Combate",
+    description: "Remove um equipamento de um slot e retorna ao inventário",
     cooldownMs: 1500,
     execute: async ({ sender, text, reply }) => {
         const botName = getBotName();
@@ -38,6 +39,15 @@ module.exports = {
 
         const removedItemRef = user.slots[slotInput];
         const removedItem = typeof removedItemRef === "object" ? removedItemRef : getItem(removedItemRef);
+        const nomeItem = removedItem ? removedItem.nome : String(removedItemRef);
+
+        // Retorna o item ao inventário
+        if (!Array.isArray(user.inventario)) user.inventario = [];
+        if (removedItem) {
+            user.inventario.push({ ...removedItem });
+        } else {
+            user.inventario.push(nomeItem);
+        }
 
         user.slots[slotInput] = null;
         if (slotInput === "arma") {
@@ -50,12 +60,12 @@ module.exports = {
         let doc = `╔══════════════════════════════╗\n`;
         doc += `║   🛡️ *EQUIPAMENTO REMOVIDO* 🛡️   ║\n`;
         doc += `╚══════════════════════════════╝\n\n`;
-        doc += `✨ *Item removido:* *${removedItem ? removedItem.nome : removedItemRef}*\n`;
+        doc += `✨ *Item removido:* *${nomeItem}*\n`;
         doc += `🏷️ *Slot:* *${slotInput.toUpperCase()}* agora está vazio.\n`;
+        doc += `📦 *Retornado ao inventário:* ${user.inventario.length} itens\n`;
         doc += `⚡ *Poder Atual (CP):* *${stats.cp.toLocaleString("pt-BR")} CP*\n\n`;
         doc += `👑 *${botName}*`;
 
         return reply(doc.trim());
     }
 };
-

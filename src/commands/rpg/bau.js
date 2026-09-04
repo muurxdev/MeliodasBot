@@ -89,7 +89,7 @@ module.exports = {
         // 3. GUARDAR ITEM DO INVENTÁRIO NO BAÚ
         if (sub === 'guardar' || sub === 'estocar') {
             if (!param) {
-                return reply(`📌 *Como guardar itens:* \`.bau guardar <nome_do_item>\`\n👉 *Exemplo:* \`.bau guardar Escama de Dragão\``);
+                return reply(`📌 *Como guardar itens:* \`.bau guardar <nome_do_item>\`\n👉 *Exemplo:* \`.bau guardar Espada de Ferro\``);
             }
 
             if (!Array.isArray(user.inventario) || user.inventario.length === 0) {
@@ -104,7 +104,9 @@ module.exports = {
 
             const itemRemovido = user.inventario.splice(itemIdx, 1)[0];
             const nomeItem = itemDisplayName(itemRemovido);
-            vaultRepo.addVaultItem(sender, nomeItem, 1);
+            // Guarda como objeto JSON se for equipamento, preservando stats
+            const metadata = (typeof itemRemovido === 'object' && itemRemovido !== null) ? JSON.stringify(itemRemovido) : '{}';
+            vaultRepo.addVaultItem(sender, nomeItem, 1, metadata);
             await dataService.saveXpData(xpData);
 
             return reply(`🔒 *ITEM GUARDADO COM SEGURANÇA NO BAÚ!*\n\n📦 *Item:* ${nomeItem}\n🛡️ *Status:* Protegido contra perdas em mortes ou ataques!\n🎒 *Espaço liberado na mochila:* ${user.inventario.length} / ${user.mochila || 20}`);
@@ -113,7 +115,7 @@ module.exports = {
         // 4. RETIRAR ITEM DO BAÚ PARA O INVENTÁRIO
         if (sub === 'retirar' || sub === 'pegar') {
             if (!param) {
-                return reply(`📌 *Como retirar itens:* \`.bau retirar <nome_do_item>\`\n👉 *Exemplo:* \`.bau retirar Escama\``);
+                return reply(`📌 *Como retirar itens:* \`.bau retirar <nome_do_item>\`\n👉 *Exemplo:* \`.bau retirar Espada\``);
             }
 
             const targetItem = vaultItems.find(i => i.item_name.toLowerCase().includes(param.toLowerCase()) || i.item_id.toLowerCase().includes(param.toLowerCase()));
@@ -128,8 +130,19 @@ module.exports = {
             }
 
             vaultRepo.removeVaultItem(sender, targetItem.item_id, 1);
-            // Guarda como string (formato legado para compatibilidade com loots)
-            user.inventario.push(targetItem.item_name);
+            // Restaura como objeto se metadata existir, senão como string
+            let itemRestaurado;
+            try {
+                const metadata = targetItem.metadata ? JSON.parse(targetItem.metadata) : null;
+                if (metadata && typeof metadata === 'object' && metadata.id) {
+                    itemRestaurado = metadata;
+                } else {
+                    itemRestaurado = targetItem.item_name;
+                }
+            } catch (_) {
+                itemRestaurado = targetItem.item_name;
+            }
+            user.inventario.push(itemRestaurado);
             await dataService.saveXpData(xpData);
 
             return reply(`🔓 *ITEM RETIRADO DO BAÚ!*\n\n📦 *Item:* ${targetItem.item_name}\n🎒 *Transferido para a mochila:* ${user.inventario.length} / ${limiteMochila}`);

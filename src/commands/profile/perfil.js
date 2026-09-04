@@ -4,6 +4,7 @@ const { formatCoins, formatXP } = require('../../utils/uiEngine')
 const { getCargo, getRank } = require('../../utils/helpers')
 const logger = require('../../core/logger')
 const { achievementsCatalog } = require('../../services/achievementEngine')
+const { resolveHp } = require('../../services/characterEngine')
 
 module.exports = {
     name: 'perfil',
@@ -59,7 +60,8 @@ module.exports = {
         doc += `┃ ${prog.barra} ${prog.percent}%\n`
         doc += `┃ 💰 *Coins:* ${user.coins.toLocaleString('pt-BR')}\n`
         doc += `┃ 💬 *Mensagens:* ${(user.messages || 0).toLocaleString('pt-BR')}\n`
-        doc += `┃ ❤️ *HP:* ${user.hp || user.hpMax || 100}/${user.hpMax || 100}\n`
+        const _hp = resolveHp(user)
+        doc += `┃ ❤️ *HP:* ${_hp.atual}/${_hp.max} ${_hp.barra}\n`
         doc += `┃ ⚔️ *ATK:* ${user.atk || 10} | 🛡️ *DEF:* ${user.def || 5}\n`
         doc += `╰━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┈⊷\n\n`
 

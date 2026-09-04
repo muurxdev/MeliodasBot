@@ -27,14 +27,14 @@ function getVaultItems(userJid) {
     }
 }
 
-function addVaultItem(userJid, item, quantity = 1) {
+function addVaultItem(userJid, item, quantity = 1, metadataOverride = null) {
     if (!userJid || !item) return false;
     try {
         const db = getDatabase();
         const itemId = typeof item === 'string' ? item : (item.id || item.nome || 'item');
         const itemName = typeof item === 'string' ? item : (item.nome || item.name || itemId);
-        const itemType = item.tipo || item.slot || 'equipment';
-        const metadata = typeof item === 'object' ? JSON.stringify(item) : '{}';
+        const itemType = typeof item === 'object' ? (item.tipo || item.slot || 'equipment') : 'loot';
+        const metadata = metadataOverride || (typeof item === 'object' ? JSON.stringify(item) : '{}');
 
         const existing = db.prepare(`
             SELECT id, quantity FROM vault_items WHERE user_jid = ? AND item_id = ?
@@ -92,7 +92,9 @@ function getVaultCoins(userJid) {
         const db = getDatabase();
         const row = db.prepare(`SELECT vault_coins FROM users WHERE jid = ?`).get(userJid);
         return row?.vault_coins || 0;
-    } catch (_) {
+    } catch (e) {
+        const logger = require('../../core/logger');
+        logger.warn(`[VAULT] getVaultCoins falhou para ${userJid}: ${e.message}`);
         return 0;
     }
 }

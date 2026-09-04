@@ -8,6 +8,7 @@ const { initializeUser } = require("../../services/xpService")
 const { aplicarBonusDano } = require("../../services/rpgService")
 const { getBotName } = require("../../config/botConfig")
 const logger = require("../../core/logger")
+const { resolveHp } = require("../../services/characterEngine")
 
 const RAID_BOSSES = {
     "reidemonio": {
@@ -202,7 +203,7 @@ module.exports = {
             atkDoc += `❤️ ${Math.max(0, currentRaid.vida).toLocaleString('pt-BR')} / ${currentRaid.vidaMax.toLocaleString('pt-BR')} HP\n\n`
             atkDoc += `💥 *Seu Golpe:* Causou *${dano.toLocaleString('pt-BR')} de dano*!\n`
             atkDoc += `📊 *Seu Dano Total:* ${currentRaid.dano[sender].toLocaleString('pt-BR')} HP\n`
-            atkDoc += `💔 *Contra-ataque sofrido:* -${danoBoss} HP (Seu HP: ${user.hp}/100)`
+            atkDoc += `💔 *Contra-ataque sofrido:* -${danoBoss} HP (Seu HP: ${user.hp}/${resolveHp(user).max})`
 
             return reply(atkDoc.trim(), [sender])
         }

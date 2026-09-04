@@ -7,6 +7,7 @@ const dataService = require("../../services/dataService")
 const { initializeUser } = require("../../services/xpService")
 const { getBotName } = require("../../config/botConfig")
 const logger = require("../../core/logger")
+const { resolveHp } = require("../../services/characterEngine")
 
 const CRIMES_SUCESSO = [
     { crime: "Assalto a um Banco Central", desc: "Hackeou os firewalls do cofre e fugiu com malotes de moedas de ouro." },
@@ -80,7 +81,7 @@ module.exports = {
             doc += `📜 *Detalhes:* _${f.desc}_\n\n`
             doc += `╭━〔 ⚖️ PENALIDADES APLICADAS 〕━⬣\n`
             doc += `┃ 💸 *Multa Paga:* -${fine.toLocaleString('pt-BR')} Coins\n`
-            doc += `┃ 💔 *Dano Físico:* -${hpLoss} HP (Seu HP: ${user.hp}/100)\n`
+            doc += `┃ 💔 *Dano Físico:* -${hpLoss} HP (Seu HP: ${user.hp}/${resolveHp(user).max})\n`
             doc += `┃ 💰 *Saldo Restante:* ${(user.coins || 0).toLocaleString('pt-BR')} Coins\n`
             doc += `╰━━━━━━━━━━━━━━━━━━⬣\n`
         }

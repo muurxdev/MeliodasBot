@@ -88,7 +88,7 @@ module.exports = {
         const previousLvl = currentLvl;
         user.forgeLevel = simLvl;
 
-        dataService.saveUser(user);
+        dataService.saveXpData(xpData);
 
         // Recalcula atributos totais reais com a nova forja
         const stats = calculateCharacterStats(user);
@@ -113,10 +113,10 @@ module.exports = {
         doc += `\n╭━〔 ⚔️ STATUS DO EQUIPAMENTO (+${user.forgeLevel}) 〕━⬣\n`;
         doc += `┃ 🗡️ *Arma Principal:* ${armaNome} +${user.forgeLevel}\n`;
         doc += `┃ 📈 *Nível de Refinamento:* +${previousLvl} ➔ **+${user.forgeLevel}** (+${sucessos} níveis)\n`;
-        doc += `┃ 💥 *Ataque Total Real:* **${stats.atk.toLocaleString("pt-BR")} ATK** (+${sucessos * 25} da Forja)\n`;
-        doc += `┃ 🛡️ *Defesa Total Real:* **${stats.def.toLocaleString("pt-BR")} DEF** (+${sucessos * 20} da Forja)\n`;
-        doc += `┃ ❤️ *Vida Máxima (HP):* **${stats.hpMax.toLocaleString("pt-BR")} HP** (+${sucessos * 50} da Forja)\n`;
-        doc += `┃ ⚡ *Poder de Combate (CP):* **${stats.cp.toLocaleString("pt-BR")} CP** (+${sucessos * 140} CP)\n`;
+            doc += `┃ 💥 *Ataque Total Real:* **${stats.atk.toLocaleString("pt-BR")} ATK** (+${sucessos * 50} da Forja)\n`;
+            doc += `┃ 🛡️ *Defesa Total Real:* **${stats.def.toLocaleString("pt-BR")} DEF** (+${sucessos * 35} da Forja)\n`;
+            doc += `┃ ❤️ *Vida Máxima (HP):* **${stats.hpMax.toLocaleString("pt-BR")} HP** (+${sucessos * 120} da Forja)\n`;
+            doc += `┃ ⚡ *Poder de Combate (CP):* **${stats.cp.toLocaleString("pt-BR")} CP** (+${sucessos * 250} CP)\n`;
         doc += `┃ 🎯 *Taxa Crítica:* ${stats.crit}% | 💨 *Esquiva:* ${stats.esq}%\n`;
         doc += `╰━━━━━━━━━━━━━━━━━━⬣\n\n`;
 

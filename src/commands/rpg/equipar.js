@@ -65,7 +65,33 @@ module.exports = {
         }
 
         const targetSlot = item.slot;
-        const previousItem = user.slots[targetSlot];
+        const previousItemId = user.slots[targetSlot];
+
+        // Se já tinha algo equipado neste slot, retorna ao inventário
+        if (previousItemId) {
+            const oldItem = typeof previousItemId === 'object' ? previousItemId : getItem(previousItemId);
+            if (oldItem) {
+                user.inventario.push({ ...oldItem });
+            } else {
+                user.inventario.push(String(previousItemId));
+            }
+        }
+
+        // Remove o item do inventário ao equipar
+        if (!isOwner) {
+            const itemIdx = user.inventario.findIndex(i => {
+                if (typeof i === "object" && i !== null) {
+                    return i.id === item.id || (i.nome && i.nome.toLowerCase().includes(item.nome.toLowerCase()));
+                }
+                if (typeof i === "string") {
+                    return i.toLowerCase().includes(item.nome.toLowerCase());
+                }
+                return false;
+            });
+            if (itemIdx !== -1) {
+                user.inventario.splice(itemIdx, 1);
+            }
+        }
 
         user.slots[targetSlot] = item.id;
         if (targetSlot === "arma") {
