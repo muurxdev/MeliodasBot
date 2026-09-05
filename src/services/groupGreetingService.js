@@ -10,7 +10,7 @@
 const { getBotName } = require("../config/botConfig");
 
 /** Substitui as variáveis {user}, {grupo}, {desc}, {membros}, {hora} no template. */
-function formatTemplate(tpl, { userTag, groupName, groupDesc, memberCount, timeStr }) {
+function formatTemplate(tpl, { userTag, groupName, groupDesc, memberCount, timeStr, dateStr, botName }) {
     return String(tpl)
         .replace(/\{user\}/gi, userTag)
         .replace(/\{usuario\}/gi, userTag)
@@ -19,7 +19,9 @@ function formatTemplate(tpl, { userTag, groupName, groupDesc, memberCount, timeS
         .replace(/\{nome\}/gi, groupName)
         .replace(/\{desc\}/gi, groupDesc || "Sem descrição")
         .replace(/\{membros\}/gi, String(memberCount))
-        .replace(/\{hora\}/gi, timeStr);
+        .replace(/\{hora\}/gi, timeStr)
+        .replace(/\{data\}/gi, dateStr || "")
+        .replace(/\{bot\}/gi, botName || "");
 }
 
 /**
@@ -45,7 +47,9 @@ async function getGreetingVars(client, groupJid, participantJid) {
         groupName,
         groupDesc,
         memberCount,
-        timeStr: new Date().toLocaleTimeString("pt-BR", { timeZone: "America/Sao_Paulo" })
+        timeStr: new Date().toLocaleTimeString("pt-BR", { timeZone: "America/Sao_Paulo" }),
+        dateStr: new Date().toLocaleDateString("pt-BR", { timeZone: "America/Sao_Paulo" }),
+        botName: require("../config/botConfig").getBotName()
     };
 }
 
@@ -91,6 +95,9 @@ function variableGuide(type) {
     g += "┃ • `{desc}` ➔ descrição/regras do grupo\n";
     g += "┃ • `{membros}` ➔ total de membros\n";
     g += "┃ • `{hora}` ➔ horário do evento\n";
+    g += "┃ • `{data}` ➔ data do evento (dd/mm/aaaa)\n";
+    g += "┃ • `{bot}` ➔ nome do bot\n";
+    g += "┃ _Atalhos:_ `{usuario}`/`{membro}` = `{user}` · `{nome}` = `{grupo}`\n";
     g += "╰━━━━━━━━━━━━━━━━━━⬣\n\n";
     g += "╭━〔 ⚙️ COMANDOS 〕━⬣\n";
     g += "┃ • `." + cmd + " on` / `." + cmd + " off`\n";
