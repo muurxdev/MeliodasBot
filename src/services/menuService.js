@@ -12,6 +12,7 @@
 
 const { CATEGORIES, BY_KEY } = require('../config/categories')
 const { resolveSubcategory } = require('./taxonomyService')
+const { resolveModuleKey } = require('../config/modules')
 
 const CAPTION_BUDGET = 1000
 const FOOTER_RESERVE = 150   // espaço p/ nav + "🔙 .menu" anexados após a paginação
@@ -19,6 +20,15 @@ const TEXT_BUDGET = 3500      // páginas seguintes vão como texto
 
 const ROLE_OWNER = 5
 const ROLE_ADMIN = 3
+
+/** Resolve a categoria estratégica canônica de qualquer comando. */
+function getCmdCategoryKey(cmd) {
+    if (!cmd) return 'utilidades'
+    const mod = resolveModuleKey(cmd)
+    if (mod === 'xp') return 'perfil'
+    if (mod === 'skycode') return 'owner'
+    return mod || cmd.category || 'utilidades'
+}
 
 /** Nível de cargo mínimo para VER o comando no menu. */
 function requiredLevel(cmd) {
@@ -36,8 +46,12 @@ function canSeeInMenu(cmd, userLevel) {
 /** Agrupa comandos visíveis de uma categoria por subcategoria. */
 function groupByCategory(registry, categoryKey, userLevel) {
     const groups = new Map()   // subcategoria -> [cmd]
+    const seen = new Set()
     for (const cmd of registry.values()) {
-        if (cmd.category !== categoryKey) continue
+        if (!cmd || seen.has(cmd)) continue
+        seen.add(cmd)
+        const cmdCat = getCmdCategoryKey(cmd)
+        if (cmdCat !== categoryKey) continue
         if (!canSeeInMenu(cmd, userLevel)) continue
         const sub = resolveSubcategory(cmd)
         if (!groups.has(sub)) groups.set(sub, [])
@@ -136,12 +150,21 @@ function buildMenu({ category = null, page = 1, prefix = '.', userLevel = 1, bot
         // "Cannot access 'total' before initialization" e o .menu quebrava.)
         const linhasCategorias = []
         let totalVisivel = 0
+        const seen = new Set()
+        const uniqueCmds = []
+        for (const cmd of registry.values()) {
+            if (cmd && !seen.has(cmd)) {
+                seen.add(cmd)
+                uniqueCmds.push(cmd)
+            }
+        }
+
         for (const c of CATEGORIES) {
             // conta quantos o usuário pode ver, e esconde categorias vazias p/ ele
             let count = 0
             let aliasCount = 0
-            for (const cmd of registry.values()) {
-                if (cmd.category === c.key && canSeeInMenu(cmd, userLevel)) {
+            for (const cmd of uniqueCmds) {
+                if (getCmdCategoryKey(cmd) === c.key && canSeeInMenu(cmd, userLevel)) {
                     count++
                     if (Array.isArray(cmd.aliases)) aliasCount += cmd.aliases.length
                 }

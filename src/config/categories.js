@@ -1,21 +1,105 @@
 /**
- * Fonte única das categorias de comando (as 9 pastas de src/commands).
- * Consumida pelo gerador de menu e pelos atalhos de categoria do dispatcher.
+ * Fonte única das categorias de comando estratégicas do MeliodasBot.
+ * Consumida pelo gerador de menu dinâmico e pelo dispatcher de comandos.
  *
- * Cada categoria: key (= nome da pasta), emoji, label exibido, e `shortcuts`
- * (o que o usuário pode digitar para abrir o submenu, ex.: `.rpg`, `.eco`).
+ * Cada categoria possui:
+ * - key: chave canônica do módulo estratégico
+ * - emoji: ícone visual representativo
+ * - label: título descritivo da categoria
+ * - shortcuts: termos que abrem o submenu diretamente (ex: .rpg, .eco, .cassino, .media, etc.)
  */
 
 const CATEGORIES = [
-    { key: 'rpg',      emoji: '⚔️',  label: 'RPG & Combates',        shortcuts: ['rpg', 'aventura', 'combate', 'slayer'] },
-    { key: 'economy',  emoji: '💰',  label: 'Economia & Cassino',    shortcuts: ['eco', 'economia', 'banco', 'cassino'] },
-    { key: 'media',    emoji: '📥',  label: 'Downloads & Mídia',     shortcuts: ['media', 'midia', 'download', 'downloads', 'musica'] },
-    { key: 'fun',      emoji: '🎮',  label: 'Diversão & Jogos',      shortcuts: ['fun', 'diversao', 'jogos', 'games'] },
-    { key: 'dev',      emoji: '👨‍💻', label: 'Dev Hub & Ferramentas', shortcuts: ['dev', 'desenvolvedor', 'tools', 'software'] },
-    { key: 'general',  emoji: '🧭',  label: 'Utilidades & Geral',    shortcuts: ['general', 'geral', 'util', 'utilidades', 'calc', 'calculadora', 'pesquisa', 'ia', 'gpt', 'gemini', 'ping', 'rede', 'interacao', 'social'] },
-    { key: 'admin',    emoji: '🛡️',  label: 'Administração',          shortcuts: ['admin', 'adm', 'moderacao', 'config', 'configuracao'] },
-    { key: 'profile',  emoji: '🏆',  label: 'Perfil & Ranking',      shortcuts: ['profile', 'perfil', 'rank'] },
-    { key: 'owner',    emoji: '👑',  label: 'Donos & Aluguel',       shortcuts: ['owner', 'dono', 'donos', 'aluguel', 'vps'] }
+    {
+        key: 'rpg',
+        emoji: '⚔️',
+        label: 'RPG & Combate',
+        shortcuts: ['rpg', 'combate', 'aventura', 'slayer', 'raid', 'boss', 'dungeon']
+    },
+    {
+        key: 'economia',
+        emoji: '💰',
+        label: 'Economia & Banco',
+        shortcuts: ['eco', 'economia', 'banco', 'pix', 'investir', 'bancosin']
+    },
+    {
+        key: 'cassino',
+        emoji: '🎰',
+        label: 'Cassino & Apostas',
+        shortcuts: ['cassino', 'aposta', 'apostas', 'roleta', 'slots', 'mines', 'crash', 'plinko', 'bicho']
+    },
+    {
+        key: 'downloads',
+        emoji: '📥',
+        label: 'Downloads & Mídia',
+        shortcuts: ['downloads', 'download', 'media', 'midia', 'musica', 'play', 'ytmp4', 'ytmp3', 'video']
+    },
+    {
+        key: 'figurinhas',
+        emoji: '🎨',
+        label: 'Figurinhas & Edição',
+        shortcuts: ['figurinhas', 'fig', 'figurinha', 'sticker', 'stickers', 'fotos', 'edicao', 'meme']
+    },
+    {
+        key: 'jogos',
+        emoji: '🎮',
+        label: 'Jogos & Quizzes',
+        shortcuts: ['jogos', 'jogo', 'games', 'quiz', 'charada', 'minigames']
+    },
+    {
+        key: 'diversao',
+        emoji: '😂',
+        label: 'Diversão & Social',
+        shortcuts: ['diversao', 'fun', 'social', 'interacao', 'afeto', 'casamento', 'ship']
+    },
+    {
+        key: 'moderacao',
+        emoji: '🛡️',
+        label: 'Moderação & Segurança',
+        shortcuts: ['moderacao', 'admin', 'adm', 'seguranca', 'trava', 'antilink', 'antispam', 'antifake']
+    },
+    {
+        key: 'mensagens-grupo',
+        emoji: '📣',
+        label: 'Mensagens & Grupos',
+        shortcuts: ['grupo', 'grupos', 'mensagens', 'anuncios', 'hidetag', 'tagall', 'enquete', 'sorteio']
+    },
+    {
+        key: 'ia',
+        emoji: '🧠',
+        label: 'IA & Pesquisa',
+        shortcuts: ['ia', 'ai', 'pesquisa', 'gemini', 'gpt', 'chatgpt', 'traduzir']
+    },
+    {
+        key: 'livros',
+        emoji: '📚',
+        label: 'Livros & Biblioteca',
+        shortcuts: ['livros', 'livro', 'biblioteca', 'apostilas', 'ebook', 'gutenberg']
+    },
+    {
+        key: 'utilidades',
+        emoji: '🧭',
+        label: 'Utilidades & Telefonia',
+        shortcuts: ['utilidades', 'util', 'general', 'geral', 'calc', 'calculadora', 'numfake', 'clima', 'cotacao']
+    },
+    {
+        key: 'perfil',
+        emoji: '🏆',
+        label: 'Perfil, XP & Ranking',
+        shortcuts: ['perfil', 'profile', 'rank', 'xp', 'level', 'ranking', 'dossie']
+    },
+    {
+        key: 'dev',
+        emoji: '👨‍💻',
+        label: 'Dev Hub & Ferramentas',
+        shortcuts: ['dev', 'tools', 'software', 'debug', 'sistema', 'ping', 'speedtest']
+    },
+    {
+        key: 'owner',
+        emoji: '👑',
+        label: 'Donos & Aluguel',
+        shortcuts: ['dono', 'donos', 'owner', 'aluguel', 'vps', 'planos', 'modulo', 'cmdglobal']
+    }
 ]
 
 // Índice: shortcut (lowercase) -> key da categoria

@@ -72,22 +72,22 @@ function readCached(filePath) {
 const CATEGORY_MAP = {
     "main": "main", "global": "main", "principal": "main", "menu": "main",
     "rpg": "rpg", "aventura": "rpg", "combate": "rpg",
-    "media": "media", "midia": "media", "downloads": "media", "download": "media",
+    "media": "media", "midia": "media", "downloads": "media", "download": "media", "figurinhas": "media",
     "arquivos": "arquivos", "arquivo": "arquivos", "livros": "arquivos", "livro": "arquivos", "pdf": "arquivos", "docs": "arquivos", "ebook": "arquivos",
-    "economy": "economy", "eco": "economy", "economia": "economy", "perfil": "economy",
-    "calc": "calc", "calculadora": "calc", "math": "calc",
+    "economy": "economy", "eco": "economy", "economia": "economy", "cassino": "economy",
+    "calc": "calc", "calculadora": "calc", "math": "calc", "utilidades": "calc",
     "interacao": "interacao", "social": "interacao", "afeto": "interacao", "acoes": "interacao",
     "pesquisa": "pesquisa", "ia": "pesquisa", "busca": "pesquisa", "google": "pesquisa", "vision": "pesquisa",
     "fun": "fun", "diversao": "fun", "jogos": "fun",
     "dev": "dev", "software": "dev", "tools": "dev",
     "rede": "rede", "net": "rede", "telemetria": "rede", "ping": "rede",
     "admin": "admin", "adm": "admin", "moderacao": "admin",
-    "config": "config", "configs": "config", "configuracoes": "config",
+    "config": "config", "configs": "config", "configuracoes": "config", "mensagensgrupo": "config",
     "aluguel": "aluguel", "rent": "aluguel", "planos": "aluguel",
     "owner": "owner", "dono": "owner", "donos": "owner", "vps": "owner",
     "welcome": "welcome", "bv": "welcome", "bemvindo": "welcome",
     "leave": "leave", "saiu": "leave", "adeus": "leave",
-    "dossie": "dossie", "perfilcompleto": "dossie",
+    "dossie": "dossie", "perfil": "dossie", "perfilcompleto": "dossie",
     "help": "help", "ajuda": "help"
 };
 
