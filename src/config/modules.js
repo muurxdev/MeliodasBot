@@ -53,7 +53,10 @@ addNames('mensagens-grupo', [
     'enquete', 'votacao', 'event', 'setrules', 'listaregras', 'setdesc',
     'setnomegrupo', 'setfotogrupo'
 ])
-addNames('ia', ['ia', 'gpt', 'chatgpt', 'gemini', 'imagine', 'dalle', 'ai'])
+addNames('ia', ['ia', 'gpt', 'chatgpt', 'gemini', 'imagine', 'dalle', 'ai',
+    // Lote 1 IA & Pesquisa (keyless): novos + os de texto/pesquisa já existentes
+    'traduzir', 'resumir', 'pesquisar', 'detectaridioma', 'definir',
+    'analisartexto', 'corrigir', 'explicar'])
 addNames('figurinhas', [
     'fig', 'figurinha', 'sticker', 'take', 'toimg', 'emojimix', 'meme', 'gif',
     'mirror', 'rotate', 'crop', 'resize', 'enhance', 'filter', 'grayscale',
