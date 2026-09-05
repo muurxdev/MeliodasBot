@@ -29,11 +29,12 @@ module.exports = {
     execute: async ({ sender, reply, from, args, client }) => {
         const xpData = dataService.getXpData()
         const user = initializeUser(sender, xpData)
-        const bossData = dataService.getBossData()
+        const eventos = dataService.getRaidEventsData()
 
-        if (!bossData.raidEvent) bossData.raidEvent = {}
+        // Mesmo problema do .raid: saveBossData() só persiste `lutas`, então
+        // `raidEvent` era descartado e o evento sumia entre um comando e outro.
         const eventKey = `raid_${from}`
-        const raid = bossData.raidEvent[eventKey]
+        const raid = eventos[eventKey]
 
         const sub = (args[0] || '').toLowerCase()
 
@@ -72,7 +73,7 @@ module.exports = {
                     return reply('❌ *Este raid já foi derrotado!*\n\nAguarde o próximo evento.')
                 }
 
-                bossData.raidEvent[eventKey] = {
+                eventos[eventKey] = {
                     hp: RAID_BOSS.hpMax,
                     hpMax: RAID_BOSS.hpMax,
                     dano: {},
@@ -80,7 +81,7 @@ module.exports = {
                     inicio: Date.now()
                 }
 
-                const bossRef = bossData.raidEvent[eventKey]
+                const bossRef = eventos[eventKey]
                 const userLevel = user.level || 1
                 let dano = Math.floor(userLevel * 8) + Math.floor(Math.random() * 50) + 30
 
@@ -106,11 +107,11 @@ module.exports = {
                 if (bossRef.hp <= 0) {
                     bossRef.hp = 0
                     bossRef.ativo = false
-                    return await handleVictory(sender, user, bossRef, xpData, bossData, eventKey, reply)
+                    return await handleVictory(sender, user, bossRef, xpData, eventos, eventKey, reply)
                 }
 
                 await dataService.saveXpData(xpData)
-                await dataService.saveBossData(bossData)
+                dataService.saveRaidEventsData(eventos)
 
                 let doc = '⚔️ *ATAQUE NO RAID DE EVENTO!*\n\n'
                 doc += `👁️ *Boss:* ${RAID_BOSS.nome}\n`
@@ -149,11 +150,11 @@ module.exports = {
             if (raid.hp <= 0) {
                 raid.hp = 0
                 raid.ativo = false
-                return await handleVictory(sender, user, raid, xpData, bossData, eventKey, reply)
+                return await handleVictory(sender, user, raid, xpData, eventos, eventKey, reply)
             }
 
             await dataService.saveXpData(xpData)
-            await dataService.saveBossData(bossData)
+            dataService.saveRaidEventsData(eventos)
 
             let doc = '⚔️ *ATAQUE NO RAID DE EVENTO!*\n\n'
             doc += `👁️ *Boss:* ${RAID_BOSS.nome}\n`
@@ -170,7 +171,7 @@ module.exports = {
     }
 }
 
-async function handleVictory(sender, user, raid, xpData, bossData, eventKey, reply) {
+async function handleVictory(sender, user, raid, xpData, eventos, eventKey, reply) {
     const participantes = Object.keys(raid.dano || {})
 
     let coinsTotal = Math.floor(Math.random() * (RAID_BOSS.coins[1] - RAID_BOSS.coins[0] + 1)) + RAID_BOSS.coins[0]
@@ -194,9 +195,9 @@ async function handleVictory(sender, user, raid, xpData, bossData, eventKey, rep
         processarLevelUp(p)
     })
 
-    delete bossData.raidEvent[eventKey]
+    delete eventos[eventKey]
     await dataService.saveXpData(xpData)
-    await dataService.saveBossData(bossData)
+    dataService.saveRaidEventsData(eventos)
     logger.info(`[RAIDEVENTO] Grupo venceu raid com ${participantes.length} jogadores`)
 
     let doc = '╔══════════════════════════════╗\n'

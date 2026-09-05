@@ -59,11 +59,12 @@ module.exports = {
         const botName = getBotName()
         const xpData = dataService.getXpData()
         const user = initializeUser(sender, xpData)
-        const bossData = dataService.getBossData()
-
-        if (!bossData.raids) bossData.raids = {}
+        // As raids ficavam em bossData.raids, mas o saveBossData() só persiste
+        // `lutas` — o objeto era jogado fora no save e o `.raid atk` seguinte
+        // não achava nada. Agora usam armazenamento próprio e persistente.
+        const raids = dataService.getRaidsData()
         const raidKey = from
-        const currentRaid = bossData.raids[raidKey]
+        const currentRaid = raids[raidKey]
 
         const sub = (args[0] || "").toLowerCase().trim()
 
@@ -76,7 +77,7 @@ module.exports = {
             const chosenKey = args[1] ? args[1].toLowerCase().replace(/[^a-z0-9]/g, "") : "lostvayne"
             const template = RAID_BOSSES[chosenKey] || RAID_BOSSES["lostvayne"]
 
-            bossData.raids[raidKey] = {
+            raids[raidKey] = {
                 id: chosenKey,
                 nome: template.nome,
                 vida: template.vidaBase,
@@ -89,7 +90,7 @@ module.exports = {
                 inicio: Date.now()
             }
 
-            await dataService.saveBossData(bossData)
+            dataService.saveRaidsData(raids)
             logger.info("[RAID CRIADA] Grupo " + from + " invocou Raid: " + template.nome)
 
             let doc = "╔══════════════════════════════╗\n"
@@ -185,16 +186,16 @@ module.exports = {
                     }
                 })
 
-                delete bossData.raids[raidKey]
+                delete raids[raidKey]
                 await dataService.saveXpData(xpData)
-                await dataService.saveBossData(bossData)
+                dataService.saveRaidsData(raids)
 
                 logger.info(`[RAID VENCIDA] Grupo ${from} venceu Raid com ${participantes.length} jogadores`)
                 return reply(vitoriaDoc.trim(), participantes)
             }
 
             await dataService.saveXpData(xpData)
-            await dataService.saveBossData(bossData)
+            dataService.saveRaidsData(raids)
 
             const barra = barraVida(currentRaid.vida, currentRaid.vidaMax)
             let atkDoc = `⚔️ *ATAQUE NA BOSS RAID!*\n\n`

@@ -67,6 +67,61 @@ function initializeUser(sender, xpData = {}, alternativeJids = []) {
 // ═══════════════════════════════════════
 // 🐉 BOSSES
 // ═══════════════════════════════════════
+
+/**
+ * Raids cooperativas de grupo.
+ *
+ * Ficavam em `bossData.raids`, mas o saveBossData() só persiste `data.lutas` —
+ * o objeto `raids` era descartado silenciosamente no save. Resultado: `.raid criar`
+ * anunciava a raid e o `.raid atk` seguinte respondia "não há raid ativa".
+ * Guardamos numa chave própria do armazenamento de configs, que é persistente.
+ */
+const RAIDS_KEY = '__raids__'
+
+function getRaidsData() {
+    try {
+        const r = configRepo.getConfig(RAIDS_KEY)
+        return (r && typeof r === 'object') ? r : {}
+    } catch (e) {
+        logger.error('Erro ao ler Raids:', e)
+        return {}
+    }
+}
+
+function saveRaidsData(raids) {
+    try {
+        configRepo.saveConfig(RAIDS_KEY, raids || {})
+        return true
+    } catch (e) {
+        logger.error('Erro ao salvar Raids:', e)
+        return false
+    }
+}
+
+
+/** Eventos de raid globais (.raidevento) — mesma razão do getRaidsData. */
+const RAID_EVENTS_KEY = '__raid_events__'
+
+function getRaidEventsData() {
+    try {
+        const r = configRepo.getConfig(RAID_EVENTS_KEY)
+        return (r && typeof r === 'object') ? r : {}
+    } catch (e) {
+        logger.error('Erro ao ler eventos de Raid:', e)
+        return {}
+    }
+}
+
+function saveRaidEventsData(eventos) {
+    try {
+        configRepo.saveConfig(RAID_EVENTS_KEY, eventos || {})
+        return true
+    } catch (e) {
+        logger.error('Erro ao salvar eventos de Raid:', e)
+        return false
+    }
+}
+
 function getBossData() {
     try {
         return bossRepo.getAllBossFights()
@@ -260,6 +315,10 @@ module.exports = {
     initializeUser,
     getBossData,
     saveBossData,
+    getRaidsData,
+    saveRaidsData,
+    getRaidEventsData,
+    saveRaidEventsData,
     getGuildData,
     saveGuildData,
     getMissoesData,
