@@ -179,27 +179,29 @@ module.exports = {
             doc += `┃ ⏱️ *Expira em:* ${expiresInMinutes} minutos\n`
             doc += `┃ 💰 *Custo:* ${isOwner ? '👑 *Grátis (Dono)*' : `*${order.cost_credits} Créditos*`}\n`
             doc += `╰━━━━━━━━━━━━━━━━━━━━⬣\n\n`
-            doc += `📌 *PASSO A PASSO PARA ATIVAR:*\n`
-            doc += `1️⃣ Abra seu *WhatsApp* (ou WhatsApp Business).\n`
-            doc += `2️⃣ Cole o número puro: \`${numberRaw}\`.\n`
-            doc += `3️⃣ Avance e solicite o código por *SMS* no aplicativo.\n`
-            doc += `4️⃣ Assim que solicitar o SMS no WhatsApp, venha aqui e digite:\n`
-            doc += `👉 \`${prefix}numfake cod\`  _(ou \`${prefix}numfake status\`)_\n\n`
 
             if (!hasApiKey) {
-                doc += `⚠️ *AVISO IMPORTANTE (Modo Sandbox):*\n`
-                doc += `O bot está sem chave de API do SMS-Activate configurada. O WhatsApp oficial exige um chip físico/GSM real para validar o SMS.\n\n`
-                doc += `🎁 *DICA: Quer números públicos REAIS que recebem SMS de verdade sem chave?*\n`
-                doc += `👉 \`${prefix}numfake free\`  _(recebe SMS real 100% grátis)_\n`
-                doc += `👉 \`${prefix}numfake free lista\`  _(ver todos os países)_\n\n`
+                doc += `⚠️ *AVISO CRÍTICO (Modo Simulação / Sem Chip Físico):*\n`
+                doc += `O bot está sem chave de API GSM do SMS-Activate configurada. O WhatsApp oficial **exige um chip físico/GSM real** para enviar o código criptografado. Números gerados sem chip físico são recusados pela Meta como "Código Incorreto".\n\n`
+                doc += `🟢 *COMO TER CHIPS REAIS QUE RECEBEM SMS DA META:*\n`
+                doc += `👉 Digite: \`${prefix}numfake free\`  _(chip internacional real com SMS na web 100% grátis)_\n`
+                doc += `👉 Digite: \`${prefix}numfake free lista\`  _(ver todos os países disponíveis)_\n\n`
                 if (isOwner) {
-                    doc += `👑 *Para o Dono:* Para chips particulares com DDD brasileiro, configure sua chave com:\n👉 \`${prefix}numfake setkey <sua_api_key>\`\n\n`
+                    doc += `👑 *Para Chips Particulares com DDD Brasileiro (DDD 11, 21...):*\n`
+                    doc += `Configure sua chave do SMS-Activate/5SIM com:\n👉 \`${prefix}numfake setkey <sua_api_key>\`\n\n`
                 } else {
                     doc += `💡 Peça ao Dono do bot para configurar a chave com \`${prefix}numfake setkey\` para chips com DDD brasileiro.\n\n`
                 }
+            } else {
+                doc += `📌 *PASSO A PASSO PARA ATIVAR:*\n`
+                doc += `1️⃣ Abra seu *WhatsApp* (ou WhatsApp Business).\n`
+                doc += `2️⃣ Cole o número puro: \`${numberRaw}\`.\n`
+                doc += `3️⃣ Avance e solicite o código por *SMS* no aplicativo.\n`
+                doc += `4️⃣ Assim que solicitar o SMS no WhatsApp, venha aqui e digite:\n`
+                doc += `👉 \`${prefix}numfake cod\`  _(ou \`${prefix}numfake status\`)_\n\n`
             }
 
-            doc += `💡 _Para cancelar ou trocar de número a qualquer momento, use \`${prefix}numfake cancelar\` ou gere outro DDD com \`${prefix}numfake gerar <ddd>\`._`
+            doc += `💡 _Para cancelar ou trocar de número a qualquer momento, use \`${prefix}numfake cancelar\` ou gere outro número com \`${prefix}numfake free\`._`
 
             return reply(doc.trim())
         }
@@ -216,7 +218,7 @@ module.exports = {
                 if (last) {
                     msg += `Último número solicitado: *${last.phone_number}* (Status: _${last.status}_)\n\n`
                 }
-                msg += `👉 Digite \`${prefix}numfake gerar <ddd>\` para gerar um novo número!\n`
+                msg += `👉 Digite \`${prefix}numfake free\` para obter um chip real gratuito!\n`
                 msg += `👉 Digite \`${prefix}numfake ddds\` para consultar a lista de DDDs.`
                 return reply(msg.trim())
             }
@@ -251,10 +253,12 @@ module.exports = {
                 if (inboxUrl) {
                     doc += `🌐 *Painel Web:* ${inboxUrl}\n`
                 }
-                doc += `\n⚡ Copie o código acima e insira no WhatsApp para concluir!`
-
-                if (!isReal && !isFree) {
-                    doc += `\n\n⚠️ *Nota:* Este código foi gerado no ambiente Sandbox/Simulação. Para chips públicos gratuitos que recebem SMS real da Meta na web, use \`${prefix}numfake free\`.`
+                if (isReal || isFree) {
+                    doc += `\n⚡ Copie o código acima e insira no WhatsApp para concluir!`
+                } else {
+                    doc += `\n\n⚠️ *ATENÇÃO (Código Simulado / Sandbox):*\n`
+                    doc += `Este código foi gerado internamente para testes do bot. A Meta/WhatsApp **NÃO enviou** este código porque o número não tem chip GSM real. Ele será recusado pelo WhatsApp oficial.\n\n`
+                    doc += `👉 *Para receber o código REAL da Meta:* Use \`${prefix}numfake free\` ou configure sua chave com \`${prefix}numfake setkey <chave>\`.`
                 }
 
                 return reply(doc.trim())
