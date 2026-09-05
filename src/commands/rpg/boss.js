@@ -211,6 +211,24 @@ module.exports = {
                     if (lootRecebido) {
                         relatorioRecompensas += '🎁 *Drop Raro Obtido:* ' + lootRecebido + '!\n'
                     }
+
+                    // Equipamento REAL do catálogo. A tabela `boss.loot` acima só
+                    // devolve nomes soltos (strings), que não viram equipamento.
+                    // Boss é o conteúdo mais difícil, então a chance é alta (35%).
+                    try {
+                        const { sortearEquipamentoDrop } = require('../../services/rpgEquipmentService')
+                        if (!Array.isArray(perfilP.inventario)) perfilP.inventario = []
+                        if (perfilP.inventario.length < (perfilP.mochila || 20) && Math.random() < 0.35) {
+                            const equip = sortearEquipamentoDrop((perfilP.level || 1) + 10)
+                            if (equip) {
+                                perfilP.inventario.push({ ...equip })
+                                relatorioRecompensas += '✨ *Equipamento:* ' + equip.raridade + ' ' + equip.nome +
+                                    ' (+' + equip.cp + ' CP) — `.equipar ' + equip.id + '`\n'
+                            }
+                        }
+                    } catch (equipErr) {
+                        logger.warn('[BOSS] Falha no drop de equipamento: ' + equipErr.message)
+                    }
                 })
 
                 await dataService.saveXpData(xpData)

@@ -7,6 +7,7 @@ const dataService = require("../../services/dataService");
 const { initializeUser } = require("../../services/xpService");
 const { calculateFullCharacterStats } = require("../../services/characterEngine");
 const { getBotName } = require("../../config/botConfig");
+const logger = require("../../core/logger");
 
 const BASE_DUNGEON_FLOORS = [
     { andar: 1, nome: "Cripta dos Mortos-Vivos", minLevel: 1, reqCp: 80, xp: 450, coins: 350, drop: "🦴 Crânio Amaldiçoado" },
@@ -157,6 +158,19 @@ module.exports = {
             dropGanho = true;
         }
 
+        // Equipamento REAL do catálogo (o drop do andar acima é só um nome solto).
+        // 20% na masmorra — entre a caçada (8%) e o boss (35%).
+        let equipDrop = null;
+        try {
+            const { sortearEquipamentoDrop } = require('../../services/rpgEquipmentService');
+            if (user.inventario.length < limiteMochila && Math.random() < 0.20) {
+                equipDrop = sortearEquipamentoDrop((user.level || 1) + 5);
+                if (equipDrop) user.inventario.push({ ...equipDrop });
+            }
+        } catch (equipErr) {
+            logger.warn('[DUNGEON] Falha no drop de equipamento: ' + equipErr.message);
+        }
+
         await dataService.saveXpData(xpData);
 
         let winDoc = `╔══════════════════════════════╗\n`;
@@ -172,6 +186,11 @@ module.exports = {
             winDoc += `┃ 🎁 *Drop Adquirido:* ${currentFloor.drop}\n`;
         } else {
             winDoc += `┃ ⚠️ *Mochila Cheia:* Drop não pôde ser guardado. Aumente com \`.mochila up\`!\n`;
+        }
+        if (equipDrop) {
+            winDoc += `┃ ✨ *Equipamento:* ${equipDrop.raridade} *${equipDrop.nome}*\n`;
+            winDoc += `┃    ⚔️ ATK +${equipDrop.atk} | 🛡️ DEF +${equipDrop.def} | ⚡ ${equipDrop.cp} CP\n`;
+            winDoc += `┃    💡 \`.equipar ${equipDrop.id}\`\n`;
         }
         winDoc += `╰━━━━━━━━━━━━━━━━━━⬣\n\n`;
         winDoc += `👑 *${botName}*`;
