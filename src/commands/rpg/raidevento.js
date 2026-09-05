@@ -2,6 +2,7 @@ const dataService = require('../../services/dataService')
 const { initializeUser, processarLevelUp } = require('../../services/xpService')
 const { formatCoins } = require('../../utils/uiEngine')
 const logger = require('../../core/logger')
+const { sortearEquipamentoDrop } = require('../../services/rpgEquipmentService')
 
 const RAID_BOSS = {
     nome: '👁️ Guardião do Vazio',
@@ -180,19 +181,46 @@ async function handleVictory(sender, user, raid, xpData, eventos, eventKey, repl
     const coinsPorJogador = Math.floor(coinsTotal / Math.max(1, participantes.length))
     const xpPorJogador = Math.floor(xpTotal / Math.max(1, participantes.length))
 
-    participantes.forEach(pUser => {
+    participantes.sort((a, b) => ((raid.dano || {})[b] || 0) - ((raid.dano || {})[a] || 0))
+
+    const dropsPorJogador = {}
+
+    participantes.forEach((pUser, i) => {
         const p = initializeUser(pUser, xpData)
         p.coins = (p.coins || 0) + coinsPorJogador
         p.xp = (p.xp || 0) + xpPorJogador
         p.raidBossesKilled = (p.raidBossesKilled || 0) + 1
 
-        if (Math.random() < 0.4 && RAID_BOSS.loot.length > 0) {
-            const drop = RAID_BOSS.loot[Math.floor(Math.random() * RAID_BOSS.loot.length)]
-            if (!p.inventario) p.inventario = []
+        if (!Array.isArray(p.inventario)) p.inventario = []
+        const userRewards = []
+
+        // 1. Drop Garantido de Material de Evento
+        if (RAID_BOSS.loot && RAID_BOSS.loot.length > 0) {
+            const drop = RAID_BOSS.loot[i % RAID_BOSS.loot.length]
             p.inventario.push(drop)
+            userRewards.push(`🎁 ${drop}`)
         }
 
-        processarLevelUp(p)
+        // 2. Drop de Equipamento Real do Catálogo (MVP 80%, outros 50%)
+        const chanceEquip = i === 0 ? 0.80 : 0.50
+        if (Math.random() <= chanceEquip) {
+            try {
+                const equip = sortearEquipamentoDrop((p.level || 1) + 10)
+                if (equip) {
+                    p.inventario.push({ ...equip })
+                    userRewards.push(`✨ ${equip.raridade} ${equip.nome} (+${equip.cp} CP)`)
+                }
+            } catch (err) {
+                logger.warn('[RAIDEVENTO] Erro ao sortear equipamento: ' + err.message)
+            }
+        }
+
+        const lvlResult = processarLevelUp(p)
+        if (lvlResult && lvlResult.subiu) {
+            userRewards.push(`🆙 Nível ${p.level}`)
+        }
+
+        dropsPorJogador[pUser] = userRewards
     })
 
     delete eventos[eventKey]
@@ -204,17 +232,22 @@ async function handleVictory(sender, user, raid, xpData, eventos, eventKey, repl
     doc += '║   🏆 *RAID DE EVENTO DERROTADO!* 🏆   ║\n'
     doc += '╚══════════════════════════════╝\n\n'
     doc += `👁️ *${RAID_BOSS.nome}* foi derrotado!\n\n`
-    doc += `💰 *Recompensa por Jogador:* ${formatCoins(coinsPorJogador)}\n`
-    doc += `⭐ *XP por Jogador:* ${xpPorJogador} XP\n\n`
+    doc += `💰 *Recompensa Básica:* +${formatCoins(coinsPorJogador)} | ⭐ +${xpPorJogador.toLocaleString('pt-BR')} XP\n\n`
 
-    doc += '╭━〔 🏅 PARTICIPANTES 〕━⬣\n'
+    doc += '╭━〔 🏅 PARTICIPANTES & DROPS 〕━⬣\n'
     participantes.forEach((pUser, i) => {
         const dmg = (raid.dano || {})[pUser] || 0
         const medal = i === 0 ? '🥇' : i === 1 ? '🥈' : i === 2 ? '🥉' : '🎖️'
         doc += `┃ ${medal} @${pUser.split('@')[0]} — *${dmg.toLocaleString('pt-BR')} dmg*\n`
+        const rew = dropsPorJogador[pUser] || []
+        if (rew.length > 0) {
+            rew.forEach(r => {
+                doc += `┃    └ ${r}\n`
+            })
+        }
     })
     doc += '╰━━━━━━━━━━━━━━━━━━⬣\n\n'
-    doc += '🎁 _Itens raros sorteados entre os participantes!_'
+    doc += '💡 _Equipe seus novos itens com \`.equipar <nome>\` e veja no \`.inv\`!_'
 
     return reply(doc.trim(), participantes)
 }

@@ -4,11 +4,12 @@
  */
 
 const dataService = require("../../services/dataService")
-const { initializeUser } = require("../../services/xpService")
+const { initializeUser, processarLevelUp } = require("../../services/xpService")
 const { aplicarBonusDano } = require("../../services/rpgService")
 const { getBotName } = require("../../config/botConfig")
 const logger = require("../../core/logger")
 const { resolveHp } = require("../../services/characterEngine")
+const { sortearEquipamentoRaid } = require("../../services/rpgEquipmentService")
 
 const RAID_BOSSES = {
     "reidemonio": {
@@ -174,17 +175,56 @@ module.exports = {
                     pProfile.xp = (pProfile.xp || 0) + xpAward
                     pProfile.coins = (pProfile.coins || 0) + coinsAward
 
+                    if (!Array.isArray(pProfile.inventario)) pProfile.inventario = []
+                    const limiteMochila = pProfile.mochila || 20
+
+                    // 1. Drops Garantidos de Materiais / Loots do Titã
+                    // Todos os guerreiros que atacaram a Raid recebem loot garantido!
+                    const qtdLoot = rankIdx === 0 ? 3 : (rankIdx === 1 ? 2 : (rankIdx === 2 ? 2 : 1))
+                    const lootsGanhos = []
+                    const pool = (currentRaid.loot && currentRaid.loot.length > 0)
+                        ? currentRaid.loot
+                        : ["🐉 Escama do Titã Ancestral"]
+
+                    for (let i = 0; i < qtdLoot; i++) {
+                        const material = pool[i % pool.length]
+                        pProfile.inventario.push(material)
+                        lootsGanhos.push(material)
+                    }
+
+                    // 2. Drop de Equipamento Real do Catálogo (com CP, stats e .equipar)
+                    // MVP (rank 0) tem 100% de drop! Rank 1 tem 85%, Rank 2 tem 70%, demais 50%.
+                    const chanceEquip = rankIdx === 0 ? 1.0 : (rankIdx === 1 ? 0.85 : (rankIdx === 2 ? 0.70 : 0.50))
+                    let equipDrop = null
+                    if (Math.random() <= chanceEquip) {
+                        try {
+                            equipDrop = sortearEquipamentoRaid(pProfile.level || 1, rankIdx, currentRaid.id)
+                            if (equipDrop) {
+                                pProfile.inventario.push({ ...equipDrop })
+                            }
+                        } catch (eErr) {
+                            logger.warn('[RAID] Falha ao sortear equipamento: ' + eErr.message)
+                        }
+                    }
+
+                    // 3. Processamento de Level Up
+                    const lvlResult = processarLevelUp(pProfile)
+
                     const medal = rankIdx === 0 ? "🥇" : (rankIdx === 1 ? "🥈" : (rankIdx === 2 ? "🥉" : "🎖️"))
                     vitoriaDoc += `\n${medal} @${pUser.split('@')[0]}:\n`
                     vitoriaDoc += `⚔️ Dano Causado: *${userDmg.toLocaleString('pt-BR')} (${dmgPercent}%)*\n`
                     vitoriaDoc += `⭐ +${xpAward.toLocaleString('pt-BR')} XP | 💰 +${coinsAward.toLocaleString('pt-BR')} Coins\n`
-
-                    // Drop de loot raro proporcional ao rank
-                    if (Math.random() < 0.45 && currentRaid.loot && currentRaid.loot.length > 0) {
-                        const drop = currentRaid.loot[Math.floor(Math.random() * currentRaid.loot.length)]
-                        if (!pProfile.inventario) pProfile.inventario = []
-                        pProfile.inventario.push(drop)
-                        vitoriaDoc += `🎁 *Drop Especial:* ${drop}!\n`
+                    if (lootsGanhos.length > 0) {
+                        vitoriaDoc += `🎁 *Loots do Titã:* ${lootsGanhos.join(', ')}\n`
+                    }
+                    if (equipDrop) {
+                        vitoriaDoc += `✨ *Equipamento:* ${equipDrop.raridade} *${equipDrop.nome}* (+${equipDrop.cp.toLocaleString('pt-BR')} CP) — \`.equipar ${equipDrop.id}\`\n`
+                    }
+                    if (lvlResult && lvlResult.subiu) {
+                        vitoriaDoc += `🆙 *SUBIU DE NÍVEL!* Nível ${pProfile.level} (+HP / +Coins)\n`
+                    }
+                    if (pProfile.inventario.length > limiteMochila) {
+                        vitoriaDoc += `⚠️ _Aviso: Mochila cheia (${pProfile.inventario.length}/${limiteMochila} itens). Use \`.mochila up\` para expandir!_\n`
                     }
                 })
 

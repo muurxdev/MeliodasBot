@@ -153,8 +153,55 @@ function sortearEquipamentoDrop(level = 1) {
     return { ...candidatos[candidatos.length - 1] }
 }
 
+/**
+ * Sorteia equipamento de alto calibre para vitoriosos de Boss Raid Titânico.
+ * Raids são o conteúdo supremo em grupo — drops garantidos e com chance de itens
+ * Épicos, Lendários, Míticos e Divinos do catálogo!
+ */
+function sortearEquipamentoRaid(level = 1, rank = 0, bossKey = '') {
+    const bKey = String(bossKey || '').toLowerCase();
+
+    // Chances temáticas diretas de itens sagrados/míticos do Boss da Raid para MVP / Top ranks
+    if (rank === 0 && Math.random() < 0.35) {
+        if (bKey.includes('lostvayne') && ITEMS_DB['lostvayne']) return { ...ITEMS_DB['lostvayne'] };
+        if (bKey.includes('reidemonio') && ITEMS_DB['coroa_trevas']) return { ...ITEMS_DB['coroa_trevas'] };
+        if (bKey.includes('deusasuprema') && ITEMS_DB['manto_divindade']) return { ...ITEMS_DB['manto_divindade'] };
+        if (bKey.includes('mael') && ITEMS_DB['elmo_arcanjos']) return { ...ITEMS_DB['elmo_arcanjos'] };
+    }
+
+    // Nível efetivo elevado para raids (mínimo nível 40)
+    const bonusRank = rank === 0 ? 35 : (rank === 1 ? 25 : (rank === 2 ? 18 : 10));
+    const nivelEfetivo = Math.max(40, (Number(level) || 1) + bonusRank);
+
+    // Teto de CP ampliado
+    const tetoCp = 350 + Math.pow(nivelEfetivo, 1.95) * 1.8;
+    // Exclui comuns e foca em Raro ou superior
+    const candidatos = Object.values(ITEMS_DB).filter(i => i.cp <= tetoCp && i.raridade !== '⚪ Comum');
+    if (!candidatos.length) {
+        return { ...ITEMS_DB['lamina_aco'] };
+    }
+
+    const PESO_RAID = {
+        '🔵 Raro': 20,
+        '🟣 Épico': 35,
+        '🟠 Lendário': 25,
+        '👑 Mítico': 14,
+        '🌟 Divino': 5,
+        '🔥 Transcendente': 1
+    };
+
+    const total = candidatos.reduce((acc, i) => acc + (PESO_RAID[i.raridade] || 5), 0);
+    let sorte = Math.random() * total;
+    for (const item of candidatos) {
+        sorte -= (PESO_RAID[item.raridade] || 5);
+        if (sorte <= 0) return { ...item };
+    }
+    return { ...candidatos[candidatos.length - 1] };
+}
+
 module.exports = {
     sortearEquipamentoDrop,
+    sortearEquipamentoRaid,
     ITEMS_DB,
     getItem,
     calculateCharacterStats
