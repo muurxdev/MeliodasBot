@@ -12,6 +12,7 @@ const { ensureMobileVideoCompatibility } = require('../../services/media/mediaPr
 const { mediaQueue } = require('../../services/mediaQueue')
 const { getBotName } = require('../../config/botConfig')
 const logger = require('../../core/logger')
+const { enviarVideo } = require('../../services/media/videoSender')
 
 module.exports = {
     name: 'youtube',
@@ -100,21 +101,13 @@ module.exports = {
                     }, { quoted: info, mediaUploadTimeoutMs: 180000 })
                 } else {
                     // Se o arquivo for menor/igual a 100MB, envia como vídeo reproduzível nativo
-                    if (stats.size <= 100 * 1024 * 1024) {
-                        await client.sendMessage(from, {
-                            video: { url: filePath },
-                            caption,
-                            mimetype: 'video/mp4'
-                        }, { quoted: info, mediaUploadTimeoutMs: 300000 })
-                    } else {
-                        // Arquivos grandes (> 100MB até 2GB): envia como documento MP4 sem perda
-                        await client.sendMessage(from, {
-                            document: { url: filePath },
-                            mimetype: 'video/mp4',
-                            fileName: `${cleanTitle}.mp4`,
-                            caption: `${caption}\n\n📦 *Enviado como documento (${sizeMb} MB) para preservar a qualidade original do arquivo.*`
-                        }, { quoted: info, mediaUploadTimeoutMs: 600000 })
-                    }
+                                        // Entrega na galeria sempre que possível; comprime se não couber,
+                    // e só vira documento em último caso (ou com a flag -doc).
+                    await enviarVideo({
+                        client, from, filePath, caption, info,
+                        fileName: `${cleanTitle}.mp4`,
+                        preferirDocumento: /(^|\s)-?doc(umento)?(\s|$)/i.test(String(text || ''))
+                    })
                 }
                 logger.info(`[YOUTUBE] ${format.toUpperCase()} (${sizeMb} MB) enviado para ${sender}: ${meta.title}`)
             } finally {
