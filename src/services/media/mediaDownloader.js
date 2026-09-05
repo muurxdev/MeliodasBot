@@ -59,13 +59,14 @@ async function downloadMedia(job, onProgress = null) {
             return reject(err)
         }
 
+        let watchdogInterval = null
         activeProcesses.set(jobId, proc)
 
         // Erro de spawn pós-criação (ex: binário ausente -> ENOENT)
         proc.on('error', async spawnErr => {
             if (activeProcesses.has(jobId)) {
                 activeProcesses.delete(jobId)
-                clearTimeout(timer)
+                if (watchdogInterval) clearInterval(watchdogInterval)
                 logger.error(`[MEDIA DOWNLOAD] Falha ao iniciar yt-dlp: ${spawnErr.message}`)
 
                 const isYouTube = /youtu(\.be|be\.com)/i.test(job.source)
@@ -110,8 +111,10 @@ async function downloadMedia(job, onProgress = null) {
         })
 
         let stderrData = ''
+        let lastActivity = Date.now()
 
         proc.stdout.on('data', chunk => {
+            lastActivity = Date.now()
             const str = chunk.toString()
             if (onProgress) {
                 const match = str.match(/\[download\]\s+([\d\.]+)%\s+of\s+([^\s]+)\s+at\s+([^\s]+)\s+ETA\s+([^\s]+)/)
@@ -127,31 +130,60 @@ async function downloadMedia(job, onProgress = null) {
         })
 
         proc.stderr.on('data', chunk => {
+            lastActivity = Date.now()
             stderrData += chunk.toString()
         })
 
-        // Timeout DINÂMICO por duração: um vídeo longo (permitido até 60 min) não
-        // pode ser morto pelo timeout base de 3 min. Damos ~1.2s de janela por
-        // segundo de vídeo, com piso no timeout base e teto configurável.
+        // Timeout DINÂMICO por duração: um vídeo longo não pode ser morto pelo timeout base.
+        // Se a duração for conhecida, escala com a duração. Se for desconhecida e for vídeo,
+        // concede o teto máximo (MAX_DOWNLOAD_TIMEOUT_MS) com proteção de inatividade.
         const durationSec = Number(job.duration) || 0
-        const dynamicTimeout = Math.min(
-            MEDIA_LIMITS.MAX_DOWNLOAD_TIMEOUT_MS,
-            Math.max(MEDIA_LIMITS.DOWNLOAD_TIMEOUT_MS, Math.round(durationSec * 1200))
-        )
-        const timer = setTimeout(() => {
-            if (activeProcesses.has(jobId)) {
+        const dynamicTimeout = durationSec > 0
+            ? Math.min(
+                MEDIA_LIMITS.MAX_DOWNLOAD_TIMEOUT_MS,
+                Math.max(MEDIA_LIMITS.DOWNLOAD_TIMEOUT_MS, Math.round(durationSec * 1200))
+            )
+            : (job.requestedFormat === FORMATS.MP4 || job.requestedFormat === 'mp4'
+                ? MEDIA_LIMITS.MAX_DOWNLOAD_TIMEOUT_MS
+                : MEDIA_LIMITS.DOWNLOAD_TIMEOUT_MS)
+
+        // Inatividade: 120s (2 min) sem nenhum byte nem progresso do processo
+        const INACTIVITY_TIMEOUT_MS = 120000
+
+        watchdogInterval = setInterval(() => {
+            if (!activeProcesses.has(jobId)) {
+                clearInterval(watchdogInterval)
+                return
+            }
+            const timeSinceLastActivity = Date.now() - lastActivity
+            const totalElapsed = Date.now() - startedAt
+
+            // 1. Teto máximo de execução
+            if (totalElapsed >= dynamicTimeout) {
+                clearInterval(watchdogInterval)
                 proc.kill('SIGKILL')
                 activeProcesses.delete(jobId)
                 cleanupJobDir(jobTempDir)
                 const mins = Math.round(dynamicTimeout / 60000)
                 const err = new Error(`Tempo limite de download excedido (${mins} min).`)
                 err.code = MEDIA_ERRORS.TIMEOUT
-                reject(err)
+                return reject(err)
             }
-        }, dynamicTimeout)
+
+            // 2. Travamento real: se passou o piso base de 3 min E está 2 min sem nenhum byte
+            if (totalElapsed > MEDIA_LIMITS.DOWNLOAD_TIMEOUT_MS && timeSinceLastActivity >= INACTIVITY_TIMEOUT_MS) {
+                clearInterval(watchdogInterval)
+                proc.kill('SIGKILL')
+                activeProcesses.delete(jobId)
+                cleanupJobDir(jobTempDir)
+                const err = new Error('Download estagnado sem dados recebidos da plataforma.')
+                err.code = MEDIA_ERRORS.TIMEOUT
+                return reject(err)
+            }
+        }, 5000)
 
         proc.on('close', async code => {
-            clearTimeout(timer)
+            clearInterval(watchdogInterval)
             activeProcesses.delete(jobId)
 
             if (code !== 0) {

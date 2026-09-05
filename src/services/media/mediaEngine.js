@@ -54,7 +54,7 @@ class MediaEngine extends EventEmitter {
     /**
      * Cria e registra um novo Job de Mídia
      */
-    createJob({ userId, chatId, source, requestedFormat = FORMATS.MP3, requestedQuality = QUALITIES.BEST, type = MEDIA_TYPES.AUDIO }) {
+    createJob({ userId, chatId, source, requestedFormat = FORMATS.MP3, requestedQuality = QUALITIES.BEST, type = MEDIA_TYPES.AUDIO, duration = 0, metadata = null }) {
         const jobId = `job_${Date.now()}_${Math.random().toString(36).substring(2, 7)}`
         const job = {
             id: jobId,
@@ -65,7 +65,8 @@ class MediaEngine extends EventEmitter {
             type,
             requestedFormat,
             requestedQuality,
-            metadata: null,
+            duration: Number(duration) || 0,
+            metadata: metadata || null,
             status: 'PENDING',
             tempDir: null,
             createdAt: Date.now(),
@@ -124,6 +125,9 @@ class MediaEngine extends EventEmitter {
         if (!job.metadata) {
             job.metadata = await this.resolve(job.source)
             job.platform = job.metadata.platform
+        }
+        if (job.metadata && job.metadata.duration && !job.duration) {
+            job.duration = Number(job.metadata.duration) || 0
         }
         this.emitPhase({ jobId: job.id, phase: 'ANALYSIS_COMPLETED' })
 
@@ -218,11 +222,14 @@ module.exports = {
     formatDuration,
     resolveDownloadFormat,
     downloadMedia: async (options) => {
+        const dur = options.duration || (options.metadata && options.metadata.duration) || 0
         const job = mediaEngine.createJob({
             userId: options.userJid || options.userId,
             source: options.url,
             requestedFormat: options.format || FORMATS.MP3,
-            requestedQuality: options.quality || QUALITIES.BEST
+            requestedQuality: options.quality || QUALITIES.BEST,
+            duration: dur,
+            metadata: options.metadata || null
         })
         if (options.userJid) job.user = options.userJid
         return mediaEngine.processJob(job, { onProgress: options.onProgress })

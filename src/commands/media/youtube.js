@@ -54,11 +54,15 @@ module.exports = {
                 url: targetUrl,
                 format,
                 user: sender,
+                duration: meta.duration,
                 runFn: () => downloadMedia({
                     source: targetUrl,
                     url: targetUrl,
                     requestedFormat: format,
-                    format
+                    format,
+                    duration: meta.duration,
+                    metadata: meta,
+                    userJid: sender
                 })
             })
 

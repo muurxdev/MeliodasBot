@@ -248,13 +248,13 @@ async function extractMetadata(urlOrQuery, options) {
         const { resolveYouTubeOEmbed } = require('./youtubeFallback')
         const oembedMeta = await resolveYouTubeOEmbed(urlOrQuery)
         if (oembedMeta && oembedMeta.title && oembedMeta.title !== 'Vídeo do YouTube') {
-            logger.info(`[MEDIA RESOLVER] Metadados YouTube via oEmbed (rápido): ${oembedMeta.title}`)
+            logger.info(`[MEDIA RESOLVER] Metadados YouTube via oEmbed (rápido): ${oembedMeta.title} (${oembedMeta.durationFormatted || '—'})`)
             return {
                 id: oembedMeta.id,
                 title: oembedMeta.title,
                 author: oembedMeta.author || 'YouTube',
-                duration: 0,
-                durationFormatted: '—',
+                duration: oembedMeta.duration || 0,
+                durationFormatted: oembedMeta.durationFormatted || '—',
                 thumbnail: oembedMeta.thumbnail,
                 url: oembedMeta.url,
                 webpageUrl: oembedMeta.url,

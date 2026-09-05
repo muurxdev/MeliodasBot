@@ -32,20 +32,39 @@ async function resolveYouTubeOEmbed(url) {
         const res = await fetch(oembedUrl, { signal: AbortSignal.timeout(5000) });
         if (res.ok) {
             const data = await res.json();
+            let duration = 0;
+            let durationFormatted = '—';
+            try {
+                const pageRes = await fetch(standardUrl, {
+                    headers: { 'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36' },
+                    signal: AbortSignal.timeout(3500)
+                });
+                if (pageRes.ok) {
+                    const html = await pageRes.text();
+                    const m = html.match(/"lengthSeconds":"(\d+)"/);
+                    if (m && m[1]) {
+                        duration = parseInt(m[1], 10);
+                        const { formatDuration } = require('./formatResolver');
+                        durationFormatted = formatDuration(duration);
+                    }
+                }
+            } catch (_) {}
+
             return {
                 id: videoId,
                 title: data.title || "Vídeo do YouTube",
                 author: data.author_name || "YouTube",
+                duration,
+                durationFormatted,
                 thumbnail: officialThumb,
-                url: standardUrl,
-                durationFormatted: "—"
+                url: standardUrl
             };
         }
     } catch (err) {
         logger.warn(`[YOUTUBE OEMBED WARN] ${err.message}`);
     }
 
-    return { id: videoId, title: "Vídeo do YouTube", author: "YouTube", thumbnail: officialThumb, url: standardUrl, durationFormatted: "—" };
+    return { id: videoId, title: "Vídeo do YouTube", author: "YouTube", thumbnail: officialThumb, url: standardUrl, duration: 0, durationFormatted: "—" };
 }
 
 function streamToFile(fileUrl, destPath) {

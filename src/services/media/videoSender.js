@@ -103,12 +103,13 @@ async function enviarVideo({ client, from, filePath, caption = '', info, fileNam
     const nome = fileName || path.basename(filePath)
 
     const comoDocumento = async (nota) => {
+        const uploadTimeoutMs = Math.min(1800000, Math.max(600000, Math.round((tamanho / (1024 * 1024)) * 2500)))
         await client.sendMessage(from, {
             document: { url: filePath },
             mimetype: 'video/mp4',
             fileName: nome,
             caption: (caption ? caption + '\n\n' : '') + (nota || '')
-        }, { quoted: info, mediaUploadTimeoutMs: 600000 })
+        }, { quoted: info, mediaUploadTimeoutMs: uploadTimeoutMs })
         return { modo: 'documento' }
     }
 

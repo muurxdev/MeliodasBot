@@ -4,7 +4,7 @@
  */
 
 const { EventEmitter } = require('events')
-const { MEDIA_ERRORS } = require('./media/constants')
+const { MEDIA_ERRORS, MEDIA_LIMITS } = require('./media/constants')
 const logger = require('../core/logger')
 
 const QUEUE_PRIORITIES = {
@@ -51,10 +51,11 @@ class MediaQueue extends EventEmitter {
      * @param {number} [taskData.priority=1] - Prioridade (1: LOW, 2: MEDIUM, 3: HIGH)
      * @param {Function} taskData.runFn - Função assíncrona executora
      * @param {number} [taskData.timeoutMs] - Timeout individual
+     * @param {number} [taskData.duration] - Duração em segundos da mídia
      * @param {number} [taskData.retries] - Tentativas permitidas
      * @returns {Promise<any>}
      */
-    async enqueue({ id, url, format, user, priority = QUEUE_PRIORITIES.LOW, runFn, timeoutMs = null, retries = null }) {
+    async enqueue({ id, url, format, user, priority = QUEUE_PRIORITIES.LOW, runFn, timeoutMs = null, duration = null, retries = null }) {
         // Validação de limite de jobs concorrentes por usuário (usuários comuns: máx 1)
         if (priority === QUEUE_PRIORITIES.LOW) {
             const userActiveOrQueued = this.getUserPendingCount(user)
@@ -62,6 +63,23 @@ class MediaQueue extends EventEmitter {
                 const err = new Error('Você já possui downloads em processamento na fila. Aguarde a conclusão antes de solicitar novos.')
                 err.code = 'RATE_LIMITED'
                 throw err
+            }
+        }
+
+        const maxTimeout = MEDIA_LIMITS.MAX_DOWNLOAD_TIMEOUT_MS || (90 * 60 * 1000)
+        let effectiveTimeout = timeoutMs
+        if (!effectiveTimeout) {
+            const durSec = Number(duration) || 0
+            if (durSec > 0) {
+                effectiveTimeout = Math.min(
+                    maxTimeout,
+                    Math.max(this.defaultTimeoutMs, Math.round(durSec * 1500))
+                )
+            } else if (format === 'mp4') {
+                // Vídeos longos podem demorar; garante teto alto sem cortar em 3 min
+                effectiveTimeout = maxTimeout
+            } else {
+                effectiveTimeout = this.defaultTimeoutMs
             }
         }
 
@@ -73,7 +91,8 @@ class MediaQueue extends EventEmitter {
             user,
             priority,
             runFn,
-            timeoutMs: timeoutMs || this.defaultTimeoutMs,
+            duration,
+            timeoutMs: effectiveTimeout,
             retriesLeft: retries !== null ? retries : this.maxRetries,
             status: 'QUEUED',
             enqueuedAt: Date.now(),
@@ -125,8 +144,9 @@ class MediaQueue extends EventEmitter {
         let isTimedOut = false
         const timer = setTimeout(() => {
             isTimedOut = true
-            const err = new Error(`Job ${job.id} excedeu o tempo limite de execução (${job.timeoutMs / 1000}s).`)
+            const err = new Error(`Job ${job.id} excedeu o tempo limite de execução (${Math.round(job.timeoutMs / 1000)}s).`)
             err.code = 'TIMEOUT'
+            err.isQueueWatchdog = true
             this.handleJobFailure(job, err)
         }, job.timeoutMs)
 
@@ -152,7 +172,9 @@ class MediaQueue extends EventEmitter {
     }
 
     async handleJobFailure(job, err) {
-        const retryable = job.retriesLeft > 0 && !NON_RETRYABLE_ERRORS.has(err.code)
+        // Se foi o watchdog da fila (tempo máximo atingido), não tenta de novo para evitar loop infinito
+        const isExhaustiveTimeout = err && err.isQueueWatchdog
+        const retryable = job.retriesLeft > 0 && !NON_RETRYABLE_ERRORS.has(err.code) && !isExhaustiveTimeout
         if (retryable) {
             job.retriesLeft--
             logger.warn(`[MEDIA QUEUE] Erro no job ${job.id} (${err.code || 'sem-código'}). Tentando novamente (${job.retriesLeft} restantes)...`)

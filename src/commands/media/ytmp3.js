@@ -35,11 +35,15 @@ module.exports = {
                 url: targetUrl,
                 format: 'mp3',
                 user: sender,
+                duration: meta.duration,
                 runFn: () => downloadMedia({
                     source: targetUrl,
                     url: targetUrl,
                     requestedFormat: 'mp3',
-                    format: 'mp3'
+                    format: 'mp3',
+                    duration: meta.duration,
+                    metadata: meta,
+                    userJid: sender
                 })
             })
 

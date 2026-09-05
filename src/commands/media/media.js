@@ -407,11 +407,14 @@ module.exports = {
                     url: targetUrl,
                     format: "mp4",
                     user: sender,
+                    duration: meta.duration,
                     runFn: () => downloadMedia({
                         source: targetUrl,
                         url: targetUrl,
                         requestedFormat: "mp4",
                         format: "mp4",
+                        duration: meta.duration,
+                        metadata: meta,
                         userJid: sender
                     })
                 });

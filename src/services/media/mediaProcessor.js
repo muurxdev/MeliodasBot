@@ -114,56 +114,100 @@ async function processMedia(inputPath, outputPath, { format = 'mp3', coverPath =
 }
 
 /**
+ * Inspeciona os codecs de vídeo e áudio via ffprobe
+ * @param {string} filePath
+ * @returns {Promise<{vcodec: string|null, acodec: string|null}>}
+ */
+function probeVideoCodecs(filePath) {
+    return new Promise(resolve => {
+        const proc = spawn('ffprobe', [
+            '-v', 'error',
+            '-show_entries', 'stream=index,codec_type,codec_name',
+            '-of', 'json',
+            filePath
+        ])
+        let out = ''
+        proc.stdout.on('data', d => { out += d })
+        const t = setTimeout(() => { try { proc.kill() } catch (_) {} resolve(null) }, 6000)
+        proc.on('close', code => {
+            clearTimeout(t)
+            if (code !== 0) return resolve(null)
+            try {
+                const data = JSON.parse(out)
+                const streams = data.streams || []
+                const v = streams.find(s => s.codec_type === 'video')
+                const a = streams.find(s => s.codec_type === 'audio')
+                resolve({
+                    vcodec: v ? (v.codec_name || '').toLowerCase() : null,
+                    acodec: a ? (a.codec_name || '').toLowerCase() : null
+                })
+            } catch (_) {
+                resolve(null)
+            }
+        })
+        proc.on('error', () => { clearTimeout(t); resolve(null) })
+    })
+}
+
+/**
  * Inspeciona e otimiza um vídeo para garantir que o WhatsApp Mobile (Android/iOS)
  * consiga reproduzir sem travamento, tela preta ou loop infinito.
- * Só re-encode se o vídeo for incompatível (webm, mkv, codec não-H264, etc).
+ * Só re-encode se o vídeo for codec incompatível (vp9, av1, hevc) ou container não-MP4.
  * @param {string} filePath
  * @returns {Promise<string>} Caminho do arquivo compatível
  */
 async function ensureMobileVideoCompatibility(filePath) {
     if (!filePath || !fs.existsSync(filePath)) return filePath
     const ext = path.extname(filePath).toLowerCase()
-
-    // Se o arquivo tiver mais de 200MB, não tenta reprocessar
     const stats = fs.statSync(filePath)
-    if (stats.size > 200 * 1024 * 1024) return filePath
 
-    // Se já for MP4, preserva 100% da qualidade, tamanho original e bitrate
-    if (ext === '.mp4') {
+    // Inspeciona codecs reais do arquivo
+    const codecs = await probeVideoCodecs(filePath)
+    const isH264 = codecs && (codecs.vcodec === 'h264' || codecs.vcodec === 'avc1')
+    const isAacOrMp3 = codecs && (codecs.acodec === 'aac' || codecs.acodec === 'mp3')
+
+    // Se já for MP4 com H.264 e áudio compatível, preserva 100% da integridade
+    if (ext === '.mp4' && isH264 && isAacOrMp3) {
         return filePath
     }
 
-    // Se não for MP4 ou for codec incompatível, converte com QUALIDADE ALTA
+    // Se o arquivo tiver mais de 200MB e não couber na galeria (vai como documento),
+    // não perde tempo re-encodando; players externos rodam VP9/AV1
+    if (stats.size > 200 * 1024 * 1024) {
+        return filePath
+    }
+
+    // Converte para H.264 + AAC com alta velocidade (preset veryfast) e sem perdas perceptíveis (CRF 22)
     const outPath = path.join(path.dirname(filePath), `mobile_${Date.now()}_${path.basename(filePath, ext)}.mp4`)
     try {
-        // CRF 18 = visualmente sem perda (qualidade muito superior ao CRF 24 antigo)
-        // AAC 256kbps = áudio de alta qualidade (era 128kbps)
         const args = [
             '-y', '-i', filePath,
             '-c:v', 'libx264',
-            '-profile:v', 'high',
-            '-level:v', '5.1',
+            '-profile:v', 'main',
+            '-level:v', '4.1',
             '-pix_fmt', 'yuv420p',
-            '-preset', 'slow',
-            '-crf', '18',
+            '-preset', 'veryfast',
+            '-crf', '22',
             '-c:a', 'aac',
-            '-b:a', '256k',
-            '-ar', '48000',
+            '-b:a', '192k',
+            '-ar', '44100',
             '-movflags', '+faststart',
             outPath
         ]
         const proc = spawn('ffmpeg', args)
         await new Promise((resolve, reject) => {
-            const timer = setTimeout(() => { try { proc.kill('SIGKILL') } catch (_) {} reject(new Error('timeout')) }, 120000)
+            // Timeout de 10 minutos (600s) para re-encode seguro
+            const timer = setTimeout(() => { try { proc.kill('SIGKILL') } catch (_) {} reject(new Error('timeout')) }, 600000)
             proc.on('close', code => { clearTimeout(timer); code === 0 ? resolve() : reject(new Error(`ffmpeg exit ${code}`)) })
             proc.on('error', reject)
         })
         if (fs.existsSync(outPath) && fs.statSync(outPath).size > 0) {
             try { fs.unlinkSync(filePath) } catch (_) {}
+            logger.info(`[MOBILE VIDEO] Transcodificado com sucesso para H.264 Mobile: ${outPath}`)
             return outPath
         }
     } catch (err) {
-        logger.warn(`[MOBILE VIDEO] Re-encode falhou: ${err.message} — usando arquivo original.`)
+        logger.warn(`[MOBILE VIDEO] Re-encode falhou ou não necessário: ${err.message} — mantendo arquivo original.`)
         try { if (fs.existsSync(outPath)) fs.unlinkSync(outPath) } catch (_) {}
     }
     return filePath
