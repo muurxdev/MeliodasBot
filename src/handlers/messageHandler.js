@@ -182,7 +182,11 @@ async function handleIncomingMessage(client, { messages }) {
                 up += `📊 *Progresso p/ Nv. ${user.level + 1}:*\n${prog.barra} ${prog.percent}%\n`
                 up += `⭐ Faltam *${prog.faltam.toLocaleString('pt-BR')} XP*`
                 await client.sendMessage(from, { text: up, mentions: [sender] }, { quoted: info })
-            } catch (_) {}
+            } catch (e) {
+                // O nivel JA subiu e foi salvo; so o aviso falhou. Sem log, o
+                // usuario sobe de nivel sem feedback e ninguem descobre por que.
+                logger.warn(`[LEVEL UP] Falha ao anunciar subida de nivel de ${sender}: ${e.message}`)
+            }
         }
     }
 
@@ -450,7 +454,9 @@ async function handleIncomingMessage(client, { messages }) {
                         text: `⚠️ *ANTI-SPAM:* @${sender.split('@')[0]}, você está enviando mensagens rápido demais! Evite flood no grupo.`,
                         mentions: [sender]
                     }, { quoted: info })
-                } catch (_) {}
+                } catch (e) {
+                    logger.warn(`[ANTISPAM] Falha ao avisar ${sender} em ${from}: ${e.message}`)
+                }
                 return
             }
         }
@@ -462,7 +468,11 @@ async function handleIncomingMessage(client, { messages }) {
         try {
             const db = getDatabase()
             dmBan = db.prepare('SELECT jid, reason, blocked_by, created_at FROM dm_restrictions WHERE jid = ? OR jid = ?').get(sender, senderReal || sender)
-        } catch (_) {}
+        } catch (e) {
+            // Silencioso aqui era PERIGOSO: se a consulta falha, dmBan fica null
+            // e quem esta banido do PV passa direto, sem ninguem perceber.
+            logger.error(`[DM BAN] Falha ao consultar restricao de ${sender}: ${e.message}`)
+        }
 
         if (dmBan) {
             const authorNum = dmBan.blocked_by ? dmBan.blocked_by.split('@')[0] : 'Dono'

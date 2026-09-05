@@ -36,7 +36,11 @@ async function handleGroupParticipantsUpdate(client, update) {
         if (meta?.subject) groupName = meta.subject;
         if (meta?.desc) groupDesc = meta.desc;
         if (meta?.participants) memberCount = meta.participants.length;
-    } catch (_) {}
+    } catch (e) {
+        // Sem metadata a saudacao sai com nome/contagem genericos. Registrar
+        // evita "por que o welcome nao mostra o nome do grupo?" sem resposta.
+        logger.warn(`[GROUP EVENT] Sem metadata de ${groupJid}: ${e.message}`);
+    }
 
     const now = new Date();
     const timeStr = now.toLocaleTimeString("pt-BR", { timeZone: "America/Sao_Paulo" });
