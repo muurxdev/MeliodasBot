@@ -75,25 +75,25 @@ module.exports = {
                 isAudio: isMp3
             });
 
-            if (isMp3) {
-                const audioBuf = fs.readFileSync(downloaded.filePath);
-                await client.sendMessage(from, {
-                    audio: audioBuf,
-                    mimetype: 'audio/mpeg',
-                    ptt: false,
-                    fileName: (meta.title || "instagram").slice(0, 30) + ".mp3"
-                }, { quoted: info });
-            } else {
-                const videoBuf = fs.readFileSync(downloaded.filePath);
-                await client.sendMessage(from, {
-                    video: videoBuf,
-                    caption,
-                    mimetype: 'video/mp4'
-                }, { quoted: info });
+            try {
+                if (isMp3) {
+                    await client.sendMessage(from, {
+                        audio: { url: downloaded.filePath },
+                        mimetype: 'audio/mpeg',
+                        ptt: false,
+                        fileName: (meta.title || "instagram").slice(0, 30) + ".mp3"
+                    }, { quoted: info, mediaUploadTimeoutMs: 180000 });
+                } else {
+                    await client.sendMessage(from, {
+                        video: { url: downloaded.filePath },
+                        caption,
+                        mimetype: 'video/mp4'
+                    }, { quoted: info, mediaUploadTimeoutMs: 300000 });
+                }
+                logger.info("[INSTA] Mídia enviada para " + sender);
+            } finally {
+                try { fs.unlinkSync(downloaded.filePath); } catch (_) {}
             }
-
-            try { fs.unlinkSync(downloaded.filePath); } catch (_) {}
-            logger.info("[INSTA] Mídia enviada para " + sender);
         } catch (err) {
             logger.error('[INSTA ERROR]', err);
             await reply("❌ *Erro no download do Instagram:* " + err.message);

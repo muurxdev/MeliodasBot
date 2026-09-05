@@ -158,6 +158,7 @@ function probeMedia(filePath) {
         ], { encoding: 'utf8', maxBuffer: 4 * 1024 * 1024 })
         if (r.status !== 0 || !r.stdout) return null
         const data = JSON.parse(r.stdout)
+        const fmt = data.format || {}
         const streams = data.streams || []
         const v = streams.find(s => s.codec_type === 'video' && s.disposition?.attached_pic !== 1)
         const a = streams.find(s => s.codec_type === 'audio')
@@ -229,6 +230,10 @@ function formatMediaCaption({ platform = 'Web', title = 'Mídia', author = 'Desc
     } else {
         // Sem probe: mostra só o formato-alvo, sem inventar resolução/qualidade
         doc += `┃ 📦 *Formato:* ${audio ? 'MP3' : 'MP4'}\n`
+        if (filePath && fs.existsSync(filePath)) {
+            const sizeStr = formatBytes(fs.statSync(filePath).size)
+            if (sizeStr) doc += `┃ 💾 *Tamanho:* ${sizeStr}\n`
+        }
     }
 
     // Tempo REAL que levou para baixar (medido), quando disponível

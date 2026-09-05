@@ -70,25 +70,25 @@ module.exports = {
                 isAudio: false
             })
 
-            const videoBuf = fs.readFileSync(filePath)
-
-            if (stats.size <= 100 * 1024 * 1024) {
-                await client.sendMessage(from, {
-                    video: videoBuf,
-                    caption,
-                    mimetype: 'video/mp4'
-                }, { quoted: info })
-            } else {
-                await client.sendMessage(from, {
-                    document: videoBuf,
-                    mimetype: 'video/mp4',
-                    fileName: `${cleanTitle}.mp4`,
-                    caption: `${caption}\n\n📦 *Enviado como documento (${sizeMb} MB) para preservar a qualidade original do arquivo.*`
-                }, { quoted: info })
+            try {
+                if (stats.size <= 100 * 1024 * 1024) {
+                    await client.sendMessage(from, {
+                        video: { url: filePath },
+                        caption,
+                        mimetype: 'video/mp4'
+                    }, { quoted: info, mediaUploadTimeoutMs: 300000 })
+                } else {
+                    await client.sendMessage(from, {
+                        document: { url: filePath },
+                        mimetype: 'video/mp4',
+                        fileName: `${cleanTitle}.mp4`,
+                        caption: `${caption}\n\n📦 *Enviado como documento (${sizeMb} MB) para preservar a qualidade original do arquivo.*`
+                    }, { quoted: info, mediaUploadTimeoutMs: 600000 })
+                }
+                logger.info(`[YTMP4] Vídeo (${sizeMb} MB) enviado para ${sender}: ${meta.title}`)
+            } finally {
+                try { if (filePath && fs.existsSync(filePath)) fs.unlinkSync(filePath) } catch (_) {}
             }
-
-            try { fs.unlinkSync(filePath) } catch (_) {}
-            logger.info(`[YTMP4] Vídeo (${sizeMb} MB) enviado para ${sender}: ${meta.title}`)
         } catch (err) {
             logger.error('[YTMP4 ERROR]', err)
             await reply(`❌ *Erro no download do vídeo:* ${err.message}`)

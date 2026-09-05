@@ -85,41 +85,41 @@ module.exports = {
                 isAudio
             })
 
-            const buf = fs.readFileSync(filePath)
-
-            if (isAudio) {
-                if (meta.thumbnail) {
-                    try {
-                        await client.sendMessage(from, { image: { url: meta.thumbnail }, caption }, { quoted: info })
-                    } catch (_) {}
-                }
-                await client.sendMessage(from, {
-                    audio: buf,
-                    mimetype: 'audio/mpeg',
-                    ptt: false,
-                    fileName: `${cleanTitle}.mp3`
-                }, { quoted: info })
-            } else {
-                // Se o arquivo for menor/igual a 100MB, envia como vídeo reproduzível nativo
-                if (stats.size <= 100 * 1024 * 1024) {
+            try {
+                if (isAudio) {
+                    if (meta.thumbnail) {
+                        try {
+                            await client.sendMessage(from, { image: { url: meta.thumbnail }, caption }, { quoted: info })
+                        } catch (_) {}
+                    }
                     await client.sendMessage(from, {
-                        video: buf,
-                        caption,
-                        mimetype: 'video/mp4'
-                    }, { quoted: info })
+                        audio: { url: filePath },
+                        mimetype: 'audio/mpeg',
+                        ptt: false,
+                        fileName: `${cleanTitle}.mp3`
+                    }, { quoted: info, mediaUploadTimeoutMs: 180000 })
                 } else {
-                    // Arquivos grandes (> 100MB até 2GB): envia como documento MP4 sem perda
-                    await client.sendMessage(from, {
-                        document: buf,
-                        mimetype: 'video/mp4',
-                        fileName: `${cleanTitle}.mp4`,
-                        caption: `${caption}\n\n📦 *Enviado como documento (${sizeMb} MB) para preservar a qualidade original do arquivo.*`
-                    }, { quoted: info })
+                    // Se o arquivo for menor/igual a 100MB, envia como vídeo reproduzível nativo
+                    if (stats.size <= 100 * 1024 * 1024) {
+                        await client.sendMessage(from, {
+                            video: { url: filePath },
+                            caption,
+                            mimetype: 'video/mp4'
+                        }, { quoted: info, mediaUploadTimeoutMs: 300000 })
+                    } else {
+                        // Arquivos grandes (> 100MB até 2GB): envia como documento MP4 sem perda
+                        await client.sendMessage(from, {
+                            document: { url: filePath },
+                            mimetype: 'video/mp4',
+                            fileName: `${cleanTitle}.mp4`,
+                            caption: `${caption}\n\n📦 *Enviado como documento (${sizeMb} MB) para preservar a qualidade original do arquivo.*`
+                        }, { quoted: info, mediaUploadTimeoutMs: 600000 })
+                    }
                 }
+                logger.info(`[YOUTUBE] ${format.toUpperCase()} (${sizeMb} MB) enviado para ${sender}: ${meta.title}`)
+            } finally {
+                try { if (filePath && fs.existsSync(filePath)) fs.unlinkSync(filePath) } catch (_) {}
             }
-
-            try { fs.unlinkSync(filePath) } catch (_) {}
-            logger.info(`[YOUTUBE] ${format.toUpperCase()} (${sizeMb} MB) enviado para ${sender}: ${meta.title}`)
         } catch (err) {
             logger.error('[YOUTUBE ERROR]', err)
             await reply(`❌ *Erro no download do YouTube:* ${err.message}`)

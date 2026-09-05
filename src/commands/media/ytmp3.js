@@ -66,18 +66,19 @@ module.exports = {
                 } catch (_) {}
             }
 
-            const audioBuf = fs.readFileSync(filePath)
             const cleanTitle = (meta.title || 'audio_youtube').replace(/[\\/:*?"<>|]/g, '_').slice(0, 40)
 
-            await client.sendMessage(from, {
-                audio: audioBuf,
-                mimetype: 'audio/mpeg',
-                ptt: false,
-                fileName: `${cleanTitle}.mp3`
-            }, { quoted: info })
-
-            try { fs.unlinkSync(filePath) } catch (_) {}
-            logger.info(`[YTMP3] Áudio enviado com sucesso para ${sender}: ${meta.title}`)
+            try {
+                await client.sendMessage(from, {
+                    audio: { url: filePath },
+                    mimetype: 'audio/mpeg',
+                    ptt: false,
+                    fileName: `${cleanTitle}.mp3`
+                }, { quoted: info, mediaUploadTimeoutMs: 180000 })
+                logger.info(`[YTMP3] Áudio enviado com sucesso para ${sender}: ${meta.title}`)
+            } finally {
+                try { if (filePath && fs.existsSync(filePath)) fs.unlinkSync(filePath) } catch (_) {}
+            }
         } catch (err) {
             logger.error('[YTMP3 ERROR]', err)
             await reply(`❌ *Erro no download do áudio:* ${err.message}`)

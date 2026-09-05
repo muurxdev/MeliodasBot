@@ -86,14 +86,16 @@ module.exports = {
                         }
 
                         if (fs.existsSync(mediaData.filePath)) {
-                            const audioBuffer = fs.readFileSync(mediaData.filePath);
-                            await client.sendMessage(from, {
-                                audio: audioBuffer,
-                                mimetype: "audio/mpeg",
-                                ptt: false,
-                                fileName: `${mediaData.title.slice(0, 30)}.mp3`
-                            }, { quoted: info });
-                            try { fs.unlinkSync(mediaData.filePath); } catch (_) {}
+                            try {
+                                await client.sendMessage(from, {
+                                    audio: { url: mediaData.filePath },
+                                    mimetype: "audio/mpeg",
+                                    ptt: false,
+                                    fileName: `${mediaData.title.slice(0, 30)}.mp3`
+                                }, { quoted: info, mediaUploadTimeoutMs: 180000 });
+                            } finally {
+                                try { fs.unlinkSync(mediaData.filePath); } catch (_) {}
+                            }
                         }
                     } catch (tErr) {
                         logger.warn(`[SPOTIFY TRACK WARN] Faixa ${i + 1}: ${tErr.message}`);
@@ -133,14 +135,16 @@ module.exports = {
             }
 
             if (fs.existsSync(mediaData.filePath)) {
-                const audioBuffer = fs.readFileSync(mediaData.filePath);
-                await client.sendMessage(from, {
-                    audio: audioBuffer,
-                    mimetype: "audio/mpeg",
-                    ptt: false,
-                    fileName: `${cleanFileName}.mp3`
-                }, { quoted: info });
-                try { fs.unlinkSync(mediaData.filePath); } catch (_) {}
+                try {
+                    await client.sendMessage(from, {
+                        audio: { url: mediaData.filePath },
+                        mimetype: "audio/mpeg",
+                        ptt: false,
+                        fileName: `${cleanFileName}.mp3`
+                    }, { quoted: info, mediaUploadTimeoutMs: 180000 });
+                } finally {
+                    try { fs.unlinkSync(mediaData.filePath); } catch (_) {}
+                }
             }
 
             logger.info(`[SPOTIFY] Música enviada para ${sender}: ${mediaData.title}`);

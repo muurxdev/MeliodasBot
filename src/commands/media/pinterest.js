@@ -84,29 +84,28 @@ module.exports = {
                 isAudio: isMp3
             });
 
-            if (mediaData.isVideo) {
-                const videoBuf = fs.readFileSync(mediaData.filePath);
-                await client.sendMessage(from, { video: videoBuf, caption, mimetype: "video/mp4" }, { quoted: info });
-            } else if (mediaData.isAudio) {
-                const audioBuf = fs.readFileSync(mediaData.filePath);
-                if (mediaData.thumbnail) {
-                    try {
-                        await client.sendMessage(from, { image: { url: mediaData.thumbnail }, caption }, { quoted: info });
-                    } catch (_) {}
+            try {
+                if (mediaData.isVideo) {
+                    await client.sendMessage(from, { video: { url: mediaData.filePath }, caption, mimetype: "video/mp4" }, { quoted: info, mediaUploadTimeoutMs: 180000 });
+                } else if (mediaData.isAudio) {
+                    if (mediaData.thumbnail) {
+                        try {
+                            await client.sendMessage(from, { image: { url: mediaData.thumbnail }, caption }, { quoted: info });
+                        } catch (_) {}
+                    }
+                    await client.sendMessage(from, {
+                        audio: { url: mediaData.filePath },
+                        mimetype: "audio/mpeg",
+                        ptt: false,
+                        fileName: (mediaData.title || "audio").slice(0, 30) + ".mp3"
+                    }, { quoted: info, mediaUploadTimeoutMs: 180000 });
+                } else {
+                    await client.sendMessage(from, { image: { url: mediaData.filePath }, caption }, { quoted: info });
                 }
-                await client.sendMessage(from, {
-                    audio: audioBuf,
-                    mimetype: "audio/mpeg",
-                    ptt: false,
-                    fileName: (mediaData.title || "audio").slice(0, 30) + ".mp3"
-                }, { quoted: info });
-            } else {
-                const imgBuf = fs.readFileSync(mediaData.filePath);
-                await client.sendMessage(from, { image: imgBuf, caption }, { quoted: info });
+                logger.info("[PINTEREST] Mídia enviada para " + sender + ": " + mediaData.title);
+            } finally {
+                try { fs.unlinkSync(mediaData.filePath); } catch (_) {}
             }
-
-            try { fs.unlinkSync(mediaData.filePath); } catch (_) {}
-            logger.info("[PINTEREST] Mídia enviada para " + sender + ": " + mediaData.title);
         } catch (err) {
             logger.error("[PINTEREST ERROR]", err);
             return reply("❌ *Erro no download do Pinterest:* " + err.message);

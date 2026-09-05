@@ -65,7 +65,8 @@ async function startBot() {
         markOnlineOnConnect: false,
         generateHighQualityLinkPreview: false,
         defaultQueryTimeoutMs: 0,
-        keepAliveIntervalMs: 15000
+        keepAliveIntervalMs: 15000,
+        mediaUploadTimeoutMs: 300000
     })
 
     clientInstance = client

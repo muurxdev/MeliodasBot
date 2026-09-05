@@ -81,22 +81,22 @@ module.exports = {
                     ff.on("error", reject);
                 });
 
-                const audioBuf = fs.readFileSync(mp3Out);
-                await client.sendMessage(from, {
-                    audio: audioBuf,
-                    mimetype: "audio/mpeg",
-                    ptt: false,
-                    fileName: (mediaData.title || "tiktok").slice(0, 30) + ".mp3"
-                }, { quoted: info });
-
-                try { fs.unlinkSync(mp3Out); } catch (_) {}
+                try {
+                    await client.sendMessage(from, {
+                        audio: { url: mp3Out },
+                        mimetype: "audio/mpeg",
+                        ptt: false,
+                        fileName: (mediaData.title || "tiktok").slice(0, 30) + ".mp3"
+                    }, { quoted: info, mediaUploadTimeoutMs: 180000 });
+                } finally {
+                    try { fs.unlinkSync(mp3Out); } catch (_) {}
+                }
             } else {
-                const videoBuf = fs.readFileSync(mediaData.filePath);
                 await client.sendMessage(from, {
-                    video: videoBuf,
+                    video: { url: mediaData.filePath },
                     caption,
                     mimetype: "video/mp4"
-                }, { quoted: info });
+                }, { quoted: info, mediaUploadTimeoutMs: 180000 });
             }
 
             try { fs.unlinkSync(mediaData.filePath); } catch (_) {}

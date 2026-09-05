@@ -44,7 +44,7 @@ module.exports = {
             }
 
             return client.sendMessage(from, {
-                audio: fs.readFileSync(musica),
+                audio: { url: musica },
                 mimetype: 'audio/mpeg',
                 ptt: false
             }, { quoted: info })
@@ -160,24 +160,25 @@ module.exports = {
                     isAudio: false
                 })
 
-                const videoBuf = fs.readFileSync(filePath)
-                if (stats.size <= 100 * 1024 * 1024) {
-                    await client.sendMessage(from, {
-                        video: videoBuf,
-                        caption,
-                        mimetype: 'video/mp4'
-                    }, { quoted: info })
-                } else {
-                    await client.sendMessage(from, {
-                        document: videoBuf,
-                        mimetype: 'video/mp4',
-                        fileName: `${cleanTitle}.mp4`,
-                        caption: `${caption}\n\n📦 *Enviado como documento (${sizeMb} MB) para preservar a qualidade original do arquivo.*`
-                    }, { quoted: info })
+                try {
+                    if (stats.size <= 100 * 1024 * 1024) {
+                        await client.sendMessage(from, {
+                            video: { url: filePath },
+                            caption,
+                            mimetype: 'video/mp4'
+                        }, { quoted: info, mediaUploadTimeoutMs: 300000 })
+                    } else {
+                        await client.sendMessage(from, {
+                            document: { url: filePath },
+                            mimetype: 'video/mp4',
+                            fileName: `${cleanTitle}.mp4`,
+                            caption: `${caption}\n\n📦 *Enviado como documento (${sizeMb} MB) para preservar a qualidade original do arquivo.*`
+                        }, { quoted: info, mediaUploadTimeoutMs: 600000 })
+                    }
+                    logger.info(`[PLAY] Vídeo (${sizeMb} MB) enviado para ${sender}: ${meta.title}`)
+                } finally {
+                    try { if (filePath && fs.existsSync(filePath)) fs.unlinkSync(filePath) } catch (_) {}
                 }
-
-                try { fs.unlinkSync(filePath) } catch (_) {}
-                logger.info(`[PLAY] Vídeo (${sizeMb} MB) enviado para ${sender}: ${meta.title}`)
             } else {
                 // === DOWNLOAD ÁUDIO MP3 ===
                 const mediaData = await mediaQueue.enqueue({
@@ -215,17 +216,18 @@ module.exports = {
                 }
 
                 if (fs.existsSync(mediaData.filePath)) {
-                    const audioBuffer = fs.readFileSync(mediaData.filePath)
-                    await client.sendMessage(from, {
-                        audio: audioBuffer,
-                        mimetype: 'audio/mpeg',
-                        ptt: false,
-                        fileName: `${cleanFileName}.mp3`
-                    }, { quoted: info })
-                    try { fs.unlinkSync(mediaData.filePath) } catch (_) {}
+                    try {
+                        await client.sendMessage(from, {
+                            audio: { url: mediaData.filePath },
+                            mimetype: 'audio/mpeg',
+                            ptt: false,
+                            fileName: `${cleanFileName}.mp3`
+                        }, { quoted: info, mediaUploadTimeoutMs: 180000 })
+                        logger.info(`[PLAY] Áudio enviado para ${sender}: ${mediaData.title}`)
+                    } finally {
+                        try { if (fs.existsSync(mediaData.filePath)) fs.unlinkSync(mediaData.filePath) } catch (_) {}
+                    }
                 }
-
-                logger.info(`[PLAY] Áudio enviado para ${sender}: ${mediaData.title}`)
             }
         } catch (err) {
             logger.error('[PLAY ERROR]', err)
