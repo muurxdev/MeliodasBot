@@ -56,6 +56,23 @@ function resolveDownloadFormat({ format = FORMATS.MP3, quality = QUALITIES.BEST 
     // NÃO forçamos [ext=mp4] no seletor: no YouTube o mp4/h264 trava em 1080p
     // (acima disso é vp9/av1 em webm). Pegamos o melhor vídeo+áudio de qualquer
     // codec e remuxamos/recodificamos para MP4 (compatível com WhatsApp).
+    // MAX: destino fora do WhatsApp (Google Drive). Aqui a restricao de codec
+    // deixa de fazer sentido — o Drive entrega o arquivo original — entao
+    // ordenamos por RESOLUCAO pura e pegamos 4K/8K em VP9 ou AV1.
+    if (qual === QUALITIES.MAX) {
+        return {
+            args: [
+                '-f', 'bv*+ba/b',
+                '-S', 'res,fps,vcodec,acodec,abr',
+                '--merge-output-format', 'mp4',
+                '--embed-thumbnail',
+                '--add-metadata'
+            ],
+            targetExt: 'mp4',
+            mimeType: 'video/mp4'
+        }
+    }
+
     let heightFilter = ''
     if (qual === QUALITIES.P1080) heightFilter = '[height<=1080]'
     else if (qual === QUALITIES.P720) heightFilter = '[height<=720]'

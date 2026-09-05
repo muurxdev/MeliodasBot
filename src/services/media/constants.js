@@ -29,6 +29,10 @@ const FORMATS = {
 
 const QUALITIES = {
     BEST: 'best',
+    // MAX = maior resolucao existente (4K/8K), SEM a trava de codec H.264.
+    // So faz sentido quando o destino NAO e a galeria do WhatsApp (ex.: Drive),
+    // porque VP9/AV1 nao toca no app.
+    MAX: 'max',
     P1080: '1080p',
     P720: '720p',
     P480: '480p',
