@@ -5,6 +5,10 @@ const { dataDir } = require('../config/paths')
 const logger = require('../core/logger')
 
 let dbInstance = null
+// Caminho REAL do banco aberto. Quem precisa mexer no arquivo (backup/restore)
+// tem que usar este valor — hardcodar 'data/database.sqlite' faz o restore
+// sobrescrever o banco errado quando o path vem de DB_PATH ou do modo de teste.
+let dbPathAtual = null
 
 // Cache de prepared statements por SQL. node:sqlite não expõe .transaction()
 // e getDatabase() é lazy, então não dá para preparar em escopo de módulo.
@@ -23,7 +27,15 @@ function q(sql) {
 function getDatabase(dbPath = null) {
     if (dbInstance) return dbInstance
 
-    const targetPath = dbPath || path.join(dataDir, 'database.sqlite')
+    // Banco SEPARADO durante os testes. Os testes já setavam NODE_ENV='test',
+    // mas isto aqui ignorava: como getDatabase() cacheia a primeira instância e
+    // os serviços a chamam sem argumento, a suíte inteira acabava escrevendo no
+    // banco de PRODUÇÃO — foi assim que o __command_state__ encheu de escopos
+    // de fixture (123@g.us, grupo@g.us...) e o estado real virou lixo.
+    // DB_PATH permite apontar para outro arquivo explicitamente.
+    const targetPath = dbPath
+        || (process.env.DB_PATH ? path.resolve(process.env.DB_PATH) : null)
+        || path.join(dataDir, process.env.NODE_ENV === 'test' ? 'database.test.sqlite' : 'database.sqlite')
 
     if (!fs.existsSync(dataDir)) {
         fs.mkdirSync(dataDir, { recursive: true })
@@ -52,6 +64,7 @@ function getDatabase(dbPath = null) {
 
     try {
         dbInstance = initDb(targetPath)
+        dbPathAtual = targetPath
         logger.info(`💾 Conexão SQLite estabelecida com sucesso: ${targetPath}`)
         return dbInstance
     } catch (err) {
@@ -68,6 +81,7 @@ function getDatabase(dbPath = null) {
 
             _stmtCache.clear()
             dbInstance = initDb(targetPath)
+            dbPathAtual = targetPath
             logger.info(`💾 Novo banco SQLite inicializado e recuperado com sucesso: ${targetPath}`)
             return dbInstance
         } catch (recoverErr) {
@@ -90,8 +104,14 @@ function closeDatabase() {
     }
 }
 
+/** Caminho do arquivo de banco atualmente aberto (null se ainda não abriu). */
+function getDatabasePath() {
+    return dbPathAtual
+}
+
 module.exports = {
     getDatabase,
+    getDatabasePath,
     closeDatabase,
     q
 }

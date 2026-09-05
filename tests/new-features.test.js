@@ -3,6 +3,9 @@
  * Valida Cassino, Boss Raids, Torneios, IA Vision, Memes e Segurança Anti-Trava/Spam
  */
 
+// Isola o banco: sem isto a suite escrevia no banco de PRODUCAO.
+process.env.NODE_ENV = 'test'
+
 const assert = require("assert")
 const { detectTravaZap, checkGroupSpam } = require("../src/services/securityService")
 const dataService = require("../src/services/dataService")

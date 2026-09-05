@@ -2,6 +2,9 @@
  * BotXP — Automated Test Suite: UI Engine, SQLite Repositories & API Service
  */
 
+// Isola o banco: sem isto a suite escrevia no banco de PRODUCAO.
+process.env.NODE_ENV = 'test'
+
 const assert = require('assert');
 const { renderCard, renderProgressBar, formatNumber, formatCoins, formatCompact } = require('../src/utils/uiEngine');
 const { recordTransaction, getUserTransactions } = require('../src/database/repositories/transactionRepository');

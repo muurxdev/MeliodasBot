@@ -4,6 +4,9 @@
  * Banimento por Categoria e Modo Restrito para Grupos.
  */
 
+// Isola o banco: sem isto a suite escrevia no banco de PRODUCAO.
+process.env.NODE_ENV = 'test'
+
 const assert = require("assert");
 const dataService = require("../src/services/dataService");
 const dispatcher = require("../src/handlers/commandDispatcher");

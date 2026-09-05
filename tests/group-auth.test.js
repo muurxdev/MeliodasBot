@@ -1,6 +1,9 @@
 /**
  * Testes do GroupAuthService — autenticação de admin de grupo
  */
+// Isola o banco: sem isto a suite escrevia no banco de PRODUCAO.
+process.env.NODE_ENV = 'test'
+
 const assert = require('assert')
 const groupAuth = require('../src/services/groupAuthService')
 const permissionService = require('../src/services/permissionService')

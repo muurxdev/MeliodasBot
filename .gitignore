@@ -47,3 +47,7 @@ data/*.sqlite-shm
 # Dados legados/runtime com informação real de usuários — não versionar
 data/*.json
 audit-report.json
+
+# Banco isolado da suite de testes (NODE_ENV=test)
+data/database.test.sqlite
+data/database.test.sqlite-*

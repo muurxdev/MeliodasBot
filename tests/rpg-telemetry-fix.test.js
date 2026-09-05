@@ -6,6 +6,9 @@
  * - Comando .restringir com Nome e ID do Grupo
  */
 
+// Isola o banco: sem isto a suite escrevia no banco de PRODUCAO.
+process.env.NODE_ENV = 'test'
+
 const assert = require("assert");
 const { detectDeviceSpecs, getAdvancedNetworkTelemetry } = require("../src/services/telemetryDeviceService");
 const { calculateCharacterStats, getItem, ITEMS_DB } = require("../src/services/rpgEquipmentService");

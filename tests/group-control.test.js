@@ -2,6 +2,9 @@
  * BotXP — Group Control Service
  * Testes do fechamento/reabertura de grupos com duração ou indefinido.
  */
+// Isola o banco: sem isto a suite escrevia no banco de PRODUCAO.
+process.env.NODE_ENV = 'test'
+
 const assert = require('assert')
 const groupControl = require('../src/services/groupControlService')
 

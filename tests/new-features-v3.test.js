@@ -2,6 +2,9 @@
  * BotXP — Testes das Novas Funcionalidades (YouTube Mobile Fix, .bancmd all, Bot Name Global)
  */
 
+// Isola o banco: sem isto a suite escrevia no banco de PRODUCAO.
+process.env.NODE_ENV = 'test'
+
 const assert = require('assert')
 const { getEstimatedWaitTime, formatDownloadProgressCard, formatMediaCaption } = require('../src/services/media/formatResolver')
 const { getBotName, setBotName, DEFAULT_BOT_NAME } = require('../src/config/botConfig')

@@ -147,7 +147,18 @@ function restoreBackup(backupFileName) {
         throw new Error(`Arquivo de backup não encontrado: ${backupFileName}`)
     }
 
-    const activeDbPath = files.database || path.resolve(__dirname, '../../data/database.sqlite')
+    // Usa o caminho do banco REALMENTE aberto. Hardcodar 'data/database.sqlite'
+    // fazia o restore sobrescrever o banco de produção mesmo rodando em modo de
+    // teste (ou com DB_PATH apontando para outro arquivo) — foi assim que a
+    // suíte apagava dados reais.
+    let activeDbPath = files.database
+    if (!activeDbPath) {
+        try {
+            const { getDatabasePath } = require('../database/connection')
+            activeDbPath = getDatabasePath()
+        } catch (_) { /* usa o fallback abaixo */ }
+    }
+    if (!activeDbPath) activeDbPath = path.resolve(__dirname, '../../data/database.sqlite')
 
     // 1. Fecha conexão SQLite para liberar handles de arquivo e flush
     closeDatabase()
