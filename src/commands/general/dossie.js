@@ -227,7 +227,10 @@ module.exports = {
             if (_cargoGrupo) doc += "┃ 🏅 *Cargo no grupo:* " + _cargoGrupo + "\n";
             const _plat = tele.device.platform || (isSelf ? null : user.lastPlatform) || "Indeterminado";
             const _platIcon = _plat === "Web" ? "🌐" : _plat === "Desktop" ? "💻" : _plat === "Mobile" ? "📱" : "❔";
-            doc += "┃ 💻 *Dispositivo:* " + tele.device.model + "\n";
+            // Deixa explícito quando é DETECÇÃO genérica (o WhatsApp não envia o
+            // modelo do aparelho) e quando é o modelo que a pessoa cadastrou.
+            doc += "┃ 💻 *Dispositivo:* " + tele.device.model +
+                (tele.device.declaradoPeloUsuario ? "\n" : " _(detecção automática — modelo não cadastrado)_\n");
             doc += "┃ " + _platIcon + " *Plataforma:* " + _plat + " (" + (isSelf ? "sessão atual" : "último acesso") + ")\n";
             // Só mostramos o que é medido de verdade. Quando o carimbo de tempo do
             // aparelho está fora de sincronia, não há número honesto para exibir.
