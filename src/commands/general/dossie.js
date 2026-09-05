@@ -222,6 +222,9 @@ module.exports = {
             doc += "┃ 📱 *WhatsApp:* " + phoneFormatted + "\n";
             doc += "┃ 🆔 *ID do Usuário:* " + idDisplay + "\n";
             doc += "┃ 🎖️ *Hierarquia:* " + cargoBot + "\n";
+            // Cargo automático do grupo (.autorole), quando o dossiê é aberto nele.
+            const _cargoGrupo = (isGroup && user.cargos && typeof user.cargos === "object") ? user.cargos[from] : null;
+            if (_cargoGrupo) doc += "┃ 🏅 *Cargo no grupo:* " + _cargoGrupo + "\n";
             const _plat = tele.device.platform || (isSelf ? null : user.lastPlatform) || "Indeterminado";
             const _platIcon = _plat === "Web" ? "🌐" : _plat === "Desktop" ? "💻" : _plat === "Mobile" ? "📱" : "❔";
             doc += "┃ 💻 *Dispositivo:* " + tele.device.model + "\n";

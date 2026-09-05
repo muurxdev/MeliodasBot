@@ -77,6 +77,30 @@ async function handleGroupParticipantsUpdate(client, update) {
                 logger.info("[GROUP_EVENT] Welcome enviado para @" + userNumber + " em " + groupJid);
             }
 
+            // 1.1 CARGO AUTOMÁTICO (.autorole) — grava no perfil de quem entrou.
+            // Roda independente do welcome estar ligado.
+            if (action === "add") {
+                const autoRole = groupConfig?.autoRole;
+                if (autoRole?.enabled && autoRole.cargo) {
+                    try {
+                        const user = dataService.getUser(participant) || { jid: participant };
+                        if (!user.cargos || typeof user.cargos !== "object") user.cargos = {};
+                        user.cargos[groupJid] = autoRole.cargo;
+                        dataService.saveUser(user);
+                        logger.info("[AUTOROLE] Cargo \"" + autoRole.cargo + "\" atribuído a @" + userNumber + " em " + groupJid);
+
+                        if (autoRole.anunciar) {
+                            await client.sendMessage(groupJid, {
+                                text: "🎖️ *CARGO ATRIBUÍDO*\n\n👤 @" + userNumber + " recebeu o cargo *" + autoRole.cargo + "*!\n💡 _Veja no seu_ `.dossie`_._",
+                                mentions: [participant]
+                            });
+                        }
+                    } catch (roleErr) {
+                        logger.error("[AUTOROLE ERROR] Falha ao atribuir cargo a " + participant + ":", roleErr);
+                    }
+                }
+            }
+
             // 2. SAÍDA DE MEMBRO (REMOVE)
             else if (action === "remove" && leaveEnabled) {
                 const captionText = buildLeaveMessage(groupConfig, { userTag, groupName, groupDesc, memberCount, timeStr });
