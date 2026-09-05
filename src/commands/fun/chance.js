@@ -5,7 +5,7 @@
 
 module.exports = {
     name: 'chance',
-    aliases: ['probabilidade', 'porcentagem', 'qualachance'],
+    aliases: ['probabilidade', 'qualachance'],
     category: 'fun',
     description: 'Calcula a chance percentual de acontecer algo',
     cooldownMs: 2000,

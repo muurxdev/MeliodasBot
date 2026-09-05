@@ -9,7 +9,7 @@ const logger = require("../../core/logger");
 
 module.exports = {
     name: "autofix",
-    aliases: ["reparar", "selfheal", "diagnostico", "fixbot", "verificarbot", "saudebot"],
+    aliases: ["reparar", "selfheal", "fixbot", "verificarbot", "saudebot"],
     category: "owner",
     description: "Executa diagnóstico autônomo, repara inconsistências, limpa caches e retorna o status de saúde do bot",
     ownerOnly: true,

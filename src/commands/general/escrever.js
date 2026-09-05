@@ -1,6 +1,6 @@
 module.exports = {
     name: 'escrever',
-    aliases: ['say', 'falar', 'echo'],
+    aliases: ['falar', 'echo'],
     category: 'general',
     description: 'Envia o texto digitado pelo usuário',
     execute: async ({ text, reply }) => {

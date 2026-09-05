@@ -11,7 +11,7 @@ const { getBotName } = require('../../config/botConfig')
 
 module.exports = {
     name: 'status',
-    aliases: ['botstatus', 'servidor', 'pinghost', 'telemetria', 'specs'],
+    aliases: ['botstatus', 'pinghost', 'telemetria', 'specs'],
     category: 'general',
     description: 'Exibe o status do bot, da VPS, métricas de memória e catálogo de comandos',
     cooldownMs: 2000,

@@ -19,7 +19,7 @@ const logger = require("../../core/logger");
 
 module.exports = {
     name: "media",
-    aliases: ["download", "dl", "baixar", "baixarmidia", "mp4", "video", "baixarvideo", "mp3", "playmp3"],
+    aliases: ["download", "dl", "baixar", "baixarmidia", "mp4", "video", "baixarvideo", "mp3"],
     category: "media",
     description: "Central inteligente de download de mídias e playlists de toda a Web (YouTube, Spotify, Kwai, TikTok, Twitter/X, Pinterest, Instagram)",
     cooldownMs: 3000,

@@ -14,7 +14,7 @@ module.exports = {
     name: 'menu',
     aliases: [
         'comandos', 'todos-comandos', 'ajuda-menu', 'menulist',
-        'menurpg', 'menumedia', 'menueco', 'menueconomia', 'menucalc',
+        'menurpg', 'menueco', 'menueconomia', 'menucalc',
         'menuinteracao', 'menusocial', 'menupesquisa', 'menuia',
         'menufun', 'menudiversao', 'menudev', 'menuping', 'menurede',
         'menuconfig', 'menuadmin', 'menuadm', 'menualuguel', 'menudono',

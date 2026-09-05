@@ -10,7 +10,7 @@ const { getBotName } = require("../../config/botConfig");
 
 module.exports = {
     name: "config",
-    aliases: ["configurar", "configuracoes", "configs", "painelconfig", "gconfig"],
+    aliases: ["configurar", "configuracoes", "configs", "painelconfig"],
     category: "admin",
     description: "Painel de controle central de configurações do grupo e personalização de wallpapers",
     groupOnly: true,

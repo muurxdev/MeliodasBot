@@ -15,7 +15,7 @@ const logger = require('../../core/logger')
 
 module.exports = {
     name: 'play',
-    aliases: ['musica', 'tocar', 'yt', 'som', 'playmp3', 'audio', 'sp'],
+    aliases: ['musica', 'tocar', 'som', 'playmp3', 'audio'],
     category: 'media',
     description: 'Pesquisa e baixa músicas (MP3) ou vídeos (MP4) do YouTube e Spotify',
     cooldownMs: 3000,

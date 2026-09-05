@@ -9,7 +9,7 @@ const logger = require('../../core/logger');
 
 module.exports = {
     name: 'gif',
-    aliases: ['toimg', 'tovideo', 'togif', 'desfig', 'desfazerfigurinha', 'mp4'],
+    aliases: ['toimg', 'tovideo', 'togif', 'desfig', 'desfazerfigurinha'],
     category: 'media',
     description: 'Converte figurinhas em imagem (estática) ou vídeo/GIF (animada), e mídias em figurinhas',
     cooldownMs: 2000,

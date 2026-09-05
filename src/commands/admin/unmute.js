@@ -8,7 +8,7 @@ const { getBotName } = require("../../config/botConfig");
 
 module.exports = {
     name: "unmute",
-    aliases: ["dessilenciar", "desmutar", "falar"],
+    aliases: ["dessilenciar", "desmutar"],
     category: "admin",
     description: "Remove o silenciamento de um usuário no grupo",
     groupOnly: true,

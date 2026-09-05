@@ -9,7 +9,7 @@ const logger = require('../../core/logger')
 
 module.exports = {
     name: 'bandm',
-    aliases: ['blockdm', 'dmblock', 'unbandm', 'bloqueardm'],
+    aliases: ['blockdm', 'dmblock', 'bloqueardm'],
     category: 'owner',
     description: 'Bloqueia ou desbloqueia o privado do bot de forma global ou por usuário',
     ownerOnly: true,

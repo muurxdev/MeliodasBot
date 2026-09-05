@@ -34,7 +34,7 @@ async function fetchGitHubSkills(query) {
 
 module.exports = {
     name: 'gitskills',
-    aliases: ['skills', 'githubskills', 'agentskills', 'agyskill', 'findskills'],
+    aliases: ['githubskills', 'agentskills', 'agyskill', 'findskills'],
     category: 'general',
     description: 'Procura skills oficiais no GitHub com prévia de funcionalidade e link do repositório',
     cooldownMs: 3000,

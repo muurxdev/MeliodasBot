@@ -8,7 +8,7 @@ const { initializeUser } = require("../../services/xpService");
 
 module.exports = {
     name: "bolsafam",
-    aliases: ["auxilio", "bolsafamilia", "esmola", "socorro", "ajudaemergencial"],
+    aliases: ["auxilio", "bolsafamilia", "esmola", "ajudaemergencial"],
     category: "economy",
     description: "Resgate um auxílio emergencial caso tenha ficado completamente falido",
     cooldownMs: 60000,
