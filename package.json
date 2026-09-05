@@ -15,7 +15,8 @@
     "test:mediafix": "node tests/media-fix.test.js",
     "test:telemetry": "node tests/telemetry.test.js",
     "test:backup": "node tests/backup.test.js",
-    "test:media": "node tests/media.test.js"
+    "test:media": "node tests/media.test.js",
+    "fix:git": "node -e \"const fs = require('fs'); const cp = require('child_process'); if (fs.existsSync('.git/index') && fs.statSync('.git/index').size === 0) { fs.unlinkSync('.git/index'); cp.execSync('git reset'); console.log('✅ Git index recuperado com sucesso!'); } else { console.log('✅ Git index está íntegro.'); }\""
   },
   "author": "ᶜᴿᴬᶻᵞ𝙈𝙚𝙡𝙞𝙤𝙙𝙖𝙨✖️‿✖️•",
   "license": "MIT",
