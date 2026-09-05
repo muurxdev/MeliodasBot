@@ -63,7 +63,10 @@ addNames('figurinhas', [
     'threshold', 'emboss', 'sketch', 'oil', 'pixelart', 'blur', 'sepia', 'invert',
     'wanted', 'wasted', 'triggered', 'circle', 'nobg', 'removerbg', 'pixelar'
 ])
-addNames('livros', ['livro', 'livros', 'livroaleatorio', 'apostila', 'apostilas', 'gutenberg'])
+addNames('livros', ['livro', 'livros', 'livroaleatorio', 'apostila', 'apostilas', 'gutenberg',
+    // Lote 2 Livros (Open Library, keyless)
+    'buscarlivro', 'livrosautor', 'livrogenero', 'capalivro', 'isbn', 'recomendarlivro',
+    'autorlivro', 'resumolivro'])
 // Painel do grupo: módulo próprio para poder ser desligado sozinho, sem mexer
 // no restante dos comandos de dono.
 addNames('skycode', ['skycode'])
