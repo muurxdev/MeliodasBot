@@ -20,6 +20,12 @@ services:
     environment:
       - NODE_ENV=production
       - PORT=3000
+      # IA local (open source, sem chave, sem cota) e transcrição local.
+      # Ambos rodam em containers próprios desta stack — nada sai para fora.
+      - OLLAMA_URL=http://ollama:11434
+      - OLLAMA_MODEL=${OLLAMA_MODEL:-qwen2.5:3b}
+      - WHISPER_API_URL=http://whisper:8000/v1/audio/transcriptions
+      - WHISPER_API_MODEL=${WHISPER_API_MODEL:-Systran/faster-whisper-base}
     volumes:
       - ./data:/app/data
       - ./sessao:/app/sessao
@@ -42,6 +48,8 @@ services:
         max-file: '3'
     depends_on:
       - bgutil-pot-provider
+      - ollama
+      - whisper
 
   # Serviço gerador de PO Tokens do YouTube (bgutil) — contorna o bloqueio
   # "Sign in to confirm you're not a bot" gerando tokens frescos por vídeo.
@@ -65,3 +73,62 @@ services:
       options:
         max-size: '5m'
         max-file: '2'
+
+  # ═══════════════════════════════════════════════════════════════
+  # 🧠 LLM LOCAL (Ollama) — open source, sem chave e sem cota.
+  # Modelo pequeno de propósito: a VPS tem 2 vCPUs e nenhuma GPU.
+  # Baixe o modelo uma vez com:
+  #   docker exec meliodas_ollama ollama pull qwen2.5:3b
+  # ═══════════════════════════════════════════════════════════════
+  ollama:
+    image: ollama/ollama:latest
+    container_name: meliodas_ollama
+    restart: unless-stopped
+    networks:
+      - bot-net
+    volumes:
+      - ollama_models:/root/.ollama
+    environment:
+      # Descarrega o modelo da RAM após 5 min ocioso — divide memória com o bot.
+      - OLLAMA_KEEP_ALIVE=5m
+      - OLLAMA_MAX_LOADED_MODELS=1
+    deploy:
+      resources:
+        limits:
+          cpus: '1.5'
+          memory: 3G
+    logging:
+      driver: 'json-file'
+      options:
+        max-size: '5m'
+        max-file: '2'
+
+  # ═══════════════════════════════════════════════════════════════
+  # 🎙️ TRANSCRIÇÃO LOCAL (faster-whisper) — open source, offline.
+  # Expõe API compatível com OpenAI; o bot usa via WHISPER_API_URL.
+  # ═══════════════════════════════════════════════════════════════
+  whisper:
+    image: fedirz/faster-whisper-server:latest-cpu
+    container_name: meliodas_whisper
+    restart: unless-stopped
+    networks:
+      - bot-net
+    volumes:
+      - whisper_models:/root/.cache/huggingface
+    environment:
+      - WHISPER__MODEL=Systran/faster-whisper-base
+      - WHISPER__INFERENCE_DEVICE=cpu
+    deploy:
+      resources:
+        limits:
+          cpus: '1.0'
+          memory: 2G
+    logging:
+      driver: 'json-file'
+      options:
+        max-size: '5m'
+        max-file: '2'
+
+volumes:
+  ollama_models:
+  whisper_models:

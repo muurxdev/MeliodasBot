@@ -1,17 +1,17 @@
 /**
  * LLM Service — IA de verdade para .ia / .explicar / .resumir / .traduzir.
  *
- * Por que não rodar local: a VPS tem 2 vCPUs e nenhuma GPU. Um modelo pequeno
- * (3B) responderia a ~5-15 tokens/s, inutilizável para um bot com vários usuários.
- * Free tiers de nuvem entregam qualidade muito maior a custo zero.
+ * Provedores, na ORDEM em que são tentados (o primeiro configurado vence; se
+ * falhar, cai para o próximo):
+ *   1. OLLAMA_URL   — LLM local, 100% open source, sem chave e sem cota. Roda no
+ *                     container `meliodas_ollama`. Preferido justamente por não
+ *                     depender de ninguém. Contrapartida: a VPS tem 2 vCPUs e
+ *                     nenhuma GPU, então modelo pequeno e resposta em ~10-30s.
+ *   2. GROQ_API_KEY — 30 req/min, 1.000/dia. Rápido. https://console.groq.com/keys
+ *   3. GEMINI_API_KEY — Flash gratuito.      https://aistudio.google.com/apikey
+ *   4. CLOUDFLARE_ACCOUNT_ID + CLOUDFLARE_API_TOKEN — 10k neurons/dia.
  *
- * Provedores (todos com free tier, sem cartão) — usados em ordem, o primeiro
- * configurado vence; se falhar, tenta o próximo:
- *   1. GROQ_API_KEY        — 30 req/min, 1.000/dia. Rápido. https://console.groq.com/keys
- *   2. GEMINI_API_KEY      — Flash gratuito.        https://aistudio.google.com/apikey
- *   3. CLOUDFLARE_ACCOUNT_ID + CLOUDFLARE_API_TOKEN — 10k neurons/dia.
- *
- * SEM NENHUMA CHAVE o serviço fica inativo e quem chama cai no comportamento
+ * SEM NENHUM configurado o serviço fica inativo e quem chama cai no comportamento
  * antigo (busca web no DuckDuckGo) — nada quebra.
  */
 
@@ -21,6 +21,10 @@ const TIMEOUT_MS = 25000
 
 function _cfg() {
     return {
+        // Ollama LOCAL (open source, sem chave, sem custo). Tem prioridade quando
+        // configurado: roda no próprio servidor, então não gasta cota de nada.
+        ollamaUrl: (process.env.OLLAMA_URL || '').trim().replace(/\/$/, ''),
+        ollamaModel: (process.env.OLLAMA_MODEL || 'qwen2.5:3b').trim(),
         groqKey: (process.env.GROQ_API_KEY || '').trim(),
         groqModel: (process.env.GROQ_MODEL || 'llama-3.3-70b-versatile').trim(),
         geminiKey: (process.env.GEMINI_API_KEY || '').trim(),
@@ -34,13 +38,14 @@ function _cfg() {
 /** @returns {boolean} há algum provedor configurado? */
 function hasProvider() {
     const c = _cfg()
-    return Boolean(c.groqKey || c.geminiKey || (c.cfAccount && c.cfToken))
+    return Boolean(c.ollamaUrl || c.groqKey || c.geminiKey || (c.cfAccount && c.cfToken))
 }
 
 /** @returns {string[]} nomes dos provedores ativos (para diagnóstico). */
 function providersAtivos() {
     const c = _cfg()
     const l = []
+    if (c.ollamaUrl) l.push('Ollama local (' + c.ollamaModel + ')')
     if (c.groqKey) l.push('Groq (' + c.groqModel + ')')
     if (c.geminiKey) l.push('Gemini (' + c.geminiModel + ')')
     if (c.cfAccount && c.cfToken) l.push('Cloudflare (' + c.cfModel + ')')
@@ -63,6 +68,21 @@ async function _fetchJson(url, options) {
     } finally {
         clearTimeout(t)
     }
+}
+
+async function _ollama(prompt, system, c) {
+    // Ollama expõe uma API compatível com OpenAI em /v1/chat/completions.
+    const json = await _fetchJson(`${c.ollamaUrl}/v1/chat/completions`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+            model: c.ollamaModel,
+            messages: [{ role: 'system', content: system }, { role: 'user', content: prompt }],
+            temperature: 0.4,
+            max_tokens: 700
+        })
+    })
+    return json?.choices?.[0]?.message?.content?.trim() || null
 }
 
 async function _groq(prompt, system, c) {
@@ -125,6 +145,7 @@ async function ask(prompt, opts = {}) {
     const system = opts.system || SYSTEM_PADRAO
 
     const cadeia = []
+    if (c.ollamaUrl) cadeia.push(['Ollama', () => _ollama(texto, system, c)])
     if (c.groqKey) cadeia.push(['Groq', () => _groq(texto, system, c)])
     if (c.geminiKey) cadeia.push(['Gemini', () => _gemini(texto, system, c)])
     if (c.cfAccount && c.cfToken) cadeia.push(['Cloudflare', () => _cloudflare(texto, system, c)])
