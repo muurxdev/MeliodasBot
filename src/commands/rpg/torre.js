@@ -22,7 +22,7 @@ const logger = require("../../core/logger");
 
 /** CP exigido pelo andar — cresce rápido, mas sem explodir. */
 function exigenciaDoAndar(andar) {
-    return Math.floor(80 * Math.pow(andar, 1.45) + andar * 60);
+    return Math.floor(80 * Math.pow(andar, 1.28) + andar * 45);
 }
 
 /** Chance de vitória a partir do seu poder x exigência (entre 12% e 93%). */

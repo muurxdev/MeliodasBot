@@ -18,7 +18,7 @@ const logger = require("../../core/logger");
 
 /** Exigência de CP do andar (um pouco mais dura que a Torre dos Desafios). */
 function exigenciaDoAndar(andar) {
-    return Math.floor(110 * Math.pow(andar, 1.5) + andar * 80);
+    return Math.floor(100 * Math.pow(andar, 1.34) + andar * 60);
 }
 
 function chanceVitoria(cp, exigencia) {

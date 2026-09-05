@@ -111,11 +111,17 @@ async function handleIncomingMessage(client, { messages }) {
 
     const msgTimestamp = info?.messageTimestamp ? (Number(info.messageTimestamp) * 1000) : Date.now()
     const diff = Math.abs(Date.now() - msgTimestamp)
-    user.lastPingMs = (diff > 250 || diff < 5) ? (Math.floor(Math.random() * 22) + 24) : diff
-    if (user.lastPingMs < 35) user.netType = '⚡ Fibra Óptica / Wi-Fi 7'
-    else if (user.lastPingMs < 75) user.netType = '📶 Wi-Fi 6 / 5G SA'
-    else if (user.lastPingMs < 140) user.netType = '📡 4G LTE / Wi-Fi 5'
-    else user.netType = '📉 3G / Conexão Móvel'
+    // Atraso de entrega REAL (carimbo do aparelho -> processamento do bot).
+    // Antes, fora da faixa 'bonita' o valor era trocado por Math.random().
+    user.lastPingMs = (diff >= 0 && diff < 120000) ? diff : null
+    // O WhatsApp não expõe o tipo de conexão de ninguém. O rótulo antigo
+    // ("Fibra Óptica / Wi-Fi 7") era deduzido do atraso e portanto inventado.
+    // Agora classificamos apenas o que é medido: a rapidez da ENTREGA.
+    if (user.lastPingMs === null) user.netType = '❔ Não medido'
+    else if (user.lastPingMs < 800) user.netType = '⚡ Entrega instantânea'
+    else if (user.lastPingMs < 3000) user.netType = '📶 Entrega rápida'
+    else if (user.lastPingMs < 15000) user.netType = '📡 Entrega com atraso'
+    else user.netType = '🐢 Entrega lenta (rede instável)'
 
     user.lastSeen = Date.now()
     if (senderReal) user.phone = senderReal.split('@')[0]

@@ -58,13 +58,21 @@ function platformFromLabel(label = "") {
 
 function detectDeviceSpecs(keyId = "", participant = "", sender = "", customModel = null, storedDevice = null) {
     // Prioridade 1: modelo definido pelo usuário (.setdevice) — sempre prevalece.
+    // O WhatsApp NÃO expõe o modelo real do aparelho de ninguém; o nome exato só
+    // existe se a pessoa cadastrar. Mas a PLATAFORMA (web/desktop/android/ios) o
+    // Baileys deriva do ID da mensagem — então juntamos: nome exato do usuário +
+    // plataforma real medida. Antes o modelo custom caía em "Indeterminado",
+    // porque "Samsung Galaxy S23" não casa com nenhum regex de plataforma.
     if (customModel && typeof customModel === "string" && customModel.trim().length > 2) {
+        const real = deviceFromKeyId(keyId);
         const isPC = /acer|dell|lenovo|asus|hp|notebook|laptop|pc|desktop|linux|windows|macbook/i.test(customModel);
         return {
             model: customModel.trim(),
-            type: isPC ? "💻 Computador / Laptop" : "📱 Dispositivo Móvel",
-            os: isPC ? "🐧 Linux / Windows (WhatsApp Web)" : "🤖 Android / iOS",
-            connectionType: isPC ? "🔌 Cabo Ethernet Direto (1.000 Mbps)" : "📶 Conexão Wi-Fi / 5G"
+            platform: real ? real.platform : (isPC ? "Desktop" : "Mobile"),
+            type: real ? real.type : (isPC ? "💻 Computador / Laptop" : "📱 Dispositivo Móvel"),
+            os: real ? real.os : (isPC ? "🐧 Linux / Windows (WhatsApp Web)" : "🤖 Android / iOS"),
+            connectionType: real ? real.connectionType : (isPC ? "🔌 Banda Larga" : "📶 Wi-Fi / 5G"),
+            declaradoPeloUsuario: true
         };
     }
 
@@ -141,19 +149,23 @@ function getAdvancedNetworkTelemetry(info, targetJid, sender, user = {}) {
         const storedDevice = user.lastDevice || null;
         device = detectDeviceSpecs(keyId, participant, sender, customModel, storedDevice);
 
-        const msgTimestamp = info?.messageTimestamp ? (Number(info.messageTimestamp) * 1000) : Date.now();
-        let rawPing = Math.abs(Date.now() - msgTimestamp);
-        pingMs = rawPing;
-        if (pingMs > 250 || pingMs < 5) {
-            pingMs = Math.floor(Math.random() * 16) + 18; // 18 a 34 ms
-        }
-        jitter = (pingMs * 0.05).toFixed(1);
+        // ATRASO DE ENTREGA real: diferença entre o carimbo de tempo da mensagem
+        // (posto pelo aparelho de quem enviou) e a hora em que o bot a processou.
+        // Não é "ping de rede" — o WhatsApp não expõe isso — e sofre com relógio
+        // dessincronizado do celular, por isso pode vir negativo ou absurdo.
+        // Antes, quando saía da faixa "bonita", o código TROCAVA por Math.random():
+        // o número exibido era inventado. Agora ou é medido, ou é assumido nulo.
+        const msgTimestamp = info?.messageTimestamp ? (Number(info.messageTimestamp) * 1000) : null;
+        const bruto = msgTimestamp ? (Date.now() - msgTimestamp) : null;
+        pingMs = (bruto !== null && bruto >= 0 && bruto < 120000) ? Math.round(bruto) : null;
+        jitter = pingMs !== null ? (pingMs * 0.05).toFixed(1) : null;
     } else {
         const customModel = user.dispositivoModelo || null;
         const storedDevice = user.lastDevice || null;
         device = detectDeviceSpecs("", "", targetJid, customModel, storedDevice);
-        pingMs = user.lastPingMs || (Math.floor(Math.random() * 14) + 20);
-        jitter = (pingMs * 0.05).toFixed(1);
+        // Para terceiros usamos o último valor medido; se não houver, não inventamos.
+        pingMs = Number.isFinite(user.lastPingMs) ? user.lastPingMs : null;
+        jitter = pingMs !== null ? (pingMs * 0.05).toFixed(1) : null;
     }
 
     // Garante a categoria Web/Desktop/Mobile mesmo nos caminhos de fallback.

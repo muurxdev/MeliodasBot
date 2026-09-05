@@ -229,7 +229,16 @@ module.exports = {
             const _platIcon = _plat === "Web" ? "🌐" : _plat === "Desktop" ? "💻" : _plat === "Mobile" ? "📱" : "❔";
             doc += "┃ 💻 *Dispositivo:* " + tele.device.model + "\n";
             doc += "┃ " + _platIcon + " *Plataforma:* " + _plat + " (" + (isSelf ? "sessão atual" : "último acesso") + ")\n";
-                        doc += "┃ ⚡ *Latência Socket:* " + tele.pingMs + " ms (Jitter: " + tele.jitter + "ms)\n";
+            // Só mostramos o que é medido de verdade. Quando o carimbo de tempo do
+            // aparelho está fora de sincronia, não há número honesto para exibir.
+            if (tele.pingMs !== null && tele.pingMs !== undefined) {
+                doc += "┃ ⚡ *Atraso de entrega:* " + tele.pingMs + " ms" + (user.netType ? " (" + user.netType + ")" : "") + "\n";
+            } else {
+                doc += "┃ ⚡ *Atraso de entrega:* ❔ não medido _(relógio do aparelho fora de sincronia)_\n";
+            }
+            if (!tele.device.declaradoPeloUsuario) {
+                doc += "┃ 💡 _Modelo exato:_ `.setdevice <seu aparelho>`\n";
+            }
                         doc += "┃ 🤝 *Reputação:* ⭐ " + (user.rep || 0) + " pontos | 🔥 *Streak:* " + (user.streak || 0) + " dias\n";
             doc += "╰━━━━━━━━━━━━━━━━━━⬣\n\n";
 
