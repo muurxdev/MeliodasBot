@@ -98,6 +98,7 @@ function resolveModuleKey(cmd) {
         case 'general':
             if (sub.includes('livro')) return 'livros'
             if (sub.includes('perfil') || sub.includes('rank')) return 'perfil'
+            if (sub.includes('xp') || sub.includes('progressao')) return 'xp'
             return 'utilidades'
         case 'admin':
             if (sub.includes('config')) return 'mensagens-grupo'
