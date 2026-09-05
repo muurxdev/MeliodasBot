@@ -9,7 +9,7 @@ const logger = require("../../core/logger");
 
 module.exports = {
     name: "comparartexto",
-    aliases: ["compare", "diferencas"],
+    aliases: ["diftexto", "diferencas"],
     category: "general",
     subcategory: "IA & Pesquisa",
     description: "Compara dois textos e mostra semelhanças e diferenças",

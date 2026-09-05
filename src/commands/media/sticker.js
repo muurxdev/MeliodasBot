@@ -10,7 +10,7 @@ const logger = require("../../core/logger");
 
 module.exports = {
     name: "sticker",
-    aliases: ["fig", "figurinha", "s", "tofig"],
+    aliases: ["tofig", "criarfig", "stickermaker"],
     category: "media",
     subcategory: "Imagens & Edição",
     description: "Cria figurinhas WhatsApp a partir de imagens ou vídeos curtos",

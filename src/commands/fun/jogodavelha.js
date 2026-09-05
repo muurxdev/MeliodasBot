@@ -43,7 +43,7 @@ function formatBoard(board) {
 
 module.exports = {
     name: "jogodavelha",
-    aliases: ["velha", "tictactoe", "ttt"],
+    aliases: ["jdv", "jogovelha"],
     category: "fun",
     subcategory: "Jogos",
     description: "Jogue o clássico jogo da velha contra outro jogador",

@@ -9,7 +9,7 @@ const logger = require("../../core/logger");
 
 module.exports = {
     name: "resumo",
-    aliases: ["summarize", "resumir", "resumotexto"],
+    aliases: ["summarize", "sumario", "resumotexto"],
     category: "general",
     subcategory: "IA & Pesquisa",
     description: "Resume um texto ou artigo usando inteligência artificial",
