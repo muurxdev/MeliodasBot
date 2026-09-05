@@ -1,6 +1,6 @@
 module.exports = {
     name: 'vagas',
-    aliases: ['jobs', 'trampo'],
+    aliases: ['jobs'],
     category: 'dev',
     description: 'Principais plataformas de vagas de tecnologia',
     execute: async ({ reply }) => {

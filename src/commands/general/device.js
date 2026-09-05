@@ -11,7 +11,7 @@ const crypto = require("crypto");
 
 module.exports = {
     name: "device",
-    aliases: ["pingdevice", "conexao", "netinfo", "pinguser", "rede", "meudevice", "velocidade"],
+    aliases: ["pingdevice", "conexao", "pinguser", "rede", "meudevice", "velocidade"],
     category: "general",
     description: "Analisa e exibe o modelo do dispositivo, latência de rede, tipo de internet (Wi-Fi/5G/Cabo) e telemetria",
     cooldownMs: 2000,
