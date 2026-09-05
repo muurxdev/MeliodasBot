@@ -161,8 +161,7 @@ function probeMedia(filePath) {
         const streams = data.streams || []
         const v = streams.find(s => s.codec_type === 'video' && s.disposition?.attached_pic !== 1)
         const a = streams.find(s => s.codec_type === 'audio')
-        const fmt = data.format || {}
-        const sizeBytes = Number(fmt.size || (fs.statSync(filePath).size)) || 0
+        const sizeBytes = (filePath && fs.existsSync(filePath)) ? fs.statSync(filePath).size : (Number(fmt.size) || 0)
         const durationSec = Math.round(Number(fmt.duration || (v?.duration) || (a?.duration) || 0))
         // ffprobe reporta a família "mov,mp4,m4a,3gp,..." — normaliza para MP4/M4A.
         const rawContainer = (fmt.format_name || '')
@@ -217,10 +216,9 @@ function formatMediaCaption({ platform = 'Web', title = 'Mídia', author = 'Desc
 
     if (probe) {
         // Dados 100% reais do arquivo
-        if (!audio && probe.resolution) {
+        if (!audio && (probe.height || probe.resolution)) {
             const q = qualityLabel(probe.height, probe.width)
             doc += `┃ 🎬 *Qualidade:* ${q || probe.resolution}\n`
-            doc += `┃ 🖥️ *Resolução:* ${probe.resolution}\n`
         }
         // Formato: só mostra codec se for diferente do container (evita "MP3 / mp3")
         const codecInfo = audio && probe.acodec && probe.acodec.toLowerCase() !== probe.container.toLowerCase()

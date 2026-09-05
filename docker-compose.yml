@@ -26,6 +26,8 @@ services:
       - ./backups:/app/backups
       - ./logs:/app/logs
       - ./temp:/app/temp
+      - ./src:/app/src
+      - ./assets:/app/assets
     deploy:
       resources:
         limits:

@@ -128,22 +128,9 @@ async function ensureMobileVideoCompatibility(filePath) {
     const stats = fs.statSync(filePath)
     if (stats.size > 200 * 1024 * 1024) return filePath
 
-    // Se já for MP4, verifica se é H.264 compatível — se sim, não re-encode
+    // Se já for MP4, preserva 100% da qualidade, tamanho original e bitrate
     if (ext === '.mp4') {
-        try {
-            const { spawnSync } = require('child_process')
-            const r = spawnSync('ffprobe', [
-                '-v', 'quiet', '-print_format', 'json', '-show_streams', filePath
-            ], { encoding: 'utf8', maxBuffer: 2 * 1024 * 1024 })
-            if (r.status === 0 && r.stdout) {
-                const data = JSON.parse(r.stdout)
-                const v = (data.streams || []).find(s => s.codec_type === 'video')
-                // H.264 (ou x264) + yuv420p = compatível com WhatsApp
-                if (v && /^h264|x264$/i.test(v.codec_name || '') && /yuv420p/.test(v.pix_fmt || '')) {
-                    return filePath
-                }
-            }
-        } catch (_) {}
+        return filePath
     }
 
     // Se não for MP4 ou for codec incompatível, converte com QUALIDADE ALTA
