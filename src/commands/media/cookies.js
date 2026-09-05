@@ -27,14 +27,14 @@ module.exports = {
             doc += '╭━〔 📊 STATUS ATUAL 〕━⬣\n'
 
             if (status.global.ok) {
-                doc += `┃ 🌐 *Global:* ✅ Válido (${status.global.count} cookies, ${status.global.domain})\n`
+                doc += `┃ 🌐 *Global:* ✅ Válido (${status.global.count} cookies · ${status.global.resumoDominios || status.global.domain})\n`
             } else {
                 doc += `┃ 🌐 *Global:* ❌ ${status.global.reason}\n`
             }
 
             if (status.user) {
                 if (status.user.ok) {
-                    doc += `┃ 👤 *Seu cookie:* ✅ Válido (${status.user.count} cookies, ${status.user.domain})\n`
+                    doc += `┃ 👤 *Seu cookie:* ✅ Válido (${status.user.count} cookies · ${status.user.resumoDominios || status.user.domain})\n`
                 } else {
                     doc += `┃ 👤 *Seu cookie:* ❌ ${status.user.reason}\n`
                 }

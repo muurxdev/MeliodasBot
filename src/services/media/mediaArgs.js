@@ -100,6 +100,10 @@ function validateCookiesFile(filePath = getCookiesFilePath()) {
 
     let count = 0
     let domain = null
+    // Um arquivo Netscape pode conter VÁRIOS domínios — é o caso normal quando se
+    // exporta YouTube + Instagram juntos. Antes só o primeiro era reportado, o que
+    // escondia os demais no status do `.cookies`.
+    const dominios = new Set()
     for (const rawLine of content.split('\n')) {
         const line = rawLine.trim()
         if (!line || line.startsWith('#')) continue
@@ -107,8 +111,10 @@ function validateCookiesFile(filePath = getCookiesFilePath()) {
         if (cols.length < 7) continue
         if (!cols[0] || !cols[2] || !cols[5] || !cols[6]) continue
         count += 1
-        if (!domain && (/youtube\.com|tiktok\.com|instagram\.com/i.test(cols[0]))) {
-            domain = cols[0]
+        const m = String(cols[0]).match(/(youtube|tiktok|instagram|facebook|twitter|x)\.com/i)
+        if (m) {
+            dominios.add(m[1].toLowerCase())
+            if (!domain) domain = cols[0]
         }
     }
 
@@ -120,7 +126,15 @@ function validateCookiesFile(filePath = getCookiesFilePath()) {
         return { ok: false, reason: 'SEM_DOMINIOS_SUPORTADOS', detail: 'sem cookies de youtube/tiktok/instagram' }
     }
 
-    return { ok: true, reason: 'OK', count, domain: domain || 'outro' }
+    return {
+        ok: true,
+        reason: 'OK',
+        count,
+        domain: domain || 'outro',
+        // Lista legível de todas as plataformas presentes no arquivo.
+        dominios: [...dominios],
+        resumoDominios: dominios.size ? [...dominios].join(', ') : 'outro'
+    }
 }
 
 function buildYtDlpArgs(extra = [], opts = {}) {
