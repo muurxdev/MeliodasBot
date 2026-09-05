@@ -90,10 +90,14 @@ async function handleIncomingMessage(client, { messages }) {
     // Fonte canônica: getDevice() do Baileys deriva a plataforma (web/desktop/
     // android/ios) do formato do ID da mensagem — bem mais preciso que a heurística
     // antiga. Persistimos lastDevice + lastPlatform p/ o .dossie de terceiros.
+    // Prioridade: modelo definido pelo usuário (.setdevice) > detectado pelo Baileys.
     const keyId = info?.key?.id || ''
     const { deviceFromKeyId } = require('../services/telemetryDeviceService')
     const _dev = deviceFromKeyId(keyId)
-    if (_dev) {
+    if (user.dispositivoModelo && user.dispositivoModelo.trim().length > 2) {
+        user.lastDevice = user.dispositivoModelo.trim()
+        user.lastPlatform = _dev ? _dev.platform : (user.lastPlatform || 'Indeterminado')
+    } else if (_dev) {
         user.lastDevice = _dev.model
         user.lastPlatform = _dev.platform
     } else if (!user.lastDevice) {

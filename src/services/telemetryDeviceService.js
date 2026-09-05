@@ -57,10 +57,18 @@ function platformFromLabel(label = "") {
 }
 
 function detectDeviceSpecs(keyId = "", participant = "", sender = "", customModel = null, storedDevice = null) {
-    // Prioridade máxima: derivação canônica do Baileys pelo ID da mensagem.
-    const canonical = deviceFromKeyId(keyId);
-    if (canonical) return canonical;
+    // Prioridade 1: modelo definido pelo usuário (.setdevice) — sempre prevalece.
+    if (customModel && typeof customModel === "string" && customModel.trim().length > 2) {
+        const isPC = /acer|dell|lenovo|asus|hp|notebook|laptop|pc|desktop|linux|windows|macbook/i.test(customModel);
+        return {
+            model: customModel.trim(),
+            type: isPC ? "💻 Computador / Laptop" : "📱 Dispositivo Móvel",
+            os: isPC ? "🐧 Linux / Windows (WhatsApp Web)" : "🤖 Android / iOS",
+            connectionType: isPC ? "🔌 Cabo Ethernet Direto (1.000 Mbps)" : "📶 Conexão Wi-Fi / 5G"
+        };
+    }
 
+    // Prioridade 2: dispositivo salvo no banco (lastDevice).
     if (storedDevice && typeof storedDevice === "string" && storedDevice.length > 3) {
         const isPC = /acer|dell|lenovo|asus|hp|notebook|laptop|pc|desktop|linux|windows|macbook|web/i.test(storedDevice);
         return {
@@ -71,15 +79,9 @@ function detectDeviceSpecs(keyId = "", participant = "", sender = "", customMode
         };
     }
 
-    if (customModel && typeof customModel === "string" && customModel.trim().length > 2) {
-        const isPC = /acer|dell|lenovo|asus|hp|notebook|laptop|pc|desktop|linux|windows|macbook/i.test(customModel);
-        return {
-            model: customModel.trim(),
-            type: isPC ? "💻 Computador / Laptop" : "📱 Dispositivo Móvel",
-            os: isPC ? "🐧 Linux / Windows (WhatsApp Web)" : "🤖 Android / iOS",
-            connectionType: isPC ? "🔌 Cabo Ethernet Direto (1.000 Mbps)" : "📶 Conexão Wi-Fi / 5G"
-        };
-    }
+    // Prioridade 3: derivação canônica do Baileys pelo ID da mensagem.
+    const canonical = deviceFromKeyId(keyId);
+    if (canonical) return canonical;
 
     keyId = String(keyId || "").trim();
     participant = String(participant || "").trim();
@@ -136,7 +138,8 @@ function getAdvancedNetworkTelemetry(info, targetJid, sender, user = {}) {
         const keyId = info?.key?.id || "";
         const participant = info?.key?.participant || "";
         const customModel = user.dispositivoModelo || null;
-        device = detectDeviceSpecs(keyId, participant, sender, customModel);
+        const storedDevice = user.lastDevice || null;
+        device = detectDeviceSpecs(keyId, participant, sender, customModel, storedDevice);
 
         const msgTimestamp = info?.messageTimestamp ? (Number(info.messageTimestamp) * 1000) : Date.now();
         let rawPing = Math.abs(Date.now() - msgTimestamp);
