@@ -131,10 +131,11 @@ function buildMenu({ category = null, page = 1, prefix = '.', userLevel = 1, bot
 
     // ── Painel principal (índice de categorias) ──
     if (!catKey && !isAll) {
-        let doc = header(`🤖 *${botName}* 🤖`)
-        doc += `📌 *Prefixo Ativo:* \`${prefix}\` | ⚡ *${total} Comandos* (+${totalAliases} Aliases)\n`
-        doc += `💡 _Digite o comando da categoria para ver todos os comandos e aliases:_\n\n`
-        doc += `╭━〔 📂 CATEGORIAS DE COMANDOS & ALIASES 〕━⬣\n`
+        // Conta ANTES de montar o texto: o total aparece no cabeçalho, que é escrito
+        // antes da lista. (Antes isso lia `total` da seção de baixo => ReferenceError
+        // "Cannot access 'total' before initialization" e o .menu quebrava.)
+        const linhasCategorias = []
+        let totalVisivel = 0
         for (const c of CATEGORIES) {
             // conta quantos o usuário pode ver, e esconde categorias vazias p/ ele
             let count = 0
@@ -146,9 +147,16 @@ function buildMenu({ category = null, page = 1, prefix = '.', userLevel = 1, bot
                 }
             }
             if (count === 0) continue
-            doc += `┃ ${c.emoji} \`${prefix}menu ${c.key}\` ➔ ${c.label} (${count} cmds · ${aliasCount} aliases)\n`
+            totalVisivel += count
+            linhasCategorias.push(`┃ ${c.emoji} \`${prefix}menu ${c.key}\` ➔ ${c.label} (${count} cmds · ${aliasCount} aliases)\n`)
         }
-        doc += `┃ 🌟 \`${prefix}menu all\` ➔ Ver o Catálogo Completo dos 1.000 Comandos\n`
+
+        let doc = header(`🤖 *${botName}* 🤖`)
+        doc += `📌 *Prefixo Ativo:* \`${prefix}\` | ⚡ *${totalVisivel} Comandos* (+${totalAliases} Aliases)\n`
+        doc += `💡 _Digite o comando da categoria para ver todos os comandos e aliases:_\n\n`
+        doc += `╭━〔 📂 CATEGORIAS DE COMANDOS & ALIASES 〕━⬣\n`
+        for (const linha of linhasCategorias) doc += linha
+        doc += `┃ 🌟 \`${prefix}menu all\` ➔ Ver o Catálogo Completo (${totalVisivel} comandos)\n`
         doc += `╰━━━━━━━━━━━━━━━━━━⬣\n\n`
         doc += `╭━〔 ℹ️ ATALHOS RÁPIDOS 〕━⬣\n`
         doc += `┃ ➤ \`${prefix}help <comando>\` — Instruções de qualquer comando\n`
@@ -156,7 +164,7 @@ function buildMenu({ category = null, page = 1, prefix = '.', userLevel = 1, bot
         doc += `┃ ➤ \`${prefix}ia <pergunta>\` — Inteligência Artificial e busca Web\n`
         doc += `╰━━━━━━━━━━━━━━━━━━⬣\n\n`
         doc += `💡 *Dica:* _Abra um submenu digitando direto o nome (ex:_ \`${prefix}rpg\`_,_ \`${prefix}eco\`_,_ \`${prefix}admin\`_)!_`
-        return { pages: [doc], page: 1, totalPages: 1, mediaKey: 'main', total }
+        return { pages: [doc], page: 1, totalPages: 1, mediaKey: 'main', total: totalVisivel }
     }
 
     // ── Catálogo completo ou categoria específica ──

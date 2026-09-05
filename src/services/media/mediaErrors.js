@@ -45,6 +45,18 @@ function toMessage(base, stderr) {
     if (stderr && /Requested format is not available/i.test(stderr)) {
         return `${base}\n🗒️ *Detalhe:* O formato solicitado não está disponível para este vídeo. Tente outro formato.`
     }
+    // Post SÓ DE FOTOS (carrossel de imagens). O yt-dlp é focado em vídeo e devolve
+    // "No video formats found"; o Instagram bloqueia leitura de imagens sem login
+    // (embed e espelhos públicos também vêm vazios). Explica em vez de vazar o dump.
+    if (stderr && /No video formats found/i.test(stderr)) {
+        let msg = `📸 *Esse link é um post só de FOTOS* (carrossel de imagens), não tem vídeo.\n\n`
+        msg += `🔒 O Instagram bloqueia o download de imagens sem login, então não consigo baixar por aqui.\n\n`
+        msg += `💡 *O que funciona:*\n`
+        msg += `• 🎬 Reels e posts com *vídeo* — `+"`.insta <link>`\n"
+        msg += `• 🍪 Com login: envie seus cookies do Instagram com `+"`.cookies`\n"
+        msg += `• 📥 Para fotos avulsas, salve direto pelo app e reenvie aqui.`
+        return msg
+    }
     const detail = lastErrorLines(stderr)
     return detail ? `${base}\n🗒️ *Detalhe:* ${detail}` : base
 }
