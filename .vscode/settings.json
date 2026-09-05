@@ -1,0 +1,17 @@
+{
+    "git.autofetch": false,
+    "git.detectSubmodules": false,
+    "git.showProgress": false,
+    "gitlens.views.repositories.autoRefresh": false,
+    "files.watcherExclude": {
+        "**/.git/objects/**": true,
+        "**/.git/subtree-cache/**": true,
+        "**/node_modules/**": true,
+        "**/data/**": true,
+        "**/sessao/**": true,
+        "**/temp/**": true,
+        "**/logs/**": true,
+        "**/backups/**": true,
+        "**/.system_generated/**": true
+    }
+}
