@@ -120,7 +120,41 @@ function calculateCharacterStats(user) {
     return calculateFullCharacterStats(user);
 }
 
+
+/**
+ * Sorteia um equipamento do catálogo como DROP, adequado ao nível do jogador.
+ *
+ * Antes, os 65 itens do catálogo só eram obtidos comprando na loja — os drops de
+ * caçada/boss devolviam apenas nomes soltos (strings), sem ligação com o
+ * equipamento real. Isto conecta as duas coisas.
+ *
+ * A faixa de CP considerada acompanha o nível, e raridades altas são mais raras.
+ * @param {number} level
+ * @returns {object|null} item do catálogo (cópia) ou null
+ */
+function sortearEquipamentoDrop(level = 1) {
+    const nivel = Math.max(1, Number(level) || 1)
+    // Teto de CP que faz sentido para o nível (cresce ~quadraticamente, como o CP dos itens).
+    const tetoCp = 60 + Math.pow(nivel, 1.9) * 1.6
+    const candidatos = Object.values(ITEMS_DB).filter(i => i.cp <= tetoCp)
+    if (!candidatos.length) return null
+
+    // Quanto mais raro, menor o peso — o topo da faixa continua sendo prêmio.
+    const PESO = {
+        '⚪ Comum': 100, '🔵 Raro': 55, '🟣 Épico': 22,
+        '🟠 Lendário': 9, '👑 Mítico': 4, '🌟 Divino': 1.5, '🔥 Transcendente': 0.5
+    }
+    const total = candidatos.reduce((acc, i) => acc + (PESO[i.raridade] || 1), 0)
+    let sorte = Math.random() * total
+    for (const item of candidatos) {
+        sorte -= (PESO[item.raridade] || 1)
+        if (sorte <= 0) return { ...item }
+    }
+    return { ...candidatos[candidatos.length - 1] }
+}
+
 module.exports = {
+    sortearEquipamentoDrop,
     ITEMS_DB,
     getItem,
     calculateCharacterStats

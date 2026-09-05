@@ -43,12 +43,26 @@ module.exports = {
                 }
             }
 
+            // Drop raro de EQUIPAMENTO do catálogo, escalado pelo nível. Sem isto os
+            // 65 itens só saíam comprando na loja — caçar nunca dava equipamento.
+            let equipDrop = null
+            if (Math.random() < 0.08 && user.inventario.length < (user.mochila || 20)) {
+                const { sortearEquipamentoDrop } = require('../../services/rpgEquipmentService')
+                equipDrop = sortearEquipamentoDrop(user.level || 1)
+                if (equipDrop) user.inventario.push({ ...equipDrop })
+            }
+
             dataService.saveUser(user)
             logger.info('[HUNT] User ' + sender + ' venceu ' + monstro.nome)
 
             let critText = combat.isCritico ? ' 💥 *ACERTO CRÍTICO!*' : (combat.isDobro ? ' ⚡ *DANO DUPLO!*' : '')
 
-            return reply('🗺️ *CAÇADA — VITÓRIA!*' + critText + '\n\n🌍 *Mundo:* ' + mundoAtual.nome + '\n👤 @' + sender.split('@')[0] + ' *VS* ' + monstro.nome + '\n⚔️ *Dano Total:* ' + combat.danoFinal + '\n\n⭐ *+' + monstro.xp + ' XP*\n💰 *+' + monstro.coins + ' Coins*\n🎁 *Loot:* ' + (lootMob || 'Nenhum'), [sender])
+            return reply('🗺️ *CAÇADA — VITÓRIA!*' + critText + '\n\n🌍 *Mundo:* ' + mundoAtual.nome + '\n👤 @' + sender.split('@')[0] + ' *VS* ' + monstro.nome + '\n⚔️ *Dano Total:* ' + combat.danoFinal + '\n\n⭐ *+' + monstro.xp + ' XP*\n💰 *+' + monstro.coins + ' Coins*\n🎁 *Loot:* ' + (lootMob || 'Nenhum') +
+                (equipDrop
+                    ? '\n\n✨ *EQUIPAMENTO RARO ENCONTRADO!*\n' + equipDrop.raridade + ' *' + equipDrop.nome + '*' +
+                      '\n⚔️ ATK +' + equipDrop.atk + ' | 🛡️ DEF +' + equipDrop.def + ' | ⚡ ' + equipDrop.cp + ' CP' +
+                      '\n💡 _Equipe com_ `.equipar ' + equipDrop.id + '`'
+                    : ''), [sender])
         }
 
         const perdaCoins = Math.min(user.coins || 0, 20)

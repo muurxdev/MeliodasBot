@@ -22,10 +22,36 @@ module.exports = {
 
         const armors = Object.values(ITEMS_DB).filter(i => i.slot !== "arma");
 
+        const SLOTS = ["capacete", "peitoral", "calca", "botas", "escudo", "amuleto"];
+        const EMOJI_SLOT = { capacete: "👑", peitoral: "🛡️", calca: "👖", botas: "👢", escudo: "🛡️", amuleto: "💍" };
+
+        // Vitrine por SLOT. Antes a loja fazia slice(0, 12) numa lista de 51 itens:
+        // tudo que foi adicionado depois (inclusive os tiers Lendário/Transcendente)
+        // ficava invisível — comprável só por id, mas impossível de descobrir.
+        const alvoSlot = SLOTS.find(s => s === buyQuery.toLowerCase());
+        if (alvoSlot) {
+            const doSlot = armors.filter(i => i.slot === alvoSlot)
+                .sort((a, b) => a.preco - b.preco);
+            let doc = `╔══════════════════════════════╗\n`;
+            doc += `║   ${EMOJI_SLOT[alvoSlot]} *${alvoSlot.toUpperCase()}* — ${doSlot.length} itens   ║\n`;
+            doc += `╚══════════════════════════════╝\n\n`;
+            doc += `💰 *Seu Saldo:* *${(user.coins || 0).toLocaleString("pt-BR")} Coins*\n\n`;
+            doSlot.forEach(a => {
+                doc += `╭━〔 ${a.raridade} 〕━⬣\n`;
+                doc += `┃ ${EMOJI_SLOT[alvoSlot]} *${a.nome}*\n`;
+                doc += `┃ 🛡️ DEF +${a.def} | ❤️ HP +${a.hp} | ⚡ ${a.cp} CP\n`;
+                doc += `┃ 💵 *${a.preco.toLocaleString("pt-BR")} Coins*\n`;
+                doc += `┃ 🛒 \`.shoparmaduras ${a.id}\`\n`;
+                doc += `╰━━━━━━━━━━━━━━━━━━⬣\n`;
+            });
+            doc += `\n👑 *${botName}*`;
+            return reply(doc.trim());
+        }
+
         if (buyQuery) {
             const item = getItem(buyQuery);
             if (!item || item.slot === "arma") {
-                return reply(`❌ Armadura *"${buyQuery}"* não encontrada na forja.`);
+                return reply(`❌ Armadura *"${buyQuery}"* não encontrada na forja.\n\n💡 _Veja as categorias com_ \`.shoparmaduras\`_._`);
             }
 
             if ((user.coins || 0) < item.preco) {
@@ -61,15 +87,30 @@ module.exports = {
         doc += `╚══════════════════════════════╝\n\n`;
         doc += `💰 *Seu Saldo:* *${(user.coins || 0).toLocaleString("pt-BR")} Coins*\n\n`;
 
-        armors.slice(0, 12).forEach(a => {
-            doc += `╭━〔 ${a.raridade} • ${a.slot.toUpperCase()} 〕━⬣\n`;
-            doc += `┃ 🛡️ *${a.nome}*\n`;
-            doc += `┃ 🛡️ DEF: +${a.def} | ❤️ HP: +${a.hp} | ⚡ +${a.cp} CP\n`;
-            doc += `┃ 💵 *Preço:* *${a.preco.toLocaleString("pt-BR")} Coins*\n`;
-            doc += `┃ 🛒 *Comprar:* \`.shoparmaduras ${a.id}\`\n`;
-            doc += `╰━━━━━━━━━━━━━━━━━━⬣\n\n`;
-        });
+        doc += `╭━〔 📂 CATEGORIAS 〕━⬣\n`;
+        for (const s of SLOTS) {
+            const doSlot = armors.filter(i => i.slot === s);
+            if (!doSlot.length) continue;
+            const precos = doSlot.map(i => i.preco);
+            doc += `┃ ${EMOJI_SLOT[s]} \`.shoparmaduras ${s}\` — ${doSlot.length} itens\n`;
+            doc += `┃    💵 de ${Math.min(...precos).toLocaleString("pt-BR")} a ${Math.max(...precos).toLocaleString("pt-BR")} Coins\n`;
+        }
+        doc += `╰━━━━━━━━━━━━━━━━━━⬣\n\n`;
 
+        // Destaque: o melhor item que o jogador JÁ consegue pagar agora.
+        const acessiveis = armors.filter(i => i.preco <= (user.coins || 0)).sort((a, b) => b.cp - a.cp);
+        if (acessiveis.length) {
+            const top = acessiveis[0];
+            doc += `╭━〔 ⭐ MELHOR AO SEU ALCANCE 〕━⬣\n`;
+            doc += `┃ ${top.raridade} *${top.nome}*\n`;
+            doc += `┃ 🛡️ DEF +${top.def} | ❤️ HP +${top.hp} | ⚡ ${top.cp} CP\n`;
+            doc += `┃ 💵 *${top.preco.toLocaleString("pt-BR")} Coins*\n`;
+            doc += `┃ 🛒 \`.shoparmaduras ${top.id}\`\n`;
+            doc += `╰━━━━━━━━━━━━━━━━━━⬣\n\n`;
+        }
+
+        doc += `📦 *Total no acervo:* ${armors.length} peças\n`;
+        doc += `💡 _Abra uma categoria para ver tudo. Ex.:_ \`.shoparmaduras escudo\`\n\n`;
         doc += `👑 *${botName}*`;
 
         return reply(doc.trim());
