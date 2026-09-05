@@ -199,6 +199,56 @@ function transferir({ deJid, paraJid, texto, min = 1 }) {
     }
 }
 
+/** "1h 23min" / "45min" / "30s" — quanto falta para liberar de novo. */
+function formatarEspera(ms) {
+    const s = Math.ceil(ms / 1000)
+    if (s < 60) return `${s}s`
+    const m = Math.ceil(s / 60)
+    if (m < 60) return `${m}min`
+    const h = Math.floor(m / 60)
+    return `${h}h ${m % 60}min`
+}
+
+/**
+ * Atividade de coleta: minerar, pescar, abrir baú — ganho com espera.
+ *
+ * O cooldown fica gravado no próprio usuário (`ultima_<chave>`), então
+ * reiniciar o bot não devolve a coleta de graça, como aconteceria com um
+ * `Map` em memória.
+ *
+ * @param {object} o
+ * @param {string} o.chave      identificador da atividade (ex.: 'minerardiamante')
+ * @param {number} o.cooldownMs
+ * @param {number} o.min        ganho mínimo
+ * @param {number} o.max        ganho máximo
+ * @param {number} [o.chanceVazio=0] probabilidade (0-1) de não achar nada
+ * @returns {{ok:boolean, espera?:string, vazio?:boolean, ganho?:number, saldo?:number, user:object}}
+ */
+function coletar({ sender, chave, cooldownMs, min, max, chanceVazio = 0 }) {
+    const user = carregarUsuario(sender)
+    const campo = `ultima_${chave}`
+    const ultima = Number(user[campo] || 0)
+    const decorrido = Date.now() - ultima
+
+    if (ultima && decorrido < cooldownMs) {
+        return { ok: false, espera: formatarEspera(cooldownMs - decorrido), user }
+    }
+
+    // Marca o uso ANTES de sortear: mesmo voltando de mãos vazias, a espera
+    // conta. Sem isso o usuário repetiria até dar sorte, e o cooldown viraria
+    // enfeite.
+    user[campo] = Date.now()
+
+    if (chanceVazio > 0 && Math.random() < chanceVazio) {
+        const r = aplicar(user, 0)
+        return { ok: true, vazio: true, ganho: 0, saldo: r.depois, user }
+    }
+
+    const ganho = Math.floor(min + Math.random() * (max - min + 1))
+    const r = aplicar(user, ganho)
+    return { ok: true, vazio: false, ganho, saldo: r.depois, user }
+}
+
 /** Cartão de resultado padrão, para os comandos de cassino ficarem iguais. */
 function cartaoResultado({ titulo, linhas = [], valor, delta, saldo: saldoFinal, ganhou }) {
     let doc = `╔══════════════════════════════╗\n`
@@ -214,6 +264,8 @@ function cartaoResultado({ titulo, linhas = [], valor, delta, saldo: saldoFinal,
 
 module.exports = {
     carregarUsuario,
+    coletar,
+    formatarEspera,
     saldo,
     parseValor,
     formatar,

@@ -1,22 +1,54 @@
 /**
- * Comando .abrirbaureal — Abre um Baú Real com chave dourada: .abrirbaureal
+ * Comando .abrirbaureal — Abre o baú do tesouro real (1 vez a cada 12h).
+ *
+ * Era um stub: escrevia o prêmio e não creditava nada. Agora o ganho é real e
+ * o cooldown fica gravado no próprio usuário, então reiniciar o bot não
+ * devolve a coleta de graça (como aconteceria com um Map em memória).
  */
+
+const economy = require('../../services/economyService')
+
+const COOLDOWN_MS = 12 * 60 * 60 * 1000
+
 module.exports = {
-    name: "abrirbaureal",
-    aliases: [],
-    category: "economy",
-    subcategory: "Recompensas",
-    description: "Abre um Baú Real com chave dourada: .abrirbaureal",
+    name: 'abrirbaureal',
+    aliases: ['baureal', 'baudorei'],
+    category: 'economy',
+    subcategory: 'Coleta',
+    description: 'Abre o baú do tesouro real (1 vez a cada 12h)',
     cooldownMs: 3000,
-    execute: async ({ reply }) => {
-            const drops = [
-                "500 Moedas de Ouro + Poção de Vida Pequena",
-                "1.200 Moedas de Ouro + Anel de Prata Encantado",
-                "3.000 Moedas de Ouro + Fragmento de Aço Sagrado",
-                "Chave do Purgatório + 200 Moedas",
-                "Armadura de Malha Antiga + 800 Moedas"
-            ];
-            const d = drops[Math.floor(Math.random() * drops.length)];
-            return reply(`📦✨ *ABRINDO BAÚ REAL...*\n\nA fechadura dourada estalou!\n🎉 *Recompensas encontradas:* ${d}`);
+    execute: async ({ sender, reply }) => {
+        const r = economy.coletar({
+            sender,
+            chave: 'abrirbaureal',
+            cooldownMs: COOLDOWN_MS,
+            min: 5000,
+            max: 25000,
+            chanceVazio: 0.12
+        })
+
+        if (!r.ok) {
+            return reply(
+                '⏳ *BAÚ REAL EM DESCANSO*\n\n' +
+                `Volte em *${r.espera}*.\n\n` +
+                `💰 _Saldo atual:_ ${economy.formatar(economy.saldo(r.user))} moedas`
+            )
         }
-};
+
+        let doc = `🗝️ *BAÚ REAL*\n\n`
+        doc += 'Você gira a chave dourada...\n\n'
+
+        if (r.vazio) {
+            doc += '💀 *O baú estava vazio. Alguém chegou antes.*\n'
+            doc += '💰 *Ganho:* 0 moedas\n'
+        } else {
+            doc += '🎉 *O baú estava cheio!*\n'
+            doc += `💰 *Ganho:* +${economy.formatar(r.ganho)} moedas\n`
+        }
+
+        doc += `🏦 *Saldo atual:* ${economy.formatar(r.saldo)} moedas\n\n`
+        doc += `⏱️ _Disponível de novo em 12h._`
+
+        return reply(doc)
+    }
+}

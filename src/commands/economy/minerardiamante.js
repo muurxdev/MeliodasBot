@@ -1,20 +1,54 @@
 /**
- * Comando .minerardiamante — Minera nas cavernas profundas de Vaizel: .minerardiamante
+ * Comando .minerardiamante — Minera diamantes na caverna profunda.
+ *
+ * Era um stub: escrevia o prêmio e não creditava nada. Agora o ganho é real e
+ * o cooldown fica gravado no próprio usuário, então reiniciar o bot não
+ * devolve a coleta de graça (como aconteceria com um Map em memória).
  */
+
+const economy = require('../../services/economyService')
+
+const COOLDOWN_MS = 2 * 60 * 60 * 1000
+
 module.exports = {
-    name: "minerardiamante",
-    aliases: [],
-    category: "economy",
-    subcategory: "Mineração",
-    description: "Minera nas cavernas profundas de Vaizel: .minerardiamante",
-    cooldownMs: 3500,
-    execute: async ({ reply }) => {
-            const achou = Math.random() > 0.4;
-            if (achou) {
-                const qtd = Math.floor(Math.random() * 5) + 1;
-                return reply(`💎 *MINERAÇÃO BEM-SUCEDIDA!*\n\nSua picareta faiscou na rocha pura...\nVocê extraiu *${qtd} Diamante(s) Bruto(s)* (+💰 ${qtd * 600} moedas)!`);
-            } else {
-                return reply(`⛏️ Você minerou por horas mas só encontrou cascalho e carvão comum.`);
-            }
+    name: 'minerardiamante',
+    aliases: ['diamante', 'minardiamante'],
+    category: 'economy',
+    subcategory: 'Coleta',
+    description: 'Minera diamantes na caverna profunda',
+    cooldownMs: 3000,
+    execute: async ({ sender, reply }) => {
+        const r = economy.coletar({
+            sender,
+            chave: 'minerardiamante',
+            cooldownMs: COOLDOWN_MS,
+            min: 800,
+            max: 4500,
+            chanceVazio: 0.2
+        })
+
+        if (!r.ok) {
+            return reply(
+                '⏳ *MINA DE DIAMANTES EM DESCANSO*\n\n' +
+                `Volte em *${r.espera}*.\n\n` +
+                `💰 _Saldo atual:_ ${economy.formatar(economy.saldo(r.user))} moedas`
+            )
         }
-};
+
+        let doc = `💎 *MINA DE DIAMANTES*\n\n`
+        doc += 'Você desce na mina com a picareta...\n\n'
+
+        if (r.vazio) {
+            doc += '💀 *Só pedra bruta. A veia secou.*\n'
+            doc += '💰 *Ganho:* 0 moedas\n'
+        } else {
+            doc += '🎉 *Veio de diamante!*\n'
+            doc += `💰 *Ganho:* +${economy.formatar(r.ganho)} moedas\n`
+        }
+
+        doc += `🏦 *Saldo atual:* ${economy.formatar(r.saldo)} moedas\n\n`
+        doc += `⏱️ _Disponível de novo em 2h._`
+
+        return reply(doc)
+    }
+}
