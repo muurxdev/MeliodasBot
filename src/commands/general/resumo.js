@@ -21,6 +21,18 @@ module.exports = {
             return reply("❌ *Informe o texto para resumir!*\n\n📌 *Exemplo:* `.resumo [texto ou URL]`");
         }
 
+        // Com uma IA configurada (Groq/Gemini/Cloudflare), o resumo é de verdade.
+        // Sem chave, segue o método heurístico abaixo.
+        try {
+            const llm = require("../../services/llmService");
+            if (llm.hasProvider() && String(text).trim().length > 60) {
+                const r = await llm.resumir(String(text).trim());
+                if (r) return reply("📝 *RESUMO*\n\n" + r + "\n\n👑 *" + botName + "*");
+            }
+        } catch (e) {
+            /* segue no método padrão */
+        }
+
         try {
             await reply("🔄 *Gerando resumo...*");
 

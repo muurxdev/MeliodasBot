@@ -36,7 +36,22 @@ module.exports = {
             return reply("🌐 *Uso:* `.traduzir <texto>` ou `.traduzir en <texto>` (ou responda a uma mensagem com `.traduzir`)");
         }
 
-        const result = await traduzirTexto(contentToTranslate, targetLang);
+        let result = null;
+
+        // Com uma IA configurada, ela traduz melhor: pega gíria, contexto e tom,
+        // onde o endpoint literal erra. Sem chave, segue o tradutor de sempre.
+        try {
+            const llm = require("../../services/llmService");
+            if (llm.hasProvider()) {
+                const NOMES = { pt: "português do Brasil", en: "inglês", es: "espanhol", fr: "francês", de: "alemão", it: "italiano", ja: "japonês", ko: "coreano", zh: "chinês", ru: "russo", ar: "árabe" };
+                const traducao = await llm.traduzir(contentToTranslate, NOMES[targetLang] || targetLang);
+                if (traducao) result = { traducao, origem: "IA", idioma: targetLang };
+            }
+        } catch (e) {
+            /* cai no tradutor padrão abaixo */
+        }
+
+        if (!result) result = await traduzirTexto(contentToTranslate, targetLang);
 
         if (!result || !result.traducao) {
             return reply("❌ *Erro ao traduzir texto:* Falha nos provedores de tradução. Tente novamente.");

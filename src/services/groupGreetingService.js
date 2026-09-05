@@ -10,7 +10,7 @@
 const { getBotName } = require("../config/botConfig");
 
 /** Substitui as variáveis {user}, {grupo}, {desc}, {membros}, {hora} no template. */
-function formatTemplate(tpl, { userTag, groupName, groupDesc, memberCount, timeStr, dateStr, botName }) {
+function formatTemplate(tpl, { userTag, groupName, groupDesc, memberCount, timeStr, dateStr, botName, adminCount, saudacao, diaSemana }) {
     return String(tpl)
         .replace(/\{user\}/gi, userTag)
         .replace(/\{usuario\}/gi, userTag)
@@ -21,7 +21,10 @@ function formatTemplate(tpl, { userTag, groupName, groupDesc, memberCount, timeS
         .replace(/\{membros\}/gi, String(memberCount))
         .replace(/\{hora\}/gi, timeStr)
         .replace(/\{data\}/gi, dateStr || "")
-        .replace(/\{bot\}/gi, botName || "");
+        .replace(/\{bot\}/gi, botName || "")
+        .replace(/\{admins\}/gi, String(adminCount ?? ""))
+        .replace(/\{saudacao\}/gi, saudacao || "")
+        .replace(/\{dia\}/gi, diaSemana || "");
 }
 
 /**
@@ -34,11 +37,15 @@ async function getGreetingVars(client, groupJid, participantJid) {
     let groupName = "Grupo";
     let groupDesc = "";
     let memberCount = 0;
+    let adminCount = 0;
     try {
         const meta = await client.groupMetadata(groupJid);
         if (meta?.subject) groupName = meta.subject;
         if (meta?.desc) groupDesc = meta.desc;
-        if (Array.isArray(meta?.participants)) memberCount = meta.participants.length;
+        if (Array.isArray(meta?.participants)) {
+            memberCount = meta.participants.length;
+            adminCount = meta.participants.filter(p => p.admin).length;
+        }
     } catch (_) {}
 
     const userNumber = String(participantJid || "").split("@")[0].split(":")[0];
@@ -49,7 +56,10 @@ async function getGreetingVars(client, groupJid, participantJid) {
         memberCount,
         timeStr: new Date().toLocaleTimeString("pt-BR", { timeZone: "America/Sao_Paulo" }),
         dateStr: new Date().toLocaleDateString("pt-BR", { timeZone: "America/Sao_Paulo" }),
-        botName: require("../config/botConfig").getBotName()
+        botName: require("../config/botConfig").getBotName(),
+        adminCount,
+        saudacao: (h => h < 12 ? "Bom dia" : h < 18 ? "Boa tarde" : "Boa noite")(new Date().getHours()),
+        diaSemana: new Date().toLocaleDateString("pt-BR", { weekday: "long", timeZone: "America/Sao_Paulo" })
     };
 }
 
@@ -97,6 +107,9 @@ function variableGuide(type) {
     g += "┃ • `{hora}` ➔ horário do evento\n";
     g += "┃ • `{data}` ➔ data do evento (dd/mm/aaaa)\n";
     g += "┃ • `{bot}` ➔ nome do bot\n";
+    g += "┃ • `{admins}` ➔ nº de administradores\n";
+    g += "┃ • `{saudacao}` ➔ Bom dia / Boa tarde / Boa noite\n";
+    g += "┃ • `{dia}` ➔ dia da semana\n";
     g += "┃ _Atalhos:_ `{usuario}`/`{membro}` = `{user}` · `{nome}` = `{grupo}`\n";
     g += "╰━━━━━━━━━━━━━━━━━━⬣\n\n";
     g += "╭━〔 ⚙️ COMANDOS 〕━⬣\n";

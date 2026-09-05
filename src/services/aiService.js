@@ -125,10 +125,20 @@ async function askAI(prompt) {
             doc += `╚══════════════════════════════╝\n\n`
             doc += `📌 *Pesquisa:* _"${cleanPrompt}"_\n\n`
 
-            // Síntese do resultado principal
+            // Síntese: se houver uma IA configurada (Groq/Gemini/Cloudflare), ela
+            // LÊ os resultados e responde de fato. Sem chave, mantém o antigo —
+            // que só copiava o trecho do 1º resultado, muitas vezes sem responder.
             const primary = webResults[0]
+            let sintese = null
+            try {
+                const llm = require('./llmService')
+                if (llm.hasProvider()) sintese = await llm.askComContexto(cleanPrompt, webResults)
+            } catch (e) {
+                logger.warn(`[IA] Falha na síntese por LLM: ${e.message}`)
+            }
+
             doc += `╭━〔 💡 RESPOSTA SINTETIZADA 〕━⬣\n`
-            doc += `📝 ${primary.snippet}\n`
+            doc += `📝 ${sintese || primary.snippet}\n`
             doc += `╰━━━━━━━━━━━━━━━━━━⬣\n\n`
 
             // Fontes e referências reais adicionais
