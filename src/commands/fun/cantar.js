@@ -37,7 +37,7 @@ const MUSICAS = [
 
 module.exports = {
     name: 'cantar',
-    aliases: ['musica', 'song', 'cantaroma'],
+    aliases: ['cantaroma'],
     category: 'fun',
     subcategory: 'Diversão',
     description: 'Cante um trecho de música aleatória',

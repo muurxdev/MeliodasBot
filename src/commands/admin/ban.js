@@ -8,7 +8,7 @@ const groupAuthService = require('../../services/groupAuthService')
 
 module.exports = {
     name: 'ban',
-    aliases: ['remover', 'expulsar'],
+    aliases: ['banir'],
     category: 'admin',
     description: 'Remove um participante do grupo',
     groupOnly: true,
