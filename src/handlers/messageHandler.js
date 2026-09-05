@@ -378,6 +378,44 @@ async function handleIncomingMessage(client, { messages }) {
             }
         }
 
+        // Filtro de Palavras Proibidas (.blacklistword) — apaga a mensagem e advertE.
+        // Compara sem acento/caixa para pegar variações simples ("Ódio" = "odio").
+        if (configs[from]?.blacklistWordsEnabled && !isAdmin && !isOwner) {
+            const lista = Array.isArray(configs[from]?.blacklistWords) ? configs[from].blacklistWords : []
+            const norm = s => String(s || '').toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '')
+            const corpo = norm(body)
+            const achou = lista.length && corpo ? lista.find(p => corpo.includes(norm(p))) : null
+            if (achou) {
+                try {
+                    if (isBotAdmin && info?.key) {
+                        await client.sendMessage(from, { delete: info.key }).catch(() => {})
+                    }
+                    const warns = dataService.getWarnsData()
+                    warns[sender] = (warns[sender] || 0) + 1
+                    const totalWarns = warns[sender]
+                    await dataService.saveWarnsData(warns)
+
+                    if (totalWarns >= warnLimit && isBotAdmin) {
+                        await client.groupParticipantsUpdate(from, [sender], 'remove').catch(() => {})
+                        warns[sender] = 0
+                        await dataService.saveWarnsData(warns)
+                        await client.sendMessage(from, {
+                            text: `🚫 *PALAVRA PROIBIDA (EXPULSÃO):* @${sender.split('@')[0]} atingiu ${warnLimit} advertências e foi removido do grupo!`,
+                            mentions: [sender]
+                        })
+                    } else {
+                        await client.sendMessage(from, {
+                            text: `🚫 *PALAVRA PROIBIDA DETECTADA*\n\n👤 *Autor:* @${sender.split('@')[0]}\n🗑️ *Ação:* Mensagem apagada.\n⚠️ *Advertência:* *${totalWarns}/${warnLimit}*`,
+                            mentions: [sender]
+                        })
+                    }
+                } catch (blErr) {
+                    logger.error('[BLACKLIST WORD ERROR]', blErr)
+                }
+                return
+            }
+        }
+
         // Verificação de Anti-Trava
         if (configs[from]?.antitrava && !isAdmin && !isOwner) {
             const travaCheck = detectTravaZap(body)
