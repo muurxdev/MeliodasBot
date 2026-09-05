@@ -348,8 +348,7 @@ module.exports = {
         let mainDoc = `╔══════════════════════════════╗\n`
         mainDoc += `║   🤖 *${botName}* 🤖   ║\n`
         mainDoc += `╚══════════════════════════════╝\n\n`
-        mainDoc += `⚡ *Feito Histórico:* 1.000 Comandos Reais (+${totalAliases} Aliases Ativos)\n`
-        mainDoc += `📌 *Comandos Disponíveis para Você:* ${totalVisivel}\n`
+        mainDoc += `📌 *Comandos Disponíveis para Você:* ${totalVisivel} (+${totalAliases} Aliases)\n`
         mainDoc += `💡 _Digite_ \`${p}help <categoria>\` _ou_ \`${p}menu <categoria>\` _para explorar cada seção:_\n\n`
 
         for (const [catKey, label] of Object.entries(CATEGORY_NAMES)) {

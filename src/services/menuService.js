@@ -132,9 +132,7 @@ function buildMenu({ category = null, page = 1, prefix = '.', userLevel = 1, bot
     // ── Painel principal (índice de categorias) ──
     if (!catKey && !isAll) {
         let doc = header(`🤖 *${botName}* 🤖`)
-        const total = registry.size
-        doc += `📌 *Prefixo Ativo:* \`${prefix}\` | ⚡ *1.000 Comandos Reais* (+${totalAliases} Aliases)\n`
-        doc += `👑 *Feito Histórico:* 1.000 comandos únicos ativos com RPG, Economia e Mídia!\n`
+        doc += `📌 *Prefixo Ativo:* \`${prefix}\` | ⚡ *${total} Comandos* (+${totalAliases} Aliases)\n`
         doc += `💡 _Digite o comando da categoria para ver todos os comandos e aliases:_\n\n`
         doc += `╭━〔 📂 CATEGORIAS DE COMANDOS & ALIASES 〕━⬣\n`
         for (const c of CATEGORIES) {
