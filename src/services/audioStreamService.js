@@ -102,16 +102,18 @@ async function resolveYouTubeMetadata(url) {
     if (!idMatch) return null;
 
     const videoId = idMatch[1];
-    const officialThumb = "https://i.ytimg.com/vi/" + videoId + "/hqdefault.jpg";
+    const { getBestYouTubeThumbnail, upgradeThumbnail } = require("./media/thumbnailResolver");
+    const officialThumb = await getBestYouTubeThumbnail(videoId);
     const standardUrl = "https://www.youtube.com/watch?v=" + videoId;
 
     try {
         const r = await yts({ videoId });
         if (r && r.title) {
+            const bestThumb = await upgradeThumbnail(r.thumbnail || videoId);
             return {
                 title: r.title,
                 author: r.author?.name || "YouTube",
-                thumbnail: r.thumbnail || officialThumb,
+                thumbnail: bestThumb || officialThumb,
                 durationFormatted: r.timestamp || "—",
                 url: r.url || standardUrl
             };
@@ -335,7 +337,8 @@ async function searchAndDownloadAudio(query) {
                     title = selectedVideo.title || title;
                     author = selectedVideo.author?.name || author;
                     durationFormatted = selectedVideo.timestamp || durationFormatted;
-                    thumbnail = selectedVideo.thumbnail || thumbnail;
+                    const { upgradeThumbnail } = require("./media/thumbnailResolver");
+                    thumbnail = (await upgradeThumbnail(selectedVideo.thumbnail || selectedVideo.videoId)) || thumbnail;
                     sourceUrl = ytUrl;
                 }
 

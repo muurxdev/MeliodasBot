@@ -24,7 +24,8 @@ async function resolveYouTubeOEmbed(url) {
     if (!videoId) return null;
 
     const standardUrl = `https://www.youtube.com/watch?v=${videoId}`;
-    const officialThumb = `https://i.ytimg.com/vi/${videoId}/hqdefault.jpg`;
+    const { getBestYouTubeThumbnail } = require('./thumbnailResolver');
+    const officialThumb = await getBestYouTubeThumbnail(videoId);
 
     try {
         const oembedUrl = `https://www.youtube.com/oembed?url=${encodeURIComponent(standardUrl)}&format=json`;

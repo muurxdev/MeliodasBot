@@ -193,9 +193,9 @@ function probeMedia(filePath) {
  * @param {object} params
  * @returns {string}
  */
-function formatMediaCaption({ platform = 'Web', title = 'Mídia', author = 'Desconhecido', durationFormatted = '—', url = '', isAudio = false, filePath = null, elapsedMs = null } = {}) {
+function formatMediaCaption({ platform = 'Web', title = 'Mídia', author = 'Desconhecido', durationFormatted = '—', url = '', isAudio = false, filePath = null, elapsedMs = null, fileProbe = null } = {}) {
     const botName = getBotName()
-    const probe = filePath ? probeMedia(filePath) : null
+    const probe = fileProbe || (filePath ? probeMedia(filePath) : null)
     const audio = probe ? probe.isAudio : isAudio
     const icon = audio ? '🎵' : '🎬'
     const headerTitle = audio ? 'ÁUDIO BAIXADO' : 'VÍDEO BAIXADO'
@@ -220,7 +220,7 @@ function formatMediaCaption({ platform = 'Web', title = 'Mídia', author = 'Desc
         if (!audio && probe.resolution) {
             const q = qualityLabel(probe.height, probe.width)
             doc += `┃ 🎬 *Qualidade:* ${q || probe.resolution}\n`
-            doc += `┃ 🖥️ *Resolução:* ${probe.resolution}${probe.vcodec ? ' (' + probe.vcodec + ')' : ''}\n`
+            doc += `┃ 🖥️ *Resolução:* ${probe.resolution}\n`
         }
         // Formato: só mostra codec se for diferente do container (evita "MP3 / mp3")
         const codecInfo = audio && probe.acodec && probe.acodec.toLowerCase() !== probe.container.toLowerCase()

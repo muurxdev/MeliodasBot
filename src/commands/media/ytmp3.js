@@ -60,6 +60,8 @@ module.exports = {
 
             if (meta.thumbnail) {
                 try {
+                    const { upgradeThumbnail } = require('../../services/media/thumbnailResolver')
+                    meta.thumbnail = await upgradeThumbnail(meta.thumbnail)
                     await client.sendMessage(from, { image: { url: meta.thumbnail }, caption }, { quoted: info })
                 } catch (_) {}
             }

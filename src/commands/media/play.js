@@ -61,59 +61,54 @@ module.exports = {
         const { setSelection, pickSelection } = require('../../services/media/selectionStore')
         const isUrl = /^https?:\/\//i.test(cleanQuery)
         const isNumber = /^\d{1,2}$/.test(cleanQuery)
+        const isExplicitSearch = /^(search|busca|lista|procurar)\s+/i.test(cleanQuery)
+
+        let downloadInput = cleanQuery
+        let downloadAsVideo = wantsMp4
 
         // Fluxo A: número → baixa o item escolhido da última busca
-        let downloadInput = cleanQuery
-        let downloadAsVideo = false
         if (isNumber) {
             const sel = pickSelection(from, sender, cleanQuery)
             if (!sel) {
                 return reply(`❌ Nenhuma busca ativa para selecionar. Faça uma busca primeiro: \`.play <nome da música>\``)
             }
             downloadInput = sel.chosen.url
-            downloadAsVideo = !sel.isAudio
+            downloadAsVideo = wantsMp4 ? true : !sel.isAudio
             const formatLabel = downloadAsVideo ? '🎬 Vídeo MP4' : '🎵 Áudio MP3'
             await reply(`${formatLabel} *Baixando o ${sel.index}º resultado:* _${sel.chosen.title.slice(0, 60)}_... Aguarde.`)
         }
-        // Fluxo B: texto (não URL, não número) → mostra a lista com todos os dados + álbum
-        else if (!isUrl) {
-            await reply(`🔎 *Buscando:* _${cleanQuery}_... Aguarde.`)
+        // Fluxo B: busca explícita (.play search <nome> / .play lista <nome>)
+        else if (isExplicitSearch) {
+            const searchQuery = cleanQuery.replace(/^(search|busca|lista|procurar)\s+/i, '').trim()
+            await reply(`🔎 *Buscando:* _${searchQuery}_... Aguarde.`)
             try {
-                const results = await searchMedia(cleanQuery, { limit: 5 })
+                const results = await searchMedia(searchQuery, { limit: 5 })
                 if (!results || results.length === 0) {
-                    return reply(`❌ Nenhum resultado encontrado para _${cleanQuery}_.`)
+                    return reply(`❌ Nenhum resultado encontrado para _${searchQuery}_.`)
                 }
                 results.forEach((r, i) => { r.index = i + 1 })
-                setSelection(from, sender, { query: cleanQuery, results, isAudio: !wantsMp4 })
+                setSelection(from, sender, { query: searchQuery, results, isAudio: !wantsMp4 })
 
-                const formatIcon = wantsMp4 ? '🎬' : '🎵'
-                const formatLabel = wantsMp4 ? 'MP4' : 'MP3'
-
-                // Álbum: capas dos resultados juntas (best-effort)
-                const thumbs = results.filter(r => r.thumbnail).slice(0, 5)
-                if (thumbs.length > 0) {
-                    try {
-                        for (let i = 0; i < thumbs.length; i++) {
-                            const fmtIcon = wantsMp4 ? '🎬' : '🎵'
-                            const fmtLabel = wantsMp4 ? 'MP4' : 'MP3'
-                            await client.sendMessage(from, {
-                                image: { url: thumbs[i].thumbnail },
-                                caption: `*${i + 1}º* — ${thumbs[i].title.slice(0, 55)}\n👤 ${thumbs[i].author} | ⏱️ ${thumbs[i].durationFormatted}\n${fmtIcon} *Formato:* ${fmtLabel}`
-                            }, { quoted: i === 0 ? info : undefined })
-                        }
-                    } catch (_) {}
-                }
-                return reply(formatSearchResults(cleanQuery, results, { cmd: 'play', isAudio: !wantsMp4 }))
+                return reply(formatSearchResults(searchQuery, results, { cmd: 'play', isAudio: !wantsMp4 }))
             } catch (e) {
                 logger.error('[PLAY SEARCH ERROR]', e)
                 return reply(`❌ *Falha na busca:* ${e.message}`)
             }
         }
-        // Fluxo C: URL → baixa direto (downloadInput já é a URL)
-        else {
+        // Fluxo C: URL direta
+        else if (isUrl) {
             downloadAsVideo = wantsMp4
             const formatLabel = downloadAsVideo ? '🎬 Vídeo MP4' : '🎵 Áudio MP3'
             await reply(`${formatLabel} *Baixando do link...* Aguarde.`)
+        }
+        // Fluxo D: texto direto (.play mp4 <nome> ou .play <nome>) → download direto sem esperar
+        else {
+            downloadAsVideo = wantsMp4
+            if (downloadAsVideo) {
+                await reply(`🎬 *Baixando vídeo:* _${cleanQuery}_... Aguarde.`)
+            } else {
+                await reply(`🎵 *Baixando áudio:* _${cleanQuery}_... Aguarde.`)
+            }
         }
 
         try {
@@ -128,13 +123,15 @@ module.exports = {
                     meta = await extractMetadata(targetUrl, { isSearch: !isDirectUrl, userJid: sender })
                 } catch (_) {}
 
+                const resolvedUrl = meta.webpageUrl || meta.url || targetUrl
+
                 const downloaded = await mediaQueue.enqueue({
-                    url: targetUrl,
+                    url: resolvedUrl,
                     format: 'mp4',
                     user: sender,
                     runFn: () => downloadMedia({
-                        source: targetUrl,
-                        url: targetUrl,
+                        source: resolvedUrl,
+                        url: resolvedUrl,
                         requestedFormat: 'mp4',
                         format: 'mp4',
                         userJid: sender
@@ -159,18 +156,9 @@ module.exports = {
                     title: meta.title,
                     author: meta.author,
                     durationFormatted: meta.durationFormatted,
-                    url: targetUrl,
+                    url: resolvedUrl,
                     isAudio: false
                 })
-
-                if (meta.thumbnail) {
-                    try {
-                        await client.sendMessage(from, {
-                            image: { url: meta.thumbnail },
-                            caption
-                        }, { quoted: info })
-                    } catch (_) {}
-                }
 
                 const videoBuf = fs.readFileSync(filePath)
                 if (stats.size <= 100 * 1024 * 1024) {
@@ -217,6 +205,8 @@ module.exports = {
 
                 if (mediaData.thumbnail) {
                     try {
+                        const { upgradeThumbnail } = require('../../services/media/thumbnailResolver')
+                        mediaData.thumbnail = await upgradeThumbnail(mediaData.thumbnail)
                         await client.sendMessage(from, {
                             image: { url: mediaData.thumbnail },
                             caption: audioCaption

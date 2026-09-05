@@ -185,13 +185,15 @@ async function tryYouTubeFallback(target, isSearch, urlOrQuery) {
 
         if (fallbackMeta && fallbackMeta.title && fallbackMeta.title !== 'Vídeo do YouTube') {
             logger.info(`[MEDIA RESOLVER] Metadados do YouTube via fallback: ${fallbackMeta.title}`)
+            const { upgradeThumbnail } = require('./thumbnailResolver')
+            const bestThumb = await upgradeThumbnail(fallbackMeta.thumbnail || fallbackMeta.id)
             return {
                 id: fallbackMeta.id || null,
                 title: fallbackMeta.title,
                 author: fallbackMeta.author || 'YouTube',
                 duration: fallbackMeta.duration || 0,
                 durationFormatted: fallbackMeta.durationFormatted || '—',
-                thumbnail: fallbackMeta.thumbnail || null,
+                thumbnail: bestThumb || fallbackMeta.thumbnail || null,
                 url: fallbackMeta.url || target,
                 webpageUrl: fallbackMeta.url || target,
                 platform: PLATFORMS.YOUTUBE
@@ -334,6 +336,12 @@ async function extractMetadata(urlOrQuery, options) {
                     const e = new Error('Nenhum resultado encontrado.')
                     e.code = MEDIA_ERRORS.NO_RESULTS
                     return safeReject(e)
+                }
+                if (normalized.thumbnail && (provider.name === PLATFORMS.YOUTUBE || isYT)) {
+                    try {
+                        const { upgradeThumbnail } = require('./thumbnailResolver')
+                        normalized.thumbnail = await upgradeThumbnail(normalized.thumbnail)
+                    } catch (_) {}
                 }
                 if (normalized.duration > MEDIA_LIMITS.MAX_DURATION_SECONDS) {
                     const e = new Error(`Duração da mídia (${normalized.durationFormatted}) excede o limite máximo de ${MEDIA_LIMITS.MAX_DURATION_SECONDS / 60} minutos.`)
