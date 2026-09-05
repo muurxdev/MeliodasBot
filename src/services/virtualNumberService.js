@@ -11,6 +11,7 @@ const logger = require('../core/logger');
 const env = require('../config/env');
 const creditsService = require('./payments/creditsService');
 const dataService = require('./dataService');
+const freeSmsService = require('./freeSmsService');
 const virtualNumberRepo = require('../database/repositories/virtualNumberRepository');
 
 // Tabela Canônica de DDDs do Brasil (11 a 99)
@@ -441,7 +442,7 @@ async function requestVirtualNumber({ sender, dddInput, isOwner, autoReplace = f
         if (autoReplace) {
             logger.info(`[VIRTUAL NUMBER] Cancelando ativação anterior #${activeOrder.id} de ${sender} (autoReplace)`);
             virtualNumberRepo.updateStatus(activeOrder.id, { status: 'CANCELLED' });
-            if (activeOrder.activation_id && !activeOrder.activation_id.startsWith('act_') && apiKey) {
+            if (activeOrder.activation_id && !activeOrder.activation_id.startsWith('act_') && !activeOrder.activation_id.startsWith('free_') && apiKey) {
                 cancelOrderOnProvider(activeOrder.activation_id, apiKey).catch(() => {});
             }
             if (!isOwner && activeOrder.cost_credits > 0) {
@@ -584,6 +585,112 @@ async function requestVirtualNumber({ sender, dddInput, isOwner, autoReplace = f
 }
 
 /**
+ * Solicita um número público gratuito (Free Scraper) para ativação de WhatsApp
+ */
+async function requestFreeVirtualNumber({ sender, countryFilter, isOwner, autoReplace = false }) {
+    const activeOrder = virtualNumberRepo.getActiveOrderByUser(sender);
+    const apiKey = getApiKey();
+
+    if (activeOrder) {
+        if (autoReplace) {
+            logger.info(`[VIRTUAL NUMBER] Cancelando ativação anterior #${activeOrder.id} de ${sender} (autoReplace)`);
+            virtualNumberRepo.updateStatus(activeOrder.id, { status: 'CANCELLED' });
+            if (activeOrder.activation_id && !activeOrder.activation_id.startsWith('act_') && !activeOrder.activation_id.startsWith('free_') && apiKey) {
+                cancelOrderOnProvider(activeOrder.activation_id, apiKey).catch(() => {});
+            }
+            if (!isOwner && activeOrder.cost_credits > 0) {
+                creditsService.ajustar({
+                    jid: sender,
+                    creditos: activeOrder.cost_credits,
+                    motivo: `Estorno de substituição do número virtual #${activeOrder.id}`
+                });
+            }
+        } else {
+            return {
+                success: false,
+                code: 'ALREADY_HAS_ACTIVE',
+                message: `⚠️ Você já possui uma ativação em andamento para o número *${activeOrder.phone_number}*.\nUse \`.numfake status\` ou \`.numfake cancelar\`.`,
+                activeOrder
+            };
+        }
+    }
+
+    // Busca números públicos atualizados
+    const allNumbers = await freeSmsService.getPublicNumbers();
+    if (!allNumbers || allNumbers.length === 0) {
+        return {
+            success: false,
+            code: 'NO_FREE_NUMBERS',
+            message: '❌ Não foi possível carregar números públicos no momento. Tente novamente em instantes.'
+        };
+    }
+
+    let filtered = allNumbers;
+    const filter = String(countryFilter || '').toLowerCase().trim().replace(/[^a-z0-9]/g, '');
+
+    if (filter) {
+        if (['us', '1', '01', 'eua', 'usa', 'estadosunidos'].includes(filter)) {
+            filtered = allNumbers.filter(n => n.country === 'US' || n.ddi === '1');
+        } else if (['gb', 'uk', '44', 'reinounido', 'inglaterra', 'england'].includes(filter)) {
+            filtered = allNumbers.filter(n => n.country === 'GB' || n.ddi === '44');
+        } else if (['se', '46', 'suecia', 'sweden'].includes(filter)) {
+            filtered = allNumbers.filter(n => n.country === 'SE' || n.ddi === '46');
+        } else if (['au', '61', 'australia'].includes(filter)) {
+            filtered = allNumbers.filter(n => n.country === 'AU' || n.ddi === '61');
+        } else if (['ge', '995', 'georgia'].includes(filter)) {
+            filtered = allNumbers.filter(n => n.country === 'GE' || n.ddi === '995');
+        } else if (['ua', '380', 'ucrania', 'ukraine'].includes(filter)) {
+            filtered = allNumbers.filter(n => n.country === 'UA' || n.ddi === '380');
+        } else if (['fr', '33', 'franca', 'france'].includes(filter)) {
+            filtered = allNumbers.filter(n => n.country === 'FR' || n.ddi === '33');
+        } else {
+            const byDdiOrCountry = allNumbers.filter(n => n.ddi === filter || n.country.toLowerCase() === filter);
+            if (byDdiOrCountry.length > 0) filtered = byDdiOrCountry;
+        }
+    }
+
+    if (!filtered || filtered.length === 0) {
+        filtered = allNumbers;
+    }
+
+    // Seleciona aleatoriamente entre os filtrados
+    const selected = filtered[Math.floor(Math.random() * filtered.length)];
+
+    const now = Date.now();
+    const expiresAt = now + 15 * 60 * 1000;
+    const activationId = `free_${selected.raw}`;
+
+    const order = virtualNumberRepo.createOrder({
+        userJid: sender,
+        activationId,
+        phoneNumber: selected.formatted,
+        ddd: selected.ddi,
+        countryCode: selected.country,
+        regionName: `${selected.flag} ${selected.name}`,
+        service: 'wa',
+        costCredits: 0,
+        isOwner: isOwner ? 1 : 0,
+        status: 'PENDING',
+        createdAt: now,
+        expiresAt
+    });
+
+    logger.info(`[VIRTUAL NUMBER] Pedido FREE #${order.id} criado para ${sender}: ${selected.formatted} (${selected.name})`);
+
+    return {
+        success: true,
+        order,
+        selected,
+        numberRaw: selected.raw,
+        numberFormatted: selected.formatted,
+        regionName: `${selected.flag} ${selected.name}`,
+        url: selected.url,
+        isFree: true,
+        expiresInMinutes: 15
+    };
+}
+
+/**
  * Cancela um número virtual pendente e estorna os créditos caso não seja dono
  */
 async function cancelVirtualNumber({ sender, isOwner }) {
@@ -598,7 +705,7 @@ async function cancelVirtualNumber({ sender, isOwner }) {
     virtualNumberRepo.updateStatus(activeOrder.id, { status: 'CANCELLED' });
 
     const apiKey = getApiKey();
-    if (activeOrder.activation_id && !activeOrder.activation_id.startsWith('act_') && apiKey) {
+    if (activeOrder.activation_id && !activeOrder.activation_id.startsWith('act_') && !activeOrder.activation_id.startsWith('free_') && apiKey) {
         cancelOrderOnProvider(activeOrder.activation_id, apiKey).catch(() => {});
     }
 
@@ -635,10 +742,37 @@ async function checkVirtualNumberStatus(sender) {
     const timeLeftMs = Math.max(0, activeOrder.expires_at - now);
     const isExpired = timeLeftMs <= 0;
     const apiKey = getApiKey();
-    const isReal = Boolean(activeOrder.activation_id && !activeOrder.activation_id.startsWith('act_'));
+    const isFree = Boolean(activeOrder.activation_id && activeOrder.activation_id.startsWith('free_'));
+    const isReal = Boolean(activeOrder.activation_id && !activeOrder.activation_id.startsWith('act_') && !isFree);
+    let recentMessages = [];
+    let inboxUrl = null;
+
+    if (isFree) {
+        const rawDigits = activeOrder.activation_id.replace('free_', '');
+        inboxUrl = `https://anonymsms.com/number/${rawDigits}/`;
+    }
 
     if (activeOrder.status === 'PENDING' && !isExpired) {
-        if (isReal && apiKey) {
+        if (isFree) {
+            // Raspa inbox público em tempo real
+            try {
+                const scrapeRes = await freeSmsService.scrapeNumberInbox(inboxUrl);
+                if (scrapeRes && scrapeRes.success) {
+                    recentMessages = scrapeRes.messages || [];
+                    if (scrapeRes.latestCode) {
+                        virtualNumberRepo.updateStatus(activeOrder.id, {
+                            status: 'RECEIVED',
+                            smsCode: scrapeRes.latestCode
+                        });
+                        activeOrder.status = 'RECEIVED';
+                        activeOrder.sms_code = scrapeRes.latestCode;
+                        logger.info(`[VIRTUAL NUMBER] SMS FREE recebido para #${activeOrder.id}: ${scrapeRes.latestCode}`);
+                    }
+                }
+            } catch (err) {
+                logger.warn(`[VIRTUAL NUMBER] Erro ao raspar inbox free #${activeOrder.id}: ${err.message}`);
+            }
+        } else if (isReal && apiKey) {
             // Consulta a API do SMS-Activate se a Meta enviou o SMS real
             const checkRes = await checkCodeFromProvider(activeOrder.activation_id, apiKey);
             if (checkRes && checkRes.status === 'RECEIVED' && checkRes.code) {
@@ -654,7 +788,7 @@ async function checkVirtualNumberStatus(sender) {
                 virtualNumberRepo.updateStatus(activeOrder.id, { status: 'CANCELLED' });
                 activeOrder.status = 'CANCELLED';
             }
-        } else if (!apiKey) {
+        } else if (!apiKey && !isFree) {
             // Modo simulação: gera código apenas quando o usuário explicitamente consulta o status/código
             if (!activeOrder.sms_code) {
                 const code = `${Math.floor(100 + Math.random() * 900)}-${Math.floor(100 + Math.random() * 900)}`;
@@ -677,7 +811,10 @@ async function checkVirtualNumberStatus(sender) {
         order: activeOrder,
         timeLeftFormatted: `${minutesLeft}m ${secondsLeft < 10 ? '0' : ''}${secondsLeft}s`,
         isExpired,
-        isReal
+        isReal,
+        isFree,
+        recentMessages,
+        inboxUrl
     };
 }
 
@@ -712,6 +849,7 @@ module.exports = {
     resolveDdd,
     generateProceduralNumber,
     requestVirtualNumber,
+    requestFreeVirtualNumber,
     cancelVirtualNumber,
     checkVirtualNumberStatus,
     deliverSmsCode,
@@ -723,6 +861,7 @@ module.exports = {
     checkCodeFromProvider,
     cancelOrderOnProvider,
     finishOrderOnProvider,
+    getPublicNumbers: freeSmsService.getPublicNumbers,
     DDD_BRASIL,
     DDD_INTERNACIONAL
 };

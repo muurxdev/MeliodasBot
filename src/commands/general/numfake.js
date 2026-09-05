@@ -70,7 +70,83 @@ module.exports = {
         }
 
         // ═══════════════════════════════════════════════════════════════════
-        // 2. SUBCOMANDO: GERAR NÚMERO (.numfake gerar [ddd])
+        // 2. SUBCOMANDO: NÚMEROS PÚBLICOS GRATUITOS (.numfake free [país] / .numfake free lista)
+        // ═══════════════════════════════════════════════════════════════════
+        if (['free', 'gratis', 'grátis', 'publico', 'público'].includes(sub)) {
+            const subAction = (args[1] || '').toLowerCase()
+
+            if (['lista', 'list', 'paises', 'todos'].includes(subAction)) {
+                const nums = await virtualNumberService.getPublicNumbers()
+                if (!nums || nums.length === 0) {
+                    return reply('❌ Nenhum número público disponível no momento. Tente novamente em instantes.')
+                }
+
+                // Agrupa por país
+                const byCountry = {}
+                for (const n of nums) {
+                    if (!byCountry[n.country]) {
+                        byCountry[n.country] = { name: n.name, flag: n.flag, ddi: n.ddi, count: 0 }
+                    }
+                    byCountry[n.country].count++
+                }
+
+                let doc = `╔══════════════════════════════╗\n`
+                doc += `║  🌐 *NÚMEROS PÚBLICOS GRÁTIS*  ║\n`
+                doc += `╚══════════════════════════════╝\n\n`
+                doc += `🎁 Linhas 100% gratuitas que recebem SMS em tempo real sem precisar de API Key paga!\n\n`
+                doc += `╭━〔 🌍 *PAÍSES DISPONÍVEIS* 〕━⬣\n`
+                for (const [code, info] of Object.entries(byCountry)) {
+                    doc += `┃ ${info.flag} *${info.name} (+${info.ddi}):* ${info.count} chips ativos\n`
+                    doc += `┃    👉 \`${prefix}numfake free ${info.ddi}\` _(ou ${prefix}numfake free ${code.toLowerCase()})_\n`
+                }
+                doc += `╰━━━━━━━━━━━━━━━━━━━━⬣\n\n`
+                doc += `💡 *Como usar:* Digite \`${prefix}numfake free\` para pegar um chip aleatório agora mesmo!`
+                return reply(doc.trim())
+            }
+
+            // Gerar número free
+            const countryFilter = args.slice(1).join(' ').trim()
+            const result = await virtualNumberService.requestFreeVirtualNumber({
+                sender,
+                countryFilter,
+                isOwner,
+                autoReplace: true
+            })
+
+            if (!result.success) {
+                return reply(result.message)
+            }
+
+            const { numberFormatted, numberRaw, selected, url, expiresInMinutes } = result
+
+            let doc = `╔══════════════════════════════╗\n`
+            doc += `║   📱 *NÚMERO PÚBLICO GRÁTIS*   ║\n`
+            doc += `╚══════════════════════════════╝\n\n`
+            doc += `✅ *Linha Pública Alocada com Sucesso!*\n\n`
+            doc += `╭━〔 📞 *DADOS DO NÚMERO* 〕━⬣\n`
+            doc += `┃ 🔢 *Número:* \`${numberFormatted}\`\n`
+            doc += `┃ 📋 *Puro p/ Copiar:* \`${numberRaw}\`\n`
+            doc += `┃ 📍 *País:* ${selected.flag} ${selected.name} (+${selected.ddi})\n`
+            doc += `┃ 🏷️ *Serviço:* WhatsApp (WA)\n`
+            doc += `┃ 📡 *Tipo de Linha:* 🟢 Pública Real (Free Scraper)\n`
+            doc += `┃ ⏱️ *Expira em:* ${expiresInMinutes} minutos\n`
+            doc += `┃ 💰 *Custo:* 🎁 *100% Grátis (0 Créditos)*\n`
+            doc += `┃ 🌐 *Painel Web:* ${url}\n`
+            doc += `╰━━━━━━━━━━━━━━━━━━━━⬣\n\n`
+            doc += `📌 *PASSO A PASSO PARA ATIVAR:*\n`
+            doc += `1️⃣ Abra seu *WhatsApp* (ou WhatsApp Business).\n`
+            doc += `2️⃣ Cole o número puro: \`${numberRaw}\`.\n`
+            doc += `3️⃣ Avance e solicite o código por *SMS* no aplicativo.\n`
+            doc += `4️⃣ Assim que solicitar o SMS no WhatsApp, venha aqui e digite:\n`
+            doc += `👉 \`${prefix}numfake cod\`  _(ou \`${prefix}numfake status\`)_\n\n`
+            doc += `💡 *Dica:* Como a linha é pública compartilhada, você também pode acompanhar as mensagens recebidas em tempo real no link do Painel Web acima!\n`
+            doc += `Caso o WhatsApp informe que este número já está em uso ou com tentativas esgotadas, basta solicitar outro digitando \`${prefix}numfake free\` ou escolher outro país com \`${prefix}numfake free lista\`.`
+
+            return reply(doc.trim())
+        }
+
+        // ═══════════════════════════════════════════════════════════════════
+        // 3. SUBCOMANDO: GERAR NÚMERO (.numfake gerar [ddd])
         // ═══════════════════════════════════════════════════════════════════
         if (['gerar', 'g', 'novo', 'criar', 'pedir'].includes(sub)) {
             const dddInput = param || '11' // Padrão DDD 11 se não informar
@@ -112,11 +188,14 @@ module.exports = {
 
             if (!hasApiKey) {
                 doc += `⚠️ *AVISO IMPORTANTE (Modo Sandbox):*\n`
-                doc += `O bot está sem chave de API do SMS-Activate configurada. O WhatsApp oficial exige um chip físico/GSM real para validar a criptografia do SMS.\n`
+                doc += `O bot está sem chave de API do SMS-Activate configurada. O WhatsApp oficial exige um chip físico/GSM real para validar o SMS.\n\n`
+                doc += `🎁 *DICA: Quer números públicos REAIS que recebem SMS de verdade sem chave?*\n`
+                doc += `👉 \`${prefix}numfake free\`  _(recebe SMS real 100% grátis)_\n`
+                doc += `👉 \`${prefix}numfake free lista\`  _(ver todos os países)_\n\n`
                 if (isOwner) {
-                    doc += `👑 *Para o Dono:* Configure chips GSM reais com:\n👉 \`${prefix}numfake setkey <sua_api_key>\`\n\n`
+                    doc += `👑 *Para o Dono:* Para chips particulares com DDD brasileiro, configure sua chave com:\n👉 \`${prefix}numfake setkey <sua_api_key>\`\n\n`
                 } else {
-                    doc += `💡 Peça ao Dono do bot para configurar a chave com \`${prefix}numfake setkey\` para validação 100% garantida.\n\n`
+                    doc += `💡 Peça ao Dono do bot para configurar a chave com \`${prefix}numfake setkey\` para chips com DDD brasileiro.\n\n`
                 }
             }
 
@@ -142,15 +221,19 @@ module.exports = {
                 return reply(msg.trim())
             }
 
-            const { order, timeLeftFormatted, isExpired, isReal } = statusInfo
+            const { order, timeLeftFormatted, isExpired, isReal, isFree, recentMessages, inboxUrl } = statusInfo
 
             if (isExpired) {
                 return reply(
                     `⏱️ *TEMPO ESGOTADO!*\n\n` +
                     `O tempo limite de 15 minutos para o número *${order.phone_number}* expirou.\n` +
-                    `Você pode cancelar para reaver seus créditos usando: \`${prefix}numfake cancelar\`.`
+                    `Você pode cancelar ou gerar um novo usando: \`${prefix}numfake cancelar\` ou \`${prefix}numfake free\`.`
                 )
             }
+
+            let tipoLinha = '🟡 Modo Simulação'
+            if (isReal) tipoLinha = '🟢 Chip Real GSM (SMS-Activate)'
+            if (isFree) tipoLinha = '🟢 Linha Pública Real (Free Scraper)'
 
             if (order.status === 'RECEIVED' && order.sms_code) {
                 let doc = `╔══════════════════════════════╗\n`
@@ -164,11 +247,14 @@ module.exports = {
                 doc += `╰━━━━━━━━━━━━━━━━━━━━⬣\n\n`
                 doc += `📱 *Número:* \`${order.phone_number}\`\n`
                 doc += `📍 *Região:* ${order.region_name}\n`
-                doc += `📡 *Tipo:* ${isReal ? '🟢 Chip Real GSM (SMS-Activate)' : '🟡 Modo Simulação'}\n\n`
-                doc += `⚡ Copie o código acima e insira no WhatsApp para concluir!`
+                doc += `📡 *Tipo:* ${tipoLinha}\n`
+                if (inboxUrl) {
+                    doc += `🌐 *Painel Web:* ${inboxUrl}\n`
+                }
+                doc += `\n⚡ Copie o código acima e insira no WhatsApp para concluir!`
 
-                if (!isReal) {
-                    doc += `\n\n⚠️ *Nota:* Este código foi gerado no ambiente Sandbox/Simulação. Caso o WhatsApp informe erro de código incorreto, é porque a Meta valida o SMS via modem de operadora. Para ativar contas reais, configure a chave GSM com:\n👉 \`${prefix}numfake setkey <api_key>\``
+                if (!isReal && !isFree) {
+                    doc += `\n\n⚠️ *Nota:* Este código foi gerado no ambiente Sandbox/Simulação. Para chips públicos gratuitos que recebem SMS real da Meta na web, use \`${prefix}numfake free\`.`
                 }
 
                 return reply(doc.trim())
@@ -180,14 +266,31 @@ module.exports = {
             doc += `╚══════════════════════════════╝\n\n`
             doc += `📱 *Número:* \`${order.phone_number}\`\n`
             doc += `📍 *Região:* ${order.region_name}\n`
-            doc += `📡 *Modo:* ${isReal ? '🟢 Modem GSM Real' : '🟡 Simulação'}\n`
+            doc += `📡 *Modo:* ${tipoLinha}\n`
             doc += `⏱️ *Tempo Restante:* ${timeLeftFormatted}\n`
-            doc += `⚡ *Status:* Aguardando operadora / Meta enviar o SMS...\n\n`
-            doc += `📌 *O que fazer agora:*\n`
+            doc += `⚡ *Status:* Aguardando operadora / Meta enviar o SMS...\n`
+            if (inboxUrl) {
+                doc += `🌐 *Acompanhar Web:* ${inboxUrl}\n`
+            }
+
+            if (isFree && recentMessages && recentMessages.length > 0) {
+                doc += `\n📥 *Últimas Mensagens na Linha:*\n`
+                for (const m of recentMessages.slice(0, 3)) {
+                    const snippet = m.text.length > 55 ? m.text.slice(0, 52) + '...' : m.text
+                    doc += `• *[${m.sender}]* ${snippet} _(${m.time})_\n`
+                    if (m.code) doc += `   🔑 _Código detectado: *${m.code}*_\n`
+                }
+            }
+
+            doc += `\n📌 *O que fazer agora:*\n`
             doc += `1. Peça o envio de SMS no WhatsApp (ou toque em "Reenviar SMS").\n`
             doc += `2. Aguarde alguns instantes e consulte novamente com:\n`
             doc += `👉 \`${prefix}numfake cod\`\n\n`
-            doc += `💡 _Se demorar ou preferir outro DDD, use \`${prefix}numfake cancelar\` ou \`${prefix}numfake gerar <ddd>\`._`
+            if (isFree) {
+                doc += `💡 _Caso o número tenha sido bloqueado pelo WhatsApp, gere outro gratuitamente com \`${prefix}numfake free\`._`
+            } else {
+                doc += `💡 _Se demorar ou preferir outro DDD, use \`${prefix}numfake cancelar\` ou \`${prefix}numfake gerar <ddd>\`._`
+            }
 
             return reply(doc.trim())
         }
@@ -359,6 +462,8 @@ module.exports = {
         doc += `╰━━━━━━━━━━━━━━━━━━━━⬣\n\n`
 
         doc += `⚡ *COMANDOS DISPONÍVEIS:*\n`
+        doc += `👉 \`${prefix}numfake free [país]\` — Gerar número público 100% GRÁTIS e REAL (sem chave)\n`
+        doc += `👉 \`${prefix}numfake free lista\` — Ver todos os países e chips públicos gratuitos\n`
         doc += `👉 \`${prefix}numfake gerar <ddd>\` — Gera número no DDD escolhido (ex: \`${prefix}numfake gerar 11\` ou \`${prefix}numfake gerar 21\`)\n`
         doc += `👉 \`${prefix}numfake cod\` — Consultar e obter o código SMS recebido\n`
         doc += `👉 \`${prefix}numfake ddds\` — Ver catálogo completo de DDDs do Brasil e EUA\n`

@@ -239,6 +239,119 @@ async function run() {
         assert.strictEqual(virtualNumberService.getApiKey(), originalKey || null)
     })
 
+    console.log('\n--- 6. Sistema de Números Públicos Gratuitos (Free Scraper) ---')
+
+    const freeUserJid = '5511888887777@s.whatsapp.net'
+    db.prepare("DELETE FROM virtual_numbers WHERE user_jid = ?").run(freeUserJid)
+
+    await test('Solicita número público gratuito com custo 0 (requestFreeVirtualNumber)', async () => {
+        const res = await virtualNumberService.requestFreeVirtualNumber({
+            sender: freeUserJid,
+            isOwner: false,
+            autoReplace: true
+        })
+
+        assert.strictEqual(res.success, true)
+        assert.strictEqual(res.isFree, true)
+        assert.strictEqual(res.order.cost_credits, 0)
+        assert.ok(res.numberRaw.length >= 8)
+        assert.ok(res.order.activation_id.startsWith('free_'))
+        assert.ok(res.url.includes('anonymsms.com'))
+    })
+
+    await test('Filtra número público por país/DDI (ex: us / 1 ou uk / 44)', async () => {
+        const resUs = await virtualNumberService.requestFreeVirtualNumber({
+            sender: freeUserJid,
+            countryFilter: 'us',
+            isOwner: false,
+            autoReplace: true
+        })
+
+        assert.strictEqual(resUs.success, true)
+        assert.ok(resUs.selected.country === 'US' || resUs.selected.ddi === '1')
+
+        const resUk = await virtualNumberService.requestFreeVirtualNumber({
+            sender: freeUserJid,
+            countryFilter: '44',
+            isOwner: false,
+            autoReplace: true
+        })
+
+        assert.strictEqual(resUk.success, true)
+        assert.ok(resUk.selected.country === 'GB' || resUk.selected.ddi === '44')
+    })
+
+    await test('Consulta status e inspeciona inbox do número público ativo', async () => {
+        const status = await virtualNumberService.checkVirtualNumberStatus(freeUserJid)
+        assert.strictEqual(status.hasActive, true)
+        assert.strictEqual(status.isFree, true)
+        assert.ok(status.inboxUrl.includes('anonymsms.com'))
+        assert.ok(Array.isArray(status.recentMessages))
+    })
+
+    await test('Cancelamento de número público não debita nem gera erro', async () => {
+        const cancel = await virtualNumberService.cancelVirtualNumber({
+            sender: freeUserJid,
+            isOwner: false
+        })
+        assert.strictEqual(cancel.success, true)
+        assert.strictEqual(cancel.refundedCredits, 0)
+
+        const statusAfter = await virtualNumberService.checkVirtualNumberStatus(freeUserJid)
+        assert.strictEqual(statusAfter.hasActive, false)
+    })
+
+    console.log('\n--- 7. Execução do Comando .numfake (free e free lista) ---')
+    const numfakeCmd = require('../src/commands/general/numfake')
+
+    await test('Executa .numfake free lista com sucesso', async () => {
+        let repliedMsg = ''
+        await numfakeCmd.execute({
+            client: {},
+            from: 'test@s.whatsapp.net',
+            sender: freeUserJid,
+            args: ['free', 'lista'],
+            reply: (msg) => { repliedMsg = msg },
+            isOwner: false,
+            prefix: '.'
+        })
+
+        assert.ok(repliedMsg.includes('NÚMEROS PÚBLICOS GRÁTIS'))
+        assert.ok(repliedMsg.includes('.numfake free'))
+    })
+
+    await test('Executa .numfake free gerando número público com sucesso', async () => {
+        let repliedMsg = ''
+        await numfakeCmd.execute({
+            client: {},
+            from: 'test@s.whatsapp.net',
+            sender: freeUserJid,
+            args: ['free'],
+            reply: (msg) => { repliedMsg = msg },
+            isOwner: false,
+            prefix: '.'
+        })
+
+        assert.ok(repliedMsg.includes('NÚMERO PÚBLICO GRÁTIS'))
+        assert.ok(repliedMsg.includes('100% Grátis'))
+        assert.ok(repliedMsg.includes('.numfake cod'))
+    })
+
+    await test('Executa .numfake cod no número público ativo', async () => {
+        let repliedMsg = ''
+        await numfakeCmd.execute({
+            client: {},
+            from: 'test@s.whatsapp.net',
+            sender: freeUserJid,
+            args: ['cod'],
+            reply: (msg) => { repliedMsg = msg },
+            isOwner: false,
+            prefix: '.'
+        })
+
+        assert.ok(repliedMsg.includes('AGUARDANDO SMS') || repliedMsg.includes('CÓDIGO SMS RECEBIDO'))
+    })
+
     console.log(`\n========================================`)
     console.log(`Resultados dos Testes: ${pass} PASSOU | ${fail} FALHOU`)
     console.log(`========================================\n`)
