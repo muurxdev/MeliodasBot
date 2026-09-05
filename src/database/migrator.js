@@ -510,6 +510,25 @@ const migrations = [
         up: (db) => {
             try { db.exec('ALTER TABLE users ADD COLUMN skills TEXT;') } catch (_) {}
         }
+    },
+    {
+        id: '017_rentals_scope_and_trials',
+        description: 'Divisão de aluguel por escopo (grupo, pv, combo), flag de vitalício e controle de teste único (trial)',
+        up: (db) => {
+            try { db.exec("ALTER TABLE rentals ADD COLUMN target_type TEXT DEFAULT 'group';") } catch (_) {}
+            try { db.exec('ALTER TABLE rentals ADD COLUMN is_trial INTEGER DEFAULT 0;') } catch (_) {}
+            try { db.exec('ALTER TABLE rentals ADD COLUMN is_lifetime INTEGER DEFAULT 0;') } catch (_) {}
+            try { db.exec('CREATE INDEX IF NOT EXISTS idx_rentals_target_type ON rentals (target_type);') } catch (_) {}
+
+            db.exec(`
+                CREATE TABLE IF NOT EXISTS rental_trials (
+                    target_jid TEXT PRIMARY KEY,
+                    target_type TEXT NOT NULL,
+                    used_at DATETIME DEFAULT CURRENT_TIMESTAMP
+                );
+                CREATE INDEX IF NOT EXISTS idx_rental_trials_type ON rental_trials (target_type);
+            `);
+        }
     }
 ]
 

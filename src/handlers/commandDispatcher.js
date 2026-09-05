@@ -329,24 +329,50 @@ async function dispatch(context) {
         }
     }
 
-    // 9. Verificação do Modo Aluguel em Grupos
-    if (isGroup && userRole.level < ROLES.OWNER) {
+    // 9. Verificação do Modo Aluguel (Grupos & PV)
+    if (userRole.level < ROLES.OWNER) {
         const rentalService = require('../services/rentalService')
-        if (rentalService.isRentalModeEnabled(from)) {
-            const bypassCmds = ['aluguel', 'rent', 'vitalicio', 'dono', 'donos', 'ping']
-            if (!bypassCmds.includes(cmd.name.toLowerCase())) {
-                const rental = rentalService.getRentalInfo(from)
-                if (!rental || rental.isExpired) {
+        const bypassCmds = [
+            'aluguel', 'rent', 'vitalicio', 'vitalício', 'dono', 'donos', 'ping',
+            'planos', 'assinar', 'comprarcreditos', 'creditos', 'reativar',
+            'login', 'registrar', 'cadastrar', 'registro'
+        ]
+
+        if (!bypassCmds.includes(cmd.name.toLowerCase())) {
+            // 9.1 Verificação em Grupos
+            if (isGroup && rentalService.isRentalModeEnabled(from, true)) {
+                const groupRental = rentalService.hasActiveRental(from, 'group')
+                if (!groupRental.active) {
                     let doc = `╔══════════════════════════════╗\n`
                     doc += `║   🔒 *GRUPO NÃO ALUGADO / EXPIRADO*   ║\n`
                     doc += `╚══════════════════════════════╝\n\n`
                     doc += `⚠️ O bot está com o *Modo Aluguel ATIVO* neste grupo.\n\n`
                     doc += `💰 *Para liberar todos os comandos e recursos:*\n`
-                    doc += `Realize o pagamento do aluguel ou contate os Donos oficiais.\n\n`
+                    doc += `Este grupo precisa de uma assinatura ativa ou tempo de aluguel.\n\n`
                     doc += `📋 *Opções Disponíveis:*\n`
-                    doc += `👉 Digite \`${prefix}aluguel planos\` para consultar preços e prazos\n`
-                    doc += `👉 Digite \`${prefix}dono\` para falar com um administrador autorizado\n\n`
-                    doc += `💡 _Dono do Bot:_ Digite \`${prefix}aluguel set <tempo>\` ou \`${prefix}aluguel set vitalicio\` para liberar este grupo.`
+                    doc += `👉 Digite \`${prefix}aluguel planos\` para consultar planos e valores\n`
+                    doc += `👉 Digite \`${prefix}aluguel teste\` para liberar *2 Horas Gratuitas* de degustação\n`
+                    doc += `👉 Digite \`${prefix}dono\` para falar diretamente com os Donos oficiais\n\n`
+                    doc += `💡 _Dono do Bot:_ Digite \`${prefix}aluguel vitalicio grupo\` para liberar este grupo.`
+                    await reply(doc.trim())
+                    return true
+                }
+            }
+
+            // 9.2 Verificação no Privado (PV / DM)
+            if (!isGroup && rentalService.isRentalModeEnabled(roleJid, false)) {
+                const candidateJids = [roleJid, sender, senderReal].filter(Boolean)
+                const pvRental = rentalService.hasActiveRental(roleJid, 'pv', candidateJids)
+                if (!pvRental.active) {
+                    let doc = `╔══════════════════════════════╗\n`
+                    doc += `║   🔒 *PRIVADO EXCLUSIVO PARA ASSINANTES*   ║\n`
+                    doc += `╚══════════════════════════════╝\n\n`
+                    doc += `⚠️ O acesso aos comandos no Privado requer assinatura de *Aluguel de PV* ou *Combo (Grupo + PV)*.\n\n`
+                    doc += `📋 *Como Liberar Seu Acesso:*\n`
+                    doc += `👉 Digite \`${prefix}aluguel planos\` para ver os planos de PV e Combo\n`
+                    doc += `👉 Digite \`${prefix}aluguel teste\` para ativar *2 Horas Gratuitas* de teste\n`
+                    doc += `👉 Digite \`${prefix}dono\` para falar com os Donos do bot\n\n`
+                    doc += `💡 _Se você é Dono, utilize seus comandos normalmente._`
                     await reply(doc.trim())
                     return true
                 }

@@ -8,9 +8,16 @@ const logger = require('../../core/logger')
 
 function rowToRental(row) {
     if (!row) return null
+    const jid = row.group_jid || ''
+    const defaultType = jid.endsWith('@g.us') ? 'group' : 'pv'
     return {
-        groupJid: row.group_jid,
+        groupJid: jid,
+        targetJid: jid,
+        targetType: row.target_type || defaultType,
+        isTrial: Boolean(row.is_trial),
+        isLifetime: Boolean(row.is_lifetime),
         groupName: row.group_name || '',
+        targetName: row.group_name || '',
         renterJid: row.renter_jid || '',
         rentedBy: row.rented_by || '',
         startsAt: Number(row.starts_at),
@@ -25,10 +32,14 @@ function rowToRental(row) {
     }
 }
 
-function getRental(groupJid) {
+function getRental(targetJid, alternativeJids = []) {
     try {
         const db = getDatabase()
-        const row = db.prepare('SELECT * FROM rentals WHERE group_jid = ?').get(groupJid)
+        const candidates = [targetJid, ...(Array.isArray(alternativeJids) ? alternativeJids : [alternativeJids])].filter(Boolean)
+        if (candidates.length === 0) return null
+
+        const placeholders = candidates.map(() => '?').join(',')
+        const row = db.prepare(`SELECT * FROM rentals WHERE group_jid IN (${placeholders}) ORDER BY expires_at DESC LIMIT 1`).get(...candidates)
         return rowToRental(row)
     } catch (err) {
         logger.error('[RENTAL REPO ERROR] Falha ao buscar aluguel:', err)
@@ -36,10 +47,17 @@ function getRental(groupJid) {
     }
 }
 
-function getAllRentals() {
+function getAllRentals(targetType = null) {
     try {
         const db = getDatabase()
-        const rows = db.prepare('SELECT * FROM rentals ORDER BY expires_at ASC').all()
+        let query = 'SELECT * FROM rentals'
+        const params = []
+        if (targetType) {
+            query += ' WHERE target_type = ?'
+            params.push(targetType)
+        }
+        query += ' ORDER BY expires_at ASC'
+        const rows = db.prepare(query).all(...params)
         return rows.map(rowToRental)
     } catch (err) {
         logger.error('[RENTAL REPO ERROR] Falha ao listar aluguéis:', err)
@@ -50,17 +68,24 @@ function getAllRentals() {
 function saveRental(rental) {
     try {
         const db = getDatabase()
+        const jid = rental.targetJid || rental.groupJid
+        const targetType = rental.targetType || (jid.endsWith('@g.us') ? 'group' : 'pv')
+        const isTrial = rental.isTrial ? 1 : 0
+        const duration = rental.expiresAt - (rental.startsAt || Date.now())
+        const isLifetime = (rental.isLifetime || duration >= 50 * 365 * 86400 * 1000) ? 1 : 0
+
         const stmt = db.prepare(`
             INSERT OR REPLACE INTO rentals (
                 group_jid, group_name, renter_jid, rented_by,
                 starts_at, expires_at, is_active, price,
-                payment_method, pix_key, notes, updated_at
-            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, CURRENT_TIMESTAMP)
+                payment_method, pix_key, notes,
+                target_type, is_trial, is_lifetime, updated_at
+            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, CURRENT_TIMESTAMP)
         `)
 
         stmt.run(
-            rental.groupJid,
-            rental.groupName || '',
+            jid,
+            rental.targetName || rental.groupName || '',
             rental.renterJid || '',
             rental.rentedBy || '',
             rental.startsAt || Date.now(),
@@ -69,7 +94,10 @@ function saveRental(rental) {
             rental.price || 0,
             rental.paymentMethod || 'Pix',
             rental.pixKey || '',
-            rental.notes || ''
+            rental.notes || '',
+            targetType,
+            isTrial,
+            isLifetime
         )
         return true
     } catch (err) {
@@ -78,13 +106,42 @@ function saveRental(rental) {
     }
 }
 
-function deleteRental(groupJid) {
+function deleteRental(targetJid) {
     try {
         const db = getDatabase()
-        db.prepare('DELETE FROM rentals WHERE group_jid = ?').run(groupJid)
+        db.prepare('DELETE FROM rentals WHERE group_jid = ?').run(targetJid)
         return true
     } catch (err) {
         logger.error('[RENTAL REPO ERROR] Falha ao deletar aluguel:', err)
+        return false
+    }
+}
+
+function hasUsedTrial(targetJid, alternativeJids = []) {
+    try {
+        const db = getDatabase()
+        const candidates = [targetJid, ...(Array.isArray(alternativeJids) ? alternativeJids : [alternativeJids])].filter(Boolean)
+        if (candidates.length === 0) return false
+
+        const placeholders = candidates.map(() => '?').join(',')
+        const row = db.prepare(`SELECT 1 FROM rental_trials WHERE target_jid IN (${placeholders}) LIMIT 1`).get(...candidates)
+        return Boolean(row)
+    } catch (err) {
+        logger.error('[RENTAL REPO ERROR] Falha ao verificar trial:', err)
+        return false
+    }
+}
+
+function markTrialUsed(targetJid, targetType = 'group') {
+    try {
+        const db = getDatabase()
+        db.prepare(`
+            INSERT OR IGNORE INTO rental_trials (target_jid, target_type, used_at)
+            VALUES (?, ?, CURRENT_TIMESTAMP)
+        `).run(targetJid, targetType)
+        return true
+    } catch (err) {
+        logger.error('[RENTAL REPO ERROR] Falha ao registrar trial:', err)
         return false
     }
 }
@@ -94,6 +151,8 @@ module.exports = {
     getAllRentals,
     saveRental,
     deleteRental,
+    hasUsedTrial,
+    markTrialUsed,
     rowToRental
 }
 

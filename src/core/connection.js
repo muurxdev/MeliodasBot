@@ -111,6 +111,32 @@ async function startBot() {
             logger.info(`👤 Usuário Conectado: ${client.user?.id || 'Bot'}`)
             logger.info('==================================================')
             reconnectDelayMs = 2000 // Reseta o delay de reconexão
+
+            // Conecta o manipulador de pagamentos do webhook Stripe ao WhatsApp
+            try {
+                const { setPagamentoHandler } = require('./qrServer')
+                setPagamentoHandler(async ({ jid, creditos, saldo, centavos }) => {
+                    try {
+                        const reais = (Number(centavos || 0) / 100).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })
+                        let aviso = `╔══════════════════════════════╗\n`
+                        aviso += `║   💳 *PAGAMENTO CONFIRMADO!*   ║\n`
+                        aviso += `╚══════════════════════════════╝\n\n`
+                        aviso += `Olá! Seu pagamento no valor de *${reais}* foi aprovado com sucesso.\n\n`
+                        aviso += `🎟️ *Créditos Adicionados:* +${creditos}\n`
+                        aviso += `💰 *Novo Saldo Total:* ${saldo} créditos\n\n`
+                        aviso += `💡 _Para ativar ou estender o aluguel:_\n`
+                        aviso += `• \`.reativar pv <dias>\` (para liberar seu Privado)\n`
+                        aviso += `• \`.reativar grupo <dias>\` (para liberar o Grupo)\n`
+                        aviso += `• \`.reativar combo <dias>\` (para Grupo + PV)\n\n`
+                        aviso += `_Obrigado por apoiar o MeliodasBOT!_ 👑`
+                        await client.sendMessage(jid, { text: aviso.trim() })
+                    } catch (errNotif) {
+                        logger.warn('[PAYMENT NOTIF WARN] Falha ao notificar comprador via WhatsApp:', errNotif.message)
+                    }
+                })
+            } catch (errHook) {
+                logger.warn('[PAYMENT HANDLER HOOK WARN]', errHook.message)
+            }
         }
 
         if (connection === 'close') {

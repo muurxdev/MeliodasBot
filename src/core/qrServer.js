@@ -13,11 +13,23 @@ let isConnected = false
 let connectedUser = null
 let serverInstance = null
 
+// Preenchido pelo index quando o cliente do WhatsApp fica pronto; permite
+// avisar o comprador assim que o pagamento confirma.
+let onPagamentoConfirmado = null
+function setPagamentoHandler(fn) { onPagamentoConfirmado = fn }
+
 function startQrServer(port = process.env.PORT || 3000) {
     if (serverInstance) return serverInstance
 
     const server = http.createServer(async (req, res) => {
         const url = req.url.split('?')[0]
+
+        // 0. Webhook do Stripe. Vem ANTES de tudo porque precisa do corpo CRU:
+        //    qualquer middleware que leia/reserialize o body invalida o HMAC.
+        if (url === '/stripe/webhook') {
+            const { handle } = require('../services/payments/stripeWebhook')
+            return handle(req, res, { aoCreditar: onPagamentoConfirmado })
+        }
 
         // 1. Raw QR string (usado pelo script de terminal no PC)
         if (url === '/qr.raw') {
@@ -139,6 +151,7 @@ function stopQrServer() {
 }
 
 module.exports = {
+    setPagamentoHandler,
     startQrServer,
     updateQr,
     setConnected,
