@@ -81,8 +81,9 @@ async function _ollama(prompt, system, c) {
         body: JSON.stringify({
             model: c.ollamaModel,
             messages: [{ role: 'system', content: system }, { role: 'user', content: prompt }],
-            temperature: 0.4,
-            max_tokens: 700
+            temperature: 0.3,
+            // Resposta curta é resposta rápida: em CPU o custo é por token gerado.
+            max_tokens: 320
         })
     }, TIMEOUT_LOCAL_MS)
     return json?.choices?.[0]?.message?.content?.trim() || null

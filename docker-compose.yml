@@ -90,7 +90,7 @@ services:
       - ollama_models:/root/.ollama
     environment:
       # Descarrega o modelo da RAM após 5 min ocioso — divide memória com o bot.
-      - OLLAMA_KEEP_ALIVE=5m
+      - OLLAMA_KEEP_ALIVE=30m
       - OLLAMA_MAX_LOADED_MODELS=1
     deploy:
       resources:
