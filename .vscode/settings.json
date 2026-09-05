@@ -2,7 +2,12 @@
     "git.autofetch": false,
     "git.detectSubmodules": false,
     "git.showProgress": false,
+    "git.commands.showCommandOutputOnError": false,
+    "git.openRepositoryInParentFolders": "never",
+    "git.confirmSync": false,
+    "git.ignoreLimitWarning": true,
     "gitlens.views.repositories.autoRefresh": false,
+    "gitlens.showWhatsNewOnUpgrade": false,
     "files.watcherExclude": {
         "**/.git/objects/**": true,
         "**/.git/subtree-cache/**": true,
