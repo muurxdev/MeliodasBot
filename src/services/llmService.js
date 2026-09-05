@@ -18,6 +18,9 @@
 const logger = require('../core/logger')
 
 const TIMEOUT_MS = 25000
+// O LLM local roda em CPU e leva 20-30s; com o timeout padrão ele era cortado
+// exatamente no limite. Nuvem continua com o prazo curto.
+const TIMEOUT_LOCAL_MS = 75000
 
 function _cfg() {
     return {
@@ -52,9 +55,9 @@ function providersAtivos() {
     return l
 }
 
-async function _fetchJson(url, options) {
+async function _fetchJson(url, options, timeoutMs = TIMEOUT_MS) {
     const ctl = new AbortController()
-    const t = setTimeout(() => ctl.abort(), TIMEOUT_MS)
+    const t = setTimeout(() => ctl.abort(), timeoutMs)
     try {
         const res = await fetch(url, { ...options, signal: ctl.signal })
         const texto = await res.text()
@@ -81,7 +84,7 @@ async function _ollama(prompt, system, c) {
             temperature: 0.4,
             max_tokens: 700
         })
-    })
+    }, TIMEOUT_LOCAL_MS)
     return json?.choices?.[0]?.message?.content?.trim() || null
 }
 
@@ -144,11 +147,18 @@ async function ask(prompt, opts = {}) {
     const c = _cfg()
     const system = opts.system || SYSTEM_PADRAO
 
-    const cadeia = []
-    if (c.ollamaUrl) cadeia.push(['Ollama', () => _ollama(texto, system, c)])
-    if (c.groqKey) cadeia.push(['Groq', () => _groq(texto, system, c)])
-    if (c.geminiKey) cadeia.push(['Gemini', () => _gemini(texto, system, c)])
-    if (c.cfAccount && c.cfToken) cadeia.push(['Cloudflare', () => _cloudflare(texto, system, c)])
+    const local = []
+    const nuvem = []
+    if (c.ollamaUrl) local.push(['Ollama', () => _ollama(texto, system, c)])
+    if (c.groqKey) nuvem.push(['Groq', () => _groq(texto, system, c)])
+    if (c.geminiKey) nuvem.push(['Gemini', () => _gemini(texto, system, c)])
+    if (c.cfAccount && c.cfToken) nuvem.push(['Cloudflare', () => _cloudflare(texto, system, c)])
+
+    // Padrão: LOCAL primeiro (open source, sem cota, sem depender de ninguém).
+    // LLM_PREFER_CLOUD=true inverte, para quando quiser velocidade e já tiver
+    // uma chave gratuita configurada — a nuvem responde em ~1s contra ~20s do local.
+    const preferirNuvem = String(process.env.LLM_PREFER_CLOUD || '').toLowerCase() === 'true'
+    const cadeia = preferirNuvem ? [...nuvem, ...local] : [...local, ...nuvem]
     if (!cadeia.length) return null
 
     for (const [nome, fn] of cadeia) {
