@@ -12,6 +12,7 @@ const { extractMetadata, downloadMedia } = require('../../services/mediaEngine')
 const { ensureMobileVideoCompatibility } = require('../../services/media/mediaProcessor')
 const { mediaQueue } = require('../../services/mediaQueue')
 const logger = require('../../core/logger')
+const { enviarAudio } = require('../../services/media/audioSender')
 const { enviarVideo } = require('../../services/media/videoSender')
 
 module.exports = {
@@ -211,12 +212,12 @@ module.exports = {
 
                 if (fs.existsSync(mediaData.filePath)) {
                     try {
-                        await client.sendMessage(from, {
-                            audio: { url: mediaData.filePath },
-                            mimetype: 'audio/mpeg',
-                            ptt: false,
-                            fileName: `${cleanFileName}.mp3`
-                        }, { quoted: info, mediaUploadTimeoutMs: 180000 })
+                        await enviarAudio({
+                        client, from, info,
+                        filePath: mediaData.filePath,
+                        fileName: `${cleanFileName}.mp3`,
+                        preferirPartes: /(^|\s)-?partes?(\s|$)/i.test(String(text || ''))
+                    })
                         logger.info(`[PLAY] Áudio enviado para ${sender}: ${mediaData.title}`)
                     } finally {
                         try { if (fs.existsSync(mediaData.filePath)) fs.unlinkSync(mediaData.filePath) } catch (_) {}

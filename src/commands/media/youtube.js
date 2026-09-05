@@ -12,6 +12,7 @@ const { ensureMobileVideoCompatibility } = require('../../services/media/mediaPr
 const { mediaQueue } = require('../../services/mediaQueue')
 const { getBotName } = require('../../config/botConfig')
 const logger = require('../../core/logger')
+const { enviarAudio } = require('../../services/media/audioSender')
 const { enviarVideo } = require('../../services/media/videoSender')
 
 module.exports = {
@@ -93,12 +94,12 @@ module.exports = {
                             await client.sendMessage(from, { image: { url: meta.thumbnail }, caption }, { quoted: info })
                         } catch (_) {}
                     }
-                    await client.sendMessage(from, {
-                        audio: { url: filePath },
-                        mimetype: 'audio/mpeg',
-                        ptt: false,
-                        fileName: `${cleanTitle}.mp3`
-                    }, { quoted: info, mediaUploadTimeoutMs: 180000 })
+                    await enviarAudio({
+                        client, from, info,
+                        filePath: filePath,
+                        fileName: `${cleanTitle}.mp3`,
+                        preferirPartes: /(^|\s)-?partes?(\s|$)/i.test(String(text || ''))
+                    })
                 } else {
                     // Se o arquivo for menor/igual a 100MB, envia como vídeo reproduzível nativo
                                         // Entrega na galeria sempre que possível; comprime se não couber,

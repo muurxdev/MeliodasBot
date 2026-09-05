@@ -73,12 +73,18 @@ function parseEnvMs(value, fallback) {
 const MEDIA_LIMITS = {
     // 2000 MB (2 GB): limite máximo suportado pelo WhatsApp como documento / vídeo
     MAX_FILE_SIZE_BYTES: parseEnvMs(process.env.MEDIA_MAX_FILE_SIZE_BYTES, 2000 * 1024 * 1024),
-    MAX_DURATION_SECONDS: 3600, // 60 minutos
+    // 6 horas. O teto anterior era 60 min e recusava live/DVD/"as melhores"
+    // de pagode — justamente o conteudo longo que as pessoas mais pedem.
+    // Quem limita de verdade e o disco (diskGuard), nao um numero fixo aqui.
+    MAX_DURATION_SECONDS: parseEnvMs(process.env.MEDIA_MAX_DURATION_SECONDS, 6 * 3600),
     MAX_GALLERY_ITEMS: 10,
     SEARCH_LIMIT: 5,
     PROCESS_TIMEOUT_MS: parseEnvMs(process.env.MEDIA_PROCESS_TIMEOUT_MS, 180000), // 3 minutos
     DOWNLOAD_TIMEOUT_MS: parseEnvMs(process.env.MEDIA_DOWNLOAD_TIMEOUT_MS, 180000), // piso: 3 minutos
-    MAX_DOWNLOAD_TIMEOUT_MS: parseEnvMs(process.env.MEDIA_MAX_DOWNLOAD_TIMEOUT_MS, 900000), // teto: 15 minutos (vídeos longos)
+    // Teto de 90 min. O tempo ja escala com a duracao (duration * 1200), mas o
+    // teto de 15 min cortava o download de qualquer coisa acima de ~1h antes de
+    // terminar — o arquivo chegava truncado ou nao chegava.
+    MAX_DOWNLOAD_TIMEOUT_MS: parseEnvMs(process.env.MEDIA_MAX_DOWNLOAD_TIMEOUT_MS, 90 * 60 * 1000),
     METADATA_TIMEOUT_MS: parseEnvMs(process.env.MEDIA_METADATA_TIMEOUT_MS, 30000), // 30 segundos
     MAX_CONCURRENT_DOWNLOADS: 3
 }

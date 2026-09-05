@@ -9,6 +9,7 @@ const { mediaQueue } = require("../../services/mediaQueue");
 const { formatMediaCaption } = require("../../services/media/formatResolver");
 const { getBotName } = require("../../config/botConfig");
 const logger = require("../../core/logger");
+const { enviarAudio } = require('../../services/media/audioSender');
 
 module.exports = {
     name: "soundcloud",
@@ -64,12 +65,12 @@ module.exports = {
 
             if (fs.existsSync(mediaData.filePath)) {
                 try {
-                    await client.sendMessage(from, {
-                        audio: { url: mediaData.filePath },
-                        mimetype: "audio/mpeg",
-                        ptt: false,
-                        fileName: `${cleanFileName}.mp3`
-                    }, { quoted: info, mediaUploadTimeoutMs: 180000 });
+                    await enviarAudio({
+                        client, from, info,
+                        filePath: mediaData.filePath,
+                        fileName: `${cleanFileName}.mp3`,
+                        preferirPartes: /(^|\s)-?partes?(\s|$)/i.test(String(text || ''))
+                    });
                 } finally {
                     try { fs.unlinkSync(mediaData.filePath); } catch (_) {}
                 }

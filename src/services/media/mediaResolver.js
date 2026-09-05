@@ -170,7 +170,31 @@ async function tryYouTubeFallback(target, isSearch, urlOrQuery) {
             const cleanQuery = urlOrQuery.replace(/^ytsearch\d*:/i, '').trim()
             const r = await yts(cleanQuery)
             if (r && r.videos && r.videos.length > 0) {
-                const v = r.videos[0]
+                // NAO pegar videos[0]: a ordem do YouTube ignora o artista que o
+                // usuario digitou e ja trouxe musica estrangeira no lugar da
+                // faixa pedida. O ranqueador pontua o casamento com o canal.
+                const { melhorResultado } = require('./searchRanker')
+                const candidatos = r.videos.slice(0, 25).map(x => ({
+                    id: x.videoId,
+                    title: x.title,
+                    author: (x.author && x.author.name) || 'Desconhecido',
+                    duration: x.seconds || 0,
+                    views: x.views || 0,
+                    thumbnail: x.thumbnail,
+                    url: x.url
+                }))
+                const { escolhido, confiante } = melhorResultado(cleanQuery, candidatos)
+                const v = {
+                    videoId: escolhido.id,
+                    title: escolhido.title,
+                    author: { name: escolhido.author },
+                    thumbnail: escolhido.thumbnail,
+                    url: escolhido.url,
+                    seconds: escolhido.duration,
+                    timestamp: null
+                }
+                logger.info(`[MEDIA RESOLVER] Busca "${cleanQuery}" -> "${escolhido.title}" ` +
+                    `(${escolhido.author}) score ${escolhido._score}${confiante ? '' : ' [BAIXA CONFIANCA]'}`)
                 fallbackMeta = {
                     id: v.videoId,
                     title: v.title,

@@ -9,6 +9,7 @@ const { formatMediaCaption, formatDownloadProgressCard } = require('../../servic
 const { mediaQueue } = require('../../services/mediaQueue')
 const logger = require('../../core/logger')
 
+const { enviarAudio } = require('../../services/media/audioSender')
 module.exports = {
     name: 'ytmp3',
     aliases: ['musica', 'audio', 'song', 'ytaudio'],
@@ -69,12 +70,12 @@ module.exports = {
             const cleanTitle = (meta.title || 'audio_youtube').replace(/[\\/:*?"<>|]/g, '_').slice(0, 40)
 
             try {
-                await client.sendMessage(from, {
-                    audio: { url: filePath },
-                    mimetype: 'audio/mpeg',
-                    ptt: false,
-                    fileName: `${cleanTitle}.mp3`
-                }, { quoted: info, mediaUploadTimeoutMs: 180000 })
+                await enviarAudio({
+                        client, from, info,
+                        filePath: filePath,
+                        fileName: `${cleanTitle}.mp3`,
+                        preferirPartes: /(^|\s)-?partes?(\s|$)/i.test(String(text || ''))
+                    })
                 logger.info(`[YTMP3] Áudio enviado com sucesso para ${sender}: ${meta.title}`)
             } finally {
                 try { if (filePath && fs.existsSync(filePath)) fs.unlinkSync(filePath) } catch (_) {}

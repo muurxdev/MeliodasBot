@@ -6,6 +6,7 @@ const { spawn } = require('child_process')
 const { MEDIA_ERRORS, MEDIA_LIMITS, PLATFORMS } = require('./constants')
 const { buildYtDlpArgs, getYtDlpEnv } = require('./mediaArgs')
 const { toMessage, isMissingBinary } = require('./mediaErrors')
+const { ranquear } = require('./searchRanker')
 const logger = require('../../core/logger')
 
 /**
@@ -32,20 +33,29 @@ async function searchMedia(query, { limit = MEDIA_LIMITS.SEARCH_LIMIT, timeoutMs
     try {
         const yts = require('yt-search')
         const res = await yts(cleanQuery)
-        const vids = (res && Array.isArray(res.videos)) ? res.videos.slice(0, safeLimit) : []
-        if (vids.length > 0) {
-            return vids.map((v, idx) => ({
+        // Ranqueia o POOL INTEIRO antes de cortar. Cortar primeiro descartaria
+        // o resultado certo quando o YouTube o coloca em 8º — que é exatamente
+        // como a busca trazia música errada.
+        const pool = (res && Array.isArray(res.videos)) ? res.videos.slice(0, 25) : []
+        if (pool.length > 0) {
+            const candidatos = pool.map((v, idx) => ({
                 id: v.videoId || `search_${idx}`,
-                index: idx + 1,
                 title: v.title || 'Sem título',
                 author: (v.author && v.author.name) || 'Desconhecido',
                 duration: v.seconds || 0,
                 durationFormatted: v.timestamp || formatDuration(v.seconds || 0),
                 thumbnail: v.thumbnail || v.image || null,
+                views: v.views || 0,
                 url: v.url || `https://www.youtube.com/watch?v=${v.videoId}`,
                 platform: PLATFORMS.YOUTUBE,
                 type: 'audio'
             }))
+
+            const ordenados = ranquear(cleanQuery, candidatos).slice(0, safeLimit)
+            const topo = ordenados[0]
+            logger.info(`[MEDIA SEARCH] "${cleanQuery}" -> "${topo.title}" (${topo.author}) ` +
+                `score ${topo._score}${topo._motivos.length ? ' | ' + topo._motivos.join('; ') : ''}`)
+            return ordenados
         }
         logger.warn('[MEDIA SEARCH] yt-search sem resultados; tentando yt-dlp ytsearch...')
     } catch (e) {
@@ -123,7 +133,7 @@ function ytdlpSearch(cleanQuery, safeLimit, timeoutMs, userJid) {
 
                 const results = entries.map((entry, idx) => ({
                     id: entry.id || `search_${idx}`,
-                    index: idx + 1,
+                    views: entry.view_count || 0,
                     title: entry.title || 'Sem título',
                     author: entry.uploader || entry.channel || 'Desconhecido',
                     duration: entry.duration || 0,
@@ -134,7 +144,9 @@ function ytdlpSearch(cleanQuery, safeLimit, timeoutMs, userJid) {
                     type: 'audio'
                 }))
 
-                resolve(results)
+                // Mesmo criterio do caminho principal: a ordem do YouTube nao
+                // decide sozinha qual e o resultado certo.
+                resolve(ranquear(cleanQuery, results))
             } catch (jsonErr) {
                 const err = new Error('Erro ao processar dados de pesquisa.')
                 err.code = MEDIA_ERRORS.SEARCH_FAILED

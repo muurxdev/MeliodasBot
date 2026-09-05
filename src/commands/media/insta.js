@@ -9,6 +9,7 @@ const { mediaQueue } = require('../../services/mediaQueue');
 const { extractUrlAndFormat } = require('../../services/media/urlExtractor');
 const { formatMediaCaption } = require('../../services/media/formatResolver');
 const logger = require('../../core/logger');
+const { enviarAudio } = require('../../services/media/audioSender');
 
 module.exports = {
     name: 'insta',
@@ -77,12 +78,12 @@ module.exports = {
 
             try {
                 if (isMp3) {
-                    await client.sendMessage(from, {
-                        audio: { url: downloaded.filePath },
-                        mimetype: 'audio/mpeg',
-                        ptt: false,
-                        fileName: (meta.title || "instagram").slice(0, 30) + ".mp3"
-                    }, { quoted: info, mediaUploadTimeoutMs: 180000 });
+                    await enviarAudio({
+                        client, from, info,
+                        filePath: downloaded.filePath,
+                        fileName: (meta.title || "instagram").slice(0, 30) + ".mp3",
+                        preferirPartes: /(^|\s)-?partes?(\s|$)/i.test(String(text || ''))
+                    });
                 } else {
                     await client.sendMessage(from, {
                         video: { url: downloaded.filePath },

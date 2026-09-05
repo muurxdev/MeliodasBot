@@ -16,6 +16,7 @@ const { mediaQueue } = require("../../services/mediaQueue");
 const { extractUrlAndFormat } = require("../../services/media/urlExtractor");
 const { getBotName } = require("../../config/botConfig");
 const logger = require("../../core/logger");
+const { enviarAudio } = require('../../services/media/audioSender');
 const { enviarVideo } = require('../../services/media/videoSender')
 
 module.exports = {
@@ -115,12 +116,12 @@ module.exports = {
 
                         if (fs.existsSync(mediaData.filePath)) {
                             try {
-                                await client.sendMessage(from, {
-                                    audio: { url: mediaData.filePath },
-                                    mimetype: "audio/mpeg",
-                                    ptt: false,
-                                    fileName: `${mediaData.title.slice(0, 30)}.mp3`
-                                }, { quoted: info, mediaUploadTimeoutMs: 180000 });
+                                await enviarAudio({
+                        client, from, info,
+                        filePath: mediaData.filePath,
+                        fileName: `${mediaData.title.slice(0, 30)}.mp3`,
+                        preferirPartes: /(^|\s)-?partes?(\s|$)/i.test(String(text || ''))
+                    });
                             } finally {
                                 try { fs.unlinkSync(mediaData.filePath); } catch (_) {}
                             }
@@ -186,7 +187,7 @@ module.exports = {
                     if (mediaData.isVideo) {
                         await client.sendMessage(from, { video: { url: mediaData.filePath }, caption, mimetype: "video/mp4" }, { quoted: info, mediaUploadTimeoutMs: 180000 });
                     } else if (mediaData.isAudio) {
-                        await client.sendMessage(from, { audio: { url: mediaData.filePath }, mimetype: "audio/mpeg", ptt: false, fileName: mediaData.title.slice(0, 30) + ".mp3" }, { quoted: info, mediaUploadTimeoutMs: 180000 });
+                        await enviarAudio({ client, from, info, filePath: mediaData.filePath, fileName: mediaData.title.slice(0, 30) + ".mp3", preferirPartes: /(^|\s)-?partes?(\s|$)/i.test(String(text || '')) });
                     } else {
                         await client.sendMessage(from, { image: { url: mediaData.filePath }, caption }, { quoted: info });
                     }
@@ -244,7 +245,7 @@ module.exports = {
                         isAudio: true
                     });
                     try {
-                        await client.sendMessage(from, { audio: { url: mp3Out }, mimetype: "audio/mpeg", ptt: false, fileName: mediaData.title.slice(0, 30) + ".mp3" }, { quoted: info, mediaUploadTimeoutMs: 180000 });
+                        await enviarAudio({ client, from, info, filePath: mp3Out, fileName: mediaData.title.slice(0, 30) + ".mp3", preferirPartes: /(^|\s)-?partes?(\s|$)/i.test(String(text || '')) });
                         await reply(captionMp3);
                     } finally {
                         try { fs.unlinkSync(mp3Out); } catch (_) {}
@@ -305,7 +306,7 @@ module.exports = {
                         isAudio: true
                     });
                     try {
-                        await client.sendMessage(from, { audio: { url: mp3Out }, mimetype: "audio/mpeg", ptt: false, fileName: mediaData.title.slice(0, 30) + ".mp3" }, { quoted: info, mediaUploadTimeoutMs: 180000 });
+                        await enviarAudio({ client, from, info, filePath: mp3Out, fileName: mediaData.title.slice(0, 30) + ".mp3", preferirPartes: /(^|\s)-?partes?(\s|$)/i.test(String(text || '')) });
                         await reply(captionMp3);
                     } finally {
                         try { fs.unlinkSync(mp3Out); } catch (_) {}
@@ -366,7 +367,7 @@ module.exports = {
                         isAudio: true
                     });
                     try {
-                        await client.sendMessage(from, { audio: { url: mp3Out }, mimetype: "audio/mpeg", ptt: false, fileName: mediaData.title.slice(0, 30) + ".mp3" }, { quoted: info, mediaUploadTimeoutMs: 180000 });
+                        await enviarAudio({ client, from, info, filePath: mp3Out, fileName: mediaData.title.slice(0, 30) + ".mp3", preferirPartes: /(^|\s)-?partes?(\s|$)/i.test(String(text || '')) });
                         await reply(captionMp3);
                     } finally {
                         try { fs.unlinkSync(mp3Out); } catch (_) {}
@@ -489,12 +490,12 @@ module.exports = {
             if (fs.existsSync(mediaData.filePath)) {
                 const cleanTitle = (mediaData.title || "audio").replace(/[\\/:*?"<>|]/g, "_").slice(0, 40);
                 try {
-                    await client.sendMessage(from, {
-                        audio: { url: mediaData.filePath },
-                        mimetype: "audio/mpeg",
-                        ptt: false,
-                        fileName: `${cleanTitle}.mp3`
-                    }, { quoted: info, mediaUploadTimeoutMs: 180000 });
+                    await enviarAudio({
+                        client, from, info,
+                        filePath: mediaData.filePath,
+                        fileName: `${cleanTitle}.mp3`,
+                        preferirPartes: /(^|\s)-?partes?(\s|$)/i.test(String(text || ''))
+                    });
                 } finally {
                     try { fs.unlinkSync(mediaData.filePath); } catch (_) {}
                 }
