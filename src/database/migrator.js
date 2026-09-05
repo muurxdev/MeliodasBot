@@ -529,6 +529,32 @@ const migrations = [
                 CREATE INDEX IF NOT EXISTS idx_rental_trials_type ON rental_trials (target_type);
             `);
         }
+    },
+    {
+        id: '018_virtual_numbers',
+        description: 'Tabela de números virtuais descartáveis para ativação de SMS no WhatsApp com DDD inteligente',
+        up: (db) => {
+            db.exec(`
+                CREATE TABLE IF NOT EXISTS virtual_numbers (
+                    id INTEGER PRIMARY KEY AUTOINCREMENT,
+                    user_jid TEXT NOT NULL,
+                    activation_id TEXT NOT NULL,
+                    phone_number TEXT NOT NULL,
+                    ddd TEXT NOT NULL,
+                    country_code TEXT NOT NULL,
+                    region_name TEXT NOT NULL,
+                    service TEXT DEFAULT 'wa',
+                    cost_credits INTEGER DEFAULT 0,
+                    is_owner INTEGER DEFAULT 0,
+                    status TEXT DEFAULT 'PENDING',
+                    sms_code TEXT,
+                    created_at INTEGER NOT NULL,
+                    expires_at INTEGER NOT NULL
+                );
+                CREATE INDEX IF NOT EXISTS idx_virtual_numbers_user ON virtual_numbers (user_jid, status);
+                CREATE INDEX IF NOT EXISTS idx_virtual_numbers_act ON virtual_numbers (activation_id);
+            `);
+        }
     }
 ]
 
