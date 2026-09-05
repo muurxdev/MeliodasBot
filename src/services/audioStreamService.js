@@ -115,6 +115,7 @@ async function resolveYouTubeMetadata(url) {
                 author: r.author?.name || "YouTube",
                 thumbnail: bestThumb || officialThumb,
                 durationFormatted: r.timestamp || "—",
+                durationSeconds: r.seconds || 0,
                 url: r.url || standardUrl
             };
         }
@@ -125,6 +126,7 @@ async function resolveYouTubeMetadata(url) {
         author: "YouTube",
         thumbnail: officialThumb,
         durationFormatted: "—",
+        durationSeconds: 0,
         url: standardUrl
     };
 }
@@ -135,7 +137,9 @@ async function resolveYouTubeMetadata(url) {
 async function resolveSpotifyMetadata(url) {
     let title = "";
     let author = "";
+    let primaryArtist = "";
     let durationFormatted = "";
+    let durationSeconds = 0;
     let thumbnail = "https://images.unsplash.com/photo-1614680376593-902f749f7ffc?w=600";
 
     const trackIdMatch = url.match(/track\/([a-zA-Z0-9]+)/);
@@ -156,10 +160,12 @@ async function resolveSpotifyMetadata(url) {
                     const entity = data.props?.pageProps?.state?.data?.entity;
                     if (entity) {
                         title = entity.name || "";
+                        primaryArtist = entity.artists?.[0]?.name || "";
                         author = entity.artists?.map(a => a.name).join(", ") || "";
                         const durMs = entity.duration || 0;
                         if (durMs > 0) {
                             const sec = Math.round(durMs / 1000);
+                            durationSeconds = sec;
                             durationFormatted = Math.floor(sec / 60) + ":" + String(sec % 60).padStart(2, "0");
                         }
                         if (entity.visualIdentity?.image?.[0]?.url) {
@@ -183,13 +189,22 @@ async function resolveSpotifyMetadata(url) {
         } catch (_) {}
     }
 
+    // Prioriza TÍTULO PRIMEIRO para que o YouTube busque a obra específica,
+    // e usa o primeiro artista (principal) para evitar poluição com múltiplos feats.
+    const searchArtist = primaryArtist || (author ? author.split(',')[0].trim() : "");
+    const searchTerm = (title && searchArtist)
+        ? `${title} - ${searchArtist}`
+        : (title || url);
+
     return {
         title: title || "Música do Spotify",
         author: author || "Spotify",
+        primaryArtist: searchArtist,
         durationFormatted: durationFormatted || "—",
+        durationSeconds,
         thumbnail,
         url,
-        searchTerm: (title && author) ? (author + " - " + title) : (title || url)
+        searchTerm
     };
 }
 
@@ -251,7 +266,9 @@ async function searchAndDownloadAudio(query) {
 
     let title = "Música";
     let author = "Artista";
+    let primaryArtist = "";
     let durationFormatted = "—";
+    let durationSeconds = 0;
     let thumbnail = "https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4?w=600";
     let sourceUrl = query.trim();
     let searchTerm = query.trim();
@@ -261,10 +278,12 @@ async function searchAndDownloadAudio(query) {
         const spMeta = await resolveSpotifyMetadata(query.trim());
         title = spMeta.title;
         author = spMeta.author;
+        primaryArtist = spMeta.primaryArtist || "";
         durationFormatted = spMeta.durationFormatted;
+        durationSeconds = spMeta.durationSeconds || 0;
         thumbnail = spMeta.thumbnail;
         sourceUrl = spMeta.url;
-        searchTerm = spMeta.searchTerm || (title + " " + author);
+        searchTerm = spMeta.searchTerm || (title + " - " + (primaryArtist || author));
     }
     // 2. CASO URL DIRETA (YouTube, YouTube Music, etc.)
     else if (isDirectUrl) {
@@ -274,6 +293,7 @@ async function searchAndDownloadAudio(query) {
                 title = ytMeta.title;
                 author = ytMeta.author;
                 durationFormatted = ytMeta.durationFormatted;
+                durationSeconds = ytMeta.durationSeconds || 0;
                 thumbnail = ytMeta.thumbnail;
                 sourceUrl = ytMeta.url;
                 searchTerm = title + " " + author;
@@ -324,27 +344,51 @@ async function searchAndDownloadAudio(query) {
         }
     }
 
-    // 3. BUSCA UNIVERSAL NO YOUTUBE (yt-search + yt-dlp + Fallback Resiliente)
+    // 3. BUSCA UNIVERSAL NO YOUTUBE (yt-search + Ranqueamento Inteligente + yt-dlp + Fallback Resiliente)
     try {
         const searchResults = await yts(searchTerm);
         if (searchResults && Array.isArray(searchResults.videos) && searchResults.videos.length > 0) {
             // Filtra descartando vídeos < 30s ou > 900s e descartando slowed/nightcore caso não solicitados
             const fullVideos = searchResults.videos.filter(v => (v.seconds && v.seconds >= 30 && v.seconds <= 900) || !v.seconds);
             const cleanVideos = fullVideos.filter(v => !hasUndesiredModifier(v.title, query));
-            const selectedVideo = cleanVideos[0] || fullVideos[0] || searchResults.videos[0];
+            const pool = cleanVideos.length > 0 ? cleanVideos : (fullVideos.length > 0 ? fullVideos : searchResults.videos);
+
+            // Ranqueamento inteligente: avalia frase exata, canal do artista e duração esperada
+            const { ranquear } = require("./media/searchRanker");
+            const candidatos = pool.map(v => ({
+                id: v.videoId,
+                title: v.title || "Sem título",
+                author: v.author?.name || "Desconhecido",
+                duration: v.seconds || 0,
+                durationFormatted: v.timestamp || "",
+                thumbnail: v.thumbnail || v.image || "",
+                views: v.views || 0,
+                url: v.url || `https://www.youtube.com/watch?v=${v.videoId}`,
+                rawVideo: v
+            }));
+
+            const rankOpts = {
+                expectedTitle: isSpotify ? title : undefined,
+                expectedArtist: isSpotify ? (primaryArtist || author) : undefined,
+                expectedDuration: durationSeconds > 0 ? durationSeconds : undefined
+            };
+
+            const ordenados = ranquear(searchTerm, candidatos, rankOpts);
+            const topCandidate = ordenados[0] || candidatos[0];
+            const selectedVideo = topCandidate.rawVideo || topCandidate;
 
             if (selectedVideo) {
                 const ytUrl = selectedVideo.url || `https://www.youtube.com/watch?v=${selectedVideo.videoId}`;
                 if (!isSpotify) {
                     title = selectedVideo.title || title;
-                    author = selectedVideo.author?.name || author;
-                    durationFormatted = selectedVideo.timestamp || durationFormatted;
+                    author = selectedVideo.author?.name || selectedVideo.author || author;
+                    durationFormatted = selectedVideo.timestamp || selectedVideo.durationFormatted || durationFormatted;
                     const { upgradeThumbnail } = require("./media/thumbnailResolver");
                     thumbnail = (await upgradeThumbnail(selectedVideo.thumbnail || selectedVideo.videoId)) || thumbnail;
                     sourceUrl = ytUrl;
                 }
 
-                logger.info(`[AUDIO SEARCH YT] Selecionado: "${selectedVideo.title}" (${ytUrl})`);
+                logger.info(`[AUDIO SEARCH YT] Selecionado: "${selectedVideo.title}" (${ytUrl}) | Score: ${topCandidate._score} [${topCandidate._motivos?.join("; ")}]`);
 
                 // 3.1 Tentativa com yt-dlp com PO-Token
                 try {
@@ -407,7 +451,26 @@ async function searchAndDownloadAudio(query) {
         if (scResults && scResults.length > 0) {
             const fullTracks = scResults.filter(t => t.durationInSec && t.durationInSec > 45 && t.durationInSec < 700);
             const cleanTracks = fullTracks.filter(t => !hasUndesiredModifier(t.name || t.title, query));
-            const selectedTrack = cleanTracks[0] || fullTracks[0] || scResults[0];
+            const pool = cleanTracks.length > 0 ? cleanTracks : (fullTracks.length > 0 ? fullTracks : scResults);
+
+            const { ranquear } = require("./media/searchRanker");
+            const scCandidatos = pool.map(t => ({
+                id: t.id,
+                title: t.name || t.title || "Sem título",
+                author: t.user?.name || "SoundCloud",
+                duration: t.durationInSec || 0,
+                url: t.url,
+                rawTrack: t
+            }));
+
+            const scOrdenados = ranquear(searchTerm, scCandidatos, {
+                expectedTitle: isSpotify ? title : undefined,
+                expectedArtist: isSpotify ? (primaryArtist || author) : undefined,
+                expectedDuration: durationSeconds > 0 ? durationSeconds : undefined
+            });
+
+            const topSc = scOrdenados[0] || scCandidatos[0];
+            const selectedTrack = topSc.rawTrack || topSc;
 
             if (selectedTrack) {
                 const stream = await play.stream(selectedTrack.url);
@@ -490,7 +553,7 @@ async function resolvePlaylistTracks(url) {
                             return {
                                 title: trackTitle,
                                 author: trackArtist,
-                                searchTerm: `${trackArtist} - ${trackTitle}`,
+                                searchTerm: `${trackTitle} - ${trackArtist}`,
                                 duration: durStr,
                                 url: cleanUrl
                             };

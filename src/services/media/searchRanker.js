@@ -52,7 +52,7 @@ const VAZIAS = new Set(['de', 'da', 'do', 'das', 'dos', 'a', 'o', 'e', 'em', 'no
     'musica', 'music', 'song', 'baixar', 'download'])
 
 function tokens(s) {
-    return normalizar(s).split(' ').filter(t => t.length > 1 && !VAZIAS.has(t))
+    return normalizar(s).split(' ').filter(t => t.length > 0 && !VAZIAS.has(t))
 }
 
 /**
@@ -88,7 +88,13 @@ function cobertura(alvoTokens, textoTokens) {
 }
 
 /**
- * Pontua um candidato de 0 a ~200. Quanto maior, mais provável ser o certo.
+ * Pontua um candidato de 0 a ~300. Quanto maior, mais provável ser o certo.
+ * @param {object} candidato
+ * @param {object} consulta
+ * @param {object} [opts]
+ * @param {string} [opts.expectedTitle] - Título esperado da música (ex: vindo do Spotify)
+ * @param {string} [opts.expectedArtist] - Artista esperado da música
+ * @param {number} [opts.expectedDuration] - Duração esperada em segundos
  * @returns {{score:number, motivos:string[]}}
  */
 function pontuar(candidato, consulta, opts = {}) {
@@ -104,15 +110,26 @@ function pontuar(candidato, consulta, opts = {}) {
     const qTokens = tokens(consulta.bruto)
     const nAutor = normalizar(autor)
     const nTitulo = normalizar(titulo)
+    const nQuery = normalizar(consulta.bruto)
 
     // ── 1. Cobertura geral: quanto do que foi pedido aparece no resultado.
     const cob = cobertura(qTokens, tTudo)
     score += cob * 60
     if (cob >= 0.9) motivos.push('bate com tudo que você pediu')
 
-    // ── 2. O SINAL MAIS FORTE: o artista pedido é o dono do canal.
-    // É o que conserta "pedi pagode brasileiro e veio música gringa": se o canal
-    // é do artista, não tem como ser outra pessoa cantando.
+    // ── 1.1 Match exato de frase (Título ou Query inteira)
+    if (opts.expectedTitle) {
+        const nExpTitle = normalizar(opts.expectedTitle)
+        if (nTitulo.includes(nExpTitle)) {
+            score += 85
+            motivos.push(`título contém exatamente "${opts.expectedTitle}"`)
+        }
+    } else if (nTitulo.includes(nQuery)) {
+        score += 85
+        motivos.push('título contém a busca exata')
+    }
+
+    // ── 2. O canal do artista & Proteção contra outra música do mesmo artista
     const ladoAtokens = tokens(consulta.ladoA)
     const ladoBtokens = tokens(consulta.ladoB)
     const casaAutorA = ladoAtokens.length ? cobertura(ladoAtokens, tAutor) : 0
@@ -139,6 +156,34 @@ function pontuar(candidato, consulta, opts = {}) {
         }
     }
 
+    // Se tem separador "Música - Artista", o lado que NÃO casou com o canal é a MÚSICA.
+    // Se o título do vídeo não contém a música pedida, penaliza fortemente para não
+    // entregar outra música do mesmo canal (ex: Baile do Bruxo em vez de Dentro da B).
+    if (consulta.temSeparador) {
+        const ladoMusica = casaAutorA >= casaAutorB ? consulta.ladoB : consulta.ladoA
+        const tokensMusica = tokens(ladoMusica)
+        if (tokensMusica.length > 0) {
+            const cobMusica = cobertura(tokensMusica, tTitulo)
+            const nMusica = normalizar(ladoMusica)
+            if (nTitulo.includes(nMusica)) {
+                score += 50
+                motivos.push('título contém nome da música')
+            } else if (cobMusica < 0.3) {
+                score -= 75
+                motivos.push('título não corresponde à música pedida')
+            }
+        }
+    } else if (opts.expectedTitle) {
+        const tokensExp = tokens(opts.expectedTitle)
+        if (tokensExp.length > 0) {
+            const cobExp = cobertura(tokensExp, tTitulo)
+            if (!nTitulo.includes(normalizar(opts.expectedTitle)) && cobExp < 0.3) {
+                score -= 75
+                motivos.push('título não corresponde à música esperada')
+            }
+        }
+    }
+
     // ── 3. Fonte oficial.
     if (OFICIAL.some(o => nAutor.includes(normalizar(o)) || nTitulo.includes(normalizar(o)))) {
         score += 18
@@ -157,11 +202,26 @@ function pontuar(candidato, consulta, opts = {}) {
         }
     }
 
-    // ── 5. Duração coerente com o que se pede.
+    // ── 5. Duração coerente & Casamento com duração esperada (se conhecida, ex: Spotify)
     const dur = Number(candidato.duration || 0)
     const querLongo = PEDE_LONGO.some(t => qNorm.includes(normalizar(t)))
     if (dur > 0) {
-        if (querLongo) {
+        if (opts.expectedDuration && opts.expectedDuration > 0) {
+            const diff = Math.abs(dur - opts.expectedDuration)
+            if (diff <= 3) {
+                score += 60
+                motivos.push(`duração idêntica (±${diff}s)`)
+            } else if (diff <= 8) {
+                score += 40
+                motivos.push(`duração muito próxima (±${diff}s)`)
+            } else if (diff <= 20) {
+                score += 20
+                motivos.push(`duração próxima (±${diff}s)`)
+            } else if (diff > 45) {
+                score -= 50
+                motivos.push(`duração incompatível (±${diff}s)`)
+            }
+        } else if (querLongo) {
             // Pediu live/DVD/"as melhores": conteúdo longo é o alvo.
             if (dur >= 1800) { score += 25; motivos.push('duração de show/live') }
             else if (dur < 600) { score -= 20; motivos.push('curto demais para o que você pediu') }
@@ -173,7 +233,21 @@ function pontuar(candidato, consulta, opts = {}) {
         }
     }
 
-    // ── 6. Popularidade, em escala log e com peso pequeno: serve de desempate
+    // ── 6. Artista esperado (se fornecido explicitamente)
+    if (opts.expectedArtist) {
+        const artTokens = tokens(opts.expectedArtist)
+        const inChannel = artTokens.length ? cobertura(artTokens, tAutor) : 0
+        const inTitle = artTokens.length ? cobertura(artTokens, tTitulo) : 0
+        if (inChannel >= 0.5) {
+            score += 30
+            motivos.push('artista esperado no canal')
+        } else if (inTitle >= 0.5) {
+            score += 15
+            motivos.push('artista esperado no título')
+        }
+    }
+
+    // ── 7. Popularidade, em escala log e com peso pequeno: serve de desempate
     // entre dois resultados igualmente bons, nunca para dominar a relevância.
     const views = Number(candidato.views || 0)
     if (views > 0) score += Math.min(15, Math.log10(views) * 2.2)

@@ -112,6 +112,41 @@ test('ranquear devolve lista ordenada e reindexada', () => {
     assert.ok(r[0]._score >= r[1]._score, 'deve vir ordenado por score')
 })
 
+test('proteção de título: não entrega outra música do mesmo artista', () => {
+    // Caso real: pediu "Dentro da B - Tropa do Bruxo", o canal é TROPA DO BRUXO,
+    // mas o vídeo mais popular do canal é "Baile Do Bruxo" (outra música!).
+    const candidatos = [
+        { title: 'Tropa do Bruxo - Baile Do Bruxo (Visualizer)', author: 'TROPA DO BRUXO', duration: 225, views: 5000000 },
+        { title: 'Dentro da B', author: 'TROPA DO BRUXO', duration: 160, views: 1000000 },
+        { title: 'Dentro da B feat. Mc Reis & Mc Don Juan', author: 'DJ LG do SF', duration: 157, views: 800000 }
+    ]
+    const { escolhido } = melhorResultado('Dentro da B - Tropa do Bruxo', candidatos, {
+        expectedTitle: 'Dentro da B',
+        expectedArtist: 'Tropa do Bruxo',
+        expectedDuration: 160
+    })
+    assert.strictEqual(escolhido.title, 'Dentro da B', 'deveria escolher a música pedida, não outra faixa do mesmo canal')
+})
+
+test('busca de título curto preserva letra/número e vence vídeo com mais views', () => {
+    // "Dentro da B" tem 'b' (1 letra) e não pode ser confundido com "DENTRO DO I30"
+    const candidatos = [
+        { title: 'DENTRO DO I30 - Clipe Oficial', author: 'Funk Oficial', duration: 140, views: 20000000 },
+        { title: 'Dentro da B feat. Mc Reis & Mc Don Juan', author: 'DJ LG do SF', duration: 157, views: 800000 }
+    ]
+    const { escolhido } = melhorResultado('Dentro da B', candidatos)
+    assert.strictEqual(escolhido.title, 'Dentro da B feat. Mc Reis & Mc Don Juan')
+})
+
+test('duração esperada desempata a versão idêntica do áudio', () => {
+    const candidatos = [
+        { title: 'Faixa Desconhecida', author: 'Artista', duration: 360, views: 100000 },
+        { title: 'Faixa Exata', author: 'Artista', duration: 160, views: 50000 }
+    ]
+    const { escolhido } = melhorResultado('Faixa - Artista', candidatos, { expectedDuration: 160 })
+    assert.strictEqual(escolhido.title, 'Faixa Exata')
+})
+
 test('lista vazia não quebra', () => {
     assert.deepStrictEqual(ranquear('x', []), [])
     assert.strictEqual(melhorResultado('x', []).escolhido, null)
