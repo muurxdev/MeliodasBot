@@ -10,6 +10,6 @@ module.exports = {
     cooldownMs: 2000,
     execute: async ({ reply }) => {
             const acumulado = Math.floor(Math.random() * 200000) + 150000;
-            return reply(`🏆💰 *MEGA JACKPOT DE LIONES*\n\nPrêmio acumulado atual:\n🔥 *💰 ${acumulado.toLocaleString('pt-BR')} MOEDAS DE OURO!* 🔥\nJogue na `.loteriasds` para concorrer!`);
+            return reply(`🏆💰 *MEGA JACKPOT DE LIONES*\n\nPrêmio acumulado atual:\n🔥 *💰 ${acumulado.toLocaleString('pt-BR')} MOEDAS DE OURO!* 🔥\nJogue na \`.loteriasds\` para concorrer!`);
         }
 };

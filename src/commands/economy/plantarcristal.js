@@ -9,6 +9,6 @@ module.exports = {
     description: "Planta uma muda de cristal de mana no jardim do Boar Hat: .plantarcristal",
     cooldownMs: 3000,
     execute: async ({ reply }) => {
-            return reply(`🌱💎 *CULTIVO DE CRISTAIS*\n\nVocê plantou a semente de cristal no solo abençoado!\nEla absorverá a luz lunar para germinar. Use `.colhercristal` mais tarde!`);
+            return reply(`🌱💎 *CULTIVO DE CRISTAIS*\n\nVocê plantou a semente de cristal no solo abençoado!\nEla absorverá a luz lunar para germinar. Use \`.colhercristal\` mais tarde!`);
         }
 };

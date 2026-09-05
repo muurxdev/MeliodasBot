@@ -36,7 +36,7 @@ module.exports = {
         query = (query || '').trim()
 
         if (!query) {
-            return reply('🧠 *MELIODAS AI & PESQUISA*\n\nEnvie sua dúvida ou termo de pesquisa após o comando.\n\n📌 *Exemplos:*\n• `.ia quem é Nikola Tesla?`\n• `.search últimas notícias sobre astronomia`\n• `.gpt como funciona o Node.js no backend?`\n\n💡 *Dica:* Você também pode responder a qualquer mensagem digitando `.ia`!')
+            return reply('🧠 *MELIODAS AI & PESQUISA*\n\nEnvie sua dúvida ou termo de pesquisa após o comando.\n\n📌 *Exemplos:*\n• \`.ia quem é Nikola Tesla?\`\n• \`.search últimas notícias sobre astronomia\`\n• \`.gpt como funciona o Node.js no backend?\`\n\n💡 *Dica:* Você também pode responder a qualquer mensagem digitando \`.ia\`!')
         }
 
         await reply(`🧠 *Pesquisando e processando:* _"${query.slice(0, 50)}"_... Aguarde.`)
