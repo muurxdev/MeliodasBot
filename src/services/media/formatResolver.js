@@ -20,10 +20,15 @@ function resolveDownloadFormat({ format = FORMATS.MP3, quality = QUALITIES.BEST 
         return {
             args: [
                 '-f', 'bestaudio/best',
+                // Ordena a escolha pela MAIOR taxa de bits e amostragem.
+                // Sem isto, "bestaudio" às vezes pegava uma faixa de bitrate menor.
+                '-S', 'abr,asr,acodec',
                 '-x',
                 '--audio-format', 'mp3',
                 '--audio-quality', '0',
-                '--prefer-free-formats',
+                // '--prefer-free-formats' foi REMOVIDO: ele força opus/vorbis mesmo
+                // quando existe um m4a de bitrate maior, e como reconvertemos para
+                // mp3 no fim, partir da fonte melhor é o que importa.
                 '--embed-thumbnail',
                 '--add-metadata'
             ],
@@ -36,8 +41,10 @@ function resolveDownloadFormat({ format = FORMATS.MP3, quality = QUALITIES.BEST 
         return {
             args: [
                 '-f', 'ba[ext=m4a]/ba/best',
+                '-S', 'abr,asr',
                 '-x',
                 '--audio-format', 'm4a',
+                '--embed-thumbnail',
                 '--add-metadata'
             ],
             targetExt: 'm4a',
@@ -56,14 +63,28 @@ function resolveDownloadFormat({ format = FORMATS.MP3, quality = QUALITIES.BEST 
     else if (qual === QUALITIES.P360) heightFilter = '[height<=360]'
     // 'best' (default) = sem teto de altura → maior resolução disponível
 
-    const videoSelector = `bv*${heightFilter}+ba/b${heightFilter}/bv*+ba/b`
+    // Com teto de altura, o fallback sem teto garante que algo seja baixado.
+    // Sem teto ('best'), esse fallback seria o mesmo seletor repetido.
+    const videoSelector = heightFilter
+        ? `bv*${heightFilter}+ba/b${heightFilter}/bv*+ba/b`
+        : 'bv*+ba/b'
 
     return {
         args: [
             '-f', videoSelector,
+            // Ordem de preferência: H.264 PRIMEIRO, depois a maior resolução.
+            //
+            // Parece contraintuitivo pedir "melhor qualidade" e priorizar codec,
+            // mas o WhatsApp só reproduz H.264/AAC com segurança. Um 4K em VP9/AV1
+            // é tecnicamente superior e CHEGA COMO ARQUIVO QUE NÃO ABRE — além de
+            // estourar o limite de tamanho do envio. Então buscamos a maior
+            // resolução DENTRO do que toca (no YouTube isso dá 1080p H.264; em
+            // plataformas que servem H.264 em 4K, dá 4K).
+            '-S', 'vcodec:h264,res,fps,acodec:aac,abr',
             '--merge-output-format', 'mp4',
-            // Garante container MP4 mesmo quando o melhor vídeo vem em vp9/webm
+            // Remuxa (sem recodificar) para o container MP4.
             '--remux-video', 'mp4',
+            '--embed-thumbnail',
             '--add-metadata'
         ],
         targetExt: 'mp4',
