@@ -6,9 +6,11 @@
  */
 
 const https = require('https');
+const axios = require('axios');
 const logger = require('../core/logger');
 const env = require('../config/env');
 const creditsService = require('./payments/creditsService');
+const dataService = require('./dataService');
 const virtualNumberRepo = require('../database/repositories/virtualNumberRepository');
 
 // Tabela Canônica de DDDs do Brasil (11 a 99)
@@ -261,16 +263,187 @@ function generateProceduralNumber(resolved) {
     return { rawNumber, formatted };
 }
 
+const SMS_ACTIVATE_URL = 'https://api.sms-activate.org/stubs/handler_api.php';
+
+const SMS_ACTIVATE_COUNTRY_IDS = {
+    'BR': '73',
+    'US': '187',
+    'CA': '36',
+    'AR': '39',
+    'PT': '117',
+    'GB': '16',
+    'ES': '56',
+    'FR': '78',
+    'DE': '43'
+};
+
+/**
+ * Obtém a chave de API do provedor (env ou gravada no banco SQLite)
+ */
+function getApiKey() {
+    if (process.env.SMS_ACTIVATE_API_KEY) return process.env.SMS_ACTIVATE_API_KEY.trim();
+    if (process.env.SMS_API_KEY) return process.env.SMS_API_KEY.trim();
+    try {
+        const configs = dataService.getConfigsData();
+        if (configs?.global?.smsApiKey) return String(configs.global.smsApiKey).trim();
+    } catch (_) {}
+    return null;
+}
+
+/**
+ * Grava a chave de API do provedor de números reais no SQLite
+ */
+async function setApiKey(key) {
+    const clean = (key || '').trim();
+    const configs = dataService.getConfigsData();
+    if (!configs.global) configs.global = {};
+    configs.global.smsApiKey = clean;
+    await dataService.saveConfigsData(configs);
+    logger.info(`[VIRTUAL NUMBER] Chave de API de SMS configurada: ${clean ? '***' + clean.slice(-4) : 'REMOVIDA'}`);
+    return clean;
+}
+
+/**
+ * Consulta o saldo disponível na conta do SMS-Activate
+ */
+async function getProviderBalance(apiKey = null) {
+    const key = apiKey || getApiKey();
+    if (!key) return null;
+    try {
+        const res = await axios.get(SMS_ACTIVATE_URL, {
+            params: { api_key: key, action: 'getBalance' },
+            timeout: 15000
+        });
+        const text = String(res.data || '').trim();
+        if (text.startsWith('ACCESS_BALANCE:')) {
+            const val = parseFloat(text.split(':')[1]);
+            return { success: true, balance: val, raw: text };
+        }
+        return { success: false, error: text };
+    } catch (err) {
+        return { success: false, error: err.message };
+    }
+}
+
+/**
+ * Aluga um número real de operadora no SMS-Activate para ativação de WhatsApp
+ */
+async function rentNumberFromProvider(countryCode = 'BR', apiKey = null) {
+    const key = apiKey || getApiKey();
+    if (!key) return null;
+    const countryId = SMS_ACTIVATE_COUNTRY_IDS[countryCode] || '73';
+    try {
+        const res = await axios.get(SMS_ACTIVATE_URL, {
+            params: {
+                api_key: key,
+                action: 'getNumber',
+                service: 'wa',
+                country: countryId
+            },
+            timeout: 25000
+        });
+        const text = String(res.data || '').trim();
+        if (text.startsWith('ACCESS_NUMBER:')) {
+            const parts = text.split(':');
+            const activationId = parts[1];
+            const rawPhone = parts[2];
+            return {
+                success: true,
+                activationId,
+                rawPhone
+            };
+        }
+        return { success: false, error: text };
+    } catch (err) {
+        return { success: false, error: err.message };
+    }
+}
+
+/**
+ * Consulta na API se a Meta/WhatsApp enviou o SMS com o código de 6 dígitos
+ */
+async function checkCodeFromProvider(activationId, apiKey = null) {
+    const key = apiKey || getApiKey();
+    if (!key || !activationId) return null;
+    try {
+        const res = await axios.get(SMS_ACTIVATE_URL, {
+            params: {
+                api_key: key,
+                action: 'getStatus',
+                id: activationId
+            },
+            timeout: 15000
+        });
+        const text = String(res.data || '').trim();
+        if (text.startsWith('STATUS_OK:')) {
+            const code = text.split(':')[1].trim();
+            return { status: 'RECEIVED', code };
+        }
+        if (text === 'STATUS_WAIT_CODE' || text === 'STATUS_WAIT_RETRY') {
+            return { status: 'PENDING' };
+        }
+        if (text === 'STATUS_CANCEL') {
+            return { status: 'CANCELLED' };
+        }
+        return { status: 'PENDING', raw: text };
+    } catch (err) {
+        return { status: 'ERROR', error: err.message };
+    }
+}
+
+/**
+ * Cancela a ativação no provedor e recupera o saldo
+ */
+async function cancelOrderOnProvider(activationId, apiKey = null) {
+    const key = apiKey || getApiKey();
+    if (!key || !activationId) return;
+    try {
+        await axios.get(SMS_ACTIVATE_URL, {
+            params: {
+                api_key: key,
+                action: 'setStatus',
+                id: activationId,
+                status: 8
+            },
+            timeout: 15000
+        });
+    } catch (_) {}
+}
+
+/**
+ * Conclui a ativação com sucesso no provedor
+ */
+async function finishOrderOnProvider(activationId, apiKey = null) {
+    const key = apiKey || getApiKey();
+    if (!key || !activationId) return;
+    try {
+        await axios.get(SMS_ACTIVATE_URL, {
+            params: {
+                api_key: key,
+                action: 'setStatus',
+                id: activationId,
+                status: 6
+            },
+            timeout: 15000
+        });
+    } catch (_) {}
+}
+
 /**
  * Solicita um número virtual para ativação de WhatsApp
  */
 async function requestVirtualNumber({ sender, dddInput, isOwner, autoReplace = false }) {
     // 1. Verifica se o usuário já tem um número ativo aguardando SMS
     const activeOrder = virtualNumberRepo.getActiveOrderByUser(sender);
+    const apiKey = getApiKey();
+
     if (activeOrder) {
         if (autoReplace) {
             logger.info(`[VIRTUAL NUMBER] Cancelando ativação anterior #${activeOrder.id} de ${sender} (autoReplace)`);
             virtualNumberRepo.updateStatus(activeOrder.id, { status: 'CANCELLED' });
+            if (activeOrder.activation_id && !activeOrder.activation_id.startsWith('act_') && apiKey) {
+                cancelOrderOnProvider(activeOrder.activation_id, apiKey).catch(() => {});
+            }
             if (!isOwner && activeOrder.cost_credits > 0) {
                 creditsService.ajustar({
                     jid: sender,
@@ -316,29 +489,76 @@ async function requestVirtualNumber({ sender, dddInput, isOwner, autoReplace = f
         }
     }
 
-    // 3. Alocação do Número (Provedor Real se chave estiver presente, senão Sandbox Inteligente)
-    const apiKey = process.env.SMS_ACTIVATE_API_KEY || process.env.SMS_API_KEY;
+    // 3. Alocação do Número: Provedor Real (SMS-Activate) se chave existir, senão Sandbox Inteligente
     let activationId = `act_${Date.now()}_${Math.floor(Math.random() * 10000)}`;
-    let phoneGen = generateProceduralNumber(resolved);
+    let numberRaw = '';
+    let numberFormatted = '';
+    let isReal = false;
 
     if (apiKey) {
         try {
-            // Integração com API SMS-Activate
-            // Parâmetros: action=getNumber, service=wa, country=...
-            logger.info(`[VIRTUAL NUMBER] Chamando API SMS-Activate para DDD ${resolved.ddd}...`);
-            // Se API real for configurada com chave válida, aluga o número real
+            logger.info(`[VIRTUAL NUMBER] Solicitando chip real no SMS-Activate para país ${resolved.countryCode}...`);
+            const rentRes = await rentNumberFromProvider(resolved.countryCode, apiKey);
+            if (rentRes && rentRes.success) {
+                activationId = rentRes.activationId;
+                numberRaw = rentRes.rawPhone.replace(/\D/g, '');
+                isReal = true;
+                
+                // Formatação do número real recebido da operadora
+                if (numberRaw.startsWith('55') && numberRaw.length >= 12) {
+                    const ddd = numberRaw.slice(2, 4);
+                    const rest = numberRaw.slice(4);
+                    numberFormatted = `+55 (${ddd}) ${rest.slice(0, 5)}-${rest.slice(5)}`;
+                } else if (numberRaw.startsWith('1') && numberRaw.length >= 11) {
+                    const ddd = numberRaw.slice(1, 4);
+                    const rest = numberRaw.slice(4);
+                    numberFormatted = `+1 (${ddd}) ${rest.slice(0, 3)}-${rest.slice(3)}`;
+                } else {
+                    numberFormatted = `+${numberRaw}`;
+                }
+                logger.info(`[VIRTUAL NUMBER] Chip real alugado no SMS-Activate: ${numberFormatted} (ID: ${activationId})`);
+            } else {
+                logger.warn(`[VIRTUAL NUMBER] Provedor real falhou (${rentRes?.error}). Revertendo créditos e informando.`);
+                if (!isOwner && cost > 0) {
+                    creditsService.ajustar({
+                        jid: sender,
+                        creditos: cost,
+                        motivo: 'Estorno por indisponibilidade no provedor de números reais'
+                    });
+                }
+                const errText = rentRes?.error || 'Erro desconhecido';
+                let userFriendlyErr = `❌ *FALHA NO PROVEDOR DE CHIPS REAIS!*\n\nO SMS-Activate retornou: _${errText}_.\n`;
+                if (errText.includes('NO_BALANCE')) {
+                    userFriendlyErr += '\n💰 *Causa:* Saldo esgotado na conta do SMS-Activate. O dono do bot precisa recarregar.';
+                } else if (errText.includes('NO_NUMBERS')) {
+                    userFriendlyErr += `\n⚠️ *Causa:* Não há números disponíveis no momento para ${resolved.countryName}. Tente outro DDD/país.`;
+                } else if (errText.includes('BAD_KEY')) {
+                    userFriendlyErr += '\n🔑 *Causa:* A API Key configurada para o SMS-Activate é inválida. Use `.numfake setkey <chave>`.';
+                }
+                return {
+                    success: false,
+                    code: 'PROVIDER_ERROR',
+                    message: userFriendlyErr
+                };
+            }
         } catch (apiErr) {
-            logger.warn(`[VIRTUAL NUMBER] API externa indisponível (${apiErr.message}). Utilizando modo Sandbox.`);
+            logger.error(`[VIRTUAL NUMBER] Erro ao contatar SMS-Activate: ${apiErr.message}`);
         }
     }
 
+    if (!isReal) {
+        const phoneGen = generateProceduralNumber(resolved);
+        numberRaw = phoneGen.rawNumber;
+        numberFormatted = phoneGen.formatted;
+    }
+
     const now = Date.now();
-    const expiresAt = now + 15 * 60 * 1000; // 15 minutos de validade
+    const expiresAt = now + 15 * 60 * 1000;
 
     const order = virtualNumberRepo.createOrder({
         userJid: sender,
         activationId,
-        phoneNumber: phoneGen.formatted,
+        phoneNumber: numberFormatted,
         ddd: resolved.ddd,
         countryCode: resolved.countryCode,
         regionName: resolved.regionName,
@@ -350,14 +570,15 @@ async function requestVirtualNumber({ sender, dddInput, isOwner, autoReplace = f
         expiresAt
     });
 
-    logger.info(`[VIRTUAL NUMBER] Pedido #${order.id} criado para ${sender}: ${phoneGen.formatted} (DDD ${resolved.ddd}) [Dono: ${isOwner}]`);
+    logger.info(`[VIRTUAL NUMBER] Pedido #${order.id} criado para ${sender}: ${numberFormatted} [Real: ${isReal}] [Dono: ${isOwner}]`);
 
     return {
         success: true,
         order,
         resolved,
-        numberRaw: phoneGen.rawNumber,
-        numberFormatted: phoneGen.formatted,
+        numberRaw,
+        numberFormatted,
+        isReal,
         expiresInMinutes: 15
     };
 }
@@ -375,6 +596,11 @@ async function cancelVirtualNumber({ sender, isOwner }) {
     }
 
     virtualNumberRepo.updateStatus(activeOrder.id, { status: 'CANCELLED' });
+
+    const apiKey = getApiKey();
+    if (activeOrder.activation_id && !activeOrder.activation_id.startsWith('act_') && apiKey) {
+        cancelOrderOnProvider(activeOrder.activation_id, apiKey).catch(() => {});
+    }
 
     let refunded = 0;
     if (!isOwner && activeOrder.cost_credits > 0) {
@@ -398,7 +624,7 @@ async function cancelVirtualNumber({ sender, isOwner }) {
 /**
  * Consulta o status atual da ativação
  */
-function checkVirtualNumberStatus(sender) {
+async function checkVirtualNumberStatus(sender) {
     let activeOrder = virtualNumberRepo.getActiveOrderByUser(sender);
     if (!activeOrder) {
         const lastOrder = (virtualNumberRepo.listOrdersByUser(sender, 1) || [])[0];
@@ -408,29 +634,50 @@ function checkVirtualNumberStatus(sender) {
     const now = Date.now();
     const timeLeftMs = Math.max(0, activeOrder.expires_at - now);
     const isExpired = timeLeftMs <= 0;
+    const apiKey = getApiKey();
+    const isReal = Boolean(activeOrder.activation_id && !activeOrder.activation_id.startsWith('act_'));
 
-    // Se estiver no modo sandbox/sem chave de API SMS externa e ainda estiver PENDING:
-    // Ao consultar o status, gera automaticamente o código de 6 dígitos para o usuário poder ativar!
-    const apiKey = process.env.SMS_ACTIVATE_API_KEY || process.env.SMS_API_KEY;
-    if (activeOrder.status === 'PENDING' && !isExpired && !apiKey) {
-        const code = `${Math.floor(100 + Math.random() * 900)}-${Math.floor(100 + Math.random() * 900)}`;
-        virtualNumberRepo.updateStatus(activeOrder.id, {
-            status: 'RECEIVED',
-            smsCode: code
-        });
-        activeOrder.status = 'RECEIVED';
-        activeOrder.sms_code = code;
-        logger.info(`[VIRTUAL NUMBER] SMS recebido automaticamente para #${activeOrder.id} (${activeOrder.phone_number}): ${code}`);
+    if (activeOrder.status === 'PENDING' && !isExpired) {
+        if (isReal && apiKey) {
+            // Consulta a API do SMS-Activate se a Meta enviou o SMS real
+            const checkRes = await checkCodeFromProvider(activeOrder.activation_id, apiKey);
+            if (checkRes && checkRes.status === 'RECEIVED' && checkRes.code) {
+                virtualNumberRepo.updateStatus(activeOrder.id, {
+                    status: 'RECEIVED',
+                    smsCode: checkRes.code
+                });
+                finishOrderOnProvider(activeOrder.activation_id, apiKey).catch(() => {});
+                activeOrder.status = 'RECEIVED';
+                activeOrder.sms_code = checkRes.code;
+                logger.info(`[VIRTUAL NUMBER] SMS REAL da Meta recebido para #${activeOrder.id}: ${checkRes.code}`);
+            } else if (checkRes && checkRes.status === 'CANCELLED') {
+                virtualNumberRepo.updateStatus(activeOrder.id, { status: 'CANCELLED' });
+                activeOrder.status = 'CANCELLED';
+            }
+        } else if (!apiKey) {
+            // Modo simulação: gera código apenas quando o usuário explicitamente consulta o status/código
+            if (!activeOrder.sms_code) {
+                const code = `${Math.floor(100 + Math.random() * 900)}-${Math.floor(100 + Math.random() * 900)}`;
+                virtualNumberRepo.updateStatus(activeOrder.id, {
+                    status: 'RECEIVED',
+                    smsCode: code
+                });
+                activeOrder.status = 'RECEIVED';
+                activeOrder.sms_code = code;
+                logger.info(`[VIRTUAL NUMBER] SMS simulado gerado sob demanda para #${activeOrder.id}: ${code}`);
+            }
+        }
     }
 
     const minutesLeft = Math.floor(timeLeftMs / 60000);
     const secondsLeft = Math.floor((timeLeftMs % 60000) / 1000);
 
     return {
-        hasActive: true,
+        hasActive: activeOrder.status !== 'CANCELLED',
         order: activeOrder,
         timeLeftFormatted: `${minutesLeft}m ${secondsLeft < 10 ? '0' : ''}${secondsLeft}s`,
-        isExpired
+        isExpired,
+        isReal
     };
 }
 
@@ -469,6 +716,13 @@ module.exports = {
     checkVirtualNumberStatus,
     deliverSmsCode,
     getDddCatalog,
+    getApiKey,
+    setApiKey,
+    getProviderBalance,
+    rentNumberFromProvider,
+    checkCodeFromProvider,
+    cancelOrderOnProvider,
+    finishOrderOnProvider,
     DDD_BRASIL,
     DDD_INTERNACIONAL
 };

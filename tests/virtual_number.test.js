@@ -160,14 +160,14 @@ async function run() {
     })
 
     await test('Entrega de código SMS no número ativo do Dono', async () => {
-        const statusBefore = virtualNumberService.checkVirtualNumberStatus(ownerJid)
+        const statusBefore = await virtualNumberService.checkVirtualNumberStatus(ownerJid)
         assert.strictEqual(statusBefore.hasActive, true)
 
         const smsRes = virtualNumberService.deliverSmsCode(statusBefore.order.activation_id, '789-123')
         assert.ok(smsRes)
         assert.strictEqual(smsRes.code, '789-123')
 
-        const statusAfter = virtualNumberService.checkVirtualNumberStatus(ownerJid)
+        const statusAfter = await virtualNumberService.checkVirtualNumberStatus(ownerJid)
         assert.strictEqual(statusAfter.order.status, 'RECEIVED')
         assert.strictEqual(statusAfter.order.sms_code, '789-123')
     })
@@ -222,8 +222,21 @@ async function run() {
         assert.strictEqual(cancelRes.refundedCredits, 5)
         assert.strictEqual(creditsService.saldo(userJid), 10, 'Saldo deve ter voltado para 10 após o estorno')
 
-        const statusNow = virtualNumberService.checkVirtualNumberStatus(userJid)
+        const statusNow = await virtualNumberService.checkVirtualNumberStatus(userJid)
         assert.strictEqual(statusNow.hasActive, false, 'Não deve mais possuir ordem ativa')
+    })
+
+    console.log('\n--- 5. Gerenciamento de Chave SMS-Activate (setApiKey & getApiKey) ---')
+
+    await test('Configura e recupera chave de API do SMS-Activate', async () => {
+        const originalKey = virtualNumberService.getApiKey()
+        
+        await virtualNumberService.setApiKey('test_key_meliodas_12345')
+        assert.strictEqual(virtualNumberService.getApiKey(), 'test_key_meliodas_12345')
+
+        // Limpa chave
+        await virtualNumberService.setApiKey(originalKey || '')
+        assert.strictEqual(virtualNumberService.getApiKey(), originalKey || null)
     })
 
     console.log(`\n========================================`)
