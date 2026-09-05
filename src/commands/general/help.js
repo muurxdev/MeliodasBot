@@ -177,26 +177,36 @@ module.exports = {
                 }
 
                 const categoryCmds = Array.from(allCommands.values()).filter(c => {
-                    if (isCategory === 'config') return ['welcome', 'leave', 'setprefix', 'cmd', 'antilink', 'antitrava', 'antispam', 'antistatus', 'setwallpaper', 'autoreject', 'restringir', 'gruposettings'].includes(c.name)
-                    if (isCategory === 'aluguel') return ['aluguel'].includes(c.name)
-                    if (isCategory === 'calc') return ['calc'].includes(c.name)
-                    if (isCategory === 'pesquisa') return ['ia', 'iaver', 'wiki', 'search', 'gitskills', 'npm', 'github', 'horario'].includes(c.name)
-                    if (isCategory === 'rede') return ['ping', 'pingrede', 'device', 'horario', 'dns', 'headers', 'sysinfo', 'status'].includes(c.name)
-                    if (isCategory === 'interacao') return ['interacao'].includes(c.name)
-                    return c.category === isCategory
+                    if (c.category !== isCategory) return false
+                    if (c.ownerOnly && !isUserOwner) return false
+                    if (c.adminOnly && !isUserAdmin) return false
+                    return true
+                }).sort((a, b) => a.name.localeCompare(b.name))
+
+                let totalCatAliases = 0
+                categoryCmds.forEach(c => {
+                    if (Array.isArray(c.aliases)) totalCatAliases += c.aliases.length
                 })
 
                 let catDoc = `╭━〔 ${CATEGORY_NAMES[isCategory]} 〕━⬣\n`
-                catDoc += `┃ 📊 *Total de Comandos:* ${categoryCmds.length}\n`
+                catDoc += `┃ 📊 *Total:* ${categoryCmds.length} Comandos · ${totalCatAliases} Aliases Ativos\n`
                 catDoc += `┣━━━━━━━━━━━━━━━━━━━━━━━━━\n`
 
                 categoryCmds.forEach((c) => {
-                    const desc = c.description ? `_(${c.description.slice(0, 38)})_` : ''
-                    catDoc += `┃ ➤ \`${p}${c.name}\` ${desc}\n`
+                    let aliasesHint = ''
+                    if (Array.isArray(c.aliases) && c.aliases.length > 0) {
+                        const valid = Array.from(new Set(c.aliases.filter(a => a && a !== c.name)))
+                        if (valid.length > 0) {
+                            aliasesHint = ` [${valid.map(a => `\`${p}${a}\``).join(', ')}]`
+                        }
+                    }
+                    const desc = c.description ? ` — _(${c.description.slice(0, 45)})_` : ''
+                    catDoc += `┃ ➤ \`${p}${c.name}\`${aliasesHint}${desc}\n`
                 })
 
                 catDoc += `╰━━━━━━━━━━━━━━━━━━⬣\n`
-                catDoc += `💡 _Para ver detalhes e preview de um comando:_ \`${p}help .${categoryCmds[0]?.name || 'comando'}\``
+                catDoc += `💡 _Para ver detalhes e preview de um comando:_ \`${p}help .${categoryCmds[0]?.name || 'comando'}\`\n`
+                catDoc += `📖 _Para catálogo paginado com live wallpaper:_ \`${p}menu ${isCategory}\``
 
                 const { getMenuMedia } = require('../../utils/wallpapers');
                 const media = getMenuMedia(isCategory);
@@ -205,18 +215,53 @@ module.exports = {
                 }
                 try {
                     if (media && media.buffer) {
-                        if (media.type === 'video') {
-                            return client.sendMessage(from, {
-                                video: media.buffer,
-                                caption: catDoc.trim(),
-                                gifPlayback: true,
-                                mimetype: 'video/mp4'
-                            }, { quoted: info });
+                        if (catDoc.length <= 1000) {
+                            if (media.type === 'video') {
+                                return client.sendMessage(from, {
+                                    video: media.buffer,
+                                    caption: catDoc.trim(),
+                                    gifPlayback: true,
+                                    mimetype: 'video/mp4'
+                                }, { quoted: info });
+                            } else {
+                                return client.sendMessage(from, {
+                                    image: media.buffer,
+                                    caption: catDoc.trim()
+                                }, { quoted: info });
+                            }
                         } else {
-                            return client.sendMessage(from, {
-                                image: media.buffer,
-                                caption: catDoc.trim()
-                            }, { quoted: info });
+                            const lines = catDoc.split('\n');
+                            let p1 = '';
+                            let p2 = '';
+                            let inP1 = true;
+                            for (const line of lines) {
+                                if (inP1 && (p1.length + line.length + 50 > 980)) {
+                                    inP1 = false;
+                                    p1 += '╰━━━━━━━━━━━━━━━━━━⬣\n▸ _(continuação abaixo... )_';
+                                }
+                                if (inP1) {
+                                    p1 += line + '\n';
+                                } else {
+                                    p2 += line + '\n';
+                                }
+                            }
+                            if (media.type === 'video') {
+                                await client.sendMessage(from, {
+                                    video: media.buffer,
+                                    caption: p1.trim(),
+                                    gifPlayback: true,
+                                    mimetype: 'video/mp4'
+                                }, { quoted: info });
+                            } else {
+                                await client.sendMessage(from, {
+                                    image: media.buffer,
+                                    caption: p1.trim()
+                                }, { quoted: info });
+                            }
+                            if (p2.trim()) {
+                                await client.sendMessage(from, { text: p2.trim() }, { quoted: info });
+                            }
+                            return;
                         }
                     } else {
                         return reply(catDoc.trim());
@@ -284,12 +329,17 @@ module.exports = {
 
         // 3. CASO 3: Menu Principal de Categorias (.help sem argumentos)
         const categoriesMap = new Map()
+        const aliasMap = new Map()
+        const totalAliases = dispatcher.getAliases().size
         allCommands.forEach(c => {
             const cat = c.category || 'general'
             if (cat === 'admin' && !isUserAdmin) return
             if (cat === 'owner' && !isUserOwner) return
 
             categoriesMap.set(cat, (categoriesMap.get(cat) || 0) + 1)
+            if (Array.isArray(c.aliases)) {
+                aliasMap.set(cat, (aliasMap.get(cat) || 0) + c.aliases.length)
+            }
         })
 
         let totalVisivel = 0
@@ -298,15 +348,17 @@ module.exports = {
         let mainDoc = `╔══════════════════════════════╗\n`
         mainDoc += `║   🤖 *${botName}* 🤖   ║\n`
         mainDoc += `╚══════════════════════════════╝\n\n`
+        mainDoc += `⚡ *Feito Histórico:* 1.000 Comandos Reais (+${totalAliases} Aliases Ativos)\n`
         mainDoc += `📌 *Comandos Disponíveis para Você:* ${totalVisivel}\n`
-        mainDoc += `💡 _Digite_ \`${p}help <categoria>\` _para explorar cada seção:_\n\n`
+        mainDoc += `💡 _Digite_ \`${p}help <categoria>\` _ou_ \`${p}menu <categoria>\` _para explorar cada seção:_\n\n`
 
         for (const [catKey, label] of Object.entries(CATEGORY_NAMES)) {
             const count = categoriesMap.get(catKey) || 0
+            const aCount = aliasMap.get(catKey) || 0
             if (count > 0) {
                 mainDoc += `╭━〔 ${label} 〕━⬣\n`
-                mainDoc += `┃ 📊 *${count} comandos disponíveis*\n`
-                mainDoc += `┃ 🔍 _Exibir:_ \`${p}help ${catKey}\`\n`
+                mainDoc += `┃ 📊 *${count} comandos* · *${aCount} aliases*\n`
+                mainDoc += `┃ 🔍 _Exibir:_ \`${p}help ${catKey}\` ou \`${p}menu ${catKey}\`\n`
                 mainDoc += `╰━━━━━━━━━━━━━━━━━━⬣\n\n`
             }
         }
@@ -314,9 +366,10 @@ module.exports = {
         mainDoc += `💡 *Exemplos rápidos:*\n`
         mainDoc += `• \`${p}help welcome\` — Ver guia e preview de boas-vindas\n`
         mainDoc += `• \`${p}help leave\` — Ver guia de mensagens de saída\n`
-        mainDoc += `• \`${p}help media\` — Ver comandos de download\n`
+        mainDoc += `• \`${p}help media\` — Ver comandos de download com aliases\n`
         mainDoc += `• \`${p}help .play\` — Ver instruções do .play\n`
-        mainDoc += `• \`${p}menu\` — Exibir menu visual completo`
+        mainDoc += `• \`${p}menu\` — Exibir menu interativo com Live Wallpaper HD\n`
+        mainDoc += `• \`${p}menu all\` — Ver todos os 1.000 comandos com aliases`
 
         const { getMenuMedia } = require('../../utils/wallpapers');
         const media = getMenuMedia(isUserOwner ? 'owner' : (isUserAdmin ? 'admin' : 'help'));

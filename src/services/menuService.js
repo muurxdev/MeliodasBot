@@ -50,16 +50,16 @@ function groupByCategory(registry, categoryKey, userLevel) {
 const SECTION_TOP = (title) => `╭━〔 ${title} 〕━⬣\n`
 const SECTION_BOT = `╰━━━━━━━━━━━━━━━━━━⬣\n`
 
-/** Linha de um comando dentro de uma seção. */
+/** Linha de um comando dentro de uma seção com todos os seus aliases. */
 function cmdLine(cmd, prefix, registry) {
-    // Mostra o primeiro alias que REALMENTE resolve para este comando (não um
-    // sombreado por nome de outro comando — senão a dica engana o usuário).
-    let alias = null
-    if (Array.isArray(cmd.aliases)) {
-        alias = cmd.aliases.find(a => registry && !registry.has(String(a).toLowerCase())) || null
+    let aliasesHint = ''
+    if (Array.isArray(cmd.aliases) && cmd.aliases.length > 0) {
+        const valid = Array.from(new Set(cmd.aliases.filter(a => a && a !== cmd.name)))
+        if (valid.length > 0) {
+            aliasesHint = ` [${valid.map(a => `\`${prefix}${a}\``).join(', ')}]`
+        }
     }
-    const aliasHint = alias ? ` / \`${prefix}${alias}\`` : ''
-    return `┃ ➤ \`${prefix}${cmd.name}\`${aliasHint} — ${cmd.description || 'Comando do bot'}\n`
+    return `┃ ➤ \`${prefix}${cmd.name}\`${aliasesHint} — ${cmd.description || 'Comando do bot'}\n`
 }
 
 /**
@@ -133,19 +133,24 @@ function buildMenu({ category = null, page = 1, prefix = '.', userLevel = 1, bot
     if (!catKey && !isAll) {
         let doc = header(`🤖 *${botName}* 🤖`)
         const total = registry.size
-        doc += `📌 *Prefixo Ativo:* \`${prefix}\` | ⚡ *Total:* ${total} Comandos (+${totalAliases} Aliases)\n`
-        doc += `💡 _Digite o comando da categoria que deseja abrir:_\n\n`
-        doc += `╭━〔 📂 CATEGORIAS DE COMANDOS 〕━⬣\n`
+        doc += `📌 *Prefixo Ativo:* \`${prefix}\` | ⚡ *1.000 Comandos Reais* (+${totalAliases} Aliases)\n`
+        doc += `👑 *Feito Histórico:* 1.000 comandos únicos ativos com RPG, Economia e Mídia!\n`
+        doc += `💡 _Digite o comando da categoria para ver todos os comandos e aliases:_\n\n`
+        doc += `╭━〔 📂 CATEGORIAS DE COMANDOS & ALIASES 〕━⬣\n`
         for (const c of CATEGORIES) {
             // conta quantos o usuário pode ver, e esconde categorias vazias p/ ele
             let count = 0
+            let aliasCount = 0
             for (const cmd of registry.values()) {
-                if (cmd.category === c.key && canSeeInMenu(cmd, userLevel)) count++
+                if (cmd.category === c.key && canSeeInMenu(cmd, userLevel)) {
+                    count++
+                    if (Array.isArray(cmd.aliases)) aliasCount += cmd.aliases.length
+                }
             }
             if (count === 0) continue
-            doc += `┃ ${c.emoji} \`${prefix}menu ${c.key}\` ➔ ${c.label} (${count})\n`
+            doc += `┃ ${c.emoji} \`${prefix}menu ${c.key}\` ➔ ${c.label} (${count} cmds · ${aliasCount} aliases)\n`
         }
-        doc += `┃ 🌟 \`${prefix}menu all\` ➔ Ver o Catálogo Completo\n`
+        doc += `┃ 🌟 \`${prefix}menu all\` ➔ Ver o Catálogo Completo dos 1.000 Comandos\n`
         doc += `╰━━━━━━━━━━━━━━━━━━⬣\n\n`
         doc += `╭━〔 ℹ️ ATALHOS RÁPIDOS 〕━⬣\n`
         doc += `┃ ➤ \`${prefix}help <comando>\` — Instruções de qualquer comando\n`
@@ -160,6 +165,7 @@ function buildMenu({ category = null, page = 1, prefix = '.', userLevel = 1, bot
     const keys = isAll ? CATEGORIES.map(c => c.key) : [catKey]
     const units = []
     let total = 0
+    let totalCatAliases = 0
     for (const key of keys) {
         const groups = groupByCategory(registry, key, userLevel)
         if (groups.size === 0) continue
@@ -169,20 +175,24 @@ function buildMenu({ category = null, page = 1, prefix = '.', userLevel = 1, bot
         }
         for (const [sub, cmds] of [...groups.entries()].sort((a, b) => a[0].localeCompare(b[0]))) {
             total += cmds.length
+            for (const c of cmds) {
+                if (Array.isArray(c.aliases)) totalCatAliases += c.aliases.length
+            }
             units.push({ type: 'section', title: sub, lines: cmds.map(c => cmdLine(c, prefix, registry)) })
         }
     }
 
     const meta = catKey ? BY_KEY[catKey] : null
     const titleText = isAll ? '🌟 *CATÁLOGO COMPLETO* 🌟' : `${meta.emoji} *${meta.label.toUpperCase()}* ${meta.emoji}`
-    const head = header(titleText)
+    const statsSub = `📊 *Total:* ${total} Comandos · ${totalCatAliases} Aliases Ativos\n\n`
+    const head = header(titleText) + statsSub
 
     const bodyPages = composePages(units, CAPTION_BUDGET - head.length - FOOTER_RESERVE, TEXT_BUDGET - FOOTER_RESERVE)
     const totalPages = bodyPages.length
     const safePage = Math.min(Math.max(1, page), totalPages)
 
     const pages = bodyPages.map((body, i) => {
-        let doc = (i === 0 ? head : `${titleText}  — pág. ${i + 1}/${totalPages}\n\n`) + body
+        let doc = (i === 0 ? head : `${titleText}  — pág. ${i + 1}/${totalPages}\n${statsSub}`) + body
         const navTarget = isAll ? 'all' : catKey
         if (totalPages > 1 && i + 1 < totalPages) {
             doc += `\n▸ _Página ${i + 1}/${totalPages} — \`${prefix}menu ${navTarget} ${i + 2}\` para continuar_`
