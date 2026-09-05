@@ -9,7 +9,7 @@ const ITEMS_DB = {
     "espada_ferro": { id: "espada_ferro", nome: "Espada de Ferro Britânico", slot: "arma", tipo: "Arma", atk: 55, def: 5, hp: 20, crit: 5, preco: 600, raridade: "🔵 Raro", cp: 110 },
     "lamina_aco": { id: "lamina_aco", nome: "Lâmina de Aço Real", slot: "arma", tipo: "Arma", atk: 140, def: 15, hp: 50, crit: 10, preco: 2500, raridade: "🟣 Épico", cp: 290 },
     "machado_guerra": { id: "machado_guerra", nome: "Machado de Guerra de Danafor", slot: "arma", tipo: "Arma", atk: 280, def: 30, hp: 120, crit: 15, preco: 7500, raridade: "🟣 Épico", cp: 580 },
-    "chastiefol": { id: "chastiefol", nome: "Lança Espiritual Chastiefol", slot: "arma", tipo: "Arma", atk: 550, def: 80, hp: 300, crit: 20, preco: 20000, raridade: "🟣 Lendário", cp: 1250 },
+    "chastiefol": { id: "chastiefol", nome: "Lança Espiritual Chastiefol", slot: "arma", tipo: "Arma", atk: 550, def: 80, hp: 300, crit: 20, preco: 20000, raridade: "🟠 Lendário", cp: 1250 },
     "lostvayne": { id: "lostvayne", nome: "Espada Demoníaca Lostvayne", slot: "arma", tipo: "Arma", atk: 1100, def: 150, hp: 600, crit: 30, preco: 60000, raridade: "👑 Mítico", cp: 2600 },
     "gideon": { id: "gideon", nome: "Martelo Sagrado Gideon", slot: "arma", tipo: "Arma", atk: 1800, def: 350, hp: 1200, crit: 25, preco: 150000, raridade: "👑 Mítico", cp: 4200 },
     "rhitta": { id: "rhitta", nome: "Machado Divino Rhitta", slot: "arma", tipo: "Arma", atk: 4200, def: 800, hp: 3000, crit: 45, preco: 500000, raridade: "🌟 Divino", cp: 9800 },
@@ -53,7 +53,52 @@ const ITEMS_DB = {
     "anel_safira": { id: "anel_safira", nome: "Anel de Safira Mágica", slot: "amuleto", tipo: "Acessório", atk: 35, def: 35, hp: 120, preco: 650, raridade: "🔵 Raro", cp: 120 },
     "colar_dragao": { id: "colar_dragao", nome: "Colar do Dragão da Ira", slot: "amuleto", tipo: "Acessório", atk: 140, def: 140, hp: 450, preco: 4800, raridade: "🟣 Épico", cp: 480 },
     "anel_eternidade": { id: "anel_eternidade", nome: "Anel da Eternidade Mágica", slot: "amuleto", tipo: "Acessório", atk: 450, def: 450, hp: 1600, preco: 85000, raridade: "👑 Mítico", cp: 2200 },
-    "orbe_divina": { id: "orbe_divina", nome: "Orbe Celestial da Criação", slot: "amuleto", tipo: "Acessório", atk: 1200, def: 1200, hp: 4500, preco: 500000, raridade: "🌟 Divino", cp: 7500 }
+    "orbe_divina": { id: "orbe_divina", nome: "Orbe Celestial da Criação", slot: "amuleto", tipo: "Acessório", atk: 1200, def: 1200, hp: 4500, preco: 500000, raridade: "🌟 Divino", cp: 7500 },
+
+    // ═══════════════════════════════════════════════════════════════
+    // 🟠 LENDÁRIO — preenche a lacuna entre Épico e Mítico.
+    // Só a arma (Chastiefol) tinha esse tier; agora todos os 7 slots têm.
+    // ═══════════════════════════════════════════════════════════════
+    "elmo_dragao": { id: "elmo_dragao", nome: "Elmo do Dragão de Danafor", slot: "capacete", tipo: "Elmo", atk: 35, def: 190, hp: 550, preco: 12000, raridade: "🟠 Lendário", cp: 600 },
+    "peitoral_fenix": { id: "peitoral_fenix", nome: "Peitoral das Cinzas da Fênix", slot: "peitoral", tipo: "Armadura", atk: 60, def: 380, hp: 1100, preco: 18000, raridade: "🟠 Lendário", cp: 1100 },
+    "perneiras_tempestade": { id: "perneiras_tempestade", nome: "Perneiras da Tempestade Eterna", slot: "calca", tipo: "Perneira", atk: 40, def: 230, hp: 650, preco: 11000, raridade: "🟠 Lendário", cp: 700 },
+    "botas_relampago": { id: "botas_relampago", nome: "Botas do Relâmpago Divino", slot: "botas", tipo: "Botas", atk: 30, def: 160, hp: 460, esq: 21, preco: 10000, raridade: "🟠 Lendário", cp: 620 },
+    "escudo_titan": { id: "escudo_titan", nome: "Égide do Titã Ancestral", slot: "escudo", tipo: "Escudo", atk: 70, def: 450, hp: 1300, bloq: 43, preco: 20000, raridade: "🟠 Lendário", cp: 1300 },
+    "talisma_pecados": { id: "talisma_pecados", nome: "Talismã dos Sete Pecados", slot: "amuleto", tipo: "Acessório", atk: 260, def: 260, hp: 900, preco: 16000, raridade: "🟠 Lendário", cp: 1100 },
+    "gelda": { id: "gelda", nome: "Sabre de Sangue Carmesim", slot: "arma", tipo: "Arma", atk: 700, def: 100, hp: 400, crit: 24, preco: 30000, raridade: "🟠 Lendário", cp: 1600 },
+
+    // 🌟 DIVINO que faltava (o escudo parava no Mítico)
+    "barreira_perfeita": { id: "barreira_perfeita", nome: "Barreira Perfeita de Merlin", slot: "escudo", tipo: "Escudo", atk: 380, def: 1400, hp: 4200, bloq: 70, preco: 400000, raridade: "🌟 Divino", cp: 5500 },
+
+    // ═══════════════════════════════════════════════════════════════
+    // 🔥 TRANSCENDENTE — tier de endgame, acima do Divino. Dá objetivo
+    // de longo prazo para quem já fechou o equipamento Divino.
+    // ═══════════════════════════════════════════════════════════════
+    "espada_caos": { id: "espada_caos", nome: "Lâmina do Caos de Meliodas", slot: "arma", tipo: "Arma", atk: 8500, def: 1800, hp: 6000, crit: 60, preco: 1500000, raridade: "🔥 Transcendente", cp: 20000 },
+    "coroa_caos": { id: "coroa_caos", nome: "Diadema do Caos Primordial", slot: "capacete", tipo: "Elmo", atk: 600, def: 1900, hp: 5500, preco: 900000, raridade: "🔥 Transcendente", cp: 9000 },
+    "armadura_caos": { id: "armadura_caos", nome: "Égide do Caos Absoluto", slot: "peitoral", tipo: "Armadura", atk: 900, def: 3400, hp: 11000, preco: 1200000, raridade: "🔥 Transcendente", cp: 14000 },
+    "grevas_caos": { id: "grevas_caos", nome: "Grevas do Vazio Primordial", slot: "calca", tipo: "Perneira", atk: 500, def: 2100, hp: 6500, preco: 850000, raridade: "🔥 Transcendente", cp: 9500 },
+    "passos_caos": { id: "passos_caos", nome: "Passos Além do Tempo", slot: "botas", tipo: "Botas", atk: 400, def: 1500, hp: 4500, esq: 65, preco: 800000, raridade: "🔥 Transcendente", cp: 8200 },
+    "escudo_caos": { id: "escudo_caos", nome: "Muralha do Caos Eterno", slot: "escudo", tipo: "Escudo", atk: 800, def: 3000, hp: 9000, bloq: 85, preco: 1100000, raridade: "🔥 Transcendente", cp: 12000 },
+    "coracao_caos": { id: "coracao_caos", nome: "Coração do Caos", slot: "amuleto", tipo: "Acessório", atk: 2600, def: 2600, hp: 9500, preco: 1400000, raridade: "🔥 Transcendente", cp: 16000 },
+
+    // ═══════════════════════════════════════════════════════════════
+    // Variedade extra nos tiers baixos/médios (builds alternativas):
+    // ofensiva (mais atk/crit) x defensiva (mais def/hp) no mesmo preço.
+    // ═══════════════════════════════════════════════════════════════
+    "adaga_gemea": { id: "adaga_gemea", nome: "Adagas Gêmeas do Ladrão", slot: "arma", tipo: "Arma", atk: 45, def: 0, hp: 0, crit: 14, preco: 580, raridade: "🔵 Raro", cp: 105 },
+    "arco_caca": { id: "arco_caca", nome: "Arco Longo do Caçador", slot: "arma", tipo: "Arma", atk: 125, def: 5, hp: 20, crit: 18, preco: 2400, raridade: "🟣 Épico", cp: 280 },
+    "cajado_merlin": { id: "cajado_merlin", nome: "Cajado Arcano de Belialuin", slot: "arma", tipo: "Arma", atk: 260, def: 60, hp: 220, crit: 12, preco: 7200, raridade: "🟣 Épico", cp: 575 },
+    "capuz_sombrio": { id: "capuz_sombrio", nome: "Capuz do Assassino Sombrio", slot: "capacete", tipo: "Elmo", atk: 30, def: 70, hp: 180, preco: 2100, raridade: "🟣 Épico", cp: 265 },
+    "tiara_feiticeira": { id: "tiara_feiticeira", nome: "Tiara da Feiticeira", slot: "capacete", tipo: "Elmo", atk: 12, def: 40, hp: 130, preco: 540, raridade: "🔵 Raro", cp: 98 },
+    "manto_viajante": { id: "manto_viajante", nome: "Manto do Viajante", slot: "peitoral", tipo: "Armadura", atk: 15, def: 60, hp: 240, preco: 780, raridade: "🔵 Raro", cp: 155 },
+    "cota_malha": { id: "cota_malha", nome: "Cota de Malha do Vigia", slot: "peitoral", tipo: "Armadura", atk: 0, def: 95, hp: 260, preco: 820, raridade: "🔵 Raro", cp: 165 },
+    "calca_couro_cravejado": { id: "calca_couro_cravejado", nome: "Calças Cravejadas de Aço", slot: "calca", tipo: "Perneira", atk: 8, def: 35, hp: 140, preco: 480, raridade: "🔵 Raro", cp: 88 },
+    "botas_batedor": { id: "botas_batedor", nome: "Botas Leves do Batedor", slot: "botas", tipo: "Botas", atk: 5, def: 22, hp: 55, esq: 9, preco: 430, raridade: "🔵 Raro", cp: 72 },
+    "broquel_aco": { id: "broquel_aco", nome: "Broquel de Aço Temperado", slot: "escudo", tipo: "Escudo", atk: 8, def: 62, hp: 165, bloq: 22, preco: 680, raridade: "🔵 Raro", cp: 148 },
+    "pingente_rubi": { id: "pingente_rubi", nome: "Pingente de Rubi Flamejante", slot: "amuleto", tipo: "Acessório", atk: 55, def: 18, hp: 90, preco: 640, raridade: "🔵 Raro", cp: 118 },
+    "bracelete_ferro": { id: "bracelete_ferro", nome: "Bracelete de Ferro Rúnico", slot: "amuleto", tipo: "Acessório", atk: 14, def: 14, hp: 40, preco: 130, raridade: "⚪ Comum", cp: 24 },
+    "porrete_madeira": { id: "porrete_madeira", nome: "Porrete de Carvalho", slot: "arma", tipo: "Arma", atk: 20, def: 2, hp: 10, crit: 1, preco: 160, raridade: "⚪ Comum", cp: 27 }
 };
 
 function getItem(itemIdOrName) {
