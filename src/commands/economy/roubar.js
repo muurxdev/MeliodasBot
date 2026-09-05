@@ -32,6 +32,21 @@ module.exports = {
         const victim = initializeUser(mentioned, xpData)
         const victimCoins = victim.coins || 0
 
+        // Escudo comprado com .protecao — bloqueia antes de qualquer sorteio.
+        // Também NÃO consome o cooldown do ladrão: ele não chegou a tentar,
+        // foi barrado na porta. Cobrar 2h por isso seria punir sem crime.
+        const protecao = require("../../services/protectionService")
+        if (protecao.estaProtegido(victim)) {
+            const restante = protecao.formatarRestante(protecao.restanteMs(victim))
+            return reply(
+                "🛡️ *ALVO PROTEGIDO*\n\n" +
+                "@" + mentioned.split("@")[0] + " está com *proteção anti-roubo* ativa.\n\n" +
+                "⏳ _Ainda restam " + restante + " de escudo._\n" +
+                "💡 _Seu cooldown não foi gasto._",
+                [mentioned]
+            )
+        }
+
         if (victimCoins < 100) {
             return reply("❌ A vítima é muito humilde e tem menos de 100 Coins na carteira. Não vale a pena o risco!")
         }

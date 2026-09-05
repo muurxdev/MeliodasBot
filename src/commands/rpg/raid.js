@@ -164,6 +164,8 @@ module.exports = {
                     pProfile.bossesMortos = (pProfile.bossesMortos || 0) + 1
 
                     const userDmg = currentRaid.dano[pUser]
+                    require('../../services/bossHistoryService')
+                        .registrarAbate(pProfile, currentRaid, { dano: userDmg, tipo: 'raid' })
                     const dmgPercent = ((userDmg / currentRaid.vidaMax) * 100).toFixed(1)
 
                     const xpAward = Math.floor((300 + (userDmg / 4)) * mult)

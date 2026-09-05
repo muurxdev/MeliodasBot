@@ -178,6 +178,10 @@ module.exports = {
                     perfilP.bossesMortos = (perfilP.bossesMortos || 0) + 1
 
                     const danoP = boss.dano[pUser]
+                    // Alem do contador, guarda QUAL boss caiu: o perfil mostrava
+                    // "37 bosses" sem dizer quais eram.
+                    require('../../services/bossHistoryService')
+                        .registrarAbate(perfilP, boss, { dano: danoP, tipo: 'boss' })
                     const xpGanho = Math.floor((100 + danoP / 5) * mult)
                     const coinsGanho = Math.floor((200 + danoP / 3) * mult)
 

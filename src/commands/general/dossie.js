@@ -265,6 +265,11 @@ module.exports = {
             doc += "┃ 🏟️ *Arena PvP:* " + (user.arenaPontos || 0) + " pts (Arena " + (user.arenaAtual || 1) + ") | 🏅 *Conquistas:* " + ((user.conquistas && user.conquistas.length) || 0) + "\n";
             doc += "╰━━━━━━━━━━━━━━━━━━⬣\n\n";
 
+            // QUAIS bosses caíram, não só quantos. Vem vazio para quem nunca
+            // derrotou nenhum, para não abrir uma seção sem conteúdo.
+            const blocoBosses = require("../../services/bossHistoryService").blocoPerfil(user, 5);
+            if (blocoBosses) doc += blocoBosses.trimStart();
+
             doc += "╭━〔 💰 PATRIMÔNIO & FINANÇAS 〕━⬣\n";
             doc += "┃ 💵 *Carteira:* " + (user.coins || 0).toLocaleString('pt-BR') + " Coins\n";
             doc += "┃ 🏦 *Banco Seguro:* " + (user.bank || 0).toLocaleString('pt-BR') + " Coins\n";
