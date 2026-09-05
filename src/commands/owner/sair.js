@@ -32,6 +32,14 @@ module.exports = {
             await client.groupLeave(targetGroup)
             logger.info(`[GROUP LEAVE] Dono ${sender} fez o bot sair do grupo: ${targetGroup}`)
         } catch (err) {
+            // "conflict"/"forbidden"/"not-authorized" aqui = o bot NÃO está nesse grupo
+            // (ou já saiu). Também não é falha: respondemos claro em vez de erro cru.
+            const reason = String(err?.message || '').toLowerCase()
+            const status = err?.data || err?.output?.statusCode
+            if (reason.includes('conflict') || reason.includes('forbidden') || reason.includes('not-authorized') ||
+                status === 409 || status === 403 || status === 401 || status === 404) {
+                return reply('ℹ️ *Não estou nesse grupo* (ou já saí dele). Nada a fazer.')
+            }
             logger.error('[SAIR ERROR]', err)
             return reply(`❌ *Erro ao sair do grupo:* ${err.message}`)
         }
