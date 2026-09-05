@@ -1,26 +1,66 @@
 /**
- * Comando .cacaniquelmagico — Puxa a alavanca do caça-níqueis temático: .cacaniquelmagico
+ * Comando .cacaniquelmagico — caca-niquel de 3 rolos.
+ *
+ * Tres iguais pagam o valor do simbolo; dois iguais devolvem 1,5x. Os simbolos
+ * raros aparecem menos porque entram menos vezes na lista de sorteio.
  */
+
+const economy = require('../../services/economyService')
+
+// Repeticao define a frequencia: a cereja sai muito, o 7 quase nunca.
+const ROLO = [
+    '\u{1F352}', '\u{1F352}', '\u{1F352}', '\u{1F352}',
+    '\u{1F34B}', '\u{1F34B}', '\u{1F34B}',
+    '\u{1F514}', '\u{1F514}',
+    '\u{1F48E}',
+    '7\uFE0F\u20E3'
+]
+
+const PREMIO_TRIPLO = {
+    '\u{1F352}': 5,
+    '\u{1F34B}': 8,
+    '\u{1F514}': 15,
+    '\u{1F48E}': 40,
+    '7\uFE0F\u20E3': 100
+}
+
 module.exports = {
-    name: "cacaniquelmagico",
-    aliases: [],
-    category: "economy",
-    subcategory: "Cassino",
-    description: "Puxa a alavanca do caça-níqueis temático: .cacaniquelmagico",
-    cooldownMs: 2500,
-    execute: async ({ reply }) => {
-            const slots = ["🔥", "⚡", "☀️", "🌙", "⚔️", "👑"];
-            const s1 = slots[Math.floor(Math.random() * slots.length)];
-            const s2 = slots[Math.floor(Math.random() * slots.length)];
-            const s3 = slots[Math.floor(Math.random() * slots.length)];
-            let res = `🎰 *CAÇA-NÍQUEIS DOS SETE PECADOS*\n\n[ ${s1} | ${s2} | ${s3} ]\n\n`;
-            if (s1 === s2 && s2 === s3) {
-                res += `💥 *SUPER COMBO!* Você acertou 3 símbolos iguais e levou 💰 *3.000 moedas*!`;
-            } else if (s1 === s2 || s2 === s3) {
-                res += `✨ Dupla sincronizada! Você ganhou 💰 *300 moedas*!`;
-            } else {
-                res += `Nada dessa vez... Puxe a alavanca novamente!`;
-            }
-            return reply(res);
+    name: 'cacaniquelmagico',
+    aliases: ['caniquel', 'slotmagico'],
+    category: 'economy',
+    subcategory: 'Cassino',
+    description: 'Gire o caca-niquel magico: .cacaniquelmagico <valor>',
+    cooldownMs: 3000,
+    execute: async ({ sender, args, reply }) => {
+        if (!args[0]) {
+            let ajuda = '\u{1F3B0} *CACA-NIQUEL MAGICO*\n\n\u{1F4CC} *Uso:* `.cacaniquelmagico <valor>`\n\n*Tres iguais pagam:*\n'
+            for (const [s, m] of Object.entries(PREMIO_TRIPLO)) ajuda += `${s}${s}${s} \u2014 *${m}x*\n`
+            ajuda += '\n\u{1F91D} _Dois iguais devolvem 1,5x._\n\n*Exemplo:* `.cacaniquelmagico 1000`'
+            return reply(ajuda)
         }
-};
+
+        const giro = [0, 0, 0].map(() => ROLO[Math.floor(Math.random() * ROLO.length)])
+        const [a, b, c] = giro
+
+        let mult = 0
+        let texto = '\u{1F480} *NADA DESSA VEZ*'
+        if (a === b && b === c) {
+            mult = PREMIO_TRIPLO[a] || 5
+            texto = `\u{1F389} *TRIPLO ${a}! ${mult}x*`
+        } else if (a === b || b === c || a === c) {
+            mult = 1.5
+            texto = '\u2728 *DOIS IGUAIS \u2014 1,5x*'
+        }
+
+        const res = economy.resolverAposta({
+            sender, texto: args[0], ganhou: mult > 0, multiplicador: mult
+        })
+        if (!res.ok) return reply(res.erro)
+
+        return reply(economy.cartaoResultado({
+            titulo: ' \u{1F3B0} *CACA-NIQUEL MAGICO* \u{1F3B0} ',
+            linhas: [`\u{1F3AC}  ${giro.join(' \u2502 ')}`, texto],
+            valor: res.valor, delta: res.delta, saldo: res.saldo, ganhou: mult > 0
+        }))
+    }
+}
