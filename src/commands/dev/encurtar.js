@@ -1,39 +1,62 @@
 /**
- * MoeliodasBt — Comando .encurtar
- * Encurtador de links e URLs via is.gd
+ * MeliodasBot — Comando .encurtar
+ * Encurtador resiliente de links e URLs com múltiplos provedores em cascata
  */
+
+const shortenerService = require('../../services/shortenerService');
 
 module.exports = {
     name: "encurtar",
-    aliases: ["shortlink", "isgd", "tinylink", "encurtador"],
+    aliases: ["shortlink", "isgd", "tinylink", "encurtador", "shorturl"],
     category: "dev",
     description: "Encurta URLs longas gerando links curtos e seguros",
-    execute: async ({ args, text, reply }) => {
-        let targetUrl = (args && args[0]) ? args[0].trim() : "";
+    execute: async ({ args, text, reply, quotedMsg }) => {
+        // Tenta pegar a URL dos argumentos ou do texto da mensagem citada
+        let input = (args && args.length > 0) ? args.join(' ').trim() : '';
+        if (!input && quotedMsg && quotedMsg.text) {
+            input = quotedMsg.text.trim();
+        }
 
-        if (!targetUrl || !/^https?:\/\//i.test(targetUrl)) {
-            return reply("🔗 *Uso:* Digite `.encurtar <link completo>`\n👉 Exemplo: `.encurtar https://google.com`");
+        if (!input) {
+            return reply(
+                "╔══════════════════════════════╗\n" +
+                "║      🔗 *ENCURTADOR DE LINKS* 🔗   ║\n" +
+                "╚══════════════════════════════╝\n\n" +
+                "📌 *Como Usar:*\n" +
+                "• Digite: `.encurtar <link>`\n" +
+                "• Ou responda a uma mensagem com link usando `.encurtar`\n\n" +
+                "👉 *Exemplo:* `.encurtar https://open.spotify.com/track/...`\n" +
+                "👉 *Exemplo:* `.encurtar google.com`"
+            );
+        }
+
+        // Extrai URL via regex se houver texto ao redor
+        const urlMatch = input.match(/https?:\/\/[^\s]+/) || input.match(/[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}(?:\/[^\s]*)?/);
+        let targetUrl = urlMatch ? urlMatch[0] : input;
+
+        // Se não tiver protocolo, adiciona https://
+        if (!/^https?:\/\//i.test(targetUrl)) {
+            targetUrl = 'https://' + targetUrl;
         }
 
         try {
-            const endpoint = `https://is.gd/create.php?format=json&url=${encodeURIComponent(targetUrl)}`;
-            const res = await fetch(endpoint, { signal: AbortSignal.timeout(6000) });
-            const data = await res.json();
-
-            if (data.errorcode || !data.shorturl) {
-                return reply(`❌ *Erro ao encurtar link:* ${data.errormessage || "Link inválido."}`);
-            }
+            const result = await shortenerService.shortenUrl(targetUrl);
 
             let doc = `╔══════════════════════════════╗\n`;
             doc += `║      🔗 *LINK ENCURTADO* 🔗      ║\n`;
             doc += `╚══════════════════════════════╝\n\n`;
-            doc += `🌐 *Link Original:* ${targetUrl.slice(0, 50)}${targetUrl.length > 50 ? "..." : ""}\n`;
-            doc += `✨ *Link Curto:* ${data.shorturl}\n\n`;
-            doc += `🚀 _Link pronto para compartilhamento!_`;
+            doc += `✅ *Link encurtado com sucesso!*\n\n`;
+            doc += `╭━〔 🌐 *DETALHES DO LINK* 〕━⬣\n`;
+            doc += `┃ 🌐 *Original:* ${targetUrl.slice(0, 60)}${targetUrl.length > 60 ? "..." : ""}\n`;
+            doc += `┃ ✨ *Link Curto:* ${result.shortUrl}\n`;
+            doc += `┃ 📋 *Puro p/ Copiar:* \`${result.shortUrl}\`\n`;
+            doc += `┃ ⚡ *Provedor:* ${result.provider}\n`;
+            doc += `╰━━━━━━━━━━━━━━━━━━━━⬣\n\n`;
+            doc += `🚀 _Link pronto e seguro para compartilhamento!_`;
 
             return reply(doc.trim());
         } catch (err) {
-            return reply("❌ *Erro no encurtador:* " + err.message);
+            return reply(`❌ *Erro ao encurtar link:* ${err.message || 'Falha temporária nos serviços de encurtamento.'}`);
         }
     }
 };

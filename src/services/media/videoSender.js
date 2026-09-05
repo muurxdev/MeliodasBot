@@ -1,20 +1,10 @@
 /**
  * Envio inteligente de vídeo no WhatsApp.
  *
- * O problema: o WhatsApp tem DOIS caminhos e eles são excludentes.
- *   - Como MÍDIA (video)    -> aparece na galeria, toca sozinho... mas o limite
- *                              real é ~16 MB no app (64 MB no Web).
- *   - Como DOCUMENTO        -> aceita até 2 GB e preserva a qualidade original,
- *                              mas NÃO entra na galeria: para quem não é técnico,
- *                              é um arquivo que "não abre".
- *
- * O código antigo mandava como vídeo tudo até 100 MB — muito acima do que o
- * WhatsApp aceita — então arquivos de 20-100 MB falhavam ou chegavam destruídos.
- *
- * Estratégia daqui: entregar na GALERIA sempre que der. Se o arquivo original
- * não couber, recomprime com ffmpeg até caber (mantendo H.264/AAC) e avisa o que
- * foi feito. Só cai para documento se nem isso resolver, ou se o usuário pedir
- * a qualidade máxima explicitamente.
+ * DIRETRIZES:
+ * 1. Até 100 MB  -> Manda direto como VÍDEO completo e original na conversa/galeria (sem rebaixar resolução nem comprimir).
+ * 2. > 100 MB    -> Manda como DOCUMENTO / ARQUIVO na íntegra preservando 100% da qualidade original.
+ * 3. > 2 GB      -> Sobe para o Google Drive 5TB com link da pasta e links de visualização/download direto.
  */
 
 const fs = require('fs')
@@ -24,11 +14,10 @@ const { tempDir } = require('../../config/paths')
 const logger = require('../../core/logger')
 const drive = require('../drive/googleDriveService')
 
-// Limite seguro para chegar na galeria de qualquer aparelho.
-const LIMITE_GALERIA = Number(process.env.WHATSAPP_MEDIA_MAX_BYTES || 16 * 1024 * 1024)
+// Limite para envio direto como vídeo (até 100 MB toca direto na conversa/galeria)
+const LIMITE_GALERIA = Number(process.env.WHATSAPP_MEDIA_MAX_BYTES || 100 * 1024 * 1024)
 
-// Acima disso, mandar como documento é hostil: o download trava no celular e o
-// arquivo não abre na galeria. Se o Drive estiver configurado, ele assume.
+// Limite para envio via documento/arquivo (até 2 GB)
 const LIMITE_DOCUMENTO = Number(process.env.WHATSAPP_DOC_MAX_BYTES || 2000 * 1024 * 1024)
 
 const mb = b => (b / 1024 / 1024).toFixed(1)
@@ -43,49 +32,28 @@ function _ffmpeg(args, timeoutMs = 600000) {
 }
 
 /**
- * Recomprime até caber no limite da galeria.
- * Vai reduzindo resolução/qualidade em degraus até passar.
- * @returns {Promise<string|null>} caminho do arquivo comprimido, ou null
+ * Função utilitária de compressão mantida para compatibilidade
  */
 async function comprimirParaGaleria(origem, limiteBytes = LIMITE_GALERIA) {
-    const degraus = [
-        { altura: 720, crf: 28 },
-        { altura: 480, crf: 30 },
-        { altura: 360, crf: 32 }
-    ]
-    for (const [i, d] of degraus.entries()) {
-        const saida = path.join(tempDir, `galeria_${Date.now()}_${i}.mp4`)
-        const ok = await _ffmpeg([
-            '-y', '-i', origem,
-            '-vf', `scale=-2:'min(${d.altura},ih)'`,
-            '-c:v', 'libx264', '-crf', String(d.crf), '-preset', 'veryfast',
-            '-pix_fmt', 'yuv420p',
-            '-c:a', 'aac', '-b:a', '128k',
-            '-movflags', '+faststart',
-            saida
-        ])
-        if (!ok || !fs.existsSync(saida)) continue
-        const tam = fs.statSync(saida).size
-        if (tam <= limiteBytes) {
-            logger.info(`[VIDEO SENDER] Comprimido para ${d.altura}p (${mb(tam)} MB) — cabe na galeria`)
-            return saida
-        }
-        try { fs.unlinkSync(saida) } catch (_) {}
-    }
+    const saida = path.join(tempDir, `galeria_${Date.now()}.mp4`)
+    const ok = await _ffmpeg([
+        '-y', '-i', origem,
+        '-c:v', 'libx264', '-crf', '24', '-preset', 'veryfast',
+        '-pix_fmt', 'yuv420p',
+        '-c:a', 'aac', '-b:a', '128k',
+        '-movflags', '+faststart',
+        saida
+    ])
+    if (ok && fs.existsSync(saida)) return saida
     return null
 }
 
 /**
  * Sobe o arquivo original para o Drive, mostrando o progresso no WhatsApp.
  *
- * Um upload de 3 GB leva minutos. Sem feedback o usuário acha que o bot travou
- * e repete o comando — o que dobra o trabalho da VPS. Por isso editamos uma
- * única mensagem de status em vez de mandar várias.
- *
- * @returns {Promise<{visualizar:string, baixar:string}>}
+ * @returns {Promise<{visualizar:string, baixar:string, folderId:string, folderUrl:string}>}
  */
 async function enviarParaDrive({ client, from, filePath, fileName, tamanho }) {
-    // Recusa antes de gastar banda se a conta do dono estiver cheia.
     const quota = await drive.getQuota()
     if (quota.livre < tamanho * 1.05) {
         throw new Error(`Sem espaço no Drive: faltam ${mb(tamanho - quota.livre)} MB`)
@@ -97,8 +65,6 @@ async function enviarParaDrive({ client, from, filePath, fileName, tamanho }) {
 
     let ultimoMarco = 0
     const onProgress = (pct) => {
-        // Edita de 10 em 10%: o WhatsApp limita edições e uma barra de progresso
-        // byte a byte viraria flood.
         if (pct < ultimoMarco + 10 && pct < 100) return
         ultimoMarco = pct
         const barra = '█'.repeat(Math.floor(pct / 10)) + '░'.repeat(10 - Math.floor(pct / 10))
@@ -126,12 +92,13 @@ async function enviarParaDrive({ client, from, filePath, fileName, tamanho }) {
 }
 
 /**
- * Envia o vídeo do melhor jeito possível.
+ * Envia o vídeo completo na íntegra.
+ *
  * @param {object} o
- * @param {boolean} [o.preferirDocumento] usuário pediu qualidade máxima (flag -doc)
- * @returns {Promise<{modo:'video'|'video-comprimido'|'documento'|'drive'|'recusado'}>}
+ * @param {boolean} [o.preferirDocumento] usuário pediu envio como arquivo (flag -doc)
+ * @returns {Promise<{modo:'video'|'documento'|'drive'|'recusado'}>}
  */
-async function enviarVideo({ client, from, filePath, caption, info, fileName, preferirDocumento = false }) {
+async function enviarVideo({ client, from, filePath, caption = '', info, fileName, preferirDocumento = false }) {
     const tamanho = fs.statSync(filePath).size
     const nome = fileName || path.basename(filePath)
 
@@ -140,14 +107,12 @@ async function enviarVideo({ client, from, filePath, caption, info, fileName, pr
             document: { url: filePath },
             mimetype: 'video/mp4',
             fileName: nome,
-            caption: caption + (nota ? `\n\n${nota}` : '')
+            caption: (caption ? caption + '\n\n' : '') + (nota || '')
         }, { quoted: info, mediaUploadTimeoutMs: 600000 })
         return { modo: 'documento' }
     }
 
-    // 0. Arquivos maiores que 2GB (Teto máximo absoluto do WhatsApp)
-    // Jamais tenta comprimir com ffmpeg (travaria a VPS por horas).
-    // Vai direto para a API do Google Drive de 5TB do dono!
+    // 0. Arquivos maiores que 2GB (Teto máximo do WhatsApp) -> Google Drive 5TB
     if (tamanho > LIMITE_DOCUMENTO) {
         if (drive.isConfigured()) {
             try {
@@ -180,101 +145,24 @@ async function enviarVideo({ client, from, filePath, caption, info, fileName, pr
         } else {
             await client.sendMessage(from, {
                 text: `❌ *Arquivo grande demais* (${mb(tamanho)} MB).\n\n` +
-                      `O WhatsApp possui limite de 2.000 MB (2 GB) por arquivo e o Google Drive de 5TB não está configurado nesta instância do bot.\n` +
-                      `💡 _Configure o Google Drive com as variáveis GDRIVE_* no servidor para permitir downloads acima de 2GB._`
+                      `O WhatsApp possui limite de 2.000 MB (2 GB) por arquivo e o Google Drive de 5TB não está configurado nesta instância do bot.\n`
             }, { quoted: info })
             return { modo: 'recusado' }
         }
     }
 
-    // 1. Já cabe: caminho ideal, vai direto para a galeria.
+    // 1. Até 100MB: manda DIRETO como VÍDEO completo e original na conversa! Sem compressão, sem perda!
     if (tamanho <= LIMITE_GALERIA && !preferirDocumento) {
         await client.sendMessage(from, {
-            video: { url: filePath }, caption, mimetype: 'video/mp4'
+            video: { url: filePath },
+            caption,
+            mimetype: 'video/mp4'
         }, { quoted: info, mediaUploadTimeoutMs: 300000 })
         return { modo: 'video' }
     }
 
-    // 2. Usuário quer a qualidade original acima de tudo.
-    if (preferirDocumento) {
-        return comoDocumento(`📦 *Enviado como arquivo (${mb(tamanho)} MB)* para preservar a qualidade original.\n⚠️ _Arquivo não aparece na galeria._`)
-    }
-
-    // 3. Grande demais para a galeria. Se o Drive estiver ligado, ele guarda o
-    //    ORIGINAL (sem limite de tamanho nem de resolução) e devolve um link.
-    let linkDrive = null
-    if (drive.isConfigured()) {
-        try {
-            linkDrive = await enviarParaDrive({ client, from, filePath, fileName: nome, tamanho })
-        } catch (e) {
-            // Drive fora do ar não pode impedir a entrega: cai para os modos
-            // antigos (comprimir / documento).
-            logger.warn(`[VIDEO SENDER] Drive falhou, seguindo sem ele: ${e.message}`)
-        }
-    }
-
-    // 4. Comprime para caber e chegar na galeria. Mesmo com o link do Drive
-    //    isso vale a pena: o usuário assiste na hora e usa o link só se quiser
-    //    a qualidade cheia.
-    let comprimido = null
-    try {
-        comprimido = await comprimirParaGaleria(filePath)
-    } catch (e) {
-        logger.warn(`[VIDEO SENDER] Falha ao comprimir: ${e.message}`)
-    }
-
-    if (comprimido) {
-        try {
-            const novoTam = fs.statSync(comprimido).size
-            const nota = linkDrive
-                ? `\n\n📉 _Prévia reduzida de ${mb(tamanho)} para ${mb(novoTam)} MB para tocar aqui._\n\n` +
-                  `☁️ *Original em qualidade máxima (${mb(tamanho)} MB):*\n` +
-                  (linkDrive.folderUrl ? `📁 Pasta no Drive: ${linkDrive.folderUrl}\n` : '') +
-                  `▶️ Assistir: ${linkDrive.visualizar}\n` +
-                  `⬇️ Baixar: ${linkDrive.baixar}`
-                : `\n\n📉 _Reduzido de ${mb(tamanho)} para ${mb(novoTam)} MB para abrir direto na sua galeria._\n` +
-                  `💡 _Quer o arquivo original em máxima qualidade? Use_ \`-doc\` _no comando._`
-
-            await client.sendMessage(from, {
-                video: { url: comprimido },
-                caption: caption + nota,
-                mimetype: 'video/mp4'
-            }, { quoted: info, mediaUploadTimeoutMs: 300000 })
-            return { modo: linkDrive ? 'video-comprimido+drive' : 'video-comprimido', drive: linkDrive }
-        } finally {
-            try { fs.unlinkSync(comprimido) } catch (e) {
-                logger.warn(`[VIDEO SENDER] Não removi o temporário ${comprimido}: ${e.message}`)
-            }
-        }
-    }
-
-    // 5. Não deu para comprimir, mas o Drive guardou: manda só o link.
-    if (linkDrive) {
-        let msgDrive = (caption ? caption + '\n\n' : '') +
-            `☁️ *Arquivo de ${mb(tamanho)} MB — grande demais para a galeria.*\n` +
-            `Guardei no Drive em qualidade máxima:\n\n`
-        if (linkDrive.folderUrl) {
-            msgDrive += `📁 *Pasta no Drive:* ${linkDrive.folderUrl}\n`
-        }
-        msgDrive += `▶️ *Assistir:* ${linkDrive.visualizar}\n`
-        msgDrive += `⬇️ *Baixar:* ${linkDrive.baixar}`
-
-        await client.sendMessage(from, { text: msgDrive.trim() }, { quoted: info })
-        return { modo: 'drive', drive: linkDrive }
-    }
-
-    // 6. Sem Drive e sem compressão: acima de 2 GB o WhatsApp nem aceita.
-    if (tamanho > LIMITE_DOCUMENTO) {
-        await client.sendMessage(from, {
-            text: `❌ *Arquivo grande demais* (${mb(tamanho)} MB).\n\n` +
-                  `O WhatsApp aceita no máximo ${mb(LIMITE_DOCUMENTO)} MB e não consegui reduzir o vídeo.\n` +
-                  `💡 _Configure o Google Drive no bot para receber arquivos deste tamanho por link._`
-        }, { quoted: info })
-        return { modo: 'recusado' }
-    }
-
-    // 7. Último caso: manda o arquivo mesmo.
-    return comoDocumento(`📦 *Enviado como arquivo (${mb(tamanho)} MB)* — grande demais para a galeria do WhatsApp (limite ~${mb(LIMITE_GALERIA)} MB).`)
+    // 2. Acima de 100MB e até 2GB (ou se o usuário pediu explicitamente -doc): manda via ARQUIVO / DOCUMENTO!
+    return comoDocumento(`📦 *Enviado como arquivo (${mb(tamanho)} MB)* — completo em máxima qualidade original.`)
 }
 
-module.exports = { enviarVideo, comprimirParaGaleria, LIMITE_GALERIA }
+module.exports = { enviarVideo, comprimirParaGaleria, LIMITE_GALERIA, LIMITE_DOCUMENTO }

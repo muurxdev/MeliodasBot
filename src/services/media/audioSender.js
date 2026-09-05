@@ -1,24 +1,10 @@
 /**
  * Envio inteligente de áudio no WhatsApp.
  *
- * O CASO QUE QUEBRAVA
- * -------------------
- * Os comandos mandavam `audio: { url }` sem olhar o tamanho. Funciona para uma
- * música de 4 min (~4 MB). Uma live de pagode de 3 horas vira ~165 MB de MP3:
- * o WhatsApp recusa (limite ~16 MB para áudio tocável) e o usuário recebe erro
- * ou um arquivo mudo, sem explicação.
- *
- * Comprimir não salva: 3 h em 32 kbps ainda dá ~41 MB, e o som fica horrível.
- * Áudio longo simplesmente não cabe como mídia do WhatsApp.
- *
- * A ORDEM AQUI
- * ------------
- *   1. Cabe (≤16 MB)  -> manda como áudio tocável. Caminho ideal.
- *   2. Drive ligado    -> sobe o original inteiro e manda UM link. Melhor opção
- *                         para conteúdo longo: um toque e toca no app do Drive.
- *   3. Sem Drive       -> divide em partes tocáveis de ~15 min. Vira várias
- *                         mensagens, mas todas tocam direto no WhatsApp.
- *   4. Último caso     -> documento.
+ * DIRETRIZES:
+ * 1. Até 100 MB  -> Manda direto como áudio completo e original na conversa (sem compressão/perda).
+ * 2. > 100 MB    -> Manda como arquivo/documento na íntegra (ou partes se solicitado com -partes).
+ * 3. > 2 GB      -> Sobe para o Google Drive 5TB com links de streaming e pasta.
  */
 
 const fs = require('fs')
@@ -28,14 +14,16 @@ const { tempDir } = require('../../config/paths')
 const logger = require('../../core/logger')
 const drive = require('../drive/googleDriveService')
 
-// Limite prático do áudio tocável no WhatsApp.
-const LIMITE_AUDIO = Number(process.env.WHATSAPP_AUDIO_MAX_BYTES || 16 * 1024 * 1024)
+// Limite prático do áudio tocável no WhatsApp (até 100 MB toca direto)
+const LIMITE_AUDIO = Number(process.env.WHATSAPP_AUDIO_MAX_BYTES || 100 * 1024 * 1024)
 
-// Duração de cada parte quando é preciso dividir. 15 min em 128 kbps ≈ 14 MB,
-// logo abaixo do limite, com folga para a variação do VBR.
+// Limite de envio via documento/arquivo (até 2 GB)
+const LIMITE_DOCUMENTO = Number(process.env.WHATSAPP_DOC_MAX_BYTES || 2000 * 1024 * 1024)
+
+// Duração de cada parte quando o usuário pede divisão com -partes
 const SEGUNDOS_POR_PARTE = Number(process.env.AUDIO_SPLIT_SECONDS || 15 * 60)
 
-// Acima disso, dividir viraria dezenas de mensagens e floodaria o grupo.
+// Acima disso, dividir viraria dezenas de mensagens e floodaria o grupo
 const MAX_PARTES = Number(process.env.AUDIO_MAX_PARTES || 12)
 
 const mb = b => (b / 1024 / 1024).toFixed(1)
@@ -135,10 +123,10 @@ async function enviarParaDrive({ client, from, filePath, fileName, tamanho }) {
 }
 
 /**
- * Envia o áudio do melhor jeito possível.
+ * Envia o áudio completo em qualidade máxima.
  *
  * @param {object} o
- * @param {boolean} [o.preferirPartes] força a divisão mesmo com o Drive ligado
+ * @param {boolean} [o.preferirPartes] força a divisão se pedido explicitamente
  * @returns {Promise<{modo:string}>}
  */
 async function enviarAudio({ client, from, filePath, caption = '', info, fileName, preferirPartes = false }) {
@@ -146,7 +134,7 @@ async function enviarAudio({ client, from, filePath, caption = '', info, fileNam
     const nome = fileName || path.basename(filePath)
     const tituloLimpo = nome.replace(/\.[^.]+$/, '')
 
-    // 0. Arquivos maiores que 2GB (Teto máximo do WhatsApp)
+    // 0. Arquivos maiores que 2GB (Teto máximo do WhatsApp) -> Google Drive 5TB
     if (tamanho > LIMITE_DOCUMENTO) {
         if (drive.isConfigured()) {
             try {
@@ -171,8 +159,8 @@ async function enviarAudio({ client, from, filePath, caption = '', info, fileNam
         }
     }
 
-    // 1. Cabe: caminho ideal, toca direto na conversa.
-    if (tamanho <= LIMITE_AUDIO) {
+    // 1. Até 100MB: manda DIRETO como áudio completo e original na conversa!
+    if (tamanho <= LIMITE_AUDIO && !preferirPartes) {
         await client.sendMessage(from, {
             audio: { url: filePath },
             mimetype: 'audio/mpeg',
@@ -185,70 +173,51 @@ async function enviarAudio({ client, from, filePath, caption = '', info, fileNam
         return { modo: 'audio' }
     }
 
-    logger.info(`[AUDIO SENDER] "${nome}" tem ${mb(tamanho)} MB — acima do limite de ${mb(LIMITE_AUDIO)} MB`)
+    logger.info(`[AUDIO SENDER] "${nome}" tem ${mb(tamanho)} MB — acima de ${mb(LIMITE_AUDIO)} MB`)
 
-    // 2. Drive: um link, arquivo inteiro, qualidade original.
-    if (drive.isConfigured() && !preferirPartes) {
-        try {
-            const r = await enviarParaDrive({ client, from, filePath, fileName: nome, tamanho })
-            let driveMsg = (caption ? caption + '\n\n' : '') +
-                `🎧 *${tituloLimpo}*\n` +
-                `_${mb(tamanho)} MB — longo demais para tocar aqui no WhatsApp._\n\n`
-            if (r.folderUrl) {
-                driveMsg += `📁 *Pasta no Drive:* ${r.folderUrl}\n`
+    // 2. Se o usuário explicitamente pediu para dividir em partes
+    if (preferirPartes) {
+        const partes = await dividirEmPartes(filePath)
+        if (partes.length) {
+            await client.sendMessage(from, {
+                text: (caption ? caption + '\n\n' : '') +
+                    `🎧 *${tituloLimpo}*\n` +
+                    `_${mb(tamanho)} MB não cabe numa mensagem só._\n` +
+                    `Vou mandar em *${partes.length} partes* de ~${Math.round(SEGUNDOS_POR_PARTE / 60)} min. ` +
+                    `Todas tocam direto aqui. 👇`
+            }, { quoted: info })
+
+            let enviadas = 0
+            for (const [i, parte] of partes.entries()) {
+                try {
+                    await client.sendMessage(from, {
+                        audio: { url: parte },
+                        mimetype: 'audio/mpeg',
+                        ptt: false,
+                        fileName: `${tituloLimpo} (${i + 1} de ${partes.length}).mp3`
+                    }, { mediaUploadTimeoutMs: 300000 })
+                    enviadas++
+                } catch (e) {
+                    logger.warn(`[AUDIO SENDER] Parte ${i + 1}/${partes.length} falhou: ${e.message}`)
+                }
             }
-            driveMsg += `▶️ Ouvir: ${r.visualizar}\n` +
-                `⬇️ Baixar: ${r.baixar}\n\n` +
-                `💡 _Quer em pedaços que tocam direto na conversa? Use_ \`-partes\`_._`
 
-            await client.sendMessage(from, { text: driveMsg.trim() }, { quoted: info })
-            return { modo: 'drive', drive: r }
-        } catch (e) {
-            logger.warn(`[AUDIO SENDER] Drive falhou, vou dividir: ${e.message}`)
+            try { fs.rmSync(path.dirname(partes[0]), { recursive: true, force: true }) } catch (e) {
+                logger.warn(`[AUDIO SENDER] Não limpei as partes: ${e.message}`)
+            }
+            return { modo: 'partes', partes: enviadas }
         }
     }
 
-    // 3. Divide em partes tocáveis.
-    const partes = await dividirEmPartes(filePath)
-    if (partes.length) {
-        await client.sendMessage(from, {
-            text: (caption ? caption + '\n\n' : '') +
-                `🎧 *${tituloLimpo}*\n` +
-                `_${mb(tamanho)} MB não cabe numa mensagem só._\n` +
-                `Vou mandar em *${partes.length} partes* de ~${Math.round(SEGUNDOS_POR_PARTE / 60)} min. ` +
-                `Todas tocam direto aqui. 👇`
-        }, { quoted: info })
-
-        let enviadas = 0
-        for (const [i, parte] of partes.entries()) {
-            try {
-                await client.sendMessage(from, {
-                    audio: { url: parte },
-                    mimetype: 'audio/mpeg',
-                    ptt: false,
-                    fileName: `${tituloLimpo} (${i + 1} de ${partes.length}).mp3`
-                }, { mediaUploadTimeoutMs: 300000 })
-                enviadas++
-            } catch (e) {
-                logger.warn(`[AUDIO SENDER] Parte ${i + 1}/${partes.length} falhou: ${e.message}`)
-            }
-        }
-
-        try { fs.rmSync(path.dirname(partes[0]), { recursive: true, force: true }) } catch (e) {
-            logger.warn(`[AUDIO SENDER] Não limpei as partes: ${e.message}`)
-        }
-        return { modo: 'partes', partes: enviadas }
-    }
-
-    // 4. Não deu para dividir: manda o arquivo.
+    // 3. Maior que 100MB e até 2GB: manda como DOCUMENTO / ARQUIVO completo
     await client.sendMessage(from, {
         document: { url: filePath },
         mimetype: 'audio/mpeg',
         fileName: nome,
         caption: (caption ? caption + '\n\n' : '') +
-            `📦 *Enviado como arquivo (${mb(tamanho)} MB)* — longo demais para tocar na conversa.`
+            `📦 *Enviado como arquivo (${mb(tamanho)} MB)* — arquivo maior que 100 MB enviado na íntegra em qualidade original.`
     }, { quoted: info, mediaUploadTimeoutMs: 600000 })
     return { modo: 'documento' }
 }
 
-module.exports = { enviarAudio, dividirEmPartes, duracaoSegundos, LIMITE_AUDIO, SEGUNDOS_POR_PARTE }
+module.exports = { enviarAudio, dividirEmPartes, duracaoSegundos, LIMITE_AUDIO, LIMITE_DOCUMENTO, SEGUNDOS_POR_PARTE }
