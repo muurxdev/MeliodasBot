@@ -24,15 +24,16 @@ module.exports = {
     execute: async ({ text, from, info, client, reply, sender }) => {
         if (!text) {
             let doc = `╔══════════════════════════════╗\n`
-            doc += `║    💡 *COMO USAR O COMANDO* 💡    ║\n`
+            doc += `║    💡 *CENTRAL DE MÍDIA .PLAY* 💡   ║\n`
             doc += `╚══════════════════════════════╝\n\n`
             doc += `📌 *Comando:* \`.play\`\n`
-            doc += `📖 *Descrição:* Pesquisa e baixa músicas (MP3) ou vídeos (MP4) em alta qualidade.\n\n`
+            doc += `📖 *Descrição:* Baixa músicas (MP3 320k), vídeos (MP4 HD) e capas oficiais do Spotify, YouTube e SoundCloud.\n\n`
             doc += `📝 *Exemplos de Uso:*\n`
-            doc += `👉 \`.play Rap do Meliodas 7 Minutoz\` — baixa em MP3\n`
-            doc += `👉 \`.play mp4 Rap do Meliodas 7 Minutoz\` — baixa em MP4 (melhor qualidade)\n`
-            doc += `👉 \`.play https://www.youtube.com/watch?v=...\` — baixa link direto\n\n`
-            doc += `💡 *Dica:* Use \`mp4\` antes do nome para baixar como vídeo!`
+            doc += `👉 \`.play <música ou link>\` — Baixa em MP3 320kbps com capa embutida\n`
+            doc += `👉 \`.play mp4 <nome ou link>\` — Baixa em vídeo MP4 em alta qualidade\n`
+            doc += `👉 \`.play capa <nome ou link>\` — Baixa a capa/imagem oficial em HD\n`
+            doc += `👉 \`.play search <nome>\` — Lista resultados para escolher por número\n\n`
+            doc += `💡 *Dica:* Suporta links do Spotify (faixas, álbuns e playlists) e YouTube!`
             return reply(doc.trim())
         }
 
@@ -52,9 +53,10 @@ module.exports = {
             }, { quoted: info })
         }
 
-        // Detecta se o usuário quer MP4
+        // Detecta o modo solicitado pelo usuário (vídeo, áudio ou capa oficial)
         const wantsMp4 = /^(mp4|video|vídeo)\s+/i.test(text)
-        let cleanQuery = text.replace(/^(mp3|audio|mp4|video|vídeo)\s+/i, '').replace(/[`$\";&|<>]/g, '').trim()
+        const wantsCover = /^(capa|cover|img|foto|imagem)\s+/i.test(text)
+        let cleanQuery = text.replace(/^(mp3|audio|mp4|video|vídeo|capa|cover|img|foto|imagem)\s+/i, '').replace(/[`$\";&|<>]/g, '').trim()
         if (!cleanQuery) {
             return reply('❌ Termo de pesquisa inválido.')
         }
@@ -103,7 +105,59 @@ module.exports = {
             const formatLabel = downloadAsVideo ? '🎬 Vídeo MP4' : '🎵 Áudio MP3'
             await reply(`${formatLabel} *Baixando do link...* Aguarde.`)
         }
-        // Fluxo D: texto direto (.play mp4 <nome> ou .play <nome>) → download direto sem esperar
+        // Fluxo D: download de capa oficial em HD (.play capa <nome/link> ou .play img)
+        if (wantsCover) {
+            await reply(`🖼️ *Buscando capa oficial:* _${cleanQuery.slice(0, 50)}_... Aguarde.`)
+            try {
+                const { resolveSpotifyMetadata } = require('../../services/audioStreamService')
+                const { upgradeThumbnail } = require('../../services/media/thumbnailResolver')
+                let title = 'Mídia'
+                let author = 'Desconhecido'
+                let thumb = null
+                let origUrl = cleanQuery
+
+                if (/spotify\.com/i.test(cleanQuery)) {
+                    const sp = await resolveSpotifyMetadata(cleanQuery)
+                    title = sp.title || title
+                    author = sp.author || author
+                    thumb = sp.thumbnail
+                    origUrl = sp.url || cleanQuery
+                } else {
+                    const meta = await extractMetadata(cleanQuery, { isSearch: !isUrl, userJid: sender })
+                    title = meta.title || title
+                    author = meta.author || author
+                    thumb = meta.thumbnail
+                    origUrl = meta.webpageUrl || meta.url || cleanQuery
+                }
+
+                if (thumb) {
+                    thumb = await upgradeThumbnail(thumb)
+                    let caption = `╔══════════════════════════════╗\n`
+                    caption += `║   🖼️ *CAPA OFICIAL HD* 🖼️   ║\n`
+                    caption += `╚══════════════════════════════╝\n\n`
+                    caption += `╭━〔 🎵 DADOS DA MÍDIA 〕━⬣\n`
+                    caption += `┃ 📝 *Título:* ${title}\n`
+                    caption += `┃ 👤 *Artista:* ${author}\n`
+                    caption += `┃ 🖼️ *Resolução:* Alta Definição (HD)\n`
+                    if (origUrl) caption += `┃ 🔗 *Link:* ${origUrl}\n`
+                    caption += `╰━━━━━━━━━━━━━━━━━━━━⬣\n\n`
+                    caption += `💡 *Para baixar o áudio MP3:* \`.play ${cleanQuery}\`\n`
+                    caption += `💡 *Para baixar o vídeo MP4:* \`.play mp4 ${cleanQuery}\``
+
+                    return await client.sendMessage(from, {
+                        image: { url: thumb },
+                        caption: caption.trim()
+                    }, { quoted: info })
+                } else {
+                    return reply(`❌ Não foi possível encontrar uma capa em alta definição para esta faixa.`)
+                }
+            } catch (coverErr) {
+                logger.error('[PLAY COVER ERROR]', coverErr)
+                return reply(`❌ *Falha ao buscar capa:* ${coverErr.message}`)
+            }
+        }
+
+        // Fluxo E: texto direto (.play mp4 <nome> ou .play <nome>) → download direto sem esperar
         else {
             downloadAsVideo = wantsMp4
             if (downloadAsVideo) {
@@ -199,6 +253,7 @@ module.exports = {
                     isAudio: true
                 })
 
+                let cardSent = false
                 if (mediaData.thumbnail) {
                     try {
                         const { upgradeThumbnail } = require('../../services/media/thumbnailResolver')
@@ -207,7 +262,12 @@ module.exports = {
                             image: { url: mediaData.thumbnail },
                             caption: audioCaption
                         }, { quoted: info })
+                        cardSent = true
                     } catch (_) {}
+                }
+
+                if (!cardSent) {
+                    await reply(audioCaption)
                 }
 
                 if (fs.existsSync(mediaData.filePath)) {

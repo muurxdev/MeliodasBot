@@ -200,10 +200,12 @@ function downloadDirectYtDlpAudio(targetUrl, outputPath) {
     return new Promise((resolve, reject) => {
         const baseArgs = buildYtDlpArgs([
             "-f", "bestaudio/best",
+            "-S", "abr,asr,acodec",
             "-x",
             "--audio-format", "mp3",
             "--audio-quality", "0",
-            "--prefer-free-formats",
+            "--embed-thumbnail",
+            "--add-metadata",
             "--no-playlist",
             "--no-warnings",
             "-o", outputPath,

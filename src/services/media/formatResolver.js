@@ -89,18 +89,9 @@ function resolveDownloadFormat({ format = FORMATS.MP3, quality = QUALITIES.BEST 
     return {
         args: [
             '-f', videoSelector,
-            // Ordem de preferência: H.264 PRIMEIRO, depois a maior resolução.
-            //
-            // Parece contraintuitivo pedir "melhor qualidade" e priorizar codec,
-            // mas o WhatsApp só reproduz H.264/AAC com segurança. Um 4K em VP9/AV1
-            // é tecnicamente superior e CHEGA COMO ARQUIVO QUE NÃO ABRE — além de
-            // estourar o limite de tamanho do envio. Então buscamos a maior
-            // resolução DENTRO do que toca (no YouTube isso dá 1080p H.264; em
-            // plataformas que servem H.264 em 4K, dá 4K).
-            '-S', 'vcodec:h264,res,fps,acodec:aac,abr',
+            // Ordem de preferência: maior resolução e fps primeiro, favorecendo H.264/AAC entre streams de mesma resolução
+            '-S', 'res,fps,vcodec:h264,acodec:aac,abr',
             '--merge-output-format', 'mp4',
-            // Remuxa (sem recodificar) para o container MP4.
-            '--remux-video', 'mp4',
             '--embed-thumbnail',
             '--add-metadata'
         ],
