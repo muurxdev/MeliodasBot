@@ -76,11 +76,20 @@ function renderCharacterAvatar(user, stats = null) {
     else if (user.classeLendaria === 'arcanosupremo') bodyEmoji = '✨';
     else if (user.classeLendaria === 'sentinela') bodyEmoji = '🛡️';
 
-    // 4. Aura e Asas
+    // 4. Aura e Asas (Escala infinita com Rebirths)
     let auraLeft = '✨';
     let auraRight = '✨';
     const rebirths = Number(user.rebirthCount || user.rebirth_count || 0);
-    if (rebirths >= 5) {
+    if (rebirths >= 50) {
+        auraLeft = '🌌👑⚡';
+        auraRight = '⚡👑🌌';
+    } else if (rebirths >= 20) {
+        auraLeft = '🪐💫';
+        auraRight = '💫🪐';
+    } else if (rebirths >= 10) {
+        auraLeft = '🔥👑🪽';
+        auraRight = '🪽👑🔥';
+    } else if (rebirths >= 5) {
         auraLeft = '🪽⚡';
         auraRight = '⚡🪽';
     } else if (rebirths >= 1) {
@@ -182,8 +191,8 @@ function calculateFullCharacterStats(user) {
     totalAtk += race.bonusAtk;
     totalHpMax += race.bonusHp;
 
-    // 4. Rebirths (+25% Dano e +25% Atributos por Rebirth)
-    const rebirths = Math.min(10, Math.max(0, Number(user.rebirthCount || user.rebirth_count || 0)));
+    // 4. Rebirths (+25% Dano e +25% Atributos por Rebirth - Progressão Infinita)
+    const rebirths = Math.max(0, Number(user.rebirthCount || user.rebirth_count || 0));
     const rebirthMultiplier = 1 + (rebirths * 0.25);
     totalAtk = Math.floor(totalAtk * rebirthMultiplier);
     totalDef = Math.floor(totalDef * rebirthMultiplier);
@@ -233,15 +242,15 @@ function calculateFullCharacterStats(user) {
  * Informações e regras de Rebirth
  */
 function getRebirthInfo(user) {
-    const rebirths = Math.min(10, Math.max(0, Number(user.rebirthCount || user.rebirth_count || 0)));
+    const rebirths = Math.max(0, Number(user.rebirthCount || user.rebirth_count || 0));
     const level = Number(user.level || 1);
     const requiredLevel = 100;
-    const canRebirth = level >= requiredLevel && rebirths < 10;
-    const isMaxRebirth = rebirths >= 10;
+    const canRebirth = level >= requiredLevel;
+    const isMaxRebirth = false;
 
     return {
         rebirths,
-        maxRebirths: 10,
+        maxRebirths: '∞',
         requiredLevel,
         currentLevel: level,
         canRebirth,

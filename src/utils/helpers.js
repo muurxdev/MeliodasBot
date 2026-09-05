@@ -45,7 +45,7 @@ function getCargo(level) {
 }
 
 function getRank(level) {
-    if (level >= 1000) return '🌌 Onipotente'
+    if (level >= 1000) return `🌌 Onipotente (Tier ${Math.floor(level / 100)})`
     if (level >= 500) return '👑 Supremo'
     if (level >= 300) return '🐉 Mítico'
     if (level >= 200) return '⚡ Divino'

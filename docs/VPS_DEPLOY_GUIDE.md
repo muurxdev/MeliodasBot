@@ -9,7 +9,7 @@ Este guia contém o passo a passo para conectar na VPS da Hostinger via SSH, con
 Cole a chave pública abaixo no painel da **Hostinger** em **VPS > Gerenciar > Chaves SSH**:
 
 ```text
-ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIIk3fpTCFehLRTpNCuyD7fJaWER9SzmQWN3weqm3pViu claude-code@Impeccable-20260830
+ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIKwxKk+cubEIN3ACN2V9XqVLWGUMa8lZpCwcPHMwpOoC meliodasbot@hostinger
 ```
 
 ---

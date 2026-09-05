@@ -8,7 +8,7 @@ const { initializeUser } = require("../../services/xpService");
 const { calculateFullCharacterStats } = require("../../services/characterEngine");
 const { getBotName } = require("../../config/botConfig");
 
-const DUNGEON_FLOORS = [
+const BASE_DUNGEON_FLOORS = [
     { andar: 1, nome: "Cripta dos Mortos-Vivos", minLevel: 1, reqCp: 80, xp: 450, coins: 350, drop: "🦴 Crânio Amaldiçoado" },
     { andar: 2, nome: "Caverna dos Goblins Vorazes", minLevel: 5, reqCp: 250, xp: 950, coins: 700, drop: "🗡️ Adaga de Ferro Goblin" },
     { andar: 3, nome: "Labirinto das Sombras Antigas", minLevel: 12, reqCp: 600, xp: 1800, coins: 1400, drop: "🌑 Fragmento de Sombra" },
@@ -21,17 +21,50 @@ const DUNGEON_FLOORS = [
     { andar: 10, nome: "Vórtice do Caos Primordial", minLevel: 100, reqCp: 40000, xp: 150000, coins: 120000, drop: "🌌 Centelha do Caos Infinito" }
 ];
 
+const PROCEDURAL_TITLES = [
+    "Dimensão dos Deuses Esquecidos",
+    "Fenda do Vazio Cósmico",
+    "Torre da Ascensão Astral",
+    "Reino das Trevas Eternas",
+    "Trono do Infinito",
+    "Fronteira da Realidade",
+    "Câmara do Tempo Perdido",
+    "Abismo dos Titãs Primordiais"
+];
+
+function getFloorData(floorNum) {
+    if (floorNum <= 10) {
+        return BASE_DUNGEON_FLOORS[Math.max(0, floorNum - 1)];
+    }
+    const diff = floorNum - 10;
+    const minLevel = 100 + (diff * 10);
+    const reqCp = Math.floor(40000 * Math.pow(1.18, diff));
+    const xp = Math.floor(150000 * Math.pow(1.20, diff));
+    const coins = Math.floor(120000 * Math.pow(1.18, diff));
+    const title = PROCEDURAL_TITLES[(diff - 1) % PROCEDURAL_TITLES.length] + ` (Setor ${Math.ceil(diff / PROCEDURAL_TITLES.length)})`;
+    return {
+        andar: floorNum,
+        nome: title,
+        minLevel,
+        reqCp,
+        xp,
+        coins,
+        drop: `💎 Cristal Astral (Andar ${floorNum})`
+    };
+}
+
 module.exports = {
     name: "dungeon",
     aliases: ["masmorra", "torredesafio", "catacumbas", "andares", "explorarmasmorra"],
     category: "rpg",
-    description: "Explore os andares da Masmorra de Britannia contra hordas de monstros e chefes",
+    description: "Explore os andares infinitos da Masmorra de Britannia contra hordas de monstros e chefes",
     cooldownMs: 8000,
     execute: async ({ sender, args, reply }) => {
         const botName = getBotName();
         const xpData = dataService.getXpData();
         const user = initializeUser(sender, xpData);
         const stats = calculateFullCharacterStats(user);
+        const userLevel = Number(user.level || 1);
 
         const sub = (args[0] || "").toLowerCase().trim();
 
@@ -40,25 +73,56 @@ module.exports = {
             let doc = `╔══════════════════════════════╗\n`;
             doc += `║   🏰 *MASMORRA DE BRITANNIA — ANDARES* 🏰   \n`;
             doc += `╚══════════════════════════════╝\n\n`;
-            doc += `👤 *Guerreiro:* @${sender.split("@")[0]}  |  ⚡ *CP:* ${stats.cp} CP\n\n`;
+            doc += `👤 *Guerreiro:* @${sender.split("@")[0]}  |  ⚡ *CP:* ${stats.cp.toLocaleString("pt-BR")} CP\n\n`;
 
-            doc += `╭━〔 🏛️ ANDARES DA MASMORRA 〕━⬣\n`;
-            DUNGEON_FLOORS.forEach(f => {
-                const canEnter = (user.level || 1) >= f.minLevel;
+            doc += `╭━〔 🏛️ ANDARES DA MASMORRA (INFINITOS) 〕━⬣\n`;
+            BASE_DUNGEON_FLOORS.forEach(f => {
+                const canEnter = userLevel >= f.minLevel;
                 const icon = canEnter ? "🟢" : "🔒";
                 doc += `┃ ${icon} *Andar ${f.andar}:* ${f.nome}\n`;
-                doc += `┃    📌 Requer Nível ${f.minLevel} (${f.reqCp} CP) | 💰 +${f.coins.toLocaleString("pt-BR")} Coins | ⭐ +${f.xp.toLocaleString("pt-BR")} XP\n`;
+                doc += `┃    📌 Requer Nível ${f.minLevel} (${f.reqCp.toLocaleString("pt-BR")} CP) | 💰 +${f.coins.toLocaleString("pt-BR")} Coins | ⭐ +${f.xp.toLocaleString("pt-BR")} XP\n`;
                 doc += `┃    🎁 Drop: ${f.drop}\n┃\n`;
             });
+
+            // Se o usuário já passou do nível 100, exibe os andares procedurais liberados
+            if (userLevel > 100) {
+                const maxFloor = 10 + Math.floor((userLevel - 100) / 10);
+                for (let fl = 11; fl <= Math.min(maxFloor + 1, 11 + 5); fl++) {
+                    const f = getFloorData(fl);
+                    const canEnter = userLevel >= f.minLevel;
+                    const icon = canEnter ? "🟢" : "🔒";
+                    doc += `┃ ${icon} *Andar ${f.andar}:* ${f.nome}\n`;
+                    doc += `┃    📌 Requer Nível ${f.minLevel} (${f.reqCp.toLocaleString("pt-BR")} CP) | 💰 +${f.coins.toLocaleString("pt-BR")} Coins | ⭐ +${f.xp.toLocaleString("pt-BR")} XP\n`;
+                    doc += `┃    🎁 Drop: ${f.drop}\n┃\n`;
+                }
+            }
             doc += `╰━━━━━━━━━━━━━━━━━━⬣\n\n`;
-            doc += `💡 _Para explorar o andar mais avançado liberado para você:_ \`.dungeon\`\n`;
+            doc += `♾️ _A masmorra possui andares infinitos! A cada 10 níveis acima do 100, novos andares e recompensas cósmicas são desbloqueados._\n\n`;
+            doc += `💡 _Para explorar seu andar mais avançado:_ \`.dungeon\`\n`;
+            doc += `💡 _Para explorar um andar específico:_ \`.dungeon <número>\` (Ex: \`.dungeon 1\`)\n`;
             doc += `👑 *${botName}*`;
             return reply(doc.trim(), [sender]);
         }
 
-        // 2. ENTRAR NO ANDAR MAIS ALTO DISPONÍVEL
-        const availableFloors = DUNGEON_FLOORS.filter(f => (user.level || 1) >= f.minLevel);
-        const currentFloor = availableFloors[availableFloors.length - 1] || DUNGEON_FLOORS[0];
+        // 2. ENTRAR NO ANDAR ESCOLHIDO OU MAIS ALTO DISPONÍVEL
+        let currentFloor;
+        const requestedFloorNum = parseInt(sub, 10);
+
+        if (!isNaN(requestedFloorNum) && requestedFloorNum >= 1) {
+            const targetData = getFloorData(requestedFloorNum);
+            if (userLevel < targetData.minLevel) {
+                return reply(`🔒 *ANDAR BLOQUEADO!*\n\nO *Andar ${targetData.andar} (${targetData.nome})* exige Nível *${targetData.minLevel}* e CP recomendado de *${targetData.reqCp.toLocaleString("pt-BR")} CP*.\n(Seu Nível Atual: ${userLevel})`);
+            }
+            currentFloor = targetData;
+        } else {
+            if (userLevel <= 100) {
+                const availableFloors = BASE_DUNGEON_FLOORS.filter(f => userLevel >= f.minLevel);
+                currentFloor = availableFloors[availableFloors.length - 1] || BASE_DUNGEON_FLOORS[0];
+            } else {
+                const maxFloor = 10 + Math.floor((userLevel - 100) / 10);
+                currentFloor = getFloorData(maxFloor);
+            }
+        }
 
         // Cálculo balanceado de vitória
         const winProbability = Math.min(95, Math.max(30, Math.floor((stats.cp / currentFloor.reqCp) * 65)));

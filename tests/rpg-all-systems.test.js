@@ -71,7 +71,20 @@ const userHighLevel = { level: 100, rebirthCount: 2 };
 const highInfo = getRebirthInfo(userHighLevel);
 assert.strictEqual(highInfo.canRebirth, true, 'Usuário com nível >= 100 pode reencarnar');
 assert.strictEqual(highInfo.bonusDmgPercent, 50, '2 Rebirths devem conceder 50% de bônus de dano');
-console.log('  ✅ PASS: Requisitos de Rebirth (Nível 100+, Máx 10, +25% por grau)');
+
+// Teste de Progressão Infinita de Rebirths (além do grau 10)
+const userInfiniteRebirth = { level: 100, rebirthCount: 15 };
+const infInfo = getRebirthInfo(userInfiniteRebirth);
+assert.strictEqual(infInfo.canRebirth, true, 'Usuário com 15 rebirths ainda pode reencarnar');
+assert.strictEqual(infInfo.isMaxRebirth, false, 'Não deve haver teto máximo de rebirths');
+assert.strictEqual(infInfo.bonusDmgPercent, 375, '15 Rebirths concedem 375% de bônus de dano');
+const infStats = calculateFullCharacterStats(userInfiniteRebirth);
+assert.strictEqual(infStats.rebirthMultiplier, 4.75, 'Multiplicador de 15 rebirths deve ser 4.75x');
+
+const helpers = require('../src/utils/helpers');
+assert.strictEqual(helpers.getRank(1200), '🌌 Onipotente (Tier 12)', 'Nível 1200 deve conceder tier procedural Onipotente');
+
+console.log('  ✅ PASS: Requisitos de Rebirth e Progressão Infinita (+25% perpétuo sem teto)');
 
 // ═══════════════════════════════════════
 // 4. TESTE DE TÍTULOS DE ALTO VALOR

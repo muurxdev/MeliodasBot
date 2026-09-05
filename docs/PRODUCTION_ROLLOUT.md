@@ -24,7 +24,7 @@ Documentação de lançamento em produção do MeliodasBotXP v2.0 na VPS Hosting
 ### Passo 1: Acesso SSH na Hostinger
 Adicione a chave SSH pública gerada no painel da Hostinger:
 ```text
-ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIIk3fpTCFehLRTpNCuyD7fJaWER9SzmQWN3weqm3pViu claude-code@Impeccable-20260830
+ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIKwxKk+cubEIN3ACN2V9XqVLWGUMa8lZpCwcPHMwpOoC meliodasbot@hostinger
 ```
 
 ### Passo 2: Clonar ou Atualizar Repositório

@@ -22,10 +22,6 @@ module.exports = {
 
         const info = getRebirthInfo(user);
 
-        if (info.isMaxRebirth) {
-            return reply(`👑 *LIMITE MÁXIMO DE REBIRTH ALCANÇADO!*\n\nVocê já atingiu o patamar supremo de **${info.maxRebirths} / ${info.maxRebirths} Rebirths** (+${info.bonusDmgPercent}% de Dano e XP perpétuos)!\nNenhum guerreiro mortal ou divindade pode superar sua transcendência.`);
-        }
-
         if (!info.canRebirth) {
             let doc = `╔══════════════════════════════╗\n`;
             doc += `║   🌌 *TEMPLO DA REENCARNAÇÃO* 🌌  \n`;
@@ -34,11 +30,11 @@ module.exports = {
             doc += `╭━〔 📜 REQUISITOS SAGRADOS 〕━⬣\n`;
             doc += `┃ 📈 *Nível Mínimo Exigido:* Nível 100\n`;
             doc += `┃ 👤 *Seu Nível Atual:* Nível ${info.currentLevel}\n`;
-            doc += `┃ 🌀 *Rebirths Atuais:* ${info.rebirths} / ${info.maxRebirths}\n`;
+            doc += `┃ 🌀 *Rebirths Atuais:* ${info.rebirths} (Progressão Infinita)\n`;
             doc += `┃ 🎁 *Bônus Atual:* +${info.bonusDmgPercent}% Dano & XP\n`;
             doc += `┃ 🔜 *Bônus Próximo Rebirth:* +${info.nextBonusDmgPercent}% Dano & XP\n`;
             doc += `╰━━━━━━━━━━━━━━━━━━⬣\n\n`;
-            doc += `💡 _Para reencarnar, você deve atingir o nível máximo (100) através de caçadas (\`.hunt\`), bosses (\`.boss\`) e missões (\`.missao\`)._\n`;
+            doc += `💡 _Para reencarnar, você deve atingir o nível 100 através de caçadas (\`.hunt\`), bosses (\`.boss\`), masmorras (\`.dungeon\`) e missões (\`.missao\`)._\n`;
             doc += `👑 *${botName}*`;
             return reply(doc.trim(), [sender]);
         }
@@ -61,14 +57,14 @@ module.exports = {
         doc += `║   🌌 *TRANSCENDÊNCIA REALIZADA!* 🌌  \n`;
         doc += `╚══════════════════════════════╝\n\n`;
         doc += `✨ *Você transcendeu os limites mortais e renasceu no Reino de Britannia!* ✨\n\n`;
-        doc += `╭━〔 🌀 STATUS DO REBIRTH (${nextRebirth}/${info.maxRebirths}) 〕━⬣\n`;
-        doc += `┃ 👑 *Grau de Rebirth:* **${nextRebirth}º Renascimento** (Limite: ${info.maxRebirths})\n`;
+        doc += `╭━〔 🌀 STATUS DO REBIRTH (${nextRebirth} / ∞) 〕━⬣\n`;
+        doc += `┃ 👑 *Grau de Rebirth:* **${nextRebirth}º Renascimento** (Progressão Infinita)\n`;
         doc += `┃ 📈 *Nível Reiniciado:* Nível 1 (XP: 0)\n`;
         doc += `┃ 🌍 *Mundo Atual:* 🌲 **Floresta dos Sonhos** (Mundos avançados bloqueados até reupar)\n`;
         doc += `┃ 💥 *Bônus Permanente:* **+${nextRebirth * 25}% Dano e XP Globais**!\n`;
-        doc += `┃ ⚔️ *Ataque Inicial com Bônus:* ${newStats.atk} ATK\n`;
-        doc += `┃ 🛡️ *Defesa Inicial com Bônus:* ${newStats.def} DEF\n`;
-        doc += `┃ ⚡ *Poder de Combate (CP):* ${newStats.cp} CP\n`;
+        doc += `┃ ⚔️ *Ataque Inicial com Bônus:* ${newStats.atk.toLocaleString("pt-BR")} ATK\n`;
+        doc += `┃ 🛡️ *Defesa Inicial com Bônus:* ${newStats.def.toLocaleString("pt-BR")} DEF\n`;
+        doc += `┃ ⚡ *Poder de Combate (CP):* ${newStats.cp.toLocaleString("pt-BR")} CP\n`;
         doc += `╰━━━━━━━━━━━━━━━━━━⬣\n\n`;
         doc += `💡 _Seus equipamentos e itens guardados no baú (\`.bau\`) foram preservados intactos!_\n`;
         doc += `👑 *${botName}*`;
