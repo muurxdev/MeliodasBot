@@ -222,7 +222,10 @@ module.exports = {
             doc += "┃ 📱 *WhatsApp:* " + phoneFormatted + "\n";
             doc += "┃ 🆔 *ID do Usuário:* " + idDisplay + "\n";
             doc += "┃ 🎖️ *Hierarquia:* " + cargoBot + "\n";
+            const _plat = tele.device.platform || (isSelf ? null : user.lastPlatform) || "Indeterminado";
+            const _platIcon = _plat === "Web" ? "🌐" : _plat === "Desktop" ? "💻" : _plat === "Mobile" ? "📱" : "❔";
             doc += "┃ 💻 *Dispositivo:* " + tele.device.model + "\n";
+            doc += "┃ " + _platIcon + " *Plataforma:* " + _plat + " (" + (isSelf ? "sessão atual" : "último acesso") + ")\n";
                         doc += "┃ ⚡ *Latência Socket:* " + tele.pingMs + " ms (Jitter: " + tele.jitter + "ms)\n";
                         doc += "┃ 🤝 *Reputação:* ⭐ " + (user.rep || 0) + " pontos | 🔥 *Streak:* " + (user.streak || 0) + " dias\n";
             doc += "╰━━━━━━━━━━━━━━━━━━⬣\n\n";

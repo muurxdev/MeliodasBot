@@ -86,21 +86,19 @@ async function handleIncomingMessage(client, { messages }) {
     const allowPvXp = configs['global']?.allowPvXpFarm === true
     const user = initializeUser(sender, xpData, candidateJids)
 
-    // Telemetria real de dispositivo e rede
+    // Telemetria real de dispositivo e rede.
+    // Fonte canônica: getDevice() do Baileys deriva a plataforma (web/desktop/
+    // android/ios) do formato do ID da mensagem — bem mais preciso que a heurística
+    // antiga. Persistimos lastDevice + lastPlatform p/ o .dossie de terceiros.
     const keyId = info?.key?.id || ''
-    const participant = info?.key?.participant || ''
-    const deviceSuffix = (participant.split('@')[0].split(':')[1]) || (sender.split('@')[0].split(':')[1]) || ''
-
-    if (/^3EB0/i.test(keyId) || keyId.startsWith('WA') || keyId.length === 12 || keyId.length === 16 || keyId.startsWith('false_') || (deviceSuffix && deviceSuffix !== '0' && deviceSuffix !== '10')) {
-        user.lastDevice = '💻 WhatsApp Web / Desktop'
-    } else if (/^3A[A-F0-9]{18,}/i.test(keyId) || /^3A/i.test(keyId)) {
-        user.lastDevice = '🍏 Apple iPhone (iOS)'
-    } else if (/^[0-9A-F]{32}$/i.test(keyId) || keyId.length === 32 || /^[0-9a-f]{20,}$/i.test(keyId)) {
-        user.lastDevice = '📱 Android (WhatsApp Mobile)'
-    } else if (deviceSuffix && deviceSuffix !== '0') {
-        user.lastDevice = '🖥️ WhatsApp Multi-Device'
-    } else {
-        user.lastDevice = user.lastDevice || '📱 Android (WhatsApp Mobile)'
+    const { deviceFromKeyId } = require('../services/telemetryDeviceService')
+    const _dev = deviceFromKeyId(keyId)
+    if (_dev) {
+        user.lastDevice = _dev.model
+        user.lastPlatform = _dev.platform
+    } else if (!user.lastDevice) {
+        user.lastDevice = '📱 Dispositivo (indeterminado)'
+        user.lastPlatform = user.lastPlatform || 'Indeterminado'
     }
 
     if (info?.pushName && (!user.name || user.name !== info.pushName)) {

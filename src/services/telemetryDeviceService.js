@@ -3,7 +3,64 @@
  * Detecção precisa e coerente de dispositivo, latência de socket e especificações reais
  */
 
+// Fonte canônica: o próprio Baileys deriva a plataforma a partir do formato do
+// ID da mensagem (getDevice). Retorna 'web' | 'desktop' | 'android' | 'ios' | 'unknown'.
+// É MUITO mais confiável que a heurística caseira antiga (mantida só como fallback
+// para quando não há keyId, ex.: consultar o dossiê de outra pessoa).
+let _getDevice = null;
+try {
+    _getDevice = require("@whiskeysockets/baileys").getDevice;
+} catch (_) {
+    _getDevice = null;
+}
+
+// Mapeia o resultado do getDevice para rótulo, plataforma e specs coerentes.
+function _mapBaileysDevice(kind) {
+    switch (kind) {
+        case "web":
+            return { model: "🌐 WhatsApp Web (Navegador)", platform: "Web", type: "💻 Computador / Navegador",
+                     os: "🌐 WhatsApp Web (Browser)", connectionType: "🔌 Banda Larga / Fibra" };
+        case "desktop":
+            return { model: "💻 WhatsApp Desktop (App)", platform: "Desktop", type: "💻 Computador / Laptop",
+                     os: "🖥️ Windows / macOS / Linux", connectionType: "🔌 Banda Larga / Fibra" };
+        case "ios":
+            return { model: "🍏 iPhone (iOS)", platform: "Mobile", type: "📱 Dispositivo Móvel",
+                     os: "🍏 Apple iOS", connectionType: "📶 Wi-Fi / 5G" };
+        case "android":
+            return { model: "📱 Android (WhatsApp Mobile)", platform: "Mobile", type: "📱 Dispositivo Móvel",
+                     os: "🤖 Android", connectionType: "📶 Wi-Fi / 5G" };
+        default:
+            return null;
+    }
+}
+
+/**
+ * Resolve o dispositivo a partir do ID da mensagem via Baileys.
+ * @param {string} keyId  info.key.id
+ * @returns {{model,platform,type,os,connectionType,kind}|null}
+ */
+function deviceFromKeyId(keyId = "") {
+    if (!_getDevice || !keyId) return null;
+    let kind = "unknown";
+    try { kind = _getDevice(String(keyId)); } catch (_) { return null; }
+    const mapped = _mapBaileysDevice(kind);
+    return mapped ? { ...mapped, kind } : null;
+}
+
+/** Deriva a categoria (Web/Desktop/Mobile) a partir de um rótulo de dispositivo salvo. */
+function platformFromLabel(label = "") {
+    const s = String(label).toLowerCase();
+    if (/web|navegador|browser/.test(s)) return "Web";
+    if (/desktop|windows|macos|linux|laptop|computador|pc/.test(s)) return "Desktop";
+    if (/android|iphone|ios|mobile|móvel|movel/.test(s)) return "Mobile";
+    return "Indeterminado";
+}
+
 function detectDeviceSpecs(keyId = "", participant = "", sender = "", customModel = null, storedDevice = null) {
+    // Prioridade máxima: derivação canônica do Baileys pelo ID da mensagem.
+    const canonical = deviceFromKeyId(keyId);
+    if (canonical) return canonical;
+
     if (storedDevice && typeof storedDevice === "string" && storedDevice.length > 3) {
         const isPC = /acer|dell|lenovo|asus|hp|notebook|laptop|pc|desktop|linux|windows|macbook|web/i.test(storedDevice);
         return {
@@ -96,6 +153,9 @@ function getAdvancedNetworkTelemetry(info, targetJid, sender, user = {}) {
         jitter = (pingMs * 0.05).toFixed(1);
     }
 
+    // Garante a categoria Web/Desktop/Mobile mesmo nos caminhos de fallback.
+    if (!device.platform) device.platform = platformFromLabel(device.model || device.type || "");
+
     const isPC = device.type.includes("Computador") || device.type.includes("Laptop");
     const iface = "❔ Não detectável (WhatsApp não expõe rede)";
     const ispName = isPC ? "🌐 Conexão Banda Larga / Fibra Óptica" : "🌐 Conexão Móvel / Wi-Fi";
@@ -115,5 +175,7 @@ function getAdvancedNetworkTelemetry(info, targetJid, sender, user = {}) {
 
 module.exports = {
     detectDeviceSpecs,
-    getAdvancedNetworkTelemetry
+    getAdvancedNetworkTelemetry,
+    deviceFromKeyId,
+    platformFromLabel
 };

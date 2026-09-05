@@ -16,7 +16,14 @@ module.exports = {
     ownerOnly: true,
     cooldownMs: 1500,
     execute: async ({ args, reply, prefix = '.', from, isGroup }) => {
-        const scope = moduleState.scopeOf(from, isGroup)
+        // Escopo alvo opcional (4º argumento): global | pv | <idDoGrupo>.
+        // Sem ele, aplica no ambiente atual. `global` cobre PV + todos os grupos.
+        const scopeArg = (args[2] || '').toLowerCase().trim()
+        let scope = moduleState.scopeOf(from, isGroup)
+        if (/^global$|^geral$/.test(scopeArg)) scope = moduleState.GLOBAL_SCOPE
+        else if (/^pv$|^privado$/.test(scopeArg)) scope = moduleState.PV_SCOPE
+        else if (/@g\.us$/.test(scopeArg)) scope = scopeArg
+        else if (/^\d{5,}$/.test(scopeArg)) scope = `${scopeArg}@g.us`
         const sub = (args[0] || '').toLowerCase()
         const nameArg = (args[1] || '').toLowerCase().replace(/^[./!]/, '')
 
@@ -33,9 +40,10 @@ module.exports = {
                 doc += `\n`
             }
             doc += `╭━〔 ⚙️ USO 〕━⬣\n`
-            doc += `┃ ➤ \`${prefix}cmdglobal on <comando>\`\n`
-            doc += `┃ ➤ \`${prefix}cmdglobal off <comando>\`\n`
+            doc += `┃ ➤ \`${prefix}cmdglobal on <comando> [global|pv|id]\`\n`
+            doc += `┃ ➤ \`${prefix}cmdglobal off <comando> [global|pv|id]\`\n`
             doc += `┃ ➤ \`${prefix}cmdglobal auto <comando>\` — segue o módulo\n`
+            doc += `┃ _Sem escopo = ambiente atual. \`global\` = PV + todos os grupos._\n`
             doc += `╰━━━━━━━━━━━━━━━━━━⬣`
             return reply(doc.trim())
         }
@@ -62,6 +70,9 @@ module.exports = {
 
         const enable = sub === 'on'
         moduleState.setCommand(cmd.name, enable, scope)
-        return reply(`${enable ? '🟢' : '🔴'} Comando \`${cmd.name}\` forçado para *${enable ? 'ON' : 'OFF'}* neste ambiente.`)
+        const ambiente = scope === moduleState.GLOBAL_SCOPE ? '🌐 GLOBAL (PV + todos os grupos)'
+            : scope === moduleState.PV_SCOPE ? '💬 Privado (PV)'
+            : scope === moduleState.scopeOf(from, isGroup) ? 'neste ambiente' : `👥 grupo \`${scope}\``
+        return reply(`${enable ? '🟢' : '🔴'} Comando \`${cmd.name}\` forçado para *${enable ? 'ON' : 'OFF'}* em ${ambiente}.`)
     }
 }

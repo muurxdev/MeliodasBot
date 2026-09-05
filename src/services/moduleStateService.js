@@ -84,10 +84,29 @@ function _scopeState(scope) {
     return s.scopes[scope] || { modules: {}, commands: {} }
 }
 
-/** @returns {boolean} módulo ligado NESTE escopo? (default: OFF) */
+/**
+ * Resolução com FALLBACK para o escopo GLOBAL do Dono.
+ *
+ * Hierarquia (o primeiro que tiver valor explícito vence):
+ *   1. override de comando no escopo específico (grupo/PV)
+ *   2. override de comando no escopo GLOBAL
+ *   3. estado do módulo no escopo específico
+ *   4. estado do módulo no escopo GLOBAL   ← "liberação global" cobre PV + grupos
+ *   5. DEFAULT_ENABLED (=false)
+ *
+ * É isso que faz `.modulo on all global` (ou `.modulo on <mod> global`) liberar de
+ * uma vez o PV E todos os grupos — sem deixar de permitir que um grupo/PV específico
+ * sobrescreva pontualmente (ex.: desligar cassino só num grupo).
+ */
+
+/** @returns {boolean} módulo ligado neste escopo (ou no GLOBAL como fallback)? */
 function isModuleEnabled(key, scope = GLOBAL_SCOPE) {
     const st = _scopeState(scope)
     if (typeof st.modules[key] === 'boolean') return st.modules[key]
+    if (scope !== GLOBAL_SCOPE) {
+        const g = _scopeState(GLOBAL_SCOPE)
+        if (typeof g.modules[key] === 'boolean') return g.modules[key]
+    }
     return DEFAULT_ENABLED
 }
 
@@ -96,9 +115,13 @@ function isModuleEnabled(key, scope = GLOBAL_SCOPE) {
  * @param {string} scope - escopo (JID do grupo, 'pv' ou 'global')
  */
 function isCommandEnabled(cmd, scope = GLOBAL_SCOPE) {
-    const st = _scopeState(scope)
     const name = (typeof cmd === 'string' ? cmd : (cmd && cmd.name) || '').toLowerCase()
+    const st = _scopeState(scope)
     if (name && typeof st.commands[name] === 'boolean') return st.commands[name]
+    if (scope !== GLOBAL_SCOPE && name) {
+        const g = _scopeState(GLOBAL_SCOPE)
+        if (typeof g.commands[name] === 'boolean') return g.commands[name]
+    }
     const moduleKey = resolveModuleKey(typeof cmd === 'string' ? { name } : cmd)
     return isModuleEnabled(moduleKey, scope)
 }

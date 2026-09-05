@@ -37,6 +37,7 @@ function scopeLabel(scope, isGroup) {
 function resolveTargetScope(arg, from, isGroup) {
     if (!arg) return moduleState.scopeOf(from, isGroup)
     const a = String(arg).trim()
+    if (/^global$|^geral$|^tudo$|^todos$/i.test(a)) return moduleState.GLOBAL_SCOPE
     if (/^pv$|^privado$/i.test(a)) return moduleState.PV_SCOPE
     if (/@g\.us$/i.test(a)) return a
     if (/^\d{5,}$/.test(a)) return `${a}@g.us`   // aceita só os dígitos do ID
@@ -64,6 +65,7 @@ function render(scope, isGroup, prefix) {
     doc += `┃ ➤ \`${prefix}modulo off all\` — desliga TUDO neste ambiente\n`
     doc += `┃ ➤ \`${prefix}modulo on <chave> <idDoGrupo>\` — mira outro grupo\n`
     doc += `┃ ➤ \`${prefix}modulo on all pv\` — libera o privado\n`
+    doc += `┃ ➤ \`${prefix}modulo on all global\` — libera TUDO (PV + todos os grupos)\n`
     doc += `┃ ➤ \`${prefix}cmdglobal on/off <comando>\` — override por comando\n`
     doc += `╰━━━━━━━━━━━━━━━━━━⬣\n`
     return doc.trim()
