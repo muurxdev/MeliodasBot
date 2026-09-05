@@ -19,7 +19,7 @@ module.exports = {
     subcategory: 'Utilidades',
     description: 'Gera números virtuais com escolha de DDD e recebe SMS para WhatsApp',
     cooldownMs: 2000,
-    execute: async ({ sender, info, args, reply, isOwner, prefix = '.' }) => {
+    execute: async ({ client, from, sender, info, args, reply, isOwner, prefix = '.' }) => {
         const sub = (args[0] || '').toLowerCase()
         const param = args.slice(1).join(' ').trim()
 
@@ -62,7 +62,7 @@ module.exports = {
             doc += `💡 *Exemplo de Uso:*\n`
             doc += `👉 \`${prefix}numfake gerar 11\` (São Paulo)\n`
             doc += `👉 \`${prefix}numfake gerar 21\` (Rio de Janeiro)\n`
-            doc += `👉 \`${prefix}numfake gerar 305\` (Miami EUA)`
+            doc += `👉 \`${prefix}numfake gerar +1\` ou \`${prefix}numfake gerar 305\` (EUA / Miami)`
 
             return reply(doc.trim())
         }
@@ -76,7 +76,8 @@ module.exports = {
             const result = await virtualNumberService.requestVirtualNumber({
                 sender,
                 dddInput,
-                isOwner
+                isOwner,
+                autoReplace: true
             })
 
             if (!result.success) {
@@ -102,8 +103,37 @@ module.exports = {
             doc += `1️⃣ Abra seu *WhatsApp* (ou WhatsApp Business).\n`
             doc += `2️⃣ Cole o número: \`${numberRaw}\`.\n`
             doc += `3️⃣ Solicite o envio do código por *SMS*.\n`
-            doc += `4️⃣ Volte aqui e digite: \`${prefix}numfake status\`\n\n`
-            doc += `💡 _Caso o SMS demore ou queira outro DDD, você pode cancelar a qualquer momento com:_ \`${prefix}numfake cancelar\` _(estorno 100% garantido)._`
+            doc += `4️⃣ Digite \`${prefix}numfake status\` ou aguarde a notificação automática aqui!\n\n`
+            doc += `💡 _Caso o SMS demore ou queira outro DDD, basta digitar \`${prefix}numfake gerar <ddd>\` que o bot cancela o anterior e gera o novo automaticamente._`
+
+            // Push automático do código SMS após 8 segundos em modo Sandbox Inteligente
+            if (client && (from || sender) && !process.env.SMS_ACTIVATE_API_KEY && !process.env.SMS_API_KEY) {
+                const targetChat = from || sender
+                const actId = order.activation_id
+                const phoneDisplay = numberFormatted
+
+                setTimeout(async () => {
+                    try {
+                        const smsRes = virtualNumberService.deliverSmsCode(actId)
+                        if (smsRes && smsRes.code) {
+                            let pushDoc = `╔══════════════════════════════╗\n`
+                            pushDoc += `║   📬 *CÓDIGO SMS RECEBIDO!* 📬   ║\n`
+                            pushDoc += `╚══════════════════════════════╝\n\n`
+                            pushDoc += `🎉 O código de verificação do WhatsApp para o número *${phoneDisplay}* chegou:\n\n`
+                            pushDoc += `╭━〔 🔑 *CÓDIGO DE ATIVAÇÃO* 〕━⬣\n`
+                            pushDoc += `┃ \n`
+                            pushDoc += `┃      👉   *${smsRes.code}*   👈\n`
+                            pushDoc += `┃ \n`
+                            pushDoc += `╰━━━━━━━━━━━━━━━━━━━━⬣\n\n`
+                            pushDoc += `⚡ Copie o código acima e confirme no seu WhatsApp!`
+
+                            await client.sendMessage(targetChat, { text: pushDoc.trim() })
+                        }
+                    } catch (pushErr) {
+                        // ignore push error if client offline
+                    }
+                }, 8000)
+            }
 
             return reply(doc.trim())
         }

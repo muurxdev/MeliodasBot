@@ -49,6 +49,10 @@ async function runDevToolsTests() {
         _ms.enableAll(_ms.PV_SCOPE)
         _ms.enableAll(_ms.GLOBAL_SCOPE)
         for (const g of ['5511999990001-1234@g.us', '120363000000000000@g.us', 'grupo@g.us']) _ms.enableAll(g)
+
+        const rentalService = require('../src/services/rentalService')
+        await rentalService.setRentalMode(false)
+        rentalService.setLifetimeRental({ targetJid: '120363000000000000@g.us' })
     }
 
     // ══════════════════════════════════════════

@@ -11,6 +11,7 @@ const { resolveDownloadFormat } = require('./formatResolver')
 const { MEDIA_ERRORS, MEDIA_LIMITS, FORMATS } = require('./constants')
 const { buildYtDlpArgs, getYtDlpEnv } = require('./mediaArgs')
 const { toMessage, isMissingBinary } = require('./mediaErrors')
+const drive = require('../drive/googleDriveService')
 const logger = require('../../core/logger')
 
 const activeProcesses = new Map()
@@ -224,12 +225,25 @@ async function downloadMedia(job, onProgress = null) {
                     return reject(err)
                 }
 
-                // Validação de limite de tamanho (WhatsApp-safe)
-                if (stats.size > MEDIA_LIMITS.MAX_FILE_SIZE_BYTES) {
+                // Validação de limite de tamanho:
+                // Se o Google Drive estiver configurado, aceita arquivos maiores que 2GB (até MAX_DRIVE_FILE_SIZE_BYTES)
+                const driveAtivo = drive.isConfigured()
+                const maxPermitido = driveAtivo ? (MEDIA_LIMITS.MAX_DRIVE_FILE_SIZE_BYTES || 50 * 1024 * 1024 * 1024) : MEDIA_LIMITS.MAX_FILE_SIZE_BYTES
+
+                if (stats.size > maxPermitido) {
+                    cleanupJobDir(jobTempDir)
+                    const sizeMb = (stats.size / (1024 * 1024)).toFixed(1)
+                    const limitMb = (maxPermitido / (1024 * 1024)).toFixed(0)
+                    const err = new Error(`Arquivo muito grande (${sizeMb} MB). O limite suportado ${driveAtivo ? 'no Drive' : 'pelo WhatsApp'} é ${limitMb} MB.`)
+                    err.code = MEDIA_ERRORS.FILE_TOO_LARGE
+                    return reject(err)
+                }
+
+                if (!driveAtivo && stats.size > MEDIA_LIMITS.MAX_FILE_SIZE_BYTES) {
                     cleanupJobDir(jobTempDir)
                     const sizeMb = (stats.size / (1024 * 1024)).toFixed(1)
                     const limitMb = (MEDIA_LIMITS.MAX_FILE_SIZE_BYTES / (1024 * 1024)).toFixed(0)
-                    const err = new Error(`Arquivo muito grande (${sizeMb} MB). O limite suportado é ${limitMb} MB.`)
+                    const err = new Error(`Arquivo muito grande (${sizeMb} MB). O WhatsApp aceita no máximo ${limitMb} MB. Configure o Google Drive no bot para arquivos maiores que 2GB.`)
                     err.code = MEDIA_ERRORS.FILE_TOO_LARGE
                     return reject(err)
                 }

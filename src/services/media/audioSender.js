@@ -146,6 +146,31 @@ async function enviarAudio({ client, from, filePath, caption = '', info, fileNam
     const nome = fileName || path.basename(filePath)
     const tituloLimpo = nome.replace(/\.[^.]+$/, '')
 
+    // 0. Arquivos maiores que 2GB (Teto máximo do WhatsApp)
+    if (tamanho > LIMITE_DOCUMENTO) {
+        if (drive.isConfigured()) {
+            try {
+                const r = await enviarParaDrive({ client, from, filePath, fileName: nome, tamanho })
+                let docMsg = `╔══════════════════════════════╗\n`
+                docMsg += `║   ☁️ *ÁUDIO SALVO NO DRIVE (5TB)*   ║\n`
+                docMsg += `╚══════════════════════════════╝\n\n`
+                if (caption) docMsg += `${caption}\n\n`
+                docMsg += `🎧 *Título:* \`${tituloLimpo}\`\n`
+                docMsg += `📊 *Tamanho:* *${mb(tamanho)} MB*\n\n`
+                docMsg += `⚠️ *Aviso:* Este áudio ultrapassa o limite de 2GB do WhatsApp. Por isso foi salvo integralmente no seu Drive de 5TB.\n\n`
+                docMsg += `╭━〔 🔗 *LINKS DE ACESSO* 〕━⬣\n`
+                if (r.folderUrl) docMsg += `┃ 📁 *Pasta no Drive:* ${r.folderUrl}\n`
+                docMsg += `┃ ▶️ *Ouvir Online:* ${r.visualizar}\n`
+                docMsg += `┃ ⬇️ *Download Direto:* ${r.baixar}\n`
+                docMsg += `╰━━━━━━━━━━━━━━━━━━━━⬣\n`
+                await client.sendMessage(from, { text: docMsg.trim() }, { quoted: info })
+                return { modo: 'drive', drive: r }
+            } catch (err) {
+                logger.error(`[AUDIO SENDER] Falha ao enviar para o Drive (>2GB): ${err.message}`)
+            }
+        }
+    }
+
     // 1. Cabe: caminho ideal, toca direto na conversa.
     if (tamanho <= LIMITE_AUDIO) {
         await client.sendMessage(from, {
@@ -166,14 +191,17 @@ async function enviarAudio({ client, from, filePath, caption = '', info, fileNam
     if (drive.isConfigured() && !preferirPartes) {
         try {
             const r = await enviarParaDrive({ client, from, filePath, fileName: nome, tamanho })
-            await client.sendMessage(from, {
-                text: (caption ? caption + '\n\n' : '') +
-                    `🎧 *${tituloLimpo}*\n` +
-                    `_${mb(tamanho)} MB — longo demais para tocar aqui no WhatsApp._\n\n` +
-                    `▶️ Ouvir: ${r.visualizar}\n` +
-                    `⬇️ Baixar: ${r.baixar}\n\n` +
-                    `💡 _Quer em pedaços que tocam direto na conversa? Use_ \`-partes\`_._`
-            }, { quoted: info })
+            let driveMsg = (caption ? caption + '\n\n' : '') +
+                `🎧 *${tituloLimpo}*\n` +
+                `_${mb(tamanho)} MB — longo demais para tocar aqui no WhatsApp._\n\n`
+            if (r.folderUrl) {
+                driveMsg += `📁 *Pasta no Drive:* ${r.folderUrl}\n`
+            }
+            driveMsg += `▶️ Ouvir: ${r.visualizar}\n` +
+                `⬇️ Baixar: ${r.baixar}\n\n` +
+                `💡 _Quer em pedaços que tocam direto na conversa? Use_ \`-partes\`_._`
+
+            await client.sendMessage(from, { text: driveMsg.trim() }, { quoted: info })
             return { modo: 'drive', drive: r }
         } catch (e) {
             logger.warn(`[AUDIO SENDER] Drive falhou, vou dividir: ${e.message}`)

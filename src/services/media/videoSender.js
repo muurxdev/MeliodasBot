@@ -117,14 +117,19 @@ async function enviarParaDrive({ client, from, filePath, fileName, tamanho }) {
         text: `☁️ *Enviado para o Drive* — ${mb(tamanho)} MB ✅`
     }).catch(e => logger.warn(`[VIDEO SENDER] Não editei o status final: ${e.message}`))
 
-    return { visualizar: r.visualizar, baixar: r.baixar }
+    return {
+        visualizar: r.visualizar,
+        baixar: r.baixar,
+        folderId: r.folderId,
+        folderUrl: r.folderUrl
+    }
 }
 
 /**
  * Envia o vídeo do melhor jeito possível.
  * @param {object} o
  * @param {boolean} [o.preferirDocumento] usuário pediu qualidade máxima (flag -doc)
- * @returns {Promise<{modo:'video'|'video-comprimido'|'documento'}>}
+ * @returns {Promise<{modo:'video'|'video-comprimido'|'documento'|'drive'|'recusado'}>}
  */
 async function enviarVideo({ client, from, filePath, caption, info, fileName, preferirDocumento = false }) {
     const tamanho = fs.statSync(filePath).size
@@ -138,6 +143,48 @@ async function enviarVideo({ client, from, filePath, caption, info, fileName, pr
             caption: caption + (nota ? `\n\n${nota}` : '')
         }, { quoted: info, mediaUploadTimeoutMs: 600000 })
         return { modo: 'documento' }
+    }
+
+    // 0. Arquivos maiores que 2GB (Teto máximo absoluto do WhatsApp)
+    // Jamais tenta comprimir com ffmpeg (travaria a VPS por horas).
+    // Vai direto para a API do Google Drive de 5TB do dono!
+    if (tamanho > LIMITE_DOCUMENTO) {
+        if (drive.isConfigured()) {
+            try {
+                const linkDrive = await enviarParaDrive({ client, from, filePath, fileName: nome, tamanho })
+                let docMsg = `╔══════════════════════════════╗\n`
+                docMsg += `║   ☁️ *ARQUIVO SALVO NO DRIVE (5TB)*   ║\n`
+                docMsg += `╚══════════════════════════════╝\n\n`
+                if (caption) docMsg += `${caption}\n\n`
+                docMsg += `📦 *Nome:* \`${nome}\`\n`
+                docMsg += `📊 *Tamanho:* *${mb(tamanho)} MB* (~${(tamanho / (1024 * 1024 * 1024)).toFixed(2)} GB)\n\n`
+                docMsg += `⚠️ *Aviso:* Este arquivo ultrapassa o limite de 2GB do WhatsApp. Por isso, foi armazenado com 100% de integridade e sem perdas no seu Google Drive de 5TB.\n\n`
+                docMsg += `╭━〔 🔗 *LINKS DE ACESSO* 〕━⬣\n`
+                if (linkDrive.folderUrl) {
+                    docMsg += `┃ 📁 *Pasta no Drive:* ${linkDrive.folderUrl}\n`
+                }
+                docMsg += `┃ ▶️ *Visualizar Online:* ${linkDrive.visualizar}\n`
+                docMsg += `┃ ⬇️ *Download Direto:* ${linkDrive.baixar}\n`
+                docMsg += `╰━━━━━━━━━━━━━━━━━━━━⬣\n\n`
+                docMsg += `💡 _Você pode abrir a pasta para navegar por todos os seus downloads ou baixar o arquivo original diretamente pelo link!_`
+
+                await client.sendMessage(from, { text: docMsg.trim() }, { quoted: info })
+                return { modo: 'drive', drive: linkDrive }
+            } catch (err) {
+                logger.error(`[VIDEO SENDER] Falha ao enviar para o Drive (>2GB): ${err.message}`)
+                await client.sendMessage(from, {
+                    text: `❌ *Falha ao subir arquivo de ${mb(tamanho)} MB para o Drive:*\n_${err.message}_`
+                }, { quoted: info })
+                return { modo: 'recusado' }
+            }
+        } else {
+            await client.sendMessage(from, {
+                text: `❌ *Arquivo grande demais* (${mb(tamanho)} MB).\n\n` +
+                      `O WhatsApp possui limite de 2.000 MB (2 GB) por arquivo e o Google Drive de 5TB não está configurado nesta instância do bot.\n` +
+                      `💡 _Configure o Google Drive com as variáveis GDRIVE_* no servidor para permitir downloads acima de 2GB._`
+            }, { quoted: info })
+            return { modo: 'recusado' }
+        }
     }
 
     // 1. Já cabe: caminho ideal, vai direto para a galeria.
@@ -182,6 +229,7 @@ async function enviarVideo({ client, from, filePath, caption, info, fileName, pr
             const nota = linkDrive
                 ? `\n\n📉 _Prévia reduzida de ${mb(tamanho)} para ${mb(novoTam)} MB para tocar aqui._\n\n` +
                   `☁️ *Original em qualidade máxima (${mb(tamanho)} MB):*\n` +
+                  (linkDrive.folderUrl ? `📁 Pasta no Drive: ${linkDrive.folderUrl}\n` : '') +
                   `▶️ Assistir: ${linkDrive.visualizar}\n` +
                   `⬇️ Baixar: ${linkDrive.baixar}`
                 : `\n\n📉 _Reduzido de ${mb(tamanho)} para ${mb(novoTam)} MB para abrir direto na sua galeria._\n` +
@@ -202,13 +250,16 @@ async function enviarVideo({ client, from, filePath, caption, info, fileName, pr
 
     // 5. Não deu para comprimir, mas o Drive guardou: manda só o link.
     if (linkDrive) {
-        await client.sendMessage(from, {
-            text: caption +
-                `\n\n☁️ *Arquivo de ${mb(tamanho)} MB — grande demais para o WhatsApp.*\n` +
-                `Guardei no Drive em qualidade máxima:\n\n` +
-                `▶️ Assistir: ${linkDrive.visualizar}\n` +
-                `⬇️ Baixar: ${linkDrive.baixar}`
-        }, { quoted: info })
+        let msgDrive = (caption ? caption + '\n\n' : '') +
+            `☁️ *Arquivo de ${mb(tamanho)} MB — grande demais para a galeria.*\n` +
+            `Guardei no Drive em qualidade máxima:\n\n`
+        if (linkDrive.folderUrl) {
+            msgDrive += `📁 *Pasta no Drive:* ${linkDrive.folderUrl}\n`
+        }
+        msgDrive += `▶️ *Assistir:* ${linkDrive.visualizar}\n`
+        msgDrive += `⬇️ *Baixar:* ${linkDrive.baixar}`
+
+        await client.sendMessage(from, { text: msgDrive.trim() }, { quoted: info })
         return { modo: 'drive', drive: linkDrive }
     }
 

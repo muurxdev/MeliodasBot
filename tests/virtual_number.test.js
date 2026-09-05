@@ -72,6 +72,26 @@ async function run() {
         assert.strictEqual(miami.ddd, '305')
     })
 
+    await test('Resolve +1, 1, usa e números com DDI 1 (ex: +1415) como Estados Unidos', () => {
+        const plusOne = virtualNumberService.resolveDdd('+1')
+        assert.strictEqual(plusOne.ddi, '1')
+        assert.strictEqual(plusOne.countryCode, 'US')
+        assert.strictEqual(plusOne.countryName, 'Estados Unidos')
+
+        const one = virtualNumberService.resolveDdd('1')
+        assert.strictEqual(one.ddi, '1')
+        assert.strictEqual(one.countryCode, 'US')
+
+        const usa = virtualNumberService.resolveDdd('usa')
+        assert.strictEqual(usa.ddi, '1')
+        assert.strictEqual(usa.countryCode, 'US')
+
+        const one415 = virtualNumberService.resolveDdd('+1415')
+        assert.strictEqual(one415.ddi, '1')
+        assert.strictEqual(one415.ddd, '415')
+        assert.strictEqual(one415.countryCode, 'US')
+    })
+
     console.log('\n--- 2. Geração Procedural de Números Telefônicos ---')
 
     await test('Gera celular brasileiro no padrão Anatel (+55 DD 9XXXX-XXXX)', () => {
@@ -114,15 +134,29 @@ async function run() {
         assert.ok(res.numberFormatted.includes('(11)'))
     })
 
-    await test('Impede segundo pedido concorrente enquanto houver ativo', async () => {
+    await test('Impede segundo pedido concorrente enquanto houver ativo (autoReplace: false)', async () => {
         const res = await virtualNumberService.requestVirtualNumber({
             sender: ownerJid,
             dddInput: '21',
-            isOwner: true
+            isOwner: true,
+            autoReplace: false
         })
 
         assert.strictEqual(res.success, false)
         assert.strictEqual(res.code, 'ALREADY_HAS_ACTIVE')
+    })
+
+    await test('Substitui pedido ativo anterior automaticamente quando autoReplace: true', async () => {
+        const res = await virtualNumberService.requestVirtualNumber({
+            sender: ownerJid,
+            dddInput: '305',
+            isOwner: true,
+            autoReplace: true
+        })
+
+        assert.strictEqual(res.success, true)
+        assert.strictEqual(res.order.ddd, '305')
+        assert.ok(res.numberFormatted.includes('(305)'))
     })
 
     await test('Entrega de código SMS no número ativo do Dono', async () => {

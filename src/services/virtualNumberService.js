@@ -106,12 +106,19 @@ const DDD_INTERNACIONAL = {
     '212': { ddi: '1', nome: 'Nova York / Manhattan (EUA)' },
     '305': { ddi: '1', nome: 'Miami / Flórida (EUA)' },
     '310': { ddi: '1', nome: 'Los Angeles / Beverly Hills (EUA)' },
-    '415': { ddi: '1', nome: 'San Francisco / Califórnia (EUA)' },
+    '415': { ddi: '1', nome: 'San Francisco / Vale do Silício (EUA)' },
     '702': { ddi: '1', nome: 'Las Vegas / Nevada (EUA)' },
     '407': { ddi: '1', nome: 'Orlando / Flórida (EUA)' },
     '312': { ddi: '1', nome: 'Chicago / Illinois (EUA)' },
     '206': { ddi: '1', nome: 'Seattle / Washington (EUA)' },
-    '713': { ddi: '1', nome: 'Houston / Texas (EUA)' }
+    '713': { ddi: '1', nome: 'Houston / Texas (EUA)' },
+    '202': { ddi: '1', nome: 'Washington D.C. (EUA)' },
+    '617': { ddi: '1', nome: 'Boston / Massachusetts (EUA)' },
+    '404': { ddi: '1', nome: 'Atlanta / Georgia (EUA)' },
+    '512': { ddi: '1', nome: 'Austin / Texas (EUA)' },
+    '619': { ddi: '1', nome: 'San Diego / Califórnia (EUA)' },
+    '786': { ddi: '1', nome: 'Miami Beach / Flórida (EUA)' },
+    '917': { ddi: '1', nome: 'Nova York / Celulares (EUA)' }
 };
 
 const CUSTO_PADRAO_CREDITOS = 5; // 5 créditos por número para usuários comuns
@@ -120,9 +127,60 @@ const CUSTO_PADRAO_CREDITOS = 5; // 5 créditos por número para usuários comun
  * Resolve o DDD informado (número de 2 dígitos, 3 dígitos ou nome de país/estado)
  */
 function resolveDdd(input) {
-    const raw = String(input || '').toLowerCase().trim().replace(/[^a-z0-9]/g, '');
+    let raw = String(input || '').toLowerCase().trim().replace(/[^a-z0-9]/g, '');
 
-    // 1. Número direto de 2 dígitos: Brasil (11 a 99)
+    // 1. DDI +1 / EUA direto (+1, 1, 01, eua, usa, us, etc.)
+    if (['1', '01', 'eua', 'usa', 'us', 'estadosunidos', 'america', 'unitedstates'].includes(raw)) {
+        return {
+            ddi: '1',
+            ddd: '305',
+            countryCode: 'US',
+            countryName: 'Estados Unidos',
+            regionName: DDD_INTERNACIONAL['305'].nome,
+            costCredits: CUSTO_PADRAO_CREDITOS
+        };
+    }
+
+    // 2. Número com DDI 1 + DDD de 3 dígitos (ex: 1415, 1305, 1212)
+    if (raw.startsWith('1') && raw.length === 4) {
+        const ddd = raw.slice(1);
+        const info = DDD_INTERNACIONAL[ddd] || { ddi: '1', nome: `Estados Unidos (Área ${ddd})` };
+        return {
+            ddi: '1',
+            ddd,
+            countryCode: 'US',
+            countryName: 'Estados Unidos',
+            regionName: info.nome,
+            costCredits: CUSTO_PADRAO_CREDITOS
+        };
+    }
+
+    // 3. DDI 55 + DDD de 2 dígitos (ex: 5511, 5521)
+    if (raw.startsWith('55') && raw.length === 4) {
+        const ddd = raw.slice(2);
+        if (DDD_BRASIL[ddd]) {
+            return {
+                ddi: '55',
+                ddd,
+                countryCode: 'BR',
+                countryName: 'Brasil',
+                regionName: DDD_BRASIL[ddd],
+                costCredits: CUSTO_PADRAO_CREDITOS
+            };
+        }
+    }
+    if (raw === '55' || ['br', 'brasil', 'brazil'].includes(raw)) {
+        return {
+            ddi: '55',
+            ddd: '11',
+            countryCode: 'BR',
+            countryName: 'Brasil',
+            regionName: DDD_BRASIL['11'],
+            costCredits: CUSTO_PADRAO_CREDITOS
+        };
+    }
+
+    // 4. DDD de 2 dígitos: Brasil (11 a 99)
     if (DDD_BRASIL[raw]) {
         return {
             ddi: '55',
@@ -134,11 +192,11 @@ function resolveDdd(input) {
         };
     }
 
-    // 2. Número direto de 3 dígitos: Internacional (EUA/Canadá)
-    if (DDD_INTERNACIONAL[raw]) {
-        const info = DDD_INTERNACIONAL[raw];
+    // 5. DDD de 3 dígitos: Internacional (EUA/Canadá)
+    if (DDD_INTERNACIONAL[raw] || (raw.length === 3 && /^\d+$/.test(raw))) {
+        const info = DDD_INTERNACIONAL[raw] || { ddi: '1', nome: `Estados Unidos (Área ${raw})` };
         return {
-            ddi: info.ddi,
+            ddi: '1',
             ddd: raw,
             countryCode: 'US',
             countryName: 'Estados Unidos',
@@ -147,10 +205,18 @@ function resolveDdd(input) {
         };
     }
 
-    // 3. Palavras-chave: brasil, br, sp, rj, mg, eua, usa, miami, ny
-    if (['br', 'brasil', 'brazil'].includes(raw)) {
-        return resolveDdd('11'); // Default Brasil: SP 11
-    }
+    // 6. Palavras-chave: EUA e Brasil
+    if (['ny', 'newyork', 'novayork', 'manhattan'].includes(raw)) return resolveDdd('212');
+    if (['miami', 'florida', 'fl'].includes(raw)) return resolveDdd('305');
+    if (['la', 'losangeles', 'california', 'ca'].includes(raw)) return resolveDdd('310');
+    if (['sf', 'sanfrancisco', 'siliconvalley'].includes(raw)) return resolveDdd('415');
+    if (['vegas', 'lasvegas', 'nevada'].includes(raw)) return resolveDdd('702');
+    if (['orlando'].includes(raw)) return resolveDdd('407');
+    if (['chicago', 'illinois'].includes(raw)) return resolveDdd('312');
+    if (['texas', 'houston'].includes(raw)) return resolveDdd('713');
+    if (['boston'].includes(raw)) return resolveDdd('617');
+    if (['atlanta'].includes(raw)) return resolveDdd('404');
+
     if (['sp', 'saopaulo', 'sampa'].includes(raw)) return resolveDdd('11');
     if (['rj', 'riodejaneiro', 'rio'].includes(raw)) return resolveDdd('21');
     if (['mg', 'minas', 'bh'].includes(raw)) return resolveDdd('31');
@@ -160,14 +226,6 @@ function resolveDdd(input) {
     if (['ba', 'salvador', 'bahia'].includes(raw)) return resolveDdd('71');
     if (['pe', 'recife', 'pernambuco'].includes(raw)) return resolveDdd('81');
     if (['ce', 'fortaleza', 'ceara'].includes(raw)) return resolveDdd('85');
-
-    if (['eua', 'usa', 'us', 'estadosunidos'].includes(raw)) {
-        return resolveDdd('305'); // Default EUA: Miami 305
-    }
-    if (['ny', 'newyork', 'novayork'].includes(raw)) return resolveDdd('212');
-    if (['miami', 'florida'].includes(raw)) return resolveDdd('305');
-    if (['la', 'losangeles'].includes(raw)) return resolveDdd('310');
-    if (['vegas', 'lasvegas'].includes(raw)) return resolveDdd('702');
 
     // Se não encontrou, retorna padrão Brasil 11
     return {
@@ -206,16 +264,28 @@ function generateProceduralNumber(resolved) {
 /**
  * Solicita um número virtual para ativação de WhatsApp
  */
-async function requestVirtualNumber({ sender, dddInput, isOwner }) {
+async function requestVirtualNumber({ sender, dddInput, isOwner, autoReplace = false }) {
     // 1. Verifica se o usuário já tem um número ativo aguardando SMS
     const activeOrder = virtualNumberRepo.getActiveOrderByUser(sender);
     if (activeOrder) {
-        return {
-            success: false,
-            code: 'ALREADY_HAS_ACTIVE',
-            message: `⚠️ Você já possui uma ativação em andamento para o número *${activeOrder.phone_number}*.\nUse \`.numfake status\` ou \`.numfake cancelar\`.`,
-            activeOrder
-        };
+        if (autoReplace) {
+            logger.info(`[VIRTUAL NUMBER] Cancelando ativação anterior #${activeOrder.id} de ${sender} (autoReplace)`);
+            virtualNumberRepo.updateStatus(activeOrder.id, { status: 'CANCELLED' });
+            if (!isOwner && activeOrder.cost_credits > 0) {
+                creditsService.ajustar({
+                    jid: sender,
+                    creditos: activeOrder.cost_credits,
+                    motivo: `Estorno de substituição do número virtual #${activeOrder.id}`
+                });
+            }
+        } else {
+            return {
+                success: false,
+                code: 'ALREADY_HAS_ACTIVE',
+                message: `⚠️ Você já possui uma ativação em andamento para o número *${activeOrder.phone_number}*.\nUse \`.numfake status\` ou \`.numfake cancelar\`.`,
+                activeOrder
+            };
+        }
     }
 
     const resolved = resolveDdd(dddInput);
@@ -329,7 +399,7 @@ async function cancelVirtualNumber({ sender, isOwner }) {
  * Consulta o status atual da ativação
  */
 function checkVirtualNumberStatus(sender) {
-    const activeOrder = virtualNumberRepo.getActiveOrderByUser(sender);
+    let activeOrder = virtualNumberRepo.getActiveOrderByUser(sender);
     if (!activeOrder) {
         const lastOrder = (virtualNumberRepo.listOrdersByUser(sender, 1) || [])[0];
         return { hasActive: false, lastOrder };
@@ -337,6 +407,22 @@ function checkVirtualNumberStatus(sender) {
 
     const now = Date.now();
     const timeLeftMs = Math.max(0, activeOrder.expires_at - now);
+    const isExpired = timeLeftMs <= 0;
+
+    // Se estiver no modo sandbox/sem chave de API SMS externa e ainda estiver PENDING:
+    // Ao consultar o status, gera automaticamente o código de 6 dígitos para o usuário poder ativar!
+    const apiKey = process.env.SMS_ACTIVATE_API_KEY || process.env.SMS_API_KEY;
+    if (activeOrder.status === 'PENDING' && !isExpired && !apiKey) {
+        const code = `${Math.floor(100 + Math.random() * 900)}-${Math.floor(100 + Math.random() * 900)}`;
+        virtualNumberRepo.updateStatus(activeOrder.id, {
+            status: 'RECEIVED',
+            smsCode: code
+        });
+        activeOrder.status = 'RECEIVED';
+        activeOrder.sms_code = code;
+        logger.info(`[VIRTUAL NUMBER] SMS recebido automaticamente para #${activeOrder.id} (${activeOrder.phone_number}): ${code}`);
+    }
+
     const minutesLeft = Math.floor(timeLeftMs / 60000);
     const secondsLeft = Math.floor((timeLeftMs % 60000) / 1000);
 
@@ -344,7 +430,7 @@ function checkVirtualNumberStatus(sender) {
         hasActive: true,
         order: activeOrder,
         timeLeftFormatted: `${minutesLeft}m ${secondsLeft < 10 ? '0' : ''}${secondsLeft}s`,
-        isExpired: timeLeftMs <= 0
+        isExpired
     };
 }
 
@@ -353,7 +439,7 @@ function checkVirtualNumberStatus(sender) {
  */
 function deliverSmsCode(activationId, smsCode) {
     const order = virtualNumberRepo.getOrderByActivationId(activationId);
-    if (!order || order.status !== 'PENDING') return false;
+    if (!order || !['PENDING', 'RECEIVED'].includes(order.status)) return false;
 
     const code = String(smsCode || `${Math.floor(100 + Math.random() * 900)}-${Math.floor(100 + Math.random() * 900)}`);
     virtualNumberRepo.updateStatus(order.id, {

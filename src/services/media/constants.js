@@ -73,6 +73,8 @@ function parseEnvMs(value, fallback) {
 const MEDIA_LIMITS = {
     // 2000 MB (2 GB): limite máximo suportado pelo WhatsApp como documento / vídeo
     MAX_FILE_SIZE_BYTES: parseEnvMs(process.env.MEDIA_MAX_FILE_SIZE_BYTES, 2000 * 1024 * 1024),
+    // 50 GB: limite máximo para uploads via Google Drive de 5TB
+    MAX_DRIVE_FILE_SIZE_BYTES: parseEnvMs(process.env.MEDIA_MAX_DRIVE_FILE_SIZE_BYTES, 50 * 1024 * 1024 * 1024),
     // 6 horas. O teto anterior era 60 min e recusava live/DVD/"as melhores"
     // de pagode — justamente o conteudo longo que as pessoas mais pedem.
     // Quem limita de verdade e o disco (diskGuard), nao um numero fixo aqui.

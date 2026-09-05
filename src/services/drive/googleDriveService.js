@@ -210,6 +210,30 @@ function links(fileId) {
     }
 }
 
+/** Retorna o link web canônico para navegação da pasta no Google Drive */
+function obterLinkPasta(folderId) {
+    if (!folderId) return null
+    return `https://drive.google.com/drive/folders/${folderId}`
+}
+
+/** Deixa a pasta acessível por link (leitura para qualquer pessoa com o link) */
+async function tornarPastaPublica(folderId) {
+    if (!folderId) return null
+    try {
+        const token = await getAccessToken()
+        await axios.post(`${FILES_URL}/${folderId}/permissions`,
+            { role: 'reader', type: 'anyone' },
+            {
+                headers: { Authorization: `Bearer ${token}` },
+                params: { supportsAllDrives: true },
+                timeout: 30000
+            })
+    } catch (e) {
+        logger.warn(`[GDRIVE] Não foi possível definir permissão pública na pasta ${folderId}: ${e.message}`)
+    }
+    return obterLinkPasta(folderId)
+}
+
 async function deleteFile(fileId) {
     const token = await getAccessToken()
     await axios.delete(`${FILES_URL}/${fileId}`, {
@@ -235,7 +259,11 @@ async function garantirPasta(nome, paiId = null) {
         headers: { Authorization: `Bearer ${token}` },
         timeout: 30000
     })
-    if (data.files && data.files.length) return data.files[0].id
+    if (data.files && data.files.length) {
+        const existingId = data.files[0].id
+        await tornarPastaPublica(existingId).catch(() => {})
+        return existingId
+    }
 
     const { data: nova } = await axios.post(FILES_URL,
         { name: nome, mimeType: 'application/vnd.google-apps.folder', ...(paiId ? { parents: [paiId] } : {}) },
@@ -245,14 +273,33 @@ async function garantirPasta(nome, paiId = null) {
             timeout: 30000
         })
     logger.info(`[GDRIVE] Pasta "${nome}" criada — id ${nova.id}`)
+    await tornarPastaPublica(nova.id).catch(() => {})
     return nova.id
 }
 
 /** Upload + link público num passo só (o caso de uso do bot). */
 async function enviarECompartilhar({ filePath, fileName, mimeType, folderId, onProgress }) {
-    const arquivo = await uploadFile({ filePath, fileName, mimeType, folderId, onProgress })
+    let pasta = folderId || cfg().folderId
+    if (!pasta) {
+        try {
+            pasta = await garantirPasta('MeliodasBOT Downloads')
+        } catch (err) {
+            logger.warn(`[GDRIVE] Não foi possível criar pasta padrão: ${err.message}`)
+        }
+    } else {
+        tornarPastaPublica(pasta).catch(() => {})
+    }
+
+    const arquivo = await uploadFile({ filePath, fileName, mimeType, folderId: pasta, onProgress })
     const url = await tornarPublico(arquivo.id)
-    return { ...arquivo, ...url }
+    const folderUrl = pasta ? obterLinkPasta(pasta) : null
+
+    return {
+        ...arquivo,
+        ...url,
+        folderId: pasta,
+        folderUrl
+    }
 }
 
 module.exports = {
@@ -261,6 +308,8 @@ module.exports = {
     getQuota,
     uploadFile,
     tornarPublico,
+    tornarPastaPublica,
+    obterLinkPasta,
     links,
     deleteFile,
     garantirPasta,

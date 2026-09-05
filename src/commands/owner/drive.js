@@ -40,10 +40,21 @@ module.exports = {
         }
 
         try {
+            const pastaId = process.env.GDRIVE_FOLDER_ID
+            const linkPasta = drive.obterLinkPasta(pastaId)
+
+            if (/pasta|link|url|abrir/i.test(text || '')) {
+                if (linkPasta) {
+                    return reply(`📁 *PASTA EXATA NO GOOGLE DRIVE (5TB):*\n\n🔗 ${linkPasta}\n\n_Todos os downloads acima de 2GB e mídias salvas pelo bot ficam nesta pasta._`)
+                } else {
+                    return reply('📁 *GOOGLE DRIVE*\n\nNenhuma pasta específica configurada em `GDRIVE_FOLDER_ID` (arquivos são enviados para a raiz ou pasta padrão).')
+                }
+            }
+
             const q = await drive.getQuota()
             const disco = await diskGuard.espacoLivre(tempDir)
 
-            let msg = '☁️ *GOOGLE DRIVE*\n\n'
+            let msg = '☁️ *GOOGLE DRIVE (5TB)*\n\n'
             msg += `👤 Conta: \`${q.email || 'desconhecida'}\`\n`
 
             if (q.limite === null) {
@@ -55,7 +66,7 @@ module.exports = {
                 msg += `🆓 Livre: *${tb(q.livre)} TB*\n`
             }
 
-            msg += `📁 Pasta: \`${process.env.GDRIVE_FOLDER_ID || 'raiz do Drive'}\`\n`
+            msg += `📁 Pasta: ${linkPasta ? linkPasta : '`raiz do Drive`'}\n`
 
             if (disco) {
                 const discoFrac = 1 - disco.livre / disco.total
