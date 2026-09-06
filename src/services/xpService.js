@@ -6,13 +6,15 @@ const userRepo = require('../database/repositories/userRepository')
 function initializeUser(sender, xpData = {}, alternativeJids = []) {
     let user = xpData[sender]
 
-    if (!user || (user.messages === 0 && user.xp === 0 && user.level === 1)) {
+    if (!user || (user.messages === 0 && user.xp === 0 && user.level === 1 && !user.registered)) {
         try {
             const dbUser = userRepo.getUser(sender, alternativeJids)
-            if (dbUser && (dbUser.messages > 0 || dbUser.xp > 0 || dbUser.coins > 0 || dbUser.level > 1 || (dbUser.inventario && dbUser.inventario.length > 0))) {
+            if (dbUser && (dbUser.messages > 0 || dbUser.xp > 0 || dbUser.coins > 0 || dbUser.level > 1 || (dbUser.inventario && dbUser.inventario.length > 0) || dbUser.registered || dbUser.displayNick)) {
+                user = dbUser
+            } else if (dbUser && Object.keys(dbUser).length > 0) {
                 user = dbUser
             } else if (!user) {
-                user = dbUser || {}
+                user = {}
             }
         } catch (_) {}
     }
@@ -37,6 +39,12 @@ function initializeUser(sender, xpData = {}, alternativeJids = []) {
         arma: null,
         wins: 0,
         losses: 0,
+        bossesMortos: 0,
+        registered: false,
+        displayNick: null,
+        rpgEnabled: true,
+        bossesResumo: {},
+        bossesDerrotados: [],
         classe: null,
         classeLendaria: null,
         bugPower: 0,

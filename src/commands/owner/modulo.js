@@ -106,7 +106,8 @@ module.exports = {
         if (target === 'all' || target === 'tudo') {
             if (enable) moduleState.enableAll(scope)
             else moduleState.disableAll(scope)
-            return reply(`${enable ? '🟢' : '🔴'} *Todos os módulos ${enable ? 'LIGADOS' : 'DESLIGADOS'}* em ${scopeLabel(scope, isGroup)}.\n\n${render(scope, isGroup, prefix)}`)
+            const extraNotice = enable ? '\n🔒 _Nota: O módulo `skycode` permanece desligado por isolamento (ative com `.skycode on`)._' : ''
+            return reply(`${enable ? '🟢' : '🔴'} *Todos os módulos ${enable ? 'LIGADOS' : 'DESLIGADOS'}* em ${scopeLabel(scope, isGroup)}.${extraNotice}\n\n${render(scope, isGroup, prefix)}`)
         }
 
         const res = moduleState.setModule(target, enable, scope)

@@ -247,12 +247,60 @@ function downloadDirectYtDlpAudio(targetUrl, outputPath) {
 }
 
 /**
+ * Salva resultado no cache local e calcula tempo total
+ */
+function wrapAudioSuccess(result, query, startedAt) {
+    result.elapsedMs = Date.now() - startedAt;
+    try {
+        const mediaCache = require("./media/mediaCacheService");
+        mediaCache.set(query.trim(), "mp3", "default", result.filePath, {
+            title: result.title,
+            author: result.author,
+            durationFormatted: result.durationFormatted,
+            thumbnail: result.thumbnail,
+            url: result.url,
+            platform: result.platform
+        });
+    } catch (e) {
+        logger.warn(`[AUDIO CACHE] Falha ao salvar no cache: ${e.message}`);
+    }
+    return result;
+}
+
+/**
  * Pesquisa e baixa áudio de alta fidelidade convertido para MP3
  * @param {string} query - Nome da música ou URL direta
  * @returns {Promise<object>}
  */
 async function searchAndDownloadAudio(query) {
     const startedAt = Date.now();
+
+    // 0. Cache hit instantâneo em disco (<50ms)
+    try {
+        const mediaCache = require("./media/mediaCacheService");
+        const cached = mediaCache.get(query.trim(), "mp3", "default");
+        if (cached && fs.existsSync(cached.filePath)) {
+            logger.info(`[AUDIO CACHE HIT] Servido do cache em ${Date.now() - startedAt}ms: ${cached.filePath}`);
+            return {
+                filePath: cached.filePath,
+                elapsedMs: Date.now() - startedAt,
+                title: cached.meta?.title || "Música",
+                author: cached.meta?.author || "Artista",
+                durationFormatted: cached.meta?.durationFormatted || "—",
+                thumbnail: cached.meta?.thumbnail || "https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4?w=600",
+                url: cached.meta?.url || query.trim(),
+                isVideo: false,
+                isAudio: true,
+                mimetype: "audio/mpeg",
+                platform: cached.meta?.platform || "Cache",
+                jobId: "cached_" + Date.now(),
+                fromCache: true
+            };
+        }
+    } catch (cacheErr) {
+        logger.warn(`[AUDIO CACHE] Falha na consulta prévia: ${cacheErr.message}`);
+    }
+
     const jobId = "audio_" + Date.now() + "_" + Math.random().toString(36).slice(2, 7);
     const audioTempDir = path.join(tempDir, "audio");
     if (!fs.existsSync(audioTempDir)) {
@@ -303,9 +351,8 @@ async function searchAndDownloadAudio(query) {
         // 2.1 Tenta baixar diretamente do link original via yt-dlp
         try {
             await downloadDirectYtDlpAudio(sourceUrl, outputPath);
-            return {
+            return wrapAudioSuccess({
                 filePath: outputPath,
-                elapsedMs: Date.now() - startedAt,
                 title,
                 author,
                 durationFormatted,
@@ -316,7 +363,7 @@ async function searchAndDownloadAudio(query) {
                 mimetype: "audio/mpeg",
                 platform,
                 jobId
-            };
+            }, query, startedAt);
         } catch (ytDlpErr) {
             logger.warn("[AUDIO DIRECT DOWNLOAD WARN] " + ytDlpErr.message + ", tentando fallback resiliente...");
 
@@ -324,9 +371,8 @@ async function searchAndDownloadAudio(query) {
                 try {
                     const ok = await downloadYouTubeResilient(sourceUrl, outputPath, "mp3");
                     if (ok && fs.existsSync(outputPath) && fs.statSync(outputPath).size > 0) {
-                        return {
+                        return wrapAudioSuccess({
                             filePath: outputPath,
-                elapsedMs: Date.now() - startedAt,
                             title,
                             author,
                             durationFormatted,
@@ -337,7 +383,7 @@ async function searchAndDownloadAudio(query) {
                             mimetype: "audio/mpeg",
                             platform,
                             jobId
-                        };
+                        }, query, startedAt);
                     }
                 } catch (_) {}
             }
@@ -394,9 +440,8 @@ async function searchAndDownloadAudio(query) {
                 try {
                     await downloadDirectYtDlpAudio(ytUrl, outputPath);
                     if (fs.existsSync(outputPath) && fs.statSync(outputPath).size > 0) {
-                        return {
+                        return wrapAudioSuccess({
                             filePath: outputPath,
-                elapsedMs: Date.now() - startedAt,
                             title,
                             author,
                             durationFormatted,
@@ -407,7 +452,7 @@ async function searchAndDownloadAudio(query) {
                             mimetype: "audio/mpeg",
                             platform: isSpotify ? "Spotify" : "YouTube",
                             jobId
-                        };
+                        }, query, startedAt);
                     }
                 } catch (errYt) {
                     logger.warn(`[AUDIO YT-DLP WARN] ${errYt.message}, acionando fallback resiliente...`);
@@ -417,9 +462,8 @@ async function searchAndDownloadAudio(query) {
                 try {
                     const ok = await downloadYouTubeResilient(ytUrl, outputPath, "mp3");
                     if (ok && fs.existsSync(outputPath) && fs.statSync(outputPath).size > 0) {
-                        return {
+                        return wrapAudioSuccess({
                             filePath: outputPath,
-                elapsedMs: Date.now() - startedAt,
                             title,
                             author,
                             durationFormatted,
@@ -430,7 +474,7 @@ async function searchAndDownloadAudio(query) {
                             mimetype: "audio/mpeg",
                             platform: isSpotify ? "Spotify" : "YouTube",
                             jobId
-                        };
+                        }, query, startedAt);
                     }
                 } catch (errRes) {
                     logger.warn(`[AUDIO RESILIENT WARN] ${errRes.message}`);
@@ -480,9 +524,8 @@ async function searchAndDownloadAudio(query) {
                     ? durationFormatted
                     : (selectedTrack.durationInSec ? Math.floor(selectedTrack.durationInSec / 60) + ":" + String(selectedTrack.durationInSec % 60).padStart(2, "0") : "—");
 
-                return {
+                return wrapAudioSuccess({
                     filePath: outputPath,
-                elapsedMs: Date.now() - startedAt,
                     title: isSpotify ? title : (selectedTrack.name || title),
                     author: isSpotify ? author : (selectedTrack.user?.name || author),
                     durationFormatted: finalDuration,
@@ -493,7 +536,7 @@ async function searchAndDownloadAudio(query) {
                     mimetype: "audio/mpeg",
                     platform: isSpotify ? "Spotify" : (platform || "SoundCloud"),
                     jobId
-                };
+                }, query, startedAt);
             }
         }
     } catch (scErr) {
@@ -504,9 +547,8 @@ async function searchAndDownloadAudio(query) {
         throw new Error("Não foi possível encontrar nem processar o áudio desta faixa.");
     }
 
-    return {
+    return wrapAudioSuccess({
         filePath: outputPath,
-                elapsedMs: Date.now() - startedAt,
         title,
         author,
         durationFormatted,
@@ -517,7 +559,7 @@ async function searchAndDownloadAudio(query) {
         mimetype: "audio/mpeg",
         platform,
         jobId
-    };
+    }, query, startedAt);
 }
 
 /**

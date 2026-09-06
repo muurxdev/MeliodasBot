@@ -50,18 +50,15 @@ module.exports = {
             const footer = `\n\n━━━━━━━━━━━━━━━━━━━━━━━━━━━\n👑 *${botName}*`;
             const fullText = head + previewText + footer;
 
-            // Envia com o MESMO wallpaper que o evento real usaria
-            const { getMenuMedia } = require("../../utils/wallpapers");
-            const media = getMenuMedia("welcome");
-            if (process.env.NODE_ENV !== "test" && media && media.buffer) {
-                try {
-                    const payload = media.type === "video"
-                        ? { video: media.buffer, caption: fullText, gifPlayback: true, mimetype: "video/mp4", mentions: [sender] }
-                        : { image: media.buffer, caption: fullText, mentions: [sender] };
-                    return await client.sendMessage(from, payload, { quoted: info });
-                } catch (e) {
-                    logger.warn("[WELCOME CONFIG MEDIA FAILED] " + e.message);
-                }
+            // Envia com o MESMO wallpaper Full HD que o evento real usaria
+            if (process.env.NODE_ENV !== "test") {
+                const { sendMenuMediaMessage } = require("../../utils/wallpapers");
+                return await sendMenuMediaMessage(client, from, {
+                    category: "welcome",
+                    text: fullText,
+                    mentions: [sender],
+                    quoted: info
+                });
             }
             return reply(fullText, [sender]);
         }

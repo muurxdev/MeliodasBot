@@ -7,6 +7,8 @@ module.exports = {
     category: "admin",
     subcategory: "Avisos",
     description: "Formata e dispara um comunicado solene no grupo: .avisogrupo <mensagem>",
+    groupOnly: true,
+    adminOnly: true,
     cooldownMs: 3000,
     execute: async ({ reply, args }) => {
             const m = args.join(" ");

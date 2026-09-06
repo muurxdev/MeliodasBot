@@ -227,6 +227,7 @@ module.exports = {
                 participantes.forEach(pUser => {
                     const perfilP = initializeUser(pUser, xpData)
                     perfilP.bossesMortos = (perfilP.bossesMortos || 0) + 1
+                    perfilP.wins = (perfilP.wins || 0) + 1
 
                     const danoP = boss.dano[pUser]
                     require('../../services/bossHistoryService')

@@ -15,6 +15,12 @@ module.exports = {
 
         user.xp = (user.xp || 0) + xp;
         user.coins = (user.coins || 0) + coins;
+        if (vitoria) {
+            user.wins = (user.wins || 0) + 1;
+        } else {
+            user.losses = (user.losses || 0) + 1;
+        }
+        xpData[sender] = user;
         await dataService.saveXpData(xpData);
 
         const card = renderCard({

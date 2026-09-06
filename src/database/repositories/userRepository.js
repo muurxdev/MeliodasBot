@@ -229,7 +229,7 @@ function getUser(jid, alternativeJids = []) {
     // 1. Registro ativo entre os candidatos diretos (usa índice em jid/lid)
     for (const c of allCandidates) {
         const row = q('SELECT * FROM users WHERE jid = ? OR lid = ? ORDER BY level DESC, xp DESC, messages DESC LIMIT 1').get(c, c)
-        if (row && (row.xp > 0 || row.messages > 0 || row.coins > 0 || row.level > 1)) {
+        if (row && (row.xp > 0 || row.messages > 0 || row.coins > 0 || row.level > 1 || row.registered > 0 || row.display_nick)) {
             return rowToUser(row)
         }
     }
@@ -279,9 +279,9 @@ const COLUMNS = [
     { name: 'equipado',          val: u => u.equipado || null,                                  set: 'coalesce' },
     { name: 'arma',              val: u => u.arma || null,                                      set: 'coalesce' },
     { name: 'guilda',            val: u => u.guilda || null,                                    set: 'coalesce' },
-    { name: 'wins',              val: u => u.wins ?? 0,                                         set: 'direct' },
-    { name: 'losses',            val: u => u.losses ?? 0,                                       set: 'direct' },
-    { name: 'bosses_mortos',     val: u => u.bossesMortos ?? u.bosses_mortos ?? 0,              set: 'direct' },
+    { name: 'wins',              val: u => u.wins ?? 0,                                         set: 'max' },
+    { name: 'losses',            val: u => u.losses ?? 0,                                       set: 'max' },
+    { name: 'bosses_mortos',     val: u => u.bossesMortos ?? u.bosses_mortos ?? 0,              set: 'max' },
     { name: 'arena_pontos',      val: u => u.arenaPontos ?? u.arena_pontos ?? 0,                set: 'direct' },
     { name: 'arena_atual',       val: u => u.arenaAtual ?? u.arena_atual ?? 1,                  set: 'direct' },
     { name: 'last_daily',        val: u => u.lastDaily ?? u.last_daily ?? 0,                    set: 'direct' },
@@ -406,6 +406,18 @@ function saveUser(user, opts = {}) {
                         if (!user.slots[k] && existingSlots[k]) user.slots[k] = existingSlots[k]
                     }
                 }
+            } catch (_) {}
+        }
+    }
+
+    // Merge de bossesResumo / bossesDerrotados: preserva histórico do RPG se ausente no objeto em memória
+    if (!user.bossesResumo || !user.bossesDerrotados) {
+        const prevExtra = q('SELECT extra FROM users WHERE jid = ?').get(user.jid)
+        if (prevExtra && prevExtra.extra) {
+            try {
+                const parsed = JSON.parse(prevExtra.extra)
+                if (!user.bossesResumo && parsed.bossesResumo) user.bossesResumo = parsed.bossesResumo
+                if (!user.bossesDerrotados && parsed.bossesDerrotados) user.bossesDerrotados = parsed.bossesDerrotados
             } catch (_) {}
         }
     }

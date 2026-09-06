@@ -21,9 +21,10 @@ tests/test_db.sqlite
 *.sqlite-wal
 *.sqlite-shm
 
-# Variáveis de ambiente
+# Variáveis de ambiente e credenciais
 .env
 .env.local
+cookies.txt
 
 # Backups legados e lixo
 *.bak

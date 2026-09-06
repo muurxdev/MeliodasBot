@@ -143,26 +143,13 @@ module.exports = {
                 return reply(doc.trim());
             }
 
-            const { getMenuMedia } = require('../../utils/wallpapers');
-            const media = getMenuMedia(isUserOwner ? 'owner' : (isUserAdmin ? 'admin' : 'main'));
-            try {
-                if (media && media.buffer) {
-                    if (media.type === 'video') {
-                        return client.sendMessage(from, {
-                            video: media.buffer,
-                            caption: doc.trim(),
-                            gifPlayback: true,
-                            mimetype: 'video/mp4'
-                        }, { quoted: info });
-                    } else {
-                        return client.sendMessage(from, { image: media.buffer, caption: doc.trim() }, { quoted: info });
-                    }
-                } else {
-                    return reply(doc.trim());
-                }
-            } catch (_) {
-                return reply(doc.trim());
-            }
+            const { sendMenuMediaMessage } = require('../../utils/wallpapers');
+            const targetCat = isUserOwner ? 'owner' : (isUserAdmin ? 'admin' : 'main');
+            return await sendMenuMediaMessage(client, from, {
+                category: targetCat,
+                text: doc,
+                quoted: info
+            });
         }
 
         // CASO B: CONSULTA POR CATEGORIA OU COMANDO ESPECÍFICO
@@ -233,32 +220,16 @@ module.exports = {
                 doc += `💡 _Digite qualquer uma das abreviações acima para acionar o comando rapidamente._\n`
                 doc += `👑 *${botName}*`
 
-                const { getMenuMedia } = require('../../utils/wallpapers');
-                const media = getMenuMedia(catKey);
                 if (process.env.NODE_ENV === 'test') {
                     return reply(doc.trim());
                 }
-                try {
-                    if (media && media.buffer) {
-                        if (media.type === 'video') {
-                            return client.sendMessage(from, {
-                                video: media.buffer,
-                                caption: doc.trim(),
-                                gifPlayback: true,
-                                mimetype: 'video/mp4'
-                            }, { quoted: info });
-                        } else {
-                            return client.sendMessage(from, {
-                                image: media.buffer,
-                                caption: doc.trim()
-                            }, { quoted: info });
-                        }
-                    } else {
-                        return reply(doc.trim());
-                    }
-                } catch (_) {
-                    return reply(doc.trim());
-                }
+
+                const { sendMenuMediaMessage } = require('../../utils/wallpapers');
+                return await sendMenuMediaMessage(client, from, {
+                    category: catKey,
+                    text: doc,
+                    quoted: info
+                });
             }
         }
 
@@ -302,31 +273,15 @@ module.exports = {
         doc += `• \`${p}aliases-dono\` ➔ Atalhos dos donos\n\n`
         doc += `👑 *${botName}*`
 
-        const { getMenuMedia } = require('../../utils/wallpapers');
-        const media = getMenuMedia('main');
         if (process.env.NODE_ENV === 'test') {
             return reply(doc.trim());
         }
-        try {
-            if (media && media.buffer) {
-                if (media.type === 'video') {
-                    return client.sendMessage(from, {
-                        video: media.buffer,
-                        caption: doc.trim(),
-                        gifPlayback: true,
-                        mimetype: 'video/mp4'
-                    }, { quoted: info });
-                } else {
-                    return client.sendMessage(from, {
-                        image: media.buffer,
-                        caption: doc.trim()
-                    }, { quoted: info });
-                }
-            } else {
-                return reply(doc.trim());
-            }
-        } catch (_) {
-            return reply(doc.trim());
-        }
+
+        const { sendMenuMediaMessage } = require('../../utils/wallpapers');
+        return await sendMenuMediaMessage(client, from, {
+            category: 'main',
+            text: doc,
+            quoted: info
+        });
     }
 }

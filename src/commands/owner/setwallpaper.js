@@ -14,7 +14,9 @@ module.exports = {
     name: "setwallpaper",
     aliases: ["setvideo", "wallpaper", "mudarwallpaper", "definirwallpaper", "personalizacao", "setmedia", "menumedia", "wallpapers"],
     category: "owner",
+    subcategory: "Personalização",
     description: "Define vídeos animados ou fotos estáticas personalizadas para TODOS os menus do bot",
+    ownerOnly: true,
     cooldownMs: 2000,
     execute: async ({ text, info, type, reply, args, isOwner, userRole, commandName, client, from, sender }) => {
         const isUserOwner = isOwner || (userRole && userRole.level >= 4);
@@ -32,10 +34,67 @@ module.exports = {
 
         const sub = (args[0] || "").toLowerCase().trim();
 
-        // 1. PREVIEW DE MÍDIA (.setwallpaper preview <categoria>)
+        // 1. CONFIGURAÇÃO DE MODO DE EXIBIÇÃO (.setwallpaper modo <video|imagem|gif>)
+        if (sub === "modo" || sub === "formato" || sub === "mode" || sub === "qualidade") {
+            const { getWallpaperMode, setWallpaperMode } = require("../../utils/wallpapers");
+            const currentMode = getWallpaperMode(from);
+            const targetMode = (args[1] || "").toLowerCase().trim();
+
+            if (!targetMode) {
+                const modoDoc = renderCard({
+                    title: "MODO DE EXIBIÇÃO DOS WALLPAPERS",
+                    icon: "🎛️",
+                    subtitle: `⚙️ *Configuração de Qualidade e Formato de Entrega nos Menus*`,
+                    sections: [
+                        {
+                            title: "MODO ATUAL",
+                            icon: "📌",
+                            fields: [
+                                `• *Modo Selecionado:* \`${currentMode.toUpperCase()}\``,
+                                currentMode === "imagem"
+                                    ? "🖼️ *Banner Estático Full HD (1080p):* Exibição instantânea no chat com máxima nitidez e sem buffering."
+                                    : (currentMode === "gif"
+                                        ? "🔁 *Loop GIF Automático:* Animação contínua no chat (o WhatsApp pode comprimir a resolução)."
+                                        : "🎬 *Vídeo MP4 Nativo Full HD (1080p):* Alta fidelidade com 60fps/30fps e bitrate original sem compressão GIF do WhatsApp.")
+                            ]
+                        },
+                        {
+                            title: "COMO ALTERAR O MODO",
+                            icon: "🔧",
+                            fields: [
+                                "• `.setwallpaper modo video` ➔ Vídeo MP4 Nativo 1080p (Qualidade Máxima de Vídeo)",
+                                "• `.setwallpaper modo imagem` ➔ Banner Estático 1080p (Rápido, Nítido e Leve)",
+                                "• `.setwallpaper modo gif` ➔ Live Wallpaper em Loop Contínuo"
+                            ]
+                        }
+                    ],
+                    tip: "Todos os 34 menus do bot contam com versões 1080p Full HD tanto em vídeo quanto em imagem!",
+                    mentions: [sender]
+                });
+                return reply(modoDoc, [sender]);
+            }
+
+            const updated = setWallpaperMode(targetMode, "global");
+            if (!updated) {
+                return reply("❌ *Modo inválido!* Use: `.setwallpaper modo video`, `.setwallpaper modo imagem` ou `.setwallpaper modo gif`.");
+            }
+
+            const labelMap = {
+                video: "🎬 *VÍDEO NATIVO FULL HD 1080P* (Vídeo MP4 em altíssima resolução sem compressão GIF)",
+                imagem: "🖼️ *BANNER ESTÁTICO FULL HD 1080P* (Foto/Banner nítido e instantâneo no topo do menu)",
+                gif: "🔁 *LIVE WALLPAPER EM LOOP (GIF)* (Reprodução automática contínua em loop)"
+            };
+
+            return reply(`✅ *Modo de wallpaper atualizado com sucesso!*\n\n⚙️ *Novo Modo Global:* ${labelMap[updated] || updated}\n💡 _Digite \`.menu\` para conferir nos seus menus!_`);
+        }
+
+        // 2. PREVIEW DE MÍDIA (.setwallpaper preview <categoria> [modo])
         if (sub === "preview" || sub === "ver" || sub === "teste") {
             const targetCat = args[1] || "main";
-            const media = getMenuMedia(targetCat);
+            const forceMode = args[2] ? args[2].toLowerCase().trim() : null;
+            const { getMenuMedia, sendMenuMediaMessage, getWallpaperMode } = require("../../utils/wallpapers");
+            const effectiveMode = forceMode || getWallpaperMode(from);
+            const media = getMenuMedia(targetCat, effectiveMode === "imagem" ? "image" : "video");
 
             if (!media || !media.buffer) {
                 return reply(`❌ Nenhuma mídia encontrada para a categoria *"${targetCat}"*.`);
@@ -44,43 +103,40 @@ module.exports = {
             const caption = renderCard({
                 title: `PRÉVIA DO WALLPAPER: ${targetCat.toUpperCase()}`,
                 icon: "🎬",
-                subtitle: `🎨 *Formato Atual:* ${media.type === "video" ? "Vídeo Animado MP4 (Live HD)" : "Imagem Estática"}`,
+                subtitle: `🎨 *Formato:* ${media.type === "video" ? (effectiveMode === "gif" ? "Loop GIF" : "Vídeo Nativo Full HD 1080p") : "Imagem Estática Full HD 1080p"}`,
                 sections: [
                     {
-                        title: "DETALHES DA MÍDIA",
+                        title: "DETALHES DO ASSET",
                         icon: "📜",
                         fields: [
                             { label: "Categoria", value: targetCat.toUpperCase(), icon: "📂" },
                             { label: "Tamanho", value: `${(media.buffer.length / 1024 / 1024).toFixed(2)} MB`, icon: "💾" },
+                            { label: "Resolução", value: "1920x1080 Full HD", icon: "📐" },
                             { label: "Mimetype", value: media.mimetype, icon: "🎞️" }
                         ]
                     }
                 ],
-                tip: "Para alterar, envie um novo vídeo ou foto com .setwallpaper " + targetCat,
+                tip: "Alterne o formato com .setwallpaper modo <video|imagem|gif>",
                 mentions: [sender]
             });
 
             try {
-                if (media.type === "video") {
-                    return await client.sendMessage(from, {
-                        video: media.buffer,
-                        caption: caption,
-                        gifPlayback: true,
-                        mimetype: "video/mp4"
-                    }, { quoted: info });
-                } else {
-                    return await client.sendMessage(from, {
-                        image: media.buffer,
-                        caption: caption
-                    }, { quoted: info });
-                }
+                return await sendMenuMediaMessage(client, from, {
+                    category: targetCat,
+                    text: caption,
+                    quoted: info,
+                    mentions: [sender],
+                    mode: effectiveMode
+                });
             } catch (err) {
                 return reply(`❌ Erro ao enviar prévia: ${err.message}`);
             }
         }
 
-        // 2. LISTAGEM & GUIA GERAL DE PERSONALIZAÇÃO DE TODOS OS MENUS
-        if (!isDirectImage && !isDirectVideo && !isQuotedImage && !isQuotedVideo && (!sub || sub === "list" || sub === "listar" || sub === "help")) {
+        // 3. LISTAGEM & GUIA GERAL DE PERSONALIZAÇÃO DE TODOS OS MENUS
+        if (!isDirectImage && !isDirectVideo && !isQuotedImage && !isQuotedVideo && (!sub || sub === "list" || sub === "listar" || sub === "help" || sub === "status")) {
+            const { getWallpaperMode } = require("../../utils/wallpapers");
+            const currentMode = getWallpaperMode(from);
             const list = getAllMenuMediaStatus();
             let wpFields = [];
 
@@ -89,34 +145,49 @@ module.exports = {
             });
 
             const doc = renderCard({
-                title: "CENTRAL DE WALLPAPERS & VÍDEOS",
+                title: "CENTRAL DE WALLPAPERS & VÍDEOS 1080P",
                 icon: "🎬",
-                subtitle: `🎨 *Gerencie os Live Wallpapers Animados dos Menus do ${botName}*`,
+                subtitle: `🎨 *Gerencie os Live Wallpapers e Banners 1080p do ${botName}*`,
                 sections: [
                     {
-                        title: "STATUS ATUAL DOS LIVE WALLPAPERS",
+                        title: "CONFIGURAÇÃO GLOBAL ATUAL",
+                        icon: "⚙️",
+                        fields: [
+                            `• *Modo de Entrega:* \`${currentMode.toUpperCase()}\` (${currentMode === "imagem" ? "Banner Estático Full HD" : (currentMode === "gif" ? "Loop GIF" : "Vídeo Nativo Full HD 1080p")})`,
+                            "• *Resolução Base de Todos os Menus:* `1920x1080 Full HD` (Alta Definição)"
+                        ]
+                    },
+                    {
+                        title: "STATUS DOS 34 MENUS E HUBS",
                         icon: "📊",
                         fields: wpFields
                     },
                     {
-                        title: "COMO ALTERAR OU APLICAR VÍDEO NOVO",
-                        icon: "⚙️",
+                        title: "COMANDOS DE GERENCIAMENTO",
+                        icon: "🛠️",
                         fields: [
-                            "1️⃣ Envie ou responda a um *Vídeo MP4* ou *Foto*",
-                            "2️⃣ Digite `.setwallpaper <categoria>` (ex: `.setwallpaper rpg`)",
-                            "3️⃣ Digite `.setwallpaper preview <categoria>` para testar a prévia",
-                            "4️⃣ Digite `.setwallpaper reset <categoria>` para voltar ao padrão do anime"
+                            "• `.setwallpaper modo <video|imagem|gif>` ➔ Altera o formato de exibição",
+                            "• `.setwallpaper preview <cat>` ➔ Envia prévia do menu especificado",
+                            "• `.setwallpaper <cat>` ➔ Define novo vídeo ou foto enviada/marcada",
+                            "• `.setwallpaper reset <cat|all>` ➔ Restaura para o padrão do anime"
                         ]
                     },
                     {
-                        title: "CATEGORIAS DISPONÍVEIS",
+                        title: "CATEGORIAS DISPONÍVEIS (34 MENUS & TELAS)",
                         icon: "📂",
                         fields: [
-                            "`main`, `rpg`, `media`, `economy`, `fun`, `pesquisa`, `dev`, `admin`, `config`, `welcome`, `leave`, `dossie`"
+                            "⚔️ *RPG:* `rpg`, `boss`, `coliseu`, `dungeon`, `levelup`",
+                            "💰 *Economia:* `economy`, `cassino`, `banco`",
+                            "📥 *Mídias:* `media`, `figurinhas`, `arquivos`, `livros`",
+                            "🎮 *Lazer:* `jogos`, `fun`, `interacao`",
+                            "🧠 *Info & IA:* `pesquisa`, `ia`, `calc`, `utilidades`, `general`",
+                            "💻 *Sistemas:* `dev`, `skycode`, `rede`",
+                            "🛡️ *Gestão:* `admin`, `config`, `avisos`, `aluguel`, `owner`",
+                            "👤 *Social & Eventos:* `main`, `profile`, `dossie`, `welcome`, `leave`, `help`"
                         ]
                     }
                 ],
-                tip: "Live wallpapers em vídeo são reproduzidos em loop dinâmico (GIF Playback) com qualidade linda!",
+                tip: "Use .setwallpaper modo imagem para banners ultra-rápidos ou .setwallpaper modo video para vídeos nativos 1080p!",
                 mentions: [sender]
             });
 
@@ -181,7 +252,7 @@ module.exports = {
                 buffer = Buffer.concat([buffer, chunk]);
             }
 
-            const allCats = ["main", "rpg", "media", "economy", "calc", "interacao", "pesquisa", "fun", "dev", "rede", "admin", "config", "aluguel", "owner", "welcome", "leave", "dossie"];
+            const allCats = getAllMenuMediaStatus().map(m => m.key);
 
             if (categoria === "all" || categoria === "todos") {
                 for (const cat of allCats) {

@@ -66,32 +66,14 @@ module.exports = {
 }
 
 async function sendMenuWithWallpaper(client, from, info, reply, textContent, category) {
-    const { getMenuMedia } = require('../../utils/wallpapers')
-
     if (process.env.NODE_ENV === 'test') {
-        return reply(textContent.trim())
+        return reply(textContent.trim());
     }
 
-    try {
-        const media = getMenuMedia(category)
-        if (media && media.buffer) {
-            if (media.type === 'video') {
-                await client.sendMessage(from, {
-                    video: media.buffer,
-                    caption: textContent.trim(),
-                    gifPlayback: true,
-                    mimetype: 'video/mp4'
-                }, { quoted: info })
-            } else {
-                await client.sendMessage(from, {
-                    image: media.buffer,
-                    caption: textContent.trim()
-                }, { quoted: info })
-            }
-        } else {
-            await reply(textContent.trim())
-        }
-    } catch (e) {
-        await reply(textContent.trim())
-    }
+    const { sendMenuMediaMessage } = require('../../utils/wallpapers');
+    return await sendMenuMediaMessage(client, from, {
+        category,
+        text: textContent,
+        quoted: info
+    });
 }

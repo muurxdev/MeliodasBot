@@ -35,9 +35,12 @@ module.exports = {
 
         user.xp = (user.xp || 0) + xpGanho;
         user.coins = (user.coins || 0) + coinsGanho;
+        user.wins = (user.wins || 0) + vitorias;
+        user.losses = (user.losses || 0) + Math.max(0, ondas - vitorias);
         user.rpg = user.rpg || {};
         user.rpg.fragmentos = (user.rpg.fragmentos || 0) + fragmentos;
         user.lastColiseu = now;
+        xpData[sender] = user;
 
         await dataService.saveXpData(xpData);
 

@@ -4,11 +4,13 @@
  */
 
 const { getBotName } = require("../../config/botConfig");
+const logger = require("../../core/logger");
 
 module.exports = {
     name: "hidetag",
     aliases: ["marcar", "ghosttag", "marcafantasma", "notificartodos"],
     category: "admin",
+    subcategory: "Moderação",
     description: "Menciona todos os membros do grupo de forma oculta (notificação fantasma)",
     groupOnly: true,
     adminOnly: true,
@@ -17,7 +19,9 @@ module.exports = {
         let meta;
         try {
             meta = await client.groupMetadata(from);
-        } catch (_) {}
+        } catch (e) {
+            logger.warn(`[HIDETAG] Falha ao carregar metadados do grupo ${from}: ${e.message}`);
+        }
 
         const participants = meta?.participants || [];
         if (participants.length === 0) return reply("❌ Nenhum participante encontrado.");

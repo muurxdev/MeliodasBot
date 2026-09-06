@@ -208,67 +208,15 @@ module.exports = {
                 catDoc += `💡 _Para ver detalhes e preview de um comando:_ \`${p}help .${categoryCmds[0]?.name || 'comando'}\`\n`
                 catDoc += `📖 _Para catálogo paginado com live wallpaper:_ \`${p}menu ${isCategory}\``
 
-                const { getMenuMedia } = require('../../utils/wallpapers');
-                const media = getMenuMedia(isCategory);
                 if (process.env.NODE_ENV === 'test') {
                     return reply(catDoc.trim());
                 }
-                try {
-                    if (media && media.buffer) {
-                        if (catDoc.length <= 1000) {
-                            if (media.type === 'video') {
-                                return client.sendMessage(from, {
-                                    video: media.buffer,
-                                    caption: catDoc.trim(),
-                                    gifPlayback: true,
-                                    mimetype: 'video/mp4'
-                                }, { quoted: info });
-                            } else {
-                                return client.sendMessage(from, {
-                                    image: media.buffer,
-                                    caption: catDoc.trim()
-                                }, { quoted: info });
-                            }
-                        } else {
-                            const lines = catDoc.split('\n');
-                            let p1 = '';
-                            let p2 = '';
-                            let inP1 = true;
-                            for (const line of lines) {
-                                if (inP1 && (p1.length + line.length + 50 > 980)) {
-                                    inP1 = false;
-                                    p1 += '╰━━━━━━━━━━━━━━━━━━⬣\n▸ _(continuação abaixo... )_';
-                                }
-                                if (inP1) {
-                                    p1 += line + '\n';
-                                } else {
-                                    p2 += line + '\n';
-                                }
-                            }
-                            if (media.type === 'video') {
-                                await client.sendMessage(from, {
-                                    video: media.buffer,
-                                    caption: p1.trim(),
-                                    gifPlayback: true,
-                                    mimetype: 'video/mp4'
-                                }, { quoted: info });
-                            } else {
-                                await client.sendMessage(from, {
-                                    image: media.buffer,
-                                    caption: p1.trim()
-                                }, { quoted: info });
-                            }
-                            if (p2.trim()) {
-                                await client.sendMessage(from, { text: p2.trim() }, { quoted: info });
-                            }
-                            return;
-                        }
-                    } else {
-                        return reply(catDoc.trim());
-                    }
-                } catch (e) {
-                    return reply(catDoc.trim());
-                }
+                const { sendMenuMediaMessage } = require('../../utils/wallpapers');
+                return await sendMenuMediaMessage(client, from, {
+                    category: isCategory,
+                    text: catDoc,
+                    quoted: info
+                });
             }
 
             // 2. CASO 2: Consulta de comando específico (Ex: .help .welcome, .help leave, .help .bancmd)
@@ -377,26 +325,12 @@ module.exports = {
             return reply(mainDoc.trim());
         }
 
-        try {
-            if (media && media.buffer) {
-                if (media.type === 'video') {
-                    await client.sendMessage(from, {
-                        video: media.buffer,
-                        caption: mainDoc.trim(),
-                        gifPlayback: true,
-                        mimetype: 'video/mp4'
-                    }, { quoted: info });
-                } else {
-                    await client.sendMessage(from, {
-                        image: media.buffer,
-                        caption: mainDoc.trim()
-                    }, { quoted: info });
-                }
-            } else {
-                await reply(mainDoc.trim());
-            }
-        } catch (e) {
-            await reply(mainDoc.trim());
-        }
+        const { sendMenuMediaMessage } = require('../../utils/wallpapers');
+        const targetCategory = isUserOwner ? 'owner' : (isUserAdmin ? 'admin' : 'help');
+        return await sendMenuMediaMessage(client, from, {
+            category: targetCategory,
+            text: mainDoc,
+            quoted: info
+        });
     }
 }

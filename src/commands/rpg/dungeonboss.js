@@ -15,6 +15,20 @@ module.exports = {
 
         user.xp = (user.xp || 0) + xp;
         user.coins = (user.coins || 0) + coins;
+        if (vitoria) {
+            user.bossesMortos = (user.bossesMortos || 0) + 1;
+            user.wins = (user.wins || 0) + 1;
+            try {
+                const bossHistoryService = require("../../services/bossHistoryService");
+                bossHistoryService.registrarAbate(user, { id: "golias_baste", nome: "Golias Blindado de Baste" }, { dano: 5000, tipo: "dungeon" });
+            } catch (err) {
+                const logger = require("../../core/logger");
+                logger.warn(`[DUNGEONBOSS] Falha ao registrar abate: ${err.message}`);
+            }
+        } else {
+            user.losses = (user.losses || 0) + 1;
+        }
+        xpData[sender] = user;
         await dataService.saveXpData(xpData);
 
         const card = renderCard({

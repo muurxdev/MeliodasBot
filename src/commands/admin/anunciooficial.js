@@ -10,7 +10,10 @@ module.exports = {
     name: "anunciooficial",
     aliases: ["comunicado", "avisoadmin", "notificacaogrupo"],
     category: "admin",
+    subcategory: "Moderação",
     description: "Envia um comunicado oficial formatado e destacado para o grupo",
+    groupOnly: true,
+    adminOnly: true,
     cooldownMs: 2000,
     execute: async ({ sender, reply, args }) => {
     const msg = args.join(" ").trim() || "Atenção a todos os membros para as novas diretrizes do grupo.";

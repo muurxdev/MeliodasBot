@@ -48,7 +48,17 @@ module.exports = {
             doc += "╰━━━━━━━━━━━━━━━━━━⬣\n\n";
             doc += "💡 *Dica:* Você também pode responder a qualquer mensagem com link digitando `.media mp3` ou `.media mp4`!\n";
             doc += "👑 *" + botName + "*";
-            return reply(doc.trim());
+
+            if (process.env.NODE_ENV === 'test') {
+                return reply(doc.trim());
+            }
+
+            const { sendMenuMediaMessage } = require("../../utils/wallpapers");
+            return await sendMenuMediaMessage(client, from, {
+                category: "media",
+                text: doc,
+                quoted: info
+            });
         }
 
         const isCommandMp3 = ["mp3", "playmp3"].includes(commandName?.toLowerCase());

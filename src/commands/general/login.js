@@ -15,9 +15,22 @@ module.exports = {
     subcategory: 'Perfil & Ranking',
     description: 'Registre-se no bot: defina seu nick e escolha se quer jogar RPG',
     cooldownMs: 2000,
-    execute: async ({ sender, args, reply, prefix = '.' }) => {
+    execute: async ({ sender, senderReal, args, reply, prefix = '.' }) => {
         const botName = getBotName()
-        const user = dataService.getUser(sender) || dataService.initializeUser(sender, {})
+        const userRepo = require('../../database/repositories/userRepository')
+        const candidateJids = [sender, senderReal].filter(Boolean)
+        const user = dataService.getUser(sender, candidateJids) || dataService.initializeUser(sender, {}, candidateJids)
+
+        if (senderReal && senderReal !== sender) {
+            const phoneDigits = senderReal.replace(/[@].*$/, '').replace(/\D/g, '') || null
+            try {
+                userRepo.linkIdentity(user.jid || sender, {
+                    lid: sender.endsWith('@lid') ? sender : (user.lid || null),
+                    phoneDigits,
+                    linkedJid: senderReal
+                })
+            } catch (_) {}
+        }
         const sub = (args[0] || '').toLowerCase().trim()
 
         // Sub-ação: ligar/desligar RPG

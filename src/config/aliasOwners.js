@@ -17,5 +17,11 @@ module.exports = {
     // Ambiguidades de UX:
     falar: 'tts',          // "falar" = texto para voz
     socorro: 'help',       // quem pede socorro quer ajuda, não economia
-    audio: 'play'          // alias mais usado
+    audio: 'play',         // alias mais usado
+    desligar: 'shutdown',  // desligar o bot (não desligar módulo)
+    jobs: 'queue',         // fila de processamento de mídia
+    comandos: 'menu',      // lista do menu geral
+    pergunta: 'quiz',      // jogo de perguntas
+    bolsa: 'acoes',        // bolsa de valores
+    telemetria: 'botstats' // estatísticas de telemetria do sistema
 }

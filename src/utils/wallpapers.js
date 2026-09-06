@@ -71,30 +71,42 @@ function readCached(filePath) {
 
 const CATEGORY_MAP = {
     "main": "main", "global": "main", "principal": "main", "menu": "main",
-    "rpg": "rpg", "aventura": "rpg", "combate": "rpg",
-    "media": "media", "midia": "media", "downloads": "media", "download": "media", "figurinhas": "media",
-    "arquivos": "arquivos", "arquivo": "arquivos", "livros": "arquivos", "livro": "arquivos", "pdf": "arquivos", "docs": "arquivos", "ebook": "arquivos",
-    "economy": "economy", "eco": "economy", "economia": "economy", "cassino": "economy",
-    "calc": "calc", "calculadora": "calc", "math": "calc", "utilidades": "calc",
-    "interacao": "interacao", "social": "interacao", "afeto": "interacao", "acoes": "interacao",
-    "pesquisa": "pesquisa", "ia": "pesquisa", "busca": "pesquisa", "google": "pesquisa", "vision": "pesquisa",
-    "fun": "fun", "diversao": "fun", "jogos": "fun",
-    "dev": "dev", "software": "dev", "tools": "dev",
+    "rpg": "rpg", "aventura": "rpg", "combate": "rpg", "slayer": "rpg",
+    "boss": "boss", "chefe": "boss", "raid": "boss", "chefao": "boss",
+    "coliseu": "coliseu", "arena": "coliseu", "gladiador": "coliseu", "vaizel": "coliseu",
+    "dungeon": "dungeon", "masmorra": "dungeon", "masmorras": "dungeon",
+    "economy": "economy", "eco": "economy", "economia": "economy",
+    "cassino": "cassino", "aposta": "cassino", "apostas": "cassino", "roleta": "cassino", "slots": "cassino", "mines": "cassino", "crash": "cassino", "plinko": "cassino", "bicho": "cassino",
+    "banco": "banco", "pix": "banco", "cofre": "banco", "investir": "banco",
+    "media": "media", "midia": "media", "downloads": "media", "download": "media", "musica": "media", "play": "media",
+    "figurinhas": "figurinhas", "fig": "figurinhas", "figurinha": "figurinhas", "sticker": "figurinhas", "stickers": "figurinhas", "fotos": "figurinhas", "edicao": "figurinhas",
+    "jogos": "jogos", "jogo": "jogos", "games": "jogos", "quiz": "jogos", "charada": "jogos", "minigames": "jogos", "xadrez": "jogos",
+    "fun": "fun", "diversao": "fun", "zoeira": "fun", "memes": "fun",
+    "interacao": "interacao", "social": "interacao", "afeto": "interacao", "casamento": "interacao", "ship": "interacao",
+    "pesquisa": "pesquisa", "busca": "pesquisa", "google": "pesquisa", "vision": "pesquisa",
+    "ia": "ia", "ai": "ia", "gemini": "ia", "gpt": "ia", "chatgpt": "ia", "traduzir": "ia",
+    "arquivos": "arquivos", "arquivo": "arquivos", "pdf": "arquivos", "docs": "arquivos", "apostilas": "arquivos",
+    "livros": "livros", "livro": "livros", "biblioteca": "livros", "ebook": "livros", "gutenberg": "livros",
+    "calc": "calc", "calculadora": "calc", "math": "calc",
+    "utilidades": "utilidades", "util": "utilidades", "geral": "utilidades", "numfake": "utilidades", "general": "general",
+    "dev": "dev", "software": "dev", "tools": "dev", "debug": "dev",
+    "skycode": "skycode", "sky": "skycode", "devnet": "skycode", "painelgrupo": "skycode",
     "rede": "rede", "net": "rede", "telemetria": "rede", "ping": "rede",
-    "admin": "admin", "adm": "admin", "moderacao": "admin",
+    "admin": "admin", "adm": "admin", "moderacao": "admin", "seguranca": "admin",
     "config": "config", "configs": "config", "configuracoes": "config", "mensagensgrupo": "config",
-    "aluguel": "aluguel", "rent": "aluguel", "planos": "aluguel",
+    "avisos": "avisos", "aviso": "avisos", "comunicado": "avisos", "anuncio": "avisos", "anuncios": "avisos",
+    "aluguel": "aluguel", "rent": "aluguel", "planos": "aluguel", "vip": "aluguel",
     "owner": "owner", "dono": "owner", "donos": "owner", "vps": "owner",
+    "profile": "profile", "perfil": "profile", "rank": "profile", "ranking": "profile", "xp": "profile",
+    "dossie": "dossie", "perfilcompleto": "dossie", "ficha": "dossie",
+    "levelup": "levelup", "up": "levelup", "rebirth": "levelup",
     "welcome": "welcome", "bv": "welcome", "bemvindo": "welcome",
     "leave": "leave", "saiu": "leave", "adeus": "leave",
-    "dossie": "dossie", "perfil": "dossie", "perfilcompleto": "dossie",
-    "help": "help", "ajuda": "help"
+    "help": "help", "ajuda": "help", "socorro": "help"
 };
 
 function normalizeCategory(cat) {
     const clean = String(cat || "main").toLowerCase().trim().replace(/[^a-z0-9]/g, "");
-    // Preserva a chave quando ela não está no mapa: antes TUDO virava "main", o que
-    // fazia menus como `general` e `profile` mostrarem exatamente a mesma mídia.
     return CATEGORY_MAP[clean] || clean || "main";
 }
 
@@ -103,12 +115,12 @@ function normalizeCategory(cat) {
  * @param {string} category
  * @returns {{ type: "video" | "image" | null, buffer: Buffer | null, mimetype: string, path?: string }}
  */
-// Ordem estável das telas — usada só para dar a cada categoria SEM mídia própria
-// um arquivo diferente (e sempre o mesmo), evitando menus visualmente idênticos.
 const MENU_KEYS_ORDER = [
-    "main", "rpg", "economy", "media", "fun", "dev", "general", "admin", "profile",
-    "owner", "help", "config", "pesquisa", "calc", "rede", "interacao", "arquivos",
-    "aluguel", "leave"
+    "main", "rpg", "boss", "coliseu", "dungeon", "economy", "cassino", "banco",
+    "media", "figurinhas", "jogos", "fun", "interacao", "pesquisa", "ia",
+    "arquivos", "livros", "calc", "utilidades", "general", "dev", "skycode",
+    "rede", "admin", "config", "avisos", "aluguel", "owner", "profile", "dossie",
+    "levelup", "welcome", "leave", "help"
 ];
 
 /**
@@ -159,47 +171,104 @@ function pickDistinctFallback(targetKey) {
     }
 }
 
-function getMenuMedia(category = "main") {
+function getWallpaperMode(groupJid = null) {
+    try {
+        const configRepo = require("../database/repositories/configRepository");
+        if (groupJid) {
+            const grp = configRepo.getConfig(groupJid);
+            if (grp && grp.wallpaperMode) return grp.wallpaperMode;
+        }
+        const glb = configRepo.getConfig("global");
+        if (glb && glb.wallpaperMode) return glb.wallpaperMode;
+    } catch (_) {}
+    return "video"; // Default: Vídeo Nativo Full HD 1080p sem degradação do WhatsApp
+}
+
+function setWallpaperMode(mode, groupJid = "global") {
+    const valid = ["video", "imagem", "image", "foto", "gif"];
+    const clean = String(mode || "").toLowerCase().trim();
+    if (!valid.includes(clean)) return false;
+    const normalized = (clean === "image" || clean === "foto") ? "imagem" : clean;
+
+    try {
+        const configRepo = require("../database/repositories/configRepository");
+        const target = groupJid || "global";
+        const current = configRepo.getConfig(target) || {};
+        current.wallpaperMode = normalized;
+        configRepo.saveConfig(target, current);
+        try {
+            const dataService = require("../services/dataService");
+            if (dataService.invalidateConfigsCache) dataService.invalidateConfigsCache();
+        } catch (_) {}
+        return normalized;
+    } catch (err) {
+        logger.error("[WALLPAPER MODE ERROR] Falha ao salvar modo de wallpaper:", err);
+        return false;
+    }
+}
+
+function getMenuMedia(category = "main", preferredType = null) {
     const targetKey = normalizeCategory(category);
     const catDir = path.join(WALLPAPERS_DIR, targetKey);
     const mainDir = path.join(WALLPAPERS_DIR, "main");
 
+    const effectiveType = preferredType ? String(preferredType).toLowerCase().trim() : getWallpaperMode();
+    const wantImage = effectiveType === "imagem" || effectiveType === "image" || effectiveType === "foto";
+
     try {
-        // 1. Vídeo Animado (.mp4) específico da categoria
-        const catVideoPath = path.join(WALLPAPERS_DIR, targetKey + ".mp4");
-        if (resolvedExists(catVideoPath)) {
-            return { type: "video", buffer: readCached(catVideoPath), mimetype: "video/mp4", path: catVideoPath };
-        }
-
-        const catDirVideo = path.join(catDir, "video.mp4");
-        if (resolvedExists(catDirVideo)) {
-            return { type: "video", buffer: readCached(catDirVideo), mimetype: "video/mp4", path: catDirVideo };
-        }
-
-        // 2. Imagem Fixa (.jpg / .png) específica da categoria
-        const catJpgPath = path.join(WALLPAPERS_DIR, targetKey + ".jpg");
-        if (resolvedExists(catJpgPath)) {
-            return { type: "image", buffer: readCached(catJpgPath), mimetype: "image/jpeg", path: catJpgPath };
-        }
-
-        const catPngPath = path.join(WALLPAPERS_DIR, targetKey + ".png");
-        if (resolvedExists(catPngPath)) {
-            return { type: "image", buffer: readCached(catPngPath), mimetype: "image/png", path: catPngPath };
-        }
-
-        if (fs.existsSync(catDir)) {
-            const files = fs.readdirSync(catDir).filter(f => f.endsWith(".jpg") || f.endsWith(".png")).sort();
-            if (files.length > 0) {
-                const fixedFile = files.find(f => f === "1.jpg" || f === "cover.jpg") || files[0];
-                const fPath = path.join(catDir, fixedFile);
-                return { type: "image", buffer: readCached(fPath), mimetype: "image/jpeg", path: fPath };
+        if (wantImage) {
+            // Procura primeiro imagem estática em Full HD
+            const catJpgPath = path.join(WALLPAPERS_DIR, targetKey + ".jpg");
+            if (resolvedExists(catJpgPath)) {
+                return { type: "image", buffer: readCached(catJpgPath), mimetype: "image/jpeg", path: catJpgPath };
+            }
+            const catPngPath = path.join(WALLPAPERS_DIR, targetKey + ".png");
+            if (resolvedExists(catPngPath)) {
+                return { type: "image", buffer: readCached(catPngPath), mimetype: "image/png", path: catPngPath };
+            }
+            if (fs.existsSync(catDir)) {
+                const files = fs.readdirSync(catDir).filter(f => f.endsWith(".jpg") || f.endsWith(".png")).sort();
+                if (files.length > 0) {
+                    const fixedFile = files.find(f => f === "1.jpg" || f === "cover.jpg") || files[0];
+                    const fPath = path.join(catDir, fixedFile);
+                    return { type: "image", buffer: readCached(fPath), mimetype: "image/jpeg", path: fPath };
+                }
+            }
+            // Fallback para vídeo caso a categoria só tenha vídeo
+            const catVideoPath = path.join(WALLPAPERS_DIR, targetKey + ".mp4");
+            if (resolvedExists(catVideoPath)) {
+                return { type: "video", buffer: readCached(catVideoPath), mimetype: "video/mp4", path: catVideoPath };
+            }
+        } else {
+            // Procura primeiro vídeo animado em Full HD
+            const catVideoPath = path.join(WALLPAPERS_DIR, targetKey + ".mp4");
+            if (resolvedExists(catVideoPath)) {
+                return { type: "video", buffer: readCached(catVideoPath), mimetype: "video/mp4", path: catVideoPath };
+            }
+            const catDirVideo = path.join(catDir, "video.mp4");
+            if (resolvedExists(catDirVideo)) {
+                return { type: "video", buffer: readCached(catDirVideo), mimetype: "video/mp4", path: catDirVideo };
+            }
+            // Fallback para imagem caso a categoria só tenha imagem
+            const catJpgPath = path.join(WALLPAPERS_DIR, targetKey + ".jpg");
+            if (resolvedExists(catJpgPath)) {
+                return { type: "image", buffer: readCached(catJpgPath), mimetype: "image/jpeg", path: catJpgPath };
+            }
+            const catPngPath = path.join(WALLPAPERS_DIR, targetKey + ".png");
+            if (resolvedExists(catPngPath)) {
+                return { type: "image", buffer: readCached(catPngPath), mimetype: "image/png", path: catPngPath };
+            }
+            if (fs.existsSync(catDir)) {
+                const files = fs.readdirSync(catDir).filter(f => f.endsWith(".jpg") || f.endsWith(".png")).sort();
+                if (files.length > 0) {
+                    const fixedFile = files.find(f => f === "1.jpg" || f === "cover.jpg") || files[0];
+                    const fPath = path.join(catDir, fixedFile);
+                    return { type: "image", buffer: readCached(fPath), mimetype: "image/jpeg", path: fPath };
+                }
             }
         }
 
-        // 3. Fallback DISTINTO por categoria: em vez de cair todo mundo no mesmo
-        //    "main" (que fazia vários menus ficarem idênticos), cada categoria sem
-        //    mídia própria recebe um arquivo FIXO e diferente do acervo. Assim que
-        //    existir um `<categoria>.mp4/.jpg`, ele assume automaticamente (acima).
+        // 3. Fallback DISTINTO por categoria
         const distinto = pickDistinctFallback(targetKey);
         if (distinto) return distinto;
 
@@ -236,29 +305,100 @@ function getWallpaperBuffer(category = "main") {
 }
 
 /**
- * Salva uma nova imagem estática para um menu específico
+ * Envia uma mensagem com mídia oficial de menu na MÁXIMA qualidade possível
+ * (Evitando a compressão forçada do WhatsApp para 360p GIF quando em modo vídeo)
+ * Divide captions com mais de 1000 caracteres para evitar recusa do WhatsApp.
+ */
+async function sendMenuMediaMessage(client, jid, { category = "main", text = "", caption = null, quoted = null, mentions = [], mode = null }) {
+    const messageText = (caption !== null ? caption : text).trim();
+
+    if (process.env.NODE_ENV === "test") {
+        if (client && client.sendMessage) {
+            return await client.sendMessage(jid, { text: messageText, mentions }, { quoted });
+        }
+        return messageText;
+    }
+
+    const effectiveMode = (mode || getWallpaperMode(jid)).toLowerCase().trim();
+    const isImage = effectiveMode === "imagem" || effectiveMode === "image" || effectiveMode === "foto";
+    const isGif = effectiveMode === "gif";
+
+    const media = getMenuMedia(category, isImage ? "image" : "video");
+
+    if (!media || !media.buffer) {
+        return await client.sendMessage(jid, { text: messageText, mentions }, { quoted });
+    }
+
+    let p1 = messageText;
+    let p2 = null;
+    if (messageText.length > 1000) {
+        const lines = messageText.split("\n");
+        p1 = "";
+        p2 = "";
+        let inP1 = true;
+        for (const line of lines) {
+            if (inP1 && (p1.length + line.length + 50 > 980)) {
+                inP1 = false;
+                p1 += "╰━━━━━━━━━━━━━━━━━━⬣\n▸ _(continuação abaixo... )_";
+            }
+            if (inP1) {
+                p1 += line + "\n";
+            } else {
+                p2 += line + "\n";
+            }
+        }
+        p1 = p1.trim();
+        p2 = p2.trim();
+    }
+
+    try {
+        let sent;
+        if (media.type === "video") {
+            sent = await client.sendMessage(jid, {
+                video: media.buffer,
+                caption: p1,
+                mimetype: "video/mp4",
+                gifPlayback: isGif, // false preserva os 1080p nativos no WhatsApp; true só se explicitamente 'gif'
+                mentions
+            }, { quoted });
+        } else {
+            sent = await client.sendMessage(jid, {
+                image: media.buffer,
+                caption: p1,
+                mentions
+            }, { quoted });
+        }
+
+        if (p2) {
+            await client.sendMessage(jid, { text: p2, mentions }, { quoted: sent || quoted });
+        }
+
+        return sent;
+    } catch (err) {
+        logger.warn(`[SEND MENU MEDIA WARN] Falha ao enviar mídia (${category}): ${err.message}. Enviando como texto.`);
+        return await client.sendMessage(jid, { text: messageText, mentions }, { quoted });
+    }
+}
+
+/**
+ * Salva uma nova imagem estática para um menu específico em Full HD sem corte destrutivo
  */
 async function saveWallpaper(category = "main", imageBuffer) {
     const targetKey = normalizeCategory(category);
     const targetPath = path.join(WALLPAPERS_DIR, targetKey + ".jpg");
 
-    // Remove eventual vídeo antigo para a imagem prevalecer
-    const oldVideo = path.join(WALLPAPERS_DIR, targetKey + ".mp4");
-    if (fs.existsSync(oldVideo)) {
-        try { fs.unlinkSync(oldVideo); } catch (_) {}
-    }
-
     try {
-        const optimized = await sharp(imageBuffer)
-            .resize(1080, 1080, { fit: "cover", position: "center" })
-            .jpeg({ quality: 85 })
-            .toBuffer();
+        const meta = await sharp(imageBuffer).metadata();
+        let pipeline = sharp(imageBuffer);
+        if (meta.width > 1920 || meta.height > 1080) {
+            pipeline = pipeline.resize(1920, 1080, { fit: "inside", withoutEnlargement: true });
+        }
+        const optimized = await pipeline.jpeg({ quality: 95, mozjpeg: true }).toBuffer();
 
         fs.writeFileSync(targetPath, optimized);
-        // Invalida o cache do path (o readCached recarrega pelo novo mtime).
         const cached = bufferCache.get(targetPath);
         if (cached) { cacheBytes -= cached.size; bufferCache.delete(targetPath); }
-        logger.info("[WALLPAPER UPDATED] Imagem estática salva para: " + targetKey);
+        logger.info("[WALLPAPER UPDATED] Imagem Full HD salva para: " + targetKey);
         return true;
     } catch (err) {
         logger.error("[WALLPAPER SAVE ERROR] Erro ao salvar imagem para " + targetKey + ":", err);
@@ -267,15 +407,26 @@ async function saveWallpaper(category = "main", imageBuffer) {
 }
 
 /**
- * Salva um novo vídeo animado para um menu específico
+ * Salva um novo vídeo animado para um menu específico em Full HD e extrai frame sincronizado
  */
 async function saveMenuVideo(category = "main", videoBuffer) {
     const targetKey = normalizeCategory(category);
     const targetPath = path.join(WALLPAPERS_DIR, targetKey + ".mp4");
+    const targetJpg = path.join(WALLPAPERS_DIR, targetKey + ".jpg");
 
     try {
         fs.writeFileSync(targetPath, videoBuffer);
-        logger.info("[MENU VIDEO UPDATED] Vídeo animado salvo para: " + targetKey);
+        const cached = bufferCache.get(targetPath);
+        if (cached) { cacheBytes -= cached.size; bufferCache.delete(targetPath); }
+
+        try {
+            const { execSync } = require("child_process");
+            execSync(`ffmpeg -y -ss 00:00:01 -i "${targetPath}" -vframes 1 -q:v 2 "${targetJpg}"`, { stdio: "ignore" });
+            const cachedJpg = bufferCache.get(targetJpg);
+            if (cachedJpg) { cacheBytes -= cachedJpg.size; bufferCache.delete(targetJpg); }
+        } catch (_) {}
+
+        logger.info("[MENU VIDEO UPDATED] Vídeo animado Full HD salvo para: " + targetKey);
         return true;
     } catch (err) {
         logger.error("[MENU VIDEO SAVE ERROR] Erro ao salvar vídeo para " + targetKey + ":", err);
@@ -306,31 +457,53 @@ function resetMenuMedia(category = "main") {
 function getAllMenuMediaStatus() {
     const allCategories = [
         { key: "main", label: "Menu Principal (.menu)" },
-        { key: "rpg", label: "Menu RPG (.menu rpg)" },
-        { key: "media", label: "Menu Mídias (.menu media)" },
-        { key: "arquivos", label: "Menu Arquivos & Livros (.menu arquivos)" },
-        { key: "economy", label: "Menu Economia (.menu eco)" },
-        { key: "calc", label: "Menu Calculadora (.menu calc)" },
-        { key: "interacao", label: "Menu Interação (.menu interacao)" },
-        { key: "pesquisa", label: "Menu Pesquisa (.menu pesquisa)" },
-        { key: "fun", label: "Menu Diversão (.menu fun)" },
-        { key: "dev", label: "Menu Dev Hub (.menu dev)" },
-        { key: "rede", label: "Menu Rede & Telemetria (.menu rede)" },
-        { key: "admin", label: "Menu Administração (.menu admin)" },
-        { key: "config", label: "Menu Configurações (.menu config)" },
-        { key: "aluguel", label: "Menu Aluguel (.menu aluguel)" },
-        { key: "owner", label: "Menu Donos & VPS (.menu dono)" },
-        { key: "welcome", label: "Boas-Vindas de Grupos" },
-        { key: "leave", label: "Saída de Grupos / Despedida" },
-        { key: "dossie", label: "Dossiê & Perfil Completo (.dossie)" }
+        { key: "rpg", label: "Menu RPG & Liones (.rpg / .menu rpg)" },
+        { key: "boss", label: "Batalhas de Chefes & Raids (.boss)" },
+        { key: "coliseu", label: "Coliseu de Vaizel & Arena (.coliseu)" },
+        { key: "dungeon", label: "Masmorras & Dungeons (.dungeonboss)" },
+        { key: "economy", label: "Menu Economia & Finanças (.menu eco)" },
+        { key: "cassino", label: "Cassino Royale & Apostas (.cassino)" },
+        { key: "banco", label: "Banco Central & Pix (.banco)" },
+        { key: "media", label: "Downloads & Mídias (.menu media)" },
+        { key: "figurinhas", label: "Figurinhas & Stickers (.figurinhas)" },
+        { key: "jogos", label: "Jogos & Quizzes (.menu jogos)" },
+        { key: "fun", label: "Diversão & Memes (.menu fun)" },
+        { key: "interacao", label: "Interação & Social (.menu interacao)" },
+        { key: "pesquisa", label: "Pesquisa & Web (.menu pesquisa)" },
+        { key: "ia", label: "Inteligência Artificial (.ia)" },
+        { key: "arquivos", label: "Arquivos & PDFs (.menu arquivos)" },
+        { key: "livros", label: "Biblioteca de Livros (.livros)" },
+        { key: "calc", label: "Calculadora & Matemática (.menu calc)" },
+        { key: "utilidades", label: "Utilidades & Telefonia (.menu utilidades)" },
+        { key: "general", label: "Geral & Comandos Úteis (.menu general)" },
+        { key: "dev", label: "Dev Hub & Ferramentas (.menu dev)" },
+        { key: "skycode", label: "Terminal Cibernético Skycode (.skycode)" },
+        { key: "rede", label: "Rede & Telemetria (.menu rede)" },
+        { key: "admin", label: "Administração do Grupo (.menu admin)" },
+        { key: "config", label: "Configurações do Grupo (.menu config)" },
+        { key: "avisos", label: "Avisos & Comunicados Oficiais (.avisogrupo)" },
+        { key: "aluguel", label: "Aluguel & Planos VIP (.menu aluguel)" },
+        { key: "owner", label: "Painel Supremo do Dono (.menu dono)" },
+        { key: "profile", label: "Perfil & Rankings (.menu perfil)" },
+        { key: "dossie", label: "Dossiê Militar Completo (.dossie)" },
+        { key: "levelup", label: "Celebração de Level Up & Rebirth (.levelup)" },
+        { key: "welcome", label: "Card de Boas-Vindas (.welcome)" },
+        { key: "leave", label: "Card de Saída/Despedida (.leave)" },
+        { key: "help", label: "Central de Ajuda & Guia (.help)" }
     ];
 
     return allCategories.map(cat => {
-        const media = getMenuMedia(cat.key);
-        let status = "📌 Padrão Oficial";
-        if (media.type === "video") status = "🎬 Vídeo Animado (.mp4)";
-        else if (media.type === "image") status = "🖼️ Foto Estática (.jpg)";
-        return { ...cat, status, type: media.type };
+        const videoPath = path.join(WALLPAPERS_DIR, cat.key + ".mp4");
+        const jpgPath = path.join(WALLPAPERS_DIR, cat.key + ".jpg");
+        const hasVideo = resolvedExists(videoPath);
+        const hasImage = resolvedExists(jpgPath);
+
+        let status = "📌 Padrão Oficial (1080p)";
+        if (hasVideo && hasImage) status = "✨ 1080p Full HD (Vídeo + Banner)";
+        else if (hasVideo) status = "🎬 Vídeo Animado 1080p MP4";
+        else if (hasImage) status = "🖼️ Foto Estática 1080p JPG";
+
+        return { ...cat, status, hasVideo, hasImage };
     });
 }
 
@@ -338,8 +511,11 @@ module.exports = {
     WALLPAPERS_DIR,
     CATEGORY_MAP,
     normalizeCategory,
+    getWallpaperMode,
+    setWallpaperMode,
     getMenuMedia,
     getWallpaperBuffer,
+    sendMenuMediaMessage,
     saveWallpaper,
     saveMenuVideo,
     resetMenuMedia,

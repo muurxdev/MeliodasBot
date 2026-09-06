@@ -25,6 +25,29 @@ const activeProcesses = new Map()
 async function downloadMedia(job, onProgress = null) {
     const startedAt = Date.now()   // para medir o tempo REAL de download
     const jobId = job.id || `job_${Date.now()}`
+
+    // 1. Verificação instantânea de Cache em Disco (<50ms)
+    const mediaCache = require('./mediaCacheService')
+    const cached = mediaCache.get(job.source, job.requestedFormat, job.requestedQuality)
+    if (cached && fs.existsSync(cached.filePath)) {
+        logger.info(`[MEDIA CACHE HIT] Arquivo servido do cache em ${Date.now() - startedAt}ms: ${cached.filePath}`)
+        return {
+            success: true,
+            jobId,
+            filePath: cached.filePath,
+            fileName: path.basename(cached.filePath),
+            files: [cached.filePath],
+            primaryFile: cached.filePath,
+            isGallery: false,
+            format: job.requestedFormat,
+            mimeType: cached.meta?.mimeType || (job.requestedFormat === 'mp3' ? 'audio/mpeg' : 'video/mp4'),
+            size: cached.size,
+            stats: fs.statSync(cached.filePath),
+            elapsedMs: Date.now() - startedAt,
+            fromCache: true
+        }
+    }
+
     const jobTempDir = path.join(tempDir, 'media', jobId)
 
     if (!fs.existsSync(jobTempDir)) {
@@ -37,6 +60,41 @@ async function downloadMedia(job, onProgress = null) {
         // Sem teto: maior resolução disponível (best). Pode ser 1440p/4K quando existir.
         quality: job.requestedQuality || 'best'
     })
+
+    const isYouTube = /youtu(\.be|be\.com)/i.test(job.source)
+    const { isYtDlpAvailable } = require('./mediaEnvCheck')
+
+    // Se o yt-dlp não estiver no ambiente e o link for do YouTube, vai direto para a engine resiliente
+    if (isYouTube && !isYtDlpAvailable()) {
+        try {
+            const { downloadYouTubeResilient } = require('./youtubeFallback')
+            const ext = (job.requestedFormat === FORMATS.MP3 || job.requestedFormat === 'mp3') ? 'mp3' : 'mp4'
+            const fallbackDest = path.join(jobTempDir, `media_${jobId}.${ext}`)
+            const ok = await downloadYouTubeResilient(job.source, fallbackDest, ext)
+            if (ok && fs.existsSync(fallbackDest) && fs.statSync(fallbackDest).size > 0) {
+                const stats = fs.statSync(fallbackDest)
+                const mimeType = ext === 'mp3' ? 'audio/mpeg' : 'video/mp4'
+                mediaCache.set(job.source, job.requestedFormat, job.requestedQuality, fallbackDest, { mimeType, ext })
+                logger.info(`[MEDIA DOWNLOAD] Download direto via engine resiliente (sem yt-dlp): ${fallbackDest}`)
+                return {
+                    success: true,
+                    jobId,
+                    filePath: fallbackDest,
+                    fileName: path.basename(fallbackDest),
+                    files: [fallbackDest],
+                    primaryFile: fallbackDest,
+                    isGallery: false,
+                    format: job.requestedFormat,
+                    mimeType,
+                    size: stats.size,
+                    stats,
+                    elapsedMs: Date.now() - startedAt
+                }
+            }
+        } catch (ytErr) {
+            logger.warn(`[MEDIA DOWNLOAD] Engine resiliente falhou na inicialização: ${ytErr.message}`)
+        }
+    }
 
     const outputTemplate = path.join(jobTempDir, `media_${jobId}.%(ext)s`)
 
@@ -198,6 +256,8 @@ async function downloadMedia(job, onProgress = null) {
                         const ok = await downloadYouTubeResilient(job.source, fallbackDest, ext)
                         if (ok && fs.existsSync(fallbackDest) && fs.statSync(fallbackDest).size > 0) {
                             const stats = fs.statSync(fallbackDest)
+                            const mimeType = ext === 'mp3' ? 'audio/mpeg' : 'video/mp4'
+                            mediaCache.set(job.source, job.requestedFormat, job.requestedQuality, fallbackDest, { mimeType, ext })
                             logger.info(`[MEDIA DOWNLOAD] Download YouTube via engine resiliente: ${fallbackDest}`)
                             return resolve({
                                 success: true,
@@ -278,6 +338,15 @@ async function downloadMedia(job, onProgress = null) {
                     const err = new Error(`Arquivo muito grande (${sizeMb} MB). O WhatsApp aceita no máximo ${limitMb} MB. Configure o Google Drive no bot para arquivos maiores que 2GB.`)
                     err.code = MEDIA_ERRORS.FILE_TOO_LARGE
                     return reject(err)
+                }
+
+                try {
+                    mediaCache.set(job.source, job.requestedFormat, job.requestedQuality, fullPath, {
+                        mimeType: formatConfig.mimeType,
+                        ext: formatConfig.targetExt
+                    })
+                } catch (cErr) {
+                    logger.warn(`[MEDIA CACHE] Falha ao salvar no cache principal: ${cErr.message}`)
                 }
 
                 resolve({

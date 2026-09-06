@@ -37,10 +37,42 @@ module.exports = {
         const scope = moduleState.scopeOf(from, isGroup)
         const sub = (args[0] || '').toLowerCase()
 
+        if (sub === 'on' || sub === 'ativar' || sub === 'start' || sub === '1') {
+            moduleState.setModule('skycode', true, scope)
+            let doc = `╔════════════════════════════════════╗\n`
+            doc += `║   🛰️ *SKYCODE DEVNET PROTOCOL*     ║\n`
+            doc += `╚════════════════════════════════════╝\n\n`
+            doc += `🟢 *SYS_STATUS:* ONLINE [ACCESS_GRANTED]\n`
+            doc += `📡 *Escopo:* \`${scope}\`\n`
+            doc += `🔒 *Nível de Acesso:* ROOT_DEV (Dono)\n`
+            doc += `⚙️ *Subsistemas Ativos:* Moderação, Entrada/Saída, Terminal Dev & Diagnóstico\n\n`
+            doc += `💡 _Para visualizar o terminal:_ \`${prefix}skycode\`\n`
+            doc += `💡 _Para desativar:_ \`${prefix}skycode off\``
+            return reply(doc.trim())
+        }
+
+        if (sub === 'off' || sub === 'desativar' || sub === 'stop' || sub === '0') {
+            moduleState.setModule('skycode', false, scope)
+            let doc = `╔════════════════════════════════════╗\n`
+            doc += `║   🛰️ *SKYCODE DEVNET PROTOCOL*     ║\n`
+            doc += `╚════════════════════════════════════╝\n\n`
+            doc += `🔴 *SYS_STATUS:* OFFLINE [ACCESS_RESTRICTED]\n`
+            doc += `📡 *Escopo:* \`${scope}\`\n`
+            doc += `🔒 Protocolo encerrado com sucesso.\n\n`
+            doc += `💡 _Para reativar:_ \`${prefix}skycode on\``
+            return reply(doc.trim())
+        }
+
         // O gate do dispatcher isenta o Dono, e este comando é só do Dono — então
-        // sem esta checagem o `.modulo off skycode` não teria efeito nenhum.
+        // sem esta checagem o `.skycode off` não teria efeito nenhum.
         if (!moduleState.isModuleEnabled('skycode', scope)) {
-            return reply(`🛰️ *Painel Skycode desativado neste ambiente.*\n\n💡 _Para ativar:_ \`${prefix}modulo on skycode\``)
+            let doc = `╔════════════════════════════════════╗\n`
+            doc += `║   🛰️ *SKYCODE DEVNET PROTOCOL*     ║\n`
+            doc += `╚════════════════════════════════════╝\n\n`
+            doc += `🔴 *STATUS:* TERMINAL OFFLINE neste ambiente.\n`
+            doc += `_Módulo exclusivo para grupos técnicos de desenvolvimento e infraestrutura._\n\n`
+            doc += `⚡ *Para inicializar o terminal:* \`${prefix}skycode on\``
+            return reply(doc.trim())
         }
 
         // .skycode chaves → só a referência de variáveis das mensagens

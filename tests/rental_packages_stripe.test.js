@@ -52,3 +52,4 @@ rentalPackages.setPreco('g1', novoPreco).then(async res => {
     console.error('❌ Falha:', err)
     process.exit(1)
 })
+

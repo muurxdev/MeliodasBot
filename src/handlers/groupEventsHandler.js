@@ -57,27 +57,12 @@ async function handleGroupParticipantsUpdate(client, update) {
             if (action === "add" && welcomeEnabled) {
                 const captionText = buildWelcomeMessage(groupConfig, { userTag, groupName, groupDesc, memberCount, timeStr });
 
-                const { getMenuMedia } = require("../utils/wallpapers");
-                const media = getMenuMedia("welcome");
-                if (media && media.buffer) {
-                    if (media.type === "video") {
-                        await client.sendMessage(groupJid, {
-                            video: media.buffer,
-                            caption: captionText.trim(),
-                            gifPlayback: true,
-                            mimetype: "video/mp4",
-                            mentions
-                        });
-                    } else {
-                        await client.sendMessage(groupJid, {
-                            image: media.buffer,
-                            caption: captionText.trim(),
-                            mentions
-                        });
-                    }
-                } else {
-                    await client.sendMessage(groupJid, { text: captionText.trim(), mentions });
-                }
+                const { sendMenuMediaMessage } = require("../utils/wallpapers");
+                await sendMenuMediaMessage(client, groupJid, {
+                    category: "welcome",
+                    text: captionText,
+                    mentions
+                });
                 logger.info("[GROUP_EVENT] Welcome enviado para @" + userNumber + " em " + groupJid);
             }
 
@@ -109,27 +94,12 @@ async function handleGroupParticipantsUpdate(client, update) {
             else if (action === "remove" && leaveEnabled) {
                 const captionText = buildLeaveMessage(groupConfig, { userTag, groupName, groupDesc, memberCount, timeStr });
 
-                const { getMenuMedia } = require("../utils/wallpapers");
-                const media = getMenuMedia("leave");
-                if (media && media.buffer) {
-                    if (media.type === "video") {
-                        await client.sendMessage(groupJid, {
-                            video: media.buffer,
-                            caption: captionText.trim(),
-                            gifPlayback: true,
-                            mimetype: "video/mp4",
-                            mentions
-                        });
-                    } else {
-                        await client.sendMessage(groupJid, {
-                            image: media.buffer,
-                            caption: captionText.trim(),
-                            mentions
-                        });
-                    }
-                } else {
-                    await client.sendMessage(groupJid, { text: captionText.trim(), mentions });
-                }
+                const { sendMenuMediaMessage } = require("../utils/wallpapers");
+                await sendMenuMediaMessage(client, groupJid, {
+                    category: "leave",
+                    text: captionText,
+                    mentions
+                });
                 logger.info("[GROUP_EVENT] Leave enviado para @" + userNumber + " em " + groupJid);
             }
 

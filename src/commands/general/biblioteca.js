@@ -50,29 +50,12 @@ module.exports = {
             return reply(card, [sender]);
         }
 
-        const media = getMenuMedia('arquivos');
-        try {
-            if (media && media.buffer) {
-                if (media.type === 'video') {
-                    return await client.sendMessage(from, {
-                        video: media.buffer,
-                        caption: card,
-                        gifPlayback: true,
-                        mimetype: 'video/mp4',
-                        mentions: [sender]
-                    }, { quoted: info });
-                } else {
-                    return await client.sendMessage(from, {
-                        image: media.buffer,
-                        caption: card,
-                        mentions: [sender]
-                    }, { quoted: info });
-                }
-            } else {
-                return reply(card, [sender]);
-            }
-        } catch (_) {
-            return reply(card, [sender]);
-        }
+        const { sendMenuMediaMessage } = require('../../utils/wallpapers');
+        return await sendMenuMediaMessage(client, from, {
+            category: 'arquivos',
+            text: card,
+            mentions: [sender],
+            quoted: info
+        });
     }
 };

@@ -33,6 +33,7 @@ module.exports = {
 
             user.arenaPontos = (user.arenaPontos || 0) + ganhoTrofeus
             user.coins = (user.coins || 0) + ganhoCoins
+            user.wins = (user.wins || 0) + 1
             atualizarArenaPlayer(user)
 
             await dataService.saveXpData(xpData)
@@ -43,6 +44,7 @@ module.exports = {
 
         const perdaTrofeus = Math.floor(Math.random() * 20) + 5
         user.arenaPontos = Math.max(0, (user.arenaPontos || 0) - perdaTrofeus)
+        user.losses = (user.losses || 0) + 1
         atualizarArenaPlayer(user)
 
         await dataService.saveXpData(xpData)
