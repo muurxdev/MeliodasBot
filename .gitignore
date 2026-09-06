@@ -10,6 +10,8 @@ auth_info_baileys/
 temp/
 logs/
 backups/
+scratch/
+assets/wallpapers_backup_pre1080p/
 *.log
 npm-debug.log*
 
@@ -28,9 +30,10 @@ tests/test_db.sqlite
 indexxxxx/
 /database/
 
-# Sistema operacional
+# Sistema operacional e editores
 .DS_Store
 Thumbs.db
+.obsidian/
 # Backups legados arquivados
 legacy_backup/
 
