@@ -182,9 +182,15 @@ module.exports = {
                     return;
                 }
 
+                let finalFilePath = mediaData.filePath;
+                if (mediaData.isVideo) {
+                    const { ensureMobileVideoCompatibility } = require("../../services/media/mediaProcessor");
+                    finalFilePath = await ensureMobileVideoCompatibility(mediaData.filePath);
+                }
+
                 const caption = formatMediaCaption({
-                filePath: mediaData.filePath,
-                elapsedMs: mediaData.elapsedMs,
+                    filePath: finalFilePath,
+                    elapsedMs: mediaData.elapsedMs,
                     platform: "Pinterest",
                     title: mediaData.title,
                     author: mediaData.author,
@@ -195,14 +201,20 @@ module.exports = {
 
                 try {
                     if (mediaData.isVideo) {
-                        await client.sendMessage(from, { video: { url: mediaData.filePath }, caption, mimetype: "video/mp4" }, { quoted: info, mediaUploadTimeoutMs: 180000 });
+                        const cleanTitle = (mediaData.title || "pinterest").replace(/[\\/:*?"<>|]/g, "_").slice(0, 50);
+                        await enviarVideo({
+                            client, from, filePath: finalFilePath, caption, info,
+                            fileName: `${cleanTitle}.mp4`,
+                            preferirDocumento: /(^|\s)-?doc(umento)?(\s|$)/i.test(String(text || ''))
+                        });
                     } else if (mediaData.isAudio) {
-                        await enviarAudio({ client, from, info, filePath: mediaData.filePath, fileName: mediaData.title.slice(0, 30) + ".mp3", preferirPartes: /(^|\s)-?partes?(\s|$)/i.test(String(text || '')) });
+                        await enviarAudio({ client, from, info, filePath: finalFilePath, fileName: mediaData.title.slice(0, 30) + ".mp3", preferirPartes: /(^|\s)-?partes?(\s|$)/i.test(String(text || '')) });
                     } else {
-                        await client.sendMessage(from, { image: { url: mediaData.filePath }, caption }, { quoted: info });
+                        await client.sendMessage(from, { image: { url: finalFilePath }, caption }, { quoted: info });
                     }
                 } finally {
-                    try { fs.unlinkSync(mediaData.filePath); } catch (_) {}
+                    try { if (mediaData.filePath && fs.existsSync(mediaData.filePath)) fs.unlinkSync(mediaData.filePath); } catch (_) {}
+                    try { if (finalFilePath && finalFilePath !== mediaData.filePath && fs.existsSync(finalFilePath)) fs.unlinkSync(finalFilePath); } catch (_) {}
                 }
                 return logger.info("[MEDIA HUB] Pinterest enviado para " + sender);
             } catch (err) {
@@ -222,9 +234,15 @@ module.exports = {
                     runFn: () => downloadKwaiVideo(cleanQuery)
                 });
 
+                let finalFilePath = mediaData.filePath;
+                if (!isMp3) {
+                    const { ensureMobileVideoCompatibility } = require("../../services/media/mediaProcessor");
+                    finalFilePath = await ensureMobileVideoCompatibility(mediaData.filePath);
+                }
+
                 const caption = formatMediaCaption({
-                filePath: mediaData.filePath,
-                elapsedMs: mediaData.elapsedMs,
+                    filePath: finalFilePath,
+                    elapsedMs: mediaData.elapsedMs,
                     platform: "Kwai",
                     title: mediaData.title,
                     author: mediaData.author,
@@ -261,10 +279,16 @@ module.exports = {
                         try { fs.unlinkSync(mp3Out); } catch (_) {}
                     }
                 } else {
-                    await client.sendMessage(from, { video: { url: mediaData.filePath }, caption, mimetype: "video/mp4" }, { quoted: info, mediaUploadTimeoutMs: 180000 });
+                    const cleanTitle = (mediaData.title || "kwai").replace(/[\\/:*?"<>|]/g, "_").slice(0, 50);
+                    await enviarVideo({
+                        client, from, filePath: finalFilePath, caption, info,
+                        fileName: `${cleanTitle}.mp4`,
+                        preferirDocumento: /(^|\s)-?doc(umento)?(\s|$)/i.test(String(text || ''))
+                    });
                 }
 
-                try { fs.unlinkSync(mediaData.filePath); } catch (_) {}
+                try { if (mediaData.filePath && fs.existsSync(mediaData.filePath)) fs.unlinkSync(mediaData.filePath); } catch (_) {}
+                try { if (finalFilePath && finalFilePath !== mediaData.filePath && fs.existsSync(finalFilePath)) fs.unlinkSync(finalFilePath); } catch (_) {}
                 return logger.info("[MEDIA HUB] Kwai enviado para " + sender);
             } catch (err) {
                 logger.error("[MEDIA HUB KWAI ERROR]", err);
@@ -283,9 +307,15 @@ module.exports = {
                     runFn: () => downloadTikTokVideo(cleanQuery)
                 });
 
+                let finalFilePath = mediaData.filePath;
+                if (!isMp3) {
+                    const { ensureMobileVideoCompatibility } = require("../../services/media/mediaProcessor");
+                    finalFilePath = await ensureMobileVideoCompatibility(mediaData.filePath);
+                }
+
                 const caption = formatMediaCaption({
-                filePath: mediaData.filePath,
-                elapsedMs: mediaData.elapsedMs,
+                    filePath: finalFilePath,
+                    elapsedMs: mediaData.elapsedMs,
                     platform: "TikTok",
                     title: mediaData.title,
                     author: mediaData.author,
@@ -322,10 +352,16 @@ module.exports = {
                         try { fs.unlinkSync(mp3Out); } catch (_) {}
                     }
                 } else {
-                    await client.sendMessage(from, { video: { url: mediaData.filePath }, caption, mimetype: "video/mp4" }, { quoted: info, mediaUploadTimeoutMs: 180000 });
+                    const cleanTitle = (mediaData.title || "tiktok").replace(/[\\/:*?"<>|]/g, "_").slice(0, 50);
+                    await enviarVideo({
+                        client, from, filePath: finalFilePath, caption, info,
+                        fileName: `${cleanTitle}.mp4`,
+                        preferirDocumento: /(^|\s)-?doc(umento)?(\s|$)/i.test(String(text || ''))
+                    });
                 }
 
-                try { fs.unlinkSync(mediaData.filePath); } catch (_) {}
+                try { if (mediaData.filePath && fs.existsSync(mediaData.filePath)) fs.unlinkSync(mediaData.filePath); } catch (_) {}
+                try { if (finalFilePath && finalFilePath !== mediaData.filePath && fs.existsSync(finalFilePath)) fs.unlinkSync(finalFilePath); } catch (_) {}
                 return logger.info("[MEDIA HUB] TikTok enviado para " + sender);
             } catch (err) {
                 logger.error("[MEDIA HUB TIKTOK ERROR]", err);
@@ -344,9 +380,15 @@ module.exports = {
                     runFn: () => downloadTwitterVideo(cleanQuery)
                 });
 
+                let finalFilePath = mediaData.filePath;
+                if (!isMp3) {
+                    const { ensureMobileVideoCompatibility } = require("../../services/media/mediaProcessor");
+                    finalFilePath = await ensureMobileVideoCompatibility(mediaData.filePath);
+                }
+
                 const caption = formatMediaCaption({
-                filePath: mediaData.filePath,
-                elapsedMs: mediaData.elapsedMs,
+                    filePath: finalFilePath,
+                    elapsedMs: mediaData.elapsedMs,
                     platform: "Twitter (X)",
                     title: mediaData.title,
                     author: mediaData.author,
@@ -383,10 +425,16 @@ module.exports = {
                         try { fs.unlinkSync(mp3Out); } catch (_) {}
                     }
                 } else {
-                    await client.sendMessage(from, { video: { url: mediaData.filePath }, caption, mimetype: "video/mp4" }, { quoted: info, mediaUploadTimeoutMs: 180000 });
+                    const cleanTitle = (mediaData.title || "twitter").replace(/[\\/:*?"<>|]/g, "_").slice(0, 50);
+                    await enviarVideo({
+                        client, from, filePath: finalFilePath, caption, info,
+                        fileName: `${cleanTitle}.mp4`,
+                        preferirDocumento: /(^|\s)-?doc(umento)?(\s|$)/i.test(String(text || ''))
+                    });
                 }
 
-                try { fs.unlinkSync(mediaData.filePath); } catch (_) {}
+                try { if (mediaData.filePath && fs.existsSync(mediaData.filePath)) fs.unlinkSync(mediaData.filePath); } catch (_) {}
+                try { if (finalFilePath && finalFilePath !== mediaData.filePath && fs.existsSync(finalFilePath)) fs.unlinkSync(finalFilePath); } catch (_) {}
                 return logger.info("[MEDIA HUB] Twitter enviado para " + sender);
             } catch (err) {
                 logger.error("[MEDIA HUB TWITTER ERROR]", err);
@@ -437,8 +485,8 @@ module.exports = {
                     const cleanTitle = (meta.title || "video").replace(/[\\/:*?"<>|]/g, "_").slice(0, 50);
 
                     const caption = formatMediaCaption({
-                filePath: downloaded.filePath || downloaded.primaryFile,
-                elapsedMs: downloaded.elapsedMs,
+                        filePath: filePath,
+                        elapsedMs: downloaded.elapsedMs,
                         platform: platformName,
                         title: meta.title,
                         author: meta.author,
@@ -448,7 +496,7 @@ module.exports = {
                     });
 
                     try {
-                                                // Entrega na galeria sempre que possível; comprime se não couber,
+                        // Entrega na galeria sempre que possível; comprime se não couber,
                         // e só vira documento em último caso (ou com a flag -doc).
                         await enviarVideo({
                             client, from, filePath, caption, info,

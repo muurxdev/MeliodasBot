@@ -60,9 +60,17 @@ module.exports = {
                 return logger.info("[TIKTOK] Carrossel com " + mediaData.carouselCount + " fotos enviado para " + sender);
             }
 
+            const { ensureMobileVideoCompatibility } = require("../../services/media/mediaProcessor");
+            const { enviarVideo } = require("../../services/media/videoSender");
+
+            let finalFilePath = mediaData.filePath;
+            if (!isMp3) {
+                finalFilePath = await ensureMobileVideoCompatibility(mediaData.filePath);
+            }
+
             // 2. VÍDEO PADRÃO OU ÁUDIO MP3
             const caption = formatMediaCaption({
-                filePath: mediaData.filePath,
+                filePath: finalFilePath,
                 elapsedMs: mediaData.elapsedMs,
                 platform: "TikTok",
                 title: mediaData.title,
@@ -93,14 +101,16 @@ module.exports = {
                     try { fs.unlinkSync(mp3Out); } catch (_) {}
                 }
             } else {
-                await client.sendMessage(from, {
-                    video: { url: mediaData.filePath },
-                    caption,
-                    mimetype: "video/mp4"
-                }, { quoted: info, mediaUploadTimeoutMs: 180000 });
+                const cleanTitle = (mediaData.title || "tiktok").replace(/[\\/:*?"<>|]/g, "_").slice(0, 50);
+                await enviarVideo({
+                    client, from, filePath: finalFilePath, caption, info,
+                    fileName: `${cleanTitle}.mp4`,
+                    preferirDocumento: /(^|\s)-?doc(umento)?(\s|$)/i.test(String(text || ''))
+                });
             }
 
-            try { fs.unlinkSync(mediaData.filePath); } catch (_) {}
+            try { if (mediaData.filePath && fs.existsSync(mediaData.filePath)) fs.unlinkSync(mediaData.filePath); } catch (_) {}
+            try { if (finalFilePath && finalFilePath !== mediaData.filePath && fs.existsSync(finalFilePath)) fs.unlinkSync(finalFilePath); } catch (_) {}
             logger.info("[TIKTOK] Mídia enviada com sucesso para " + sender);
         } catch (err) {
             logger.error("[TIKTOK ERROR]", err);

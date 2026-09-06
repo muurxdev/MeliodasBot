@@ -34,7 +34,13 @@ module.exports = {
                 url: meta.webpageUrl,
                 format: isMp3 ? 'mp3' : 'mp4',
                 user: sender,
-                runFn: () => downloadMedia({ url: meta.webpageUrl, format: isMp3 ? 'mp3' : 'mp4' })
+                runFn: () => downloadMedia({
+                    url: meta.webpageUrl,
+                    source: meta.webpageUrl,
+                    format: isMp3 ? 'mp3' : 'mp4',
+                    requestedFormat: isMp3 ? 'mp3' : 'mp4',
+                    requestedQuality: 'best'
+                })
             });
 
             // CARROSSEL DE MÍDIAS DO INSTAGRAM
@@ -65,8 +71,16 @@ module.exports = {
                 return;
             }
 
+            const { ensureMobileVideoCompatibility } = require('../../services/media/mediaProcessor');
+            const { enviarVideo } = require('../../services/media/videoSender');
+
+            let finalFilePath = downloaded.filePath;
+            if (!isMp3) {
+                finalFilePath = await ensureMobileVideoCompatibility(downloaded.filePath);
+            }
+
             const caption = formatMediaCaption({
-                filePath: downloaded.filePath,
+                filePath: finalFilePath,
                 elapsedMs: downloaded.elapsedMs,
                 platform: 'Instagram',
                 title: meta.title,
@@ -80,20 +94,22 @@ module.exports = {
                 if (isMp3) {
                     await enviarAudio({
                         client, from, info,
-                        filePath: downloaded.filePath,
+                        filePath: finalFilePath,
                         fileName: (meta.title || "instagram").slice(0, 30) + ".mp3",
                         preferirPartes: /(^|\s)-?partes?(\s|$)/i.test(String(text || ''))
                     });
                 } else {
-                    await client.sendMessage(from, {
-                        video: { url: downloaded.filePath },
-                        caption,
-                        mimetype: 'video/mp4'
-                    }, { quoted: info, mediaUploadTimeoutMs: 300000 });
+                    const cleanTitle = (meta.title || "instagram").replace(/[\\/:*?"<>|]/g, "_").slice(0, 50);
+                    await enviarVideo({
+                        client, from, filePath: finalFilePath, caption, info,
+                        fileName: `${cleanTitle}.mp4`,
+                        preferirDocumento: /(^|\s)-?doc(umento)?(\s|$)/i.test(String(text || ''))
+                    });
                 }
                 logger.info("[INSTA] Mídia enviada para " + sender);
             } finally {
-                try { fs.unlinkSync(downloaded.filePath); } catch (_) {}
+                try { if (downloaded.filePath && fs.existsSync(downloaded.filePath)) fs.unlinkSync(downloaded.filePath); } catch (_) {}
+                try { if (finalFilePath && finalFilePath !== downloaded.filePath && fs.existsSync(finalFilePath)) fs.unlinkSync(finalFilePath); } catch (_) {}
             }
         } catch (err) {
             logger.error('[INSTA ERROR]', err);

@@ -183,11 +183,10 @@ async function ensureMobileVideoCompatibility(filePath) {
         const args = [
             '-y', '-i', filePath,
             '-c:v', 'libx264',
-            '-profile:v', 'main',
-            '-level:v', '4.1',
+            '-profile:v', 'high',
             '-pix_fmt', 'yuv420p',
             '-preset', 'veryfast',
-            '-crf', '22',
+            '-crf', '20',
             '-c:a', 'aac',
             '-b:a', '192k',
             '-ar', '44100',

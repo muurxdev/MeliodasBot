@@ -155,13 +155,27 @@ async function downloadPinterestMedia(urlOrQuery, { format = "mp4" } = {}) {
             }
         }
 
-        // 1. Procura vídeo MP4 (Chromium tem prioridade; senão, regex no HTML)
-        const videoOg = html.match(/<meta[^>]+(?:property|name)=["']og:video["'][^>]+content=["']([^"']+.mp4[^"']*)["']/i)
-            || html.match(/https:\/\/v\.pinimg\.com\/videos\/[a-zA-Z0-9_\/.-]+\.mp4/i)
-            || html.match(/https?:\/\/[^\s"'<>]+\.mp4[^\s"'<>]*/i);
+        // 1. Procura vídeo MP4 (Chromium tem prioridade; senão, regex no HTML selecionando a maior resolução)
+        let videoUrl = browserVideoUrl;
+        if (!videoUrl) {
+            const allMp4 = (html.match(/https?:\/\/[^\s"'<>\\]+\.mp4[^\s"'<>\\]*/gi) || [])
+                .map(u => u.replace(/\\u002F/g, '/').replace(/\\/g, ''));
+            if (allMp4.length > 0) {
+                const scorePinRes = (u) => {
+                    const s = u.toLowerCase();
+                    if (/1080p|1080/.test(s)) return 1000;
+                    if (/720p|720/.test(s)) return 800;
+                    if (/540p|540/.test(s)) return 500;
+                    if (/480p|480/.test(s)) return 300;
+                    if (/v\.pinimg\.com\/videos\//.test(s)) return 200;
+                    return 50;
+                };
+                allMp4.sort((a, b) => scorePinRes(b) - scorePinRes(a));
+                videoUrl = allMp4[0];
+            }
+        }
 
-        if (browserVideoUrl || videoOg) {
-            const videoUrl = browserVideoUrl || videoOg[1] || videoOg[0];
+        if (videoUrl) {
             const rawVideoPath = path.join(pinTempDir, jobId + "_raw.mp4");
             await downloadFile(videoUrl, rawVideoPath);
 
@@ -208,9 +222,7 @@ async function downloadPinterestMedia(urlOrQuery, { format = "mp4" } = {}) {
         }
 
         if (imgUrl) {
-            if (imgUrl.includes("/736x/")) {
-                imgUrl = imgUrl.replace("/736x/", "/originals/");
-            }
+            imgUrl = imgUrl.replace(/\/\d+x\//, "/originals/");
             const ext = imgUrl.endsWith(".png") ? "png" : "jpg";
             const imgPath = path.join(pinTempDir, jobId + "." + ext);
             

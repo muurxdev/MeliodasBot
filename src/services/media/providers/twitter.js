@@ -72,13 +72,6 @@ async function downloadTwitterVideo(twitterUrl) {
     candidatos.sort((a, b) => scoreByRes(b) - scoreByRes(a))
     let videoDownloadUrl = candidatos[0]
 
-    if (!videoDownloadUrl) {
-        throw new Error('Nenhum vídeo em alta resolução encontrado neste link do Twitter / X.')
-    }
-
-    const titleMatch = html.match(/<p class="[^"]*text-gray-800[^"]*">([^<]+)<\/p>/)
-    const authorMatch = html.match(/<h2 class="[^"]*font-bold[^"]*">([^<]+)<\/h2>/)
-
     const videoTempDir = path.join(tempDir, 'twitter')
     if (!fs.existsSync(videoTempDir)) {
         fs.mkdirSync(videoTempDir, { recursive: true })
@@ -86,6 +79,45 @@ async function downloadTwitterVideo(twitterUrl) {
 
     const jobId = `twitter_${Date.now()}_${Math.random().toString(36).slice(2, 7)}`
     const outputPath = path.join(videoTempDir, `${jobId}.mp4`)
+
+    // Se twitsave não encontrou ou a melhor resolução foi baixa (<720p), tenta yt-dlp para qualidade máxima
+    if (!videoDownloadUrl || scoreByRes(videoDownloadUrl) < 300) {
+        try {
+            const { spawn } = require('child_process');
+            let getYtDlpEnv;
+            try { getYtDlpEnv = require('../mediaArgs').getYtDlpEnv; } catch (_) { getYtDlpEnv = () => process.env; }
+            await new Promise((resolve, reject) => {
+                const proc = spawn('yt-dlp', [
+                    '--no-playlist',
+                    '--no-warnings',
+                    '-f', 'bv*+ba/b',
+                    '-S', 'res,fps',
+                    '--merge-output-format', 'mp4',
+                    '-o', outputPath,
+                    cleanUrl
+                ], { env: getYtDlpEnv() });
+                proc.on('close', c => (c === 0 && fs.existsSync(outputPath)) ? resolve() : reject(new Error(`código ${c}`)));
+                proc.on('error', reject);
+            });
+
+            return {
+                filePath: outputPath,
+                title: 'Vídeo do Twitter / X',
+                author: 'Twitter User',
+                durationFormatted: '—',
+                thumbnail: 'https://images.unsplash.com/photo-1611605698335-8b1569810432?w=600',
+                url: cleanUrl
+            };
+        } catch (_) {
+            // Se yt-dlp falhou e havia videoDownloadUrl, usa o que tinha
+            if (!videoDownloadUrl) {
+                throw new Error('Nenhum vídeo em alta resolução encontrado neste link do Twitter / X.');
+            }
+        }
+    }
+
+    const titleMatch = html.match(/<p class="[^"]*text-gray-800[^"]*">([^<]+)<\/p>/)
+    const authorMatch = html.match(/<h2 class="[^"]*font-bold[^"]*">([^<]+)<\/h2>/)
 
     await downloadFile(videoDownloadUrl, outputPath)
 

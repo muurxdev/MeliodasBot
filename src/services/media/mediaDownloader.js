@@ -55,10 +55,13 @@ async function downloadMedia(job, onProgress = null) {
     }
 
     job.tempDir = jobTempDir
+    const reqFormat = job.requestedFormat || job.format || FORMATS.MP4
+    const reqQuality = job.requestedQuality || job.quality || 'best'
+
     const formatConfig = resolveDownloadFormat({
-        format: job.requestedFormat || FORMATS.MP4,
+        format: reqFormat,
         // Sem teto: maior resolução disponível (best). Pode ser 1440p/4K quando existir.
-        quality: job.requestedQuality || 'best'
+        quality: reqQuality
     })
 
     const isYouTube = /youtu(\.be|be\.com)/i.test(job.source)
@@ -68,7 +71,7 @@ async function downloadMedia(job, onProgress = null) {
     if (isYouTube && !isYtDlpAvailable()) {
         try {
             const { downloadYouTubeResilient } = require('./youtubeFallback')
-            const ext = (job.requestedFormat === FORMATS.MP3 || job.requestedFormat === 'mp3') ? 'mp3' : 'mp4'
+            const ext = (reqFormat === FORMATS.MP3 || reqFormat === 'mp3') ? 'mp3' : 'mp4'
             const fallbackDest = path.join(jobTempDir, `media_${jobId}.${ext}`)
             const ok = await downloadYouTubeResilient(job.source, fallbackDest, ext)
             if (ok && fs.existsSync(fallbackDest) && fs.statSync(fallbackDest).size > 0) {
