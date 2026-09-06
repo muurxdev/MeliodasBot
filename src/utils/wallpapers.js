@@ -171,6 +171,22 @@ function pickDistinctFallback(targetKey) {
     }
 }
 
+let BASE64_MANIFEST = null;
+function getBase64Buffer(key) {
+    try {
+        if (!BASE64_MANIFEST) {
+            const manifestPath = path.join(WALLPAPERS_DIR, "wallpapers_manifest.json");
+            if (fs.existsSync(manifestPath)) {
+                BASE64_MANIFEST = JSON.parse(fs.readFileSync(manifestPath, "utf8"));
+            }
+        }
+        if (BASE64_MANIFEST && BASE64_MANIFEST[key]) {
+            return Buffer.from(BASE64_MANIFEST[key], "base64");
+        }
+    } catch (_) {}
+    return null;
+}
+
 function getWallpaperMode(groupJid = null) {
     try {
         const configRepo = require("../database/repositories/configRepository");
@@ -181,7 +197,7 @@ function getWallpaperMode(groupJid = null) {
         const glb = configRepo.getConfig("global");
         if (glb && glb.wallpaperMode) return glb.wallpaperMode;
     } catch (_) {}
-    return "video"; // Default: Vídeo Nativo Full HD 1080p sem degradação do WhatsApp
+    return "imagem"; // Default: Imagem Estática Full HD 1080p nítida e ampla em tela cheia no WhatsApp
 }
 
 function setWallpaperMode(mode, groupJid = "global") {
@@ -225,6 +241,11 @@ function getMenuMedia(category = "main", preferredType = null) {
             const catPngPath = path.join(WALLPAPERS_DIR, targetKey + ".png");
             if (resolvedExists(catPngPath)) {
                 return { type: "image", buffer: readCached(catPngPath), mimetype: "image/png", path: catPngPath };
+            }
+            // Fallback resiliente via manifesto Base64 embutido
+            const b64Buf = getBase64Buffer(targetKey);
+            if (b64Buf) {
+                return { type: "image", buffer: b64Buf, mimetype: "image/jpeg", path: catJpgPath };
             }
             if (fs.existsSync(catDir)) {
                 const files = fs.readdirSync(catDir).filter(f => f.endsWith(".jpg") || f.endsWith(".png")).sort();
@@ -291,6 +312,11 @@ function getMenuMedia(category = "main", preferredType = null) {
         const mainPath = path.join(WALLPAPERS_DIR, "main.jpg");
         if (resolvedExists(mainPath)) {
             return { type: "image", buffer: readCached(mainPath), mimetype: "image/jpeg", path: mainPath };
+        }
+
+        const b64Main = getBase64Buffer("main");
+        if (b64Main) {
+            return { type: "image", buffer: b64Main, mimetype: "image/jpeg", path: mainPath };
         }
     } catch (err) {
         logger.warn("[MENU MEDIA LOAD WARN] Falha ao ler mídia do menu de " + targetKey + ": " + err.message);
