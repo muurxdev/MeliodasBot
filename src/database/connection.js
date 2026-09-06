@@ -43,6 +43,49 @@ function getDatabase(dbPath = null) {
 
     function initDb(filePath) {
         const db = new DatabaseSync(filePath)
+        const origPrepare = db.prepare.bind(db)
+
+        function normalizeVal(v) {
+            if (typeof v === 'bigint') {
+                if (v <= BigInt(Number.MAX_SAFE_INTEGER) && v >= BigInt(Number.MIN_SAFE_INTEGER)) {
+                    return Number(v)
+                }
+                return v.toString()
+            }
+            return v
+        }
+
+        function normalizeRow(row) {
+            if (!row || typeof row !== 'object') return row
+            for (const k of Object.keys(row)) {
+                row[k] = normalizeVal(row[k])
+            }
+            return row
+        }
+
+        db.prepare = function(sql) {
+            const stmt = origPrepare(sql)
+            stmt.setReadBigInts(true)
+            const origGet = stmt.get.bind(stmt)
+            const origAll = stmt.all.bind(stmt)
+            const origIterate = stmt.iterate.bind(stmt)
+
+            stmt.get = (...args) => normalizeRow(origGet(...args))
+            stmt.all = (...args) => {
+                const rows = origAll(...args)
+                for (let i = 0; i < rows.length; i++) {
+                    normalizeRow(rows[i])
+                }
+                return rows
+            }
+            stmt.iterate = function* (...args) {
+                for (const r of origIterate(...args)) {
+                    yield normalizeRow(r)
+                }
+            }
+            return stmt
+        }
+
         db.exec('PRAGMA journal_mode = WAL;')
         db.exec('PRAGMA synchronous = NORMAL;')
         db.exec('PRAGMA foreign_keys = ON;')
