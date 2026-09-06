@@ -92,12 +92,112 @@ function saveOwners(ownersList) {
 }
 
 /**
- * Valida a autorização de modificação respeitando a hierarquia rígida
+ * Localiza um dono ou patente na hierarquia oficial a partir de:
+ * • JID ou LID (@s.whatsapp.net ou @lid)
+ * • Dígitos de telefone (5511...)
+ * • Nome da patente base (Capitão, Tenente, Sargento...)
+ * • Título personalizado (customTitle)
+ * • Nome registrado no cargo (owner.name)
+ * • Nick registrado no perfil do bot (display_nick) ou nome do WhatsApp (pushName)
+ * @param {string} query
+ * @param {Array<string>} [candidates]
+ * @returns {object|null}
+ */
+function findOwnerByQuery(query, candidates = []) {
+    if (!query) return null;
+    const owners = getOwners();
+    const queryStr = String(query).trim();
+    const norm = normalizeRank(queryStr);
+    const rawDigits = queryStr.replace(/\D/g, "");
+
+    // 1. Busca por Patente base
+    let found = owners.find(o => normalizeRank(o.rank) === norm);
+    if (found) return found;
+
+    // 2. Busca por Título Customizado (customTitle)
+    found = owners.find(o => o.customTitle && normalizeRank(o.customTitle) === norm);
+    if (found) return found;
+
+    // 3. Busca por Dígitos de Telefone ou JID/LID direto
+    const allDigits = new Set();
+    if (rawDigits.length >= 8) allDigits.add(rawDigits);
+    if (Array.isArray(candidates)) {
+        for (const c of candidates) {
+            if (typeof c === "string") {
+                const d = c.replace(/\D/g, "");
+                if (d.length >= 8) allDigits.add(d);
+            }
+        }
+    }
+
+    if (allDigits.size > 0) {
+        found = owners.find(o => {
+            if (!o.active) return false;
+            const jidDigits = (o.jid || "").replace(/\D/g, "");
+            const phoneDigits = (o.phone || "").replace(/\D/g, "");
+            for (const d of allDigits) {
+                if ((jidDigits && (jidDigits.includes(d) || d.includes(jidDigits))) ||
+                    (phoneDigits && (phoneDigits.includes(d) || d.includes(phoneDigits)))) {
+                    return true;
+                }
+            }
+            return false;
+        });
+        if (found) return found;
+
+        // Tenta resolver por user_identities ou tabela users do SQLite
+        try {
+            const db = getDatabase();
+            for (const d of allDigits) {
+                const row = db.prepare("SELECT jid, lid, phone FROM users WHERE jid = ? OR lid = ? OR phone LIKE ?").get(queryStr, queryStr, `%${d}%`);
+                if (row) {
+                    const uDigits = [row.phone, row.jid, row.lid].filter(Boolean).map(s => s.replace(/\D/g, "")).filter(x => x.length >= 8);
+                    found = owners.find(o => {
+                        if (!o.active) return false;
+                        const jidDigits = (o.jid || "").replace(/\D/g, "");
+                        const phoneDigits = (o.phone || "").replace(/\D/g, "");
+                        return uDigits.some(ud => ud && (jidDigits.includes(ud) || ud.includes(jidDigits) || phoneDigits.includes(ud) || ud.includes(phoneDigits)));
+                    });
+                    if (found) return found;
+                }
+            }
+        } catch (_) {}
+    }
+
+    // 4. Busca por nome registrado no cargo (owner.name)
+    found = owners.find(o => o.active && o.name && (normalizeRank(o.name) === norm || normalizeRank(o.name).includes(norm)));
+    if (found) return found;
+
+    // 5. Busca por nick de perfil do bot (display_nick) ou nome do WhatsApp (pushName)
+    try {
+        const db = getDatabase();
+        const userRow = db.prepare("SELECT jid, phone, lid FROM users WHERE LOWER(display_nick) = LOWER(?) OR LOWER(name) = LOWER(?)").get(queryStr, queryStr);
+        if (userRow) {
+            const uDigits = [userRow.phone, userRow.jid, userRow.lid].filter(Boolean).map(s => s.replace(/\D/g, "")).filter(x => x.length >= 8);
+            found = owners.find(o => {
+                if (!o.active) return false;
+                const jidDigits = (o.jid || "").replace(/\D/g, "");
+                const phoneDigits = (o.phone || "").replace(/\D/g, "");
+                return uDigits.some(ud => ud && (jidDigits.includes(ud) || ud.includes(jidDigits) || phoneDigits.includes(ud) || ud.includes(phoneDigits)));
+            });
+            if (found) return found;
+        }
+    } catch (_) {}
+
+    return null;
+}
+
+/**
+ * Valida a autorização de modificação respeitando a hierarquia militar rígida:
+ * • Capitão: Imune a todos. Apenas o Capitão gerencia outros e a si mesmo.
+ * • Tenente: Gerencia apenas subordinados abaixo dele (nível < 4).
+ * • Demais: Sem autorização de modificação.
  * @param {string} senderJid
- * @param {string} targetRankQuery
+ * @param {string|object} targetOwnerOrRank
+ * @param {Array<string>} [candidates]
  * @returns {{ allowed: boolean, reason?: string, senderRank?: any, targetOwner?: any }}
  */
-function canModifyOwner(senderJid, targetRankQuery, candidates = []) {
+function canModifyOwner(senderJid, targetOwnerOrRank, candidates = []) {
     const owners = getOwners();
     let senderRank = getOwnerRank(senderJid, candidates);
 
@@ -105,17 +205,28 @@ function canModifyOwner(senderJid, targetRankQuery, candidates = []) {
         return { allowed: false, reason: "⛔ *Acesso Negado:* Você não é um Dono cadastrado na hierarquia oficial." };
     }
 
-    const normTarget = normalizeRank(targetRankQuery);
-    const targetOwner = owners.find(o => normalizeRank(o.rank) === normTarget);
+    let targetOwner = null;
+    if (typeof targetOwnerOrRank === "object" && targetOwnerOrRank !== null && targetOwnerOrRank.rank) {
+        targetOwner = owners.find(o => normalizeRank(o.rank) === normalizeRank(targetOwnerOrRank.rank)) || targetOwnerOrRank;
+    } else {
+        const normTarget = normalizeRank(targetOwnerOrRank);
+        targetOwner = owners.find(o => normalizeRank(o.rank) === normTarget || (o.customTitle && normalizeRank(o.customTitle) === normTarget));
+    }
 
     if (!targetOwner) {
-        return { allowed: false, reason: "❌ Patente `" + targetRankQuery + "` não encontrada. (Válidas: Capitão, Tenente, Sargento, Cabo, Soldado, Guardião, Cavaleiro, Escudeiro, Aprendiz, Recruta)" };
+        return { allowed: false, reason: "❌ Patente ou Dono `" + targetOwnerOrRank + "` não encontrado na hierarquia oficial. (Válidas: Capitão, Tenente, Sargento, Cabo, Soldado, Guardião, Cavaleiro, Escudeiro, Aprendiz, Recruta)" };
     }
 
     // REGRA 1: NINGUÉM ALTERA O CAPITÃO (Apenas o próprio Capitão)
     if (targetOwner.rank === "Capitão") {
         if (senderRank.rank !== "Capitão") {
-            return { allowed: false, reason: "🛡️ *IMUNIDADE MÁXIMA:* Ninguém possui permissão para alterar, remover ou rebaixar o *Capitão*." };
+            return { allowed: false, reason: "🛡️ *IMUNIDADE MÁXIMA:* Ninguém possui autoridade para alterar, remover ou rebaixar o *Capitão* (Comandante Supremo)." };
+        }
+        // Proteção contra auto-destruição: o Capitão principal não se auto-remove acidentalmente
+        const senderDigits = (senderJid || "").replace(/\D/g, "");
+        const targetDigits = (targetOwner.jid || "").replace(/\D/g, "");
+        if (OWNER_JID && targetDigits && OWNER_JID.replace(/\D/g, "") === targetDigits && senderDigits === targetDigits) {
+            return { allowed: false, reason: "⚠️ *Operação Bloqueada:* O Comandante Supremo não pode remover a si mesmo da hierarquia principal." };
         }
         return { allowed: true, senderRank, targetOwner };
     }
@@ -125,19 +236,19 @@ function canModifyOwner(senderJid, targetRankQuery, candidates = []) {
         return { allowed: true, senderRank, targetOwner };
     }
 
-    // REGRA 3: O TENENTE ALTERA TODOS ABAIXO DELE (Sargento, Cabo, Soldado)
+    // REGRA 3: O TENENTE ALTERA TODOS ABAIXO DELE (Sargento, Cabo, Soldado, Guardião, Cavaleiro...)
     if (senderRank.rank === "Tenente") {
         if (targetOwner.rank === "Tenente") {
-            return { allowed: false, reason: "⚠️ O *Tenente* não pode alterar ou remover a si mesmo." };
+            return { allowed: false, reason: "⚠️ O *Tenente* não pode alterar ou remover a si mesmo nem outro Tenente." };
         }
         if (targetOwner.level < senderRank.level) {
             return { allowed: true, senderRank, targetOwner };
         }
-        return { allowed: false, reason: "⛔ O Tenente só tem permissão para gerenciar patentes abaixo dele (Sargento, Cabo, Soldado)." };
+        return { allowed: false, reason: "⛔ O Tenente só tem autoridade para gerenciar patentes abaixo dele (Sargento, Cabo, Soldado, Guardião, etc.)." };
     }
 
     // REGRA 4: DEMAIS CARGOS NÃO ALTERAM DONOS
-    return { allowed: false, reason: "⛔ *Acesso Restrito:* Apenas o *Capitão* e o *Tenente* têm autoridade para gerenciar a hierarquia de Donos." };
+    return { allowed: false, reason: "⛔ *Acesso Restrito:* Apenas o *Capitão* e o *Tenente* têm autoridade para gerenciar ou remover Donos na hierarquia." };
 }
 
 function updateOwner(rankQuery, newName, phone = "", jid = "", appointedBy = "") {
@@ -269,14 +380,129 @@ function getOwnerRank(jid, candidates = []) {
     return null;
 }
 
+/**
+ * Extrai todos os detalhes profundos do perfil do dono no banco de dados SQLite e WhatsApp:
+ * • Nick oficial cadastrado no bot via .login (display_nick)
+ * • Nome pushName verificado do WhatsApp (name)
+ * • Nome registrado no cargo oficial (owner.name)
+ * • Telefone e JID canônico
+ * • Patente, título personalizado e histórico de nomeação
+ * @param {object} targetOwner
+ * @param {Array<string>} [extraCandidates]
+ * @returns {object}
+ */
+function resolveOwnerProfileDetails(targetOwner, extraCandidates = []) {
+    if (!targetOwner) return null;
+    let displayNick = null;
+    let pushName = null;
+    let phone = targetOwner.phone || null;
+    let jid = targetOwner.jid || null;
+
+    try {
+        const db = getDatabase();
+        const candidateDigits = resolveAllCandidateDigits(jid, extraCandidates);
+        let userRow = null;
+
+        if (jid) {
+            userRow = db.prepare("SELECT * FROM users WHERE jid = ? OR lid = ?").get(jid, jid);
+        }
+        if (!userRow && candidateDigits.length > 0) {
+            for (const d of candidateDigits) {
+                userRow = db.prepare("SELECT * FROM users WHERE phone LIKE ? OR jid LIKE ?").get(`%${d}%`, `%${d}%`);
+                if (userRow) break;
+            }
+        }
+        if (!userRow && targetOwner.name) {
+            userRow = db.prepare("SELECT * FROM users WHERE LOWER(display_nick) = LOWER(?) OR LOWER(name) = LOWER(?)").get(targetOwner.name, targetOwner.name);
+        }
+
+        if (userRow) {
+            displayNick = userRow.display_nick || null;
+            pushName = userRow.name || null;
+            if (!phone && userRow.phone) phone = userRow.phone;
+            if (!jid && userRow.jid) jid = userRow.jid;
+        }
+    } catch (_) {}
+
+    return {
+        displayNick,
+        pushName,
+        ownerName: targetOwner.name || null,
+        phone,
+        jid,
+        rank: targetOwner.rank,
+        customTitle: targetOwner.customTitle || null,
+        level: targetOwner.level,
+        appointedBy: targetOwner.appointedBy || null,
+        appointedAt: targetOwner.appointedAt || null
+    };
+}
+
+/**
+ * Desocupa o slot de dono na hierarquia oficial e limpa os cargos relacionais e de trust
+ * @param {object} targetOwner
+ * @param {object} senderRank
+ * @param {string} actorJid
+ * @returns {object|null}
+ */
+function demoteOwnerComplete(targetOwner, senderRank, actorJid) {
+    if (!targetOwner) return null;
+    const owners = getOwners();
+    const normRank = normalizeRank(targetOwner.rank);
+    const slot = owners.find(o => normalizeRank(o.rank) === normRank);
+    if (!slot) return null;
+
+    const previousData = {
+        rank: slot.rank,
+        level: slot.level,
+        name: slot.name,
+        phone: slot.phone,
+        jid: slot.jid,
+        customTitle: slot.customTitle || null,
+        appointedBy: slot.appointedBy || null,
+        appointedAt: slot.appointedAt || null
+    };
+
+    slot.active = false;
+    slot.name = "";
+    slot.phone = "";
+    slot.jid = "";
+    delete slot.customTitle;
+    delete slot.appointedBy;
+    delete slot.appointedAt;
+    saveOwners(owners);
+
+    if (previousData.jid) {
+        try {
+            const permissionRepo = require("../database/repositories/permissionRepository");
+            permissionRepo.removeUserRole(previousData.jid);
+            permissionRepo.setTrusted(previousData.jid, false);
+
+            const digits = previousData.jid.replace(/\D/g, "");
+            if (digits) {
+                permissionRepo.removeUserRole(digits + "@s.whatsapp.net");
+                permissionRepo.setTrusted(digits + "@s.whatsapp.net", false);
+            }
+        } catch (pErr) {
+            logger.warn(`[OWNER SERVICE] Falha ao remover cargo relacional: ${pErr.message}`);
+        }
+    }
+
+    logger.info(`[OWNER DEMOTE] Patente ${previousData.rank} desocupada por ${senderRank?.rank || 'Dono'} (${actorJid}).`);
+    return previousData;
+}
+
 module.exports = {
     DEFAULT_OWNERS,
     getOwners,
     saveOwners,
+    findOwnerByQuery,
     canModifyOwner,
     updateOwner,
     updateOwnerName: updateOwner,
     removeOwner,
+    demoteOwnerComplete,
+    resolveOwnerProfileDetails,
     updateRankTitle,
     resetRankTitle,
     isOwner,

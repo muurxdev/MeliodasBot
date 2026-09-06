@@ -58,15 +58,15 @@ module.exports = {
 
             try {
                 const db = getDatabase();
-                userDb = db.prepare("SELECT name, phone, jid, lid FROM users WHERE lid = ? OR jid = ?").get(rawMention, rawMention);
+                userDb = db.prepare("SELECT name, phone, jid, lid, display_nick FROM users WHERE lid = ? OR jid = ?").get(rawMention, rawMention);
             } catch (_) {}
 
             const xpData = dataService.getXpData();
             const xpUser = xpData[rawMention] || (resolvedJid ? xpData[resolvedJid] : null);
 
-            // Nome do usuário
+            // Nome do usuário (prioriza o nick cadastrado no perfil do bot via .login)
             const rawMentionClean = fullInput.replace(/^@+/, "").trim();
-            nome = userDb?.name || xpUser?.name || rawMentionClean || "Guerreiro";
+            nome = userDb?.display_nick || userDb?.name || xpUser?.name || rawMentionClean || "Guerreiro";
 
             // Número de telefone real
             const realPhoneDigits = userDb?.phone || (resolvedJid && !resolvedJid.endsWith("@lid") ? resolvedJid.split("@")[0] : "");
