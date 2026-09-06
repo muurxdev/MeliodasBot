@@ -28,8 +28,8 @@ module.exports = {
         const poderMonstro = Math.floor(monstro.hp / 20) + monstro.dano + Math.floor(Math.random() * 40)
 
         if (poderJogador >= poderMonstro) {
-            const xpGanho = aplicarBonusRebirthXp(user, monstro.xp)
-            user.xp = (user.xp || 0) + xpGanho
+            const { adicionarXp } = require('../../services/xpService')
+            const { xpGanho, lvlRes } = adicionarXp(user, monstro.xp, { source: 'rpg' })
             user.coins = (user.coins || 0) + monstro.coins
             user.wins = (user.wins || 0) + 1
 
@@ -59,12 +59,19 @@ module.exports = {
             let critText = combat.isCritico ? ' 💥 *ACERTO CRÍTICO!*' : (combat.isDobro ? ' ⚡ *DANO DUPLO!*' : '')
             const rebTag = (user.rebirthCount || user.rebirth_count) ? ` _(+${(user.rebirthCount || user.rebirth_count) * 25}% Rebirth)_` : ''
 
+            let lvlUpNotice = ''
+            if (lvlRes && lvlRes.subiu) {
+                lvlUpNotice = `\n\n🎉 *LEVEL UP!* Subiu para o *Nível ${user.level}*!`
+                if (lvlRes.levelsGanhos > 1) lvlUpNotice += ` (+${lvlRes.levelsGanhos} níveis)`
+                lvlUpNotice += `\n❤️ *HP Máximo:* ${user.hpMax} (+${lvlRes.ganhoHp}) | 💰 +${lvlRes.ganhoCoins} Coins!`
+            }
+
             return reply('🗺️ *CAÇADA — VITÓRIA!*' + critText + '\n\n🌍 *Mundo:* ' + mundoAtual.nome + '\n👤 @' + sender.split('@')[0] + ' *VS* ' + monstro.nome + '\n⚔️ *Dano Total:* ' + combat.danoFinal + '\n\n⭐ *+' + xpGanho.toLocaleString('pt-BR') + ' XP*' + rebTag + '\n💰 *+' + monstro.coins.toLocaleString('pt-BR') + ' Coins*\n🎁 *Loot:* ' + (lootMob || 'Nenhum') +
                 (equipDrop
                     ? '\n\n✨ *EQUIPAMENTO RARO ENCONTRADO!*\n' + equipDrop.raridade + ' *' + equipDrop.nome + '*' +
                       '\n⚔️ ATK +' + equipDrop.atk + ' | 🛡️ DEF +' + equipDrop.def + ' | ⚡ ' + equipDrop.cp + ' CP' +
                       '\n💡 _Equipe com_ `.equipar ' + equipDrop.id + '`'
-                    : ''), [sender])
+                    : '') + lvlUpNotice, [sender])
         }
 
         const perdaCoins = Math.min(user.coins || 0, 20)

@@ -114,9 +114,11 @@ function calcularXpNecessario(level) {
 /**
  * Processa a subida de nível e concede marcos de evolução (HP, Coins, Conquistas)
  * @param {object} user - Perfil do usuário
+ * @param {object} [options] - Opções de controle
+ * @param {number} [options.maxLevels=50] - Limite máximo de níveis a subir nesta chamada
  * @returns {object} { subiu, levelsGanhos, novoLevel, ganhoCoins, ganhoHp, conquistas }
  */
-function processarLevelUp(user) {
+function processarLevelUp(user, options = {}) {
     if (!user) return { subiu: false, levelsGanhos: 0, novoLevel: 1, ganhoCoins: 0, ganhoHp: 0, conquistas: [] }
     let subiu = false
     let levelsGanhos = 0
@@ -126,8 +128,8 @@ function processarLevelUp(user) {
     user.level = Math.max(1, Math.floor(Number(user.level) || 1))
     let maxXp = calcularXpNecessario(user.level)
 
-    // Trava de segurança: limite de subida de níveis por chamada para nunca travar o event loop
-    const MAX_LEVELS_PER_CALL = 50
+    // Trava de segurança configurável (para chat = 1 por mensagem; para combate/RPG = até 50)
+    const MAX_LEVELS_PER_CALL = Math.max(1, Math.min(100, Number(options.maxLevels) || 50))
 
     while ((user.xp || 0) >= maxXp && levelsGanhos < MAX_LEVELS_PER_CALL) {
         user.xp -= maxXp
@@ -152,9 +154,9 @@ function processarLevelUp(user) {
         maxXp = calcularXpNecessario(user.level)
     }
 
-    // Se atingiu o limite de níveis em uma única mensagem e ainda sobrou XP anômalo,
-    // normaliza para não exceder limites extravagantes
-    if (levelsGanhos >= MAX_LEVELS_PER_CALL && (user.xp || 0) > maxXp * 2) {
+    // Se atingiu o limite de níveis em uma única chamada e ainda sobrou XP anômalo,
+    // normaliza para não exceder limites extravagantes (apenas quando não é limitado a poucos níveis)
+    if (MAX_LEVELS_PER_CALL > 5 && levelsGanhos >= MAX_LEVELS_PER_CALL && (user.xp || 0) > maxXp * 2) {
         user.xp = maxXp - 1
     }
 
@@ -201,6 +203,67 @@ function getXpProgress(user) {
     return { atual, necessario, faltam, percent, barra, poder }
 }
 
+/**
+ * Concede XP ao usuário de forma consistente e estruturada por fonte (grupo, pv, rpg)
+ * @param {object} user - Perfil do usuário
+ * @param {number} rawAmount - Quantidade bruta de XP
+ * @param {object} [options]
+ * @param {'group'|'pv'|'rpg'} [options.source='rpg'] - Origem do XP
+ * @param {number} [options.maxLevels=50] - Limite de subida de níveis nesta chamada
+ * @param {boolean} [options.applyRebirth=true] - Se deve aplicar o multiplicador de Rebirth
+ * @returns {{ xpGanho: number, lvlRes: object }}
+ */
+function adicionarXp(user, rawAmount, options = {}) {
+    const { source = 'rpg', maxLevels = 50, applyRebirth = true } = options;
+    const amount = Math.max(0, Math.floor(Number(rawAmount) || 0));
+    const xpGanho = applyRebirth ? aplicarBonusRebirthXp(user, amount) : amount;
+
+    user.xp = (user.xp || 0) + xpGanho;
+    user.weeklyXp = (user.weeklyXp || 0) + xpGanho;
+
+    if (source === 'group') {
+        user.xpGroup = (user.xpGroup || 0) + xpGanho;
+    } else if (source === 'pv') {
+        user.xpPv = (user.xpPv || 0) + xpGanho;
+    } else {
+        // Atividades ativas de RPG (hunt, dungeon, boss, missões, etc.)
+        user.xpRpg = (user.xpRpg || 0) + xpGanho;
+        user.xp_rpg = user.xpRpg;
+    }
+
+    const lvlRes = processarLevelUp(user, { maxLevels });
+    return { xpGanho, lvlRes };
+}
+
+/**
+ * Retorna as missões e atividades ativas recomendadas para o jogador upar de nível
+ * @param {object} user - Perfil do usuário
+ * @param {string} [prefix='.'] - Prefixo dos comandos
+ * @returns {Array<string>}
+ */
+function getMissoesRecomendadas(user, prefix = '.') {
+    const level = user.level || 1;
+    const mundo = user.mundo || 'floresta';
+    const dungeonFloor = user.dungeonFloor || 1;
+
+    const missoes = [
+        `🗺️ \`${prefix}hunt\` ➔ Caçar monstros em *${mundo}* (XP e Loots massivos)`,
+        `🏰 \`${prefix}dungeon\` ➔ Explorar Masmorra (*Andar ${dungeonFloor}*) — grande salto de nível`,
+        `📜 \`${prefix}missao\` ➔ Cumprir missões diárias com recompensas em dobro`,
+        `🐉 \`${prefix}boss criar\` / \`${prefix}raid\` ➔ Encarar Chefes Supremos`,
+        `🤺 \`${prefix}duelo @user\` ➔ Duelo PvP na Arena para glória e XP`,
+        `💬 Chat comum ➔ XP passivo consistente (5-10 XP com proteção anti-spam)`
+    ];
+
+    if (level >= 500) {
+        missoes.unshift(`👑 \`${prefix}reencarnar premium\` ➔ *Transcendência Suprema* (Mantém Coins/Inv/Equip)`);
+    } else if (level >= 100) {
+        missoes.unshift(`🌀 \`${prefix}reencarnar\` ➔ *Ritual de Renascimento* (+25% Dano & XP perpétuo)`);
+    }
+
+    return missoes;
+}
+
 /** Fontes de XP sugeridas ao usuário (dica de "como ganhar mais XP"). */
 function getXpTips(prefix = '.') {
     return [
@@ -208,7 +271,7 @@ function getXpTips(prefix = '.') {
         `🐉 \`${prefix}boss criar\` / \`${prefix}raid\` — bosses e raids`,
         `🤺 \`${prefix}duelo @user\` — duelar com outros jogadores`,
         `🔨 \`${prefix}forjar\` — forjar e evoluir equipamentos`,
-        `💬 Mandar mensagens no grupo (texto, áudio, vídeo) rende XP`
+        `💬 Mandar mensagens no grupo (texto, áudio, vídeo) rende XP consistente`
     ]
 }
 
@@ -233,8 +296,10 @@ module.exports = {
     initializeUser,
     getXpProgress,
     getXpTips,
+    getMissoesRecomendadas,
     calcularXpNecessario,
     processarLevelUp,
+    adicionarXp,
     barraXP,
     getCargo,
     getRank,

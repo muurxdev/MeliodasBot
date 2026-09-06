@@ -30,13 +30,13 @@ module.exports = {
         let countRequested = 1;
         const argNum = args.find(a => /^\d+$/.test(a));
         if (argNum) {
-            countRequested = Math.min(25, Math.max(1, parseInt(argNum, 10)));
+            countRequested = Math.min(100, Math.max(1, parseInt(argNum, 10)));
         } else if (args.some(a => /max|tudo|todos/i.test(a))) {
-            // Calcula o máximo que as moedas atuais conseguem pagar (até 25 níveis por vez)
+            // Calcula o máximo que as moedas atuais conseguem pagar (até 100 níveis por vez)
             let tempCoins = user.coins || 0;
             let tempLvl = currentLvl;
             countRequested = 0;
-            while (countRequested < 25) {
+            while (countRequested < 100) {
                 const nextCost = getCostForLevel(tempLvl + 1);
                 if (tempCoins >= nextCost) {
                     tempCoins -= nextCost;

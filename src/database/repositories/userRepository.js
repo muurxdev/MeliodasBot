@@ -310,7 +310,7 @@ const COLUMNS = [
     { name: 'name',              val: u => u.name || null,                                      set: 'coalesce' },
     { name: 'slots',             val: u => JSON.stringify(u.slots || {}),                       set: 'direct' },
     { name: 'forge_level',       val: u => u.forgeLevel ?? u.forge_level ?? 0,                  set: 'max' },
-    { name: 'nickname_rpg',      val: u => u.nicknameRpg ?? u.nickname_rpg ?? null,             set: 'coalesce' },
+    { name: 'nickname_rpg',      val: u => u.nicknameRpg ?? u.nickname_rpg ?? null,             set: 'direct' },
     { name: 'atk',               val: u => u.atk ?? 10,                                         set: 'direct' },
     { name: 'def',               val: u => u.def ?? 5,                                          set: 'direct' },
     // vault_coins é gerido exclusivamente pelo vaultRepository (ON CONFLICT próprio).
@@ -330,7 +330,7 @@ const COLUMNS = [
     { name: 'coins_group',       val: u => u.coinsGroup ?? u.coins_group ?? 0,                  set: 'direct' },
     // Perfil de login (Fase B)
     { name: 'registered',        val: u => (u.registered ? 1 : 0),                              set: 'max' },
-    { name: 'display_nick',      val: u => u.displayNick ?? u.display_nick ?? null,             set: 'coalesce' },
+    { name: 'display_nick',      val: u => u.displayNick ?? u.display_nick ?? null,             set: 'direct' },
     { name: 'rpg_enabled',       val: u => (u.rpgEnabled === false || u.rpg_enabled === 0 ? 0 : 1), set: 'direct' },
     { name: 'foco_categoria',    val: u => u.focoCategoria ?? u.foco_categoria ?? null,         set: 'coalesce' },
     { name: 'registered_at',     val: u => u.registeredAt ?? u.registered_at ?? null,           set: 'coalesce' }

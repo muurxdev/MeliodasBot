@@ -160,10 +160,9 @@ module.exports = {
         }
         user.dungeonRecorde = Math.max(user.dungeonRecorde || 0, currentFloor.andar);
 
-        // Aplica o bônus de 25% de XP por Rebirth
-        const { aplicarBonusRebirthXp } = require("../../services/xpService");
-        const xpGanho = aplicarBonusRebirthXp(user, currentFloor.xp);
-        user.xp = (user.xp || 0) + xpGanho;
+        // Concede XP e avalia Level Up imediato na vitória da masmorra
+        const { adicionarXp } = require("../../services/xpService");
+        const { xpGanho, lvlRes } = adicionarXp(user, currentFloor.xp, { source: 'rpg' });
         user.coins = (user.coins || 0) + currentFloor.coins;
 
         if (!Array.isArray(user.inventario)) user.inventario = [];
@@ -216,6 +215,9 @@ module.exports = {
             winDoc += `┃ ✨ *Equipamento:* ${equipDrop.raridade} *${equipDrop.nome}*\n`;
             winDoc += `┃    ⚔️ ATK +${equipDrop.atk} | 🛡️ DEF +${equipDrop.def} | ⚡ ${equipDrop.cp} CP\n`;
             winDoc += `┃    💡 \`.equipar ${equipDrop.id}\`\n`;
+        }
+        if (lvlRes && lvlRes.subiu) {
+            winDoc += `┃ 🎉 *LEVEL UP!* Subiu para o Nível ${user.level} (+${lvlRes.ganhoHp} HP | +${lvlRes.ganhoCoins} Coins)\n`;
         }
         winDoc += `╰━━━━━━━━━━━━━━━━━━⬣\n\n`;
         winDoc += `💡 _Para avançar para o próximo andar liberado:_ \`.dungeon\`\n`;

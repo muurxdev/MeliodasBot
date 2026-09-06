@@ -37,13 +37,19 @@ module.exports = {
 
             const xpData = dataService.getXpData()
             const user = initializeUser(sender, xpData)
-            user.xp = (user.xp || 0) + missao.xp
+            const { adicionarXp } = require('../../services/xpService')
+            const { xpGanho, lvlRes } = adicionarXp(user, missao.xp, { source: 'rpg' })
             user.coins = (user.coins || 0) + missao.coins
 
             await dataService.saveXpData(xpData)
             logger.info('[MISSAO CONCLUIDA] User ' + sender + ' concluiu ' + missao.titulo)
 
-            return reply('🎉 *MISSÃO CONCLUÍDA COM SUCESSO!*\n\n📌 *' + missao.titulo + '*\n⭐ *+' + missao.xp + ' XP*\n💰 *+' + missao.coins + ' Coins*')
+            let lvlUpNotice = ''
+            if (lvlRes && lvlRes.subiu) {
+                lvlUpNotice = `\n\n🎉 *LEVEL UP!* Você subiu para o *Nível ${user.level}*!\n❤️ *HP Máximo:* ${user.hpMax} (+${lvlRes.ganhoHp}) | 💰 +${lvlRes.ganhoCoins} Coins!`
+            }
+
+            return reply('🎉 *MISSÃO CONCLUÍDA COM SUCESSO!*\n\n📌 *' + missao.titulo + '*\n⭐ *+' + xpGanho.toLocaleString('pt-BR') + ' XP*\n💰 *+' + missao.coins.toLocaleString('pt-BR') + ' Coins*' + lvlUpNotice)
         }
 
         const status = m.concluida ? '✅ Concluída' : ('⏳ Em andamento (' + m.progresso + '/' + missao.meta + ')')

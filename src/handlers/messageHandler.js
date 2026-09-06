@@ -7,7 +7,7 @@ const { dispatch } = require('./commandDispatcher')
 const env = require('../config/env')
 const dataService = require('../services/dataService')
 const groupAuthService = require('../services/groupAuthService')
-const { initializeUser, processarLevelUp, aplicarBonusRebirthXp } = require('../services/xpService')
+const { initializeUser, processarLevelUp, aplicarBonusRebirthXp, adicionarXp } = require('../services/xpService')
 const { getCargo } = require('../utils/helpers')
 const { formatCoins } = require('../utils/uiEngine')
 const { getDatabase } = require('../database/connection')
@@ -15,6 +15,11 @@ const userRepo = require('../database/repositories/userRepository')
 const { detectTravaZap, checkGroupSpam } = require('../services/securityService')
 const ownerService = require('../services/ownerService')
 const logger = require('../core/logger')
+
+// Cache anti-spam de XP por mensagem: evita que mensagens consecutivas ou flood
+// aumentem dezenas de levels ou causem saltos anômalos. Cooldown de 30s por usuário.
+const _msgXpCooldown = new Map()
+const MSG_XP_COOLDOWN_MS = 30000
 
 /**
  * Invalida o cache de metadata de um grupo (usado nos eventos groups.update /
@@ -149,44 +154,44 @@ async function handleIncomingMessage(client, { messages }) {
     const _ms = require('../services/moduleStateService')
     const xpModuleOn = _ms.isModuleEnabled('xp', _ms.scopeOf(from, isGroup))
     if ((isGroup || allowPvXp) && xpModuleOn) {
-        // XP base + bônus por tipo de mídia (áudio/vídeo/imagem/figurinha/documento
-        // rendem um pouco mais que texto puro, incentivando engajamento variado).
-        const base = Math.floor(Math.random() * 11) + 15 // 15 a 25
-        const typeBonus = {
-            audioMessage: 8, videoMessage: 10, imageMessage: 5,
-            stickerMessage: 4, documentMessage: 6
-        }[type] || 0
-        const rawXp = base + typeBonus
-        const xpEarned = aplicarBonusRebirthXp(user, rawXp)
-        user.xp = (user.xp || 0) + xpEarned
-        user.weeklyXp = (user.weeklyXp || 0) + xpEarned
-        if (isGroup) {
-            user.xpGroup = (user.xpGroup || 0) + xpEarned
-        } else {
-            user.xpPv = (user.xpPv || 0) + xpEarned
-        }
+        const now = Date.now()
+        const lastXpTime = _msgXpCooldown.get(sender) || 0
+        if (now >= lastXpTime) {
+            _msgXpCooldown.set(sender, now + MSG_XP_COOLDOWN_MS)
 
-        // Avalia subida de nível em tempo real
-        const lvlRes = processarLevelUp(user)
-        if (lvlRes.subiu) {
-            try {
-                const { getXpProgress } = require('../services/xpService')
-                const prog = getXpProgress(user)
-                let up = `╔══════════════════════════════╗\n`
-                up += `║   🎉 *LEVEL UP!* 🎉   ║\n`
-                up += `╚══════════════════════════════╝\n\n`
-                up += `👤 @${sender.split('@')[0]} subiu para o *Nível ${user.level}*!`
-                if (lvlRes.levelsGanhos > 1) up += ` (+${lvlRes.levelsGanhos} níveis)`
-                up += `\n🎖️ *Patente:* ${getCargo(user.level)}\n`
-                up += `❤️ *HP Total:* ${user.hpMax} (+${lvlRes.ganhoHp}) | ⚡ *Poder:* ${prog.poder}\n`
-                up += `💰 *Bônus:* +${lvlRes.ganhoCoins} Coins\n\n`
-                up += `📊 *Progresso p/ Nv. ${user.level + 1}:*\n${prog.barra} ${prog.percent}%\n`
-                up += `⭐ Faltam *${prog.faltam.toLocaleString('pt-BR')} XP*`
-                await client.sendMessage(from, { text: up, mentions: [sender] }, { quoted: info })
-            } catch (e) {
-                // O nivel JA subiu e foi salvo; so o aviso falhou. Sem log, o
-                // usuario sobe de nivel sem feedback e ninguem descobre por que.
-                logger.warn(`[LEVEL UP] Falha ao anunciar subida de nivel de ${sender}: ${e.message}`)
+            // XP passivo consistente por mensagem (5 a 10 XP) com leve bônus por mídia
+            const base = Math.floor(Math.random() * 6) + 5 // 5 a 10
+            const typeBonus = {
+                audioMessage: 3, videoMessage: 3, imageMessage: 2,
+                stickerMessage: 1, documentMessage: 2
+            }[type] || 0
+            const rawXp = base + typeBonus
+
+            // Adiciona XP com origem segmentada e limite estrito: no chat comum sobe NO MÁXIMO 1 level por mensagem
+            const { xpGanho, lvlRes } = adicionarXp(user, rawXp, {
+                source: isGroup ? 'group' : 'pv',
+                maxLevels: 1
+            })
+
+            // Avalia subida de nível em tempo real
+            if (lvlRes.subiu) {
+                try {
+                    const { getXpProgress } = require('../services/xpService')
+                    const prog = getXpProgress(user)
+                    let up = `╔══════════════════════════════╗\n`
+                    up += `║   🎉 *LEVEL UP!* 🎉   ║\n`
+                    up += `╚══════════════════════════════╝\n\n`
+                    up += `👤 @${sender.split('@')[0]} subiu para o *Nível ${user.level}*!`
+                    if (lvlRes.levelsGanhos > 1) up += ` (+${lvlRes.levelsGanhos} níveis)`
+                    up += `\n🎖️ *Patente:* ${getCargo(user.level)}\n`
+                    up += `❤️ *HP Total:* ${user.hpMax} (+${lvlRes.ganhoHp}) | ⚡ *Poder:* ${prog.poder}\n`
+                    up += `💰 *Bônus:* +${lvlRes.ganhoCoins} Coins\n\n`
+                    up += `📊 *Progresso p/ Nv. ${user.level + 1}:*\n${prog.barra} ${prog.percent}%\n`
+                    up += `⭐ Faltam *${prog.faltam.toLocaleString('pt-BR')} XP*`
+                    await client.sendMessage(from, { text: up, mentions: [sender] }, { quoted: info })
+                } catch (e) {
+                    logger.warn(`[LEVEL UP] Falha ao anunciar subida de nivel de ${sender}: ${e.message}`)
+                }
             }
         }
     }

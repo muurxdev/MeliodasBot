@@ -221,6 +221,9 @@ module.exports = {
             doc += "╭━〔 👤 DADOS PESSOAIS & ACESSO 〕━⬣\n";
             doc += "┃ 📱 *WhatsApp:* " + phoneFormatted + "\n";
             doc += "┃ 🆔 *ID do Usuário:* " + idDisplay + "\n";
+            if (user.displayNick || user.nicknameRpg) {
+                doc += "┃ 🏷️ *Nome no Perfil / Nick:* " + (user.displayNick || user.nicknameRpg) + "\n";
+            }
             doc += "┃ 🎖️ *Hierarquia:* " + cargoBot + "\n";
             // Cargo automático do grupo (.autorole), quando o dossiê é aberto nele.
             const _cargoGrupo = (isGroup && user.cargos && typeof user.cargos === "object") ? user.cargos[from] : null;
@@ -245,9 +248,11 @@ module.exports = {
                         doc += "┃ 🤝 *Reputação:* ⭐ " + (user.rep || 0) + " pontos | 🔥 *Streak:* " + (user.streak || 0) + " dias\n";
             doc += "╰━━━━━━━━━━━━━━━━━━⬣\n\n";
 
+            const farmRpgXp = Number(user.xpRpg || user.xp_rpg || 0);
             doc += "╭━〔 📊 ESTATÍSTICAS DE FARM & MENSAGENS 〕━⬣\n";
             doc += "┃ 💬 *Farm no Grupo:* " + farmGrupoMsgs.toLocaleString('pt-BR') + " msgs (" + (user.commandsGroup || 0).toLocaleString('pt-BR') + " cmds | " + farmGrupoXp.toLocaleString('pt-BR') + " XP)\n";
             doc += "┃ 🔒 *Farm no Privado:* " + farmPvMsgs.toLocaleString('pt-BR') + " msgs (" + (user.commandsPv || 0).toLocaleString('pt-BR') + " cmds | " + farmPvXp.toLocaleString('pt-BR') + " XP)\n";
+            doc += "┃ ⚔️ *Farm no RPG:* " + farmRpgXp.toLocaleString('pt-BR') + " XP de combate (" + (user.wins || 0).toLocaleString('pt-BR') + " vitórias)\n";
             doc += "┃ 🌟 *Total Unificado:* " + totalMensagens.toLocaleString('pt-BR') + " mensagens (" + totalCmds.toLocaleString('pt-BR') + " comandos)\n";
             doc += "╰━━━━━━━━━━━━━━━━━━⬣\n\n";
 
@@ -259,6 +264,11 @@ module.exports = {
             doc += "┃ ⚡ *Poder de Combate (CP):* " + rpgStats.cp.toLocaleString('pt-BR') + " CP (ATK: " + rpgStats.atk + " | DEF: " + rpgStats.def + ")\n";
             doc += "┃ ❤️ *Vida (HP):* " + hpAtual.toLocaleString('pt-BR') + " / " + hpMaximo.toLocaleString('pt-BR') + " HP\n";
             doc += "┃ 🗡️ *Equipamento:* " + armaNome + forgeSufixo + " | 🎒 *Mochila:* " + itensMochila + " / " + capMochila + " slots\n";
+            doc += "┃ 🔨 *Forja:* Nível +" + (user.forgeLevel || 0) + "\n";
+            if (user.rebirthCount || user.rebirth_count) {
+                const rCount = Number(user.rebirthCount || user.rebirth_count);
+                doc += "┃ 🌀 *Rebirth:* " + rCount + "º Renascimento (+" + (rCount * 25) + "% Dano & XP Perpétuo)\n";
+            }
             doc += "┃ 🧪 *Poção Ativa:* " + pocaoInfo + "\n";
             doc += "┃ 🛡️ *Guilda:* " + (user.guilda || "Sem Guilda") + " | 🐾 *Pet:* " + (user.pet || "Nenhum") + "\n";
             doc += "┃ ⚔️ *Combates:* " + (user.wins || 0) + " Vitórias | " + (user.losses || 0) + " Derrotas | 💀 " + (user.bossesMortos || 0) + " Bosses\n";

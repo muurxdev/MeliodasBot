@@ -48,9 +48,13 @@ module.exports = {
             const novo = args.slice(1).join(' ').trim().slice(0, 40)
             if (!novo) return reply(`📝 *Uso:* \`${prefix}login nome <seu nick>\``)
             user.displayNick = novo
+            user.display_nick = novo
+            user.nicknameRpg = novo
+            user.nickname_rpg = novo
+            user.name = novo
             user.registered = true
             if (!user.registeredAt) user.registeredAt = new Date().toISOString()
-            dataService.saveUser(user)
+            dataService.saveUser(user, { force: true })
             return reply(`✅ *Nick atualizado para:* ${novo}`)
         }
 
@@ -59,25 +63,30 @@ module.exports = {
         if (nick) {
             const jaEra = user.registered
             user.displayNick = nick
+            user.display_nick = nick
+            user.nicknameRpg = nick
+            user.nickname_rpg = nick
+            user.name = nick
             user.registered = true
             if (user.rpgEnabled === undefined) user.rpgEnabled = true
             if (!user.registeredAt) user.registeredAt = new Date().toISOString()
-            dataService.saveUser(user)
+            dataService.saveUser(user, { force: true })
 
             let doc = `╔══════════════════════════════╗\n`
             doc += `║   ✅ *REGISTRO CONCLUÍDO* ✅   ║\n`
             doc += `╚══════════════════════════════╝\n\n`
             doc += `╭━〔 👤 SEU PERFIL 〕━⬣\n`
-            doc += `┃ 🏷️ *Nick:* ${nick}\n`
+            doc += `┃ 🏷️ *Nick / Guerreiro:* ${nick}\n`
             doc += `┃ ⚔️ *RPG:* ${user.rpgEnabled ? '🟢 Ativado' : '🔴 Desativado'}\n`
             doc += `┃ 📊 *Nível:* ${user.level || 1} | ⭐ *XP:* ${user.xp || 0}\n`
             doc += `╰━━━━━━━━━━━━━━━━━━⬣\n\n`
             doc += `💡 *Ajustes:*\n`
             doc += `• \`${prefix}login rpg off\` — sair do RPG\n`
             doc += `• \`${prefix}login nome <novo>\` — trocar o nick\n`
+            doc += `• \`${prefix}perfil\` — ver seu perfil e status do RPG\n`
             doc += `• \`${prefix}dossie\` — ver seu perfil completo\n`
             doc += `👑 *${botName}*`
-            return reply(jaEra ? doc.trim() : doc.trim(), [sender])
+            return reply(doc.trim(), [sender])
         }
 
         // Sem args: painel de status / instruções
