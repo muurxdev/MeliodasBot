@@ -99,7 +99,8 @@ function initializeUser(sender, xpData = {}, alternativeJids = []) {
 }
 
 function calcularXpNecessario(level) {
-    return Math.floor(100 * Math.pow(level, 1.5))
+    const lvl = Math.max(1, Math.floor(Number(level) || 1))
+    return Math.floor(100 * Math.pow(lvl, 1.5))
 }
 
 /**
@@ -108,14 +109,19 @@ function calcularXpNecessario(level) {
  * @returns {object} { subiu, levelsGanhos, novoLevel, ganhoCoins, ganhoHp, conquistas }
  */
 function processarLevelUp(user) {
+    if (!user) return { subiu: false, levelsGanhos: 0, novoLevel: 1, ganhoCoins: 0, ganhoHp: 0, conquistas: [] }
     let subiu = false
     let levelsGanhos = 0
     let ganhoCoins = 0
     let ganhoHp = 0
 
+    user.level = Math.max(1, Math.floor(Number(user.level) || 1))
     let maxXp = calcularXpNecessario(user.level)
 
-    while ((user.xp || 0) >= maxXp) {
+    // Trava de segurança: limite de subida de níveis por chamada para nunca travar o event loop
+    const MAX_LEVELS_PER_CALL = 50
+
+    while ((user.xp || 0) >= maxXp && levelsGanhos < MAX_LEVELS_PER_CALL) {
         user.xp -= maxXp
         user.level += 1
         subiu = true
@@ -135,9 +141,17 @@ function processarLevelUp(user) {
         user.atk = (user.atk || 10) + 2
         user.def = (user.def || 5) + 1
 
-        // Restaura a vida completa ao subir de nível — usando o máximo REAL do
-        // personagem (nível + equipamento + forja + raça × rebirth), que é a
-        // mesma fonte usada nas telas. Evita o descompasso "1.200 / 20.000".
+        maxXp = calcularXpNecessario(user.level)
+    }
+
+    // Se atingiu o limite de níveis em uma única mensagem e ainda sobrou XP anômalo,
+    // normaliza para não exceder limites extravagantes
+    if (levelsGanhos >= MAX_LEVELS_PER_CALL && (user.xp || 0) > maxXp * 2) {
+        user.xp = maxXp - 1
+    }
+
+    // Restaura a vida completa ao subir de nível apenas UMA VEZ no final
+    if (subiu) {
         try {
             const { resolveHp } = require('./characterEngine')
             user.hpMax = resolveHp(user).max
@@ -146,8 +160,6 @@ function processarLevelUp(user) {
             logger.warn('[XP SERVICE] resolveHp fallback — mantendo hpMax incremental', e.message)
         }
         user.hp = user.hpMax || 100
-
-        maxXp = calcularXpNecessario(user.level)
     }
 
     // Avalia conquistas desbloqueadas
