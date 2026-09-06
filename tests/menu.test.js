@@ -52,25 +52,38 @@ test('membro comum não vê comandos ownerOnly nem adminOnly', () => {
     assert.strictEqual(leakedAdmin.length, 0, `vazou admin: ${leakedAdmin.join(', ')}`)
 })
 
-test('página 1 (caption de mídia) nunca passa de 1024 chars', () => {
-    for (const c of [...CATEGORIES.map(c => c.key), 'all']) {
+test('página 1 (caption de mídia) nunca passa de 1024 chars (incluindo painel principal)', () => {
+    for (const c of [...CATEGORIES.map(c => c.key), 'all', null]) {
         const m = buildMenu({ category: c, page: 1, prefix: '.', userLevel: 5, botName: 'B', registry: reg, totalAliases: 0 })
-        assert.ok(m.pages[0].length <= 1024, `${c} pág1 = ${m.pages[0].length} chars`)
+        assert.ok(m.pages[0].length <= 1024, `${c || 'main'} pág1 = ${m.pages[0].length} chars`)
     }
 })
 
 test('nenhuma página passa de 4096 chars (limite de texto)', () => {
-    for (const c of [...CATEGORIES.map(c => c.key), 'all']) {
+    for (const c of [...CATEGORIES.map(c => c.key), 'all', null]) {
         const m = buildMenu({ category: c, page: 1, prefix: '.', userLevel: 5, botName: 'B', registry: reg, totalAliases: 0 })
-        m.pages.forEach((p, i) => assert.ok(p.length <= 4096, `${c} pág${i + 1} = ${p.length} chars`))
+        m.pages.forEach((p, i) => assert.ok(p.length <= 4096, `${c || 'main'} pág${i + 1} = ${p.length} chars`))
     }
 })
 
-test('painel principal lista todas as categorias não-vazias', () => {
-    const m = buildMenu({ category: null, prefix: '.', userLevel: 5, botName: 'B', registry: reg, totalAliases: 0 })
-    assert.strictEqual(m.totalPages, 1)
+test('painel principal é paginado em 2 partes sob 1024 caracteres', () => {
+    const m1 = buildMenu({ category: null, page: 1, prefix: '.', userLevel: 5, botName: 'B', registry: reg, totalAliases: 0 })
+    assert.strictEqual(m1.totalPages, 2, 'Painel principal deve ter 2 páginas')
+    assert.strictEqual(m1.page, 1)
+    assert.ok(m1.pages[0].length <= 1024, `Página 1 deve ser <= 1024 chars, tem ${m1.pages[0].length}`)
+    assert.ok(m1.pages[0].includes('PARTE 1/2'))
+    assert.ok(m1.pages[0].includes('.menu 2'))
+
+    const m2 = buildMenu({ category: null, page: 2, prefix: '.', userLevel: 5, botName: 'B', registry: reg, totalAliases: 0 })
+    assert.strictEqual(m2.page, 2)
+    assert.ok(m2.pages[1].length <= 1024, `Página 2 deve ser <= 1024 chars, tem ${m2.pages[1].length}`)
+    assert.ok(m2.pages[1].includes('PARTE 2/2'))
+    assert.ok(m2.pages[1].includes('.menu 1'))
+
+    // Todas as categorias devem estar cobertas entre as 2 páginas
+    const allText = m1.pages.join('\n')
     for (const c of CATEGORIES) {
-        assert.ok(m.pages[0].includes(`menu ${c.key}`), `falta categoria ${c.key} no painel`)
+        assert.ok(allText.includes(`menu ${c.key}`), `falta categoria ${c.key} no painel`)
     }
 })
 

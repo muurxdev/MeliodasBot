@@ -173,21 +173,39 @@ function buildMenu({ category = null, page = 1, prefix = '.', userLevel = 1, bot
             totalVisivel += count
             linhasCategorias.push(`┃ ${c.emoji} \`${prefix}menu ${c.key}\` ➔ ${c.label} (${count} cmds · ${aliasCount} aliases)\n`)
         }
+        // Divide as categorias em 2 páginas para caber com folga no limite de 1000 caracteres do WhatsApp
+        const mid = Math.ceil(linhasCategorias.length / 2)
+        const page1Lines = linhasCategorias.slice(0, mid)
+        const page2Lines = linhasCategorias.slice(mid)
 
-        let doc = header(`🤖 *${botName}* 🤖`)
-        doc += `📌 *Prefixo Ativo:* \`${prefix}\` | ⚡ *${totalVisivel} Comandos* (+${totalAliases} Aliases)\n`
-        doc += `💡 _Digite o comando da categoria para ver todos os comandos e aliases:_\n\n`
-        doc += `╭━〔 📂 CATEGORIAS DE COMANDOS & ALIASES 〕━⬣\n`
-        for (const linha of linhasCategorias) doc += linha
-        doc += `┃ 🌟 \`${prefix}menu all\` ➔ Ver o Catálogo Completo (${totalVisivel} comandos)\n`
-        doc += `╰━━━━━━━━━━━━━━━━━━⬣\n\n`
-        doc += `╭━〔 ℹ️ ATALHOS RÁPIDOS 〕━⬣\n`
-        doc += `┃ ➤ \`${prefix}help <comando>\` — Instruções de qualquer comando\n`
-        doc += `┃ ➤ \`${prefix}dossie\` / \`${prefix}perfil\` — Seu perfil completo\n`
-        doc += `┃ ➤ \`${prefix}ia <pergunta>\` — Inteligência Artificial e busca Web\n`
-        doc += `╰━━━━━━━━━━━━━━━━━━⬣\n\n`
-        doc += `💡 *Dica:* _Abra um submenu digitando direto o nome (ex:_ \`${prefix}rpg\`_,_ \`${prefix}eco\`_,_ \`${prefix}admin\`_)!_`
-        return { pages: [doc], page: 1, totalPages: 1, mediaKey: 'main', total: totalVisivel }
+        // Página 1: Primeiras categorias + instrução clara de navegação para a parte 2
+        let doc1 = header(`🤖 *${botName}* 🤖`)
+        doc1 += `📌 *Prefixo Ativo:* \`${prefix}\` | ⚡ *${totalVisivel} Comandos* (+${totalAliases} Aliases)\n`
+        doc1 += `💡 _Digite o comando da categoria para ver todos os comandos e aliases:_\n\n`
+        doc1 += `╭━〔 📂 CATEGORIAS DE COMANDOS (PARTE 1/2) 〕━⬣\n`
+        for (const linha of page1Lines) doc1 += linha
+        doc1 += `╰━━━━━━━━━━━━━━━━━━⬣\n\n`
+        doc1 += `▸ _Página 1/2 — Digite \`${prefix}menu 2\` para ver a outra parte do menu_\n`
+        doc1 += `💡 *Dica:* _Abra um submenu digitando direto o nome (ex:_ \`${prefix}rpg\`_,_ \`${prefix}eco\`_,_ \`${prefix}adm\`_)!_`
+
+        // Página 2: Segundas categorias + catálogo completo + atalhos rápidos
+        let doc2 = header(`🤖 *${botName}* 🤖`)
+        doc2 += `📌 *Prefixo:* \`${prefix}\` | ⚡ *${totalVisivel} Comandos* (+${totalAliases} Aliases)\n\n`
+        doc2 += `╭━〔 📂 CATEGORIAS (PARTE 2/2) 〕━⬣\n`
+        for (const linha of page2Lines) doc2 += linha
+        doc2 += `┃ 🌟 \`${prefix}menu all\` ➔ Catálogo Completo (${totalVisivel} cmds)\n`
+        doc2 += `╰━━━━━━━━━━━━━━━━━━⬣\n\n`
+        doc2 += `╭━〔 ℹ️ ATALHOS RÁPIDOS 〕━⬣\n`
+        doc2 += `┃ ➤ \`${prefix}help <cmd>\` — Guia de comandos\n`
+        doc2 += `┃ ➤ \`${prefix}dossie\` / \`${prefix}perfil\` — Perfil no bot\n`
+        doc2 += `┃ ➤ \`${prefix}ia <pergunta>\` — Inteligência Artificial\n`
+        doc2 += `╰━━━━━━━━━━━━━━━━━━⬣\n\n`
+        doc2 += `▸ _Página 2/2 (fim) — Digite \`${prefix}menu 1\` para voltar ao início_\n`
+        doc2 += `💡 *Dica:* _Abra um submenu digitando direto (ex:_ \`${prefix}ia\`_,_ \`${prefix}livros\`_)!_`
+
+        const pages = [doc1.trim(), doc2.trim()]
+        const safePage = Math.min(Math.max(1, page), 2)
+        return { pages, page: safePage, totalPages: 2, mediaKey: 'main', total: totalVisivel }
     }
 
     // ── Catálogo completo ou categoria específica ──

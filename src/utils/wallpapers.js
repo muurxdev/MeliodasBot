@@ -369,7 +369,7 @@ async function sendMenuMediaMessage(client, jid, { category = "main", text = "",
             }, { quoted });
         }
 
-        if (p2) {
+        if (p2 && normalizeCategory(category) !== "main") {
             await client.sendMessage(jid, { text: p2, mentions }, { quoted: sent || quoted });
         }
 

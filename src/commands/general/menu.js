@@ -31,19 +31,63 @@ module.exports = {
         const level = (userRole && userRole.level) || (isOwner ? 5 : isAdmin ? 3 : 1)
         const dispatcher = require('../../handlers/commandDispatcher')
 
-        // Resolve categoria: via alias do comando (menurpg) ou 1º argumento
+        // Resolve categoria e página: via alias do comando (.menurpg 2) ou argumentos (.menu 2, .menu parte 2, .menu rpg 2)
         let category = null
         let pageArg = 1
+
+        // 1. Categoria via alias: .menurpg, .menuall, etc.
         if (commandName && commandName.startsWith('menu') && commandName !== 'menu' && commandName !== 'menulist') {
-            const fromAlias = commandName.replace(/^menu/, '')
-            category = (fromAlias === 'all' || fromAlias === 'completo' || fromAlias === 'total') ? 'all' : resolveCategoryKey(fromAlias)
+            const fromAlias = commandName.replace(/^menu/, '').toLowerCase()
+            category = (fromAlias === 'all' || fromAlias === 'completo' || fromAlias === 'total')
+                ? 'all'
+                : resolveCategoryKey(fromAlias)
+            if (args[0] && /^\d+$/.test(args[0])) {
+                pageArg = parseInt(args[0], 10) || 1
+            }
         }
-        if (!category && args[0]) {
-            const a = args[0].toLowerCase()
-            category = (a === 'all' || a === 'todos' || a === 'completo') ? 'all' : resolveCategoryKey(a)
-            if (category && args[1]) pageArg = parseInt(args[1], 10) || 1
-        } else if (category && args[0]) {
-            pageArg = parseInt(args[0], 10) || 1
+
+        // 2. Argumentos normais: .menu <categoria|página> [página]
+        if (!category && args.length > 0) {
+            const a0 = args[0].toLowerCase()
+
+            // Caso A: .menu 2 ou .menu 1
+            if (/^\d+$/.test(a0)) {
+                pageArg = parseInt(a0, 10) || 1
+                category = null
+            }
+            // Caso B: .menu parte 2, .menu p2, .menu pag 2
+            else if (a0 === 'parte' || a0 === 'p' || a0 === 'pag' || a0 === 'pagina' || a0 === 'página') {
+                if (args[1] && /^\d+$/.test(args[1])) {
+                    pageArg = parseInt(args[1], 10) || 1
+                } else {
+                    pageArg = 2
+                }
+                category = null
+            }
+            else if (a0 === 'p1' || a0 === 'parte1') {
+                pageArg = 1
+                category = null
+            }
+            else if (a0 === 'p2' || a0 === 'parte2') {
+                pageArg = 2
+                category = null
+            }
+            // Caso C: .menu main 2 ou .menu principal 2
+            else if (a0 === 'main' || a0 === 'global' || a0 === 'principal') {
+                if (args[1] && /^\d+$/.test(args[1])) {
+                    pageArg = parseInt(args[1], 10) || 1
+                }
+                category = null
+            }
+            // Caso D: Categoria específica (.menu rpg 2, .menu all 3)
+            else {
+                category = (a0 === 'all' || a0 === 'todos' || a0 === 'completo')
+                    ? 'all'
+                    : resolveCategoryKey(a0)
+                if (args[1] && /^\d+$/.test(args[1])) {
+                    pageArg = parseInt(args[1], 10) || 1
+                }
+            }
         }
 
         const menu = buildMenu({
@@ -57,8 +101,8 @@ module.exports = {
         })
 
         const pageText = menu.pages[menu.page - 1] || menu.pages[0]
-        // Página 1 vai com wallpaper; páginas seguintes como texto puro.
-        if (menu.page === 1) {
+        // Menus principais (todas as partes) e página 1 de categorias vão com wallpaper oficial
+        if (menu.page === 1 || menu.mediaKey === 'main') {
             return sendMenuWithWallpaper(client, from, info, reply, pageText, menu.mediaKey)
         }
         return reply(pageText)
