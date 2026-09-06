@@ -11,27 +11,8 @@
 
 const stripe = require('../../services/payments/stripeService')
 const creditos = require('../../services/payments/creditsService')
+const rentalPackages = require('../../services/payments/rentalPackagesService')
 const logger = require('../../core/logger')
-
-// Pacotes oferecidos divididos por escopo.
-const PACOTES = [
-    // Grupos
-    { id: 'g1', escopo: 'Grupo', nome: 'Grupo Semanal', centavos: 1500, dias: 7 },
-    { id: 'g2', escopo: 'Grupo', nome: 'Grupo Mensal', centavos: 3500, dias: 30 },
-    { id: 'g3', escopo: 'Grupo', nome: 'Grupo Trimestral', centavos: 9000, dias: 90 },
-    { id: 'g4', escopo: 'Grupo', nome: 'Grupo Anual', centavos: 28000, dias: 365 },
-
-    // PV (Privado)
-    { id: 'pv1', escopo: 'PV', nome: 'PV Semanal', centavos: 1000, dias: 7 },
-    { id: 'pv2', escopo: 'PV', nome: 'PV Mensal', centavos: 2000, dias: 30 },
-    { id: 'pv3', escopo: 'PV', nome: 'PV Trimestral', centavos: 5000, dias: 90 },
-    { id: 'pv4', escopo: 'PV', nome: 'PV Anual', centavos: 15000, dias: 365 },
-
-    // Combo (Grupo + PV)
-    { id: 'c1', escopo: 'Combo', nome: 'Combo Mensal (Grupo + PV)', centavos: 4500, dias: 30 },
-    { id: 'c2', escopo: 'Combo', nome: 'Combo Trimestral (Grupo + PV)', centavos: 12000, dias: 90 },
-    { id: 'c3', escopo: 'Combo', nome: 'Combo Anual (Grupo + PV)', centavos: 35000, dias: 365 }
-]
 
 const reais = c => (c / 100).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })
 
@@ -51,28 +32,29 @@ module.exports = {
             )
         }
 
+        const pacotes = rentalPackages.getPacotes()
         const escolha = (args[0] || '').toLowerCase()
-        const pacote = PACOTES.find(p => p.id === escolha || p.nome.toLowerCase() === escolha)
+        const pacote = rentalPackages.getPacote(escolha)
 
         if (!pacote) {
             let doc = '💳 *PLANOS DE ASSINATURA & ALUGUEL*\n\n'
 
             doc += '╭━〔 🏢 ALUGUEL DE GRUPO 〕━⬣\n'
-            for (const p of PACOTES.filter(x => x.escopo === 'Grupo')) {
+            for (const p of pacotes.filter(x => x.escopo === 'Grupo')) {
                 const cr = creditos.centavosParaCreditos(p.centavos)
                 doc += `┃ \`${p.id}\` — *${p.nome}:* ${reais(p.centavos)} _(${cr} créditos / ${p.dias}d)_\n`
             }
             doc += '╰━━━━━━━━━━━━━━━━━━⬣\n\n'
 
             doc += '╭━〔 👤 ALUGUEL DE PV (PRIVADO) 〕━⬣\n'
-            for (const p of PACOTES.filter(x => x.escopo === 'PV')) {
+            for (const p of pacotes.filter(x => x.escopo === 'PV')) {
                 const cr = creditos.centavosParaCreditos(p.centavos)
                 doc += `┃ \`${p.id}\` — *${p.nome}:* ${reais(p.centavos)} _(${cr} créditos / ${p.dias}d)_\n`
             }
             doc += '╰━━━━━━━━━━━━━━━━━━⬣\n\n'
 
             doc += '╭━〔 👑 COMBO (GRUPO + PV) 〕━⬣\n'
-            for (const p of PACOTES.filter(x => x.escopo === 'Combo')) {
+            for (const p of pacotes.filter(x => x.escopo === 'Combo')) {
                 const cr = creditos.centavosParaCreditos(p.centavos)
                 doc += `┃ \`${p.id}\` — *${p.nome}:* ${reais(p.centavos)} _(${cr} créditos / ${p.dias}d)_\n`
             }

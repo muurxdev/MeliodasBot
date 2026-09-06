@@ -51,6 +51,8 @@ function modo() {
     const k = cfg().secretKey || ''
     if (k.startsWith('sk_live_')) return 'producao'
     if (k.startsWith('sk_test_')) return 'teste'
+    if (k.startsWith('sk_live_') || k.startsWith('rk_live_')) return 'producao'
+    if (k.startsWith('sk_test_') || k.startsWith('rk_test_')) return 'teste'
     return 'desconhecido'
 }
 
@@ -255,6 +257,36 @@ function verificarAssinatura(corpoCru, cabecalhoAssinatura) {
     }
 }
 
+/**
+ * Verifica se a conta do Stripe possui suporte ativo ao Pix
+ * @returns {Promise<{ok: boolean, pixHabilitado: boolean, erro?: string}>}
+ */
+async function verificarCapacidadesPix() {
+    if (!isConfigured()) return { ok: false, pixHabilitado: false, erro: 'STRIPE_SECRET_KEY não configurada' };
+    try {
+        const s = await chamar('post', '/checkout/sessions', {
+            mode: 'payment',
+            success_url: 'https://stripe.com',
+            cancel_url: 'https://stripe.com',
+            line_items: [{
+                price_data: {
+                    currency: 'brl',
+                    unit_amount: 1500,
+                    product_data: { name: 'Verificação Pix' }
+                },
+                quantity: 1
+            }],
+            payment_method_types: ['card', 'pix']
+        });
+        if (s?.id) {
+            try { await chamar('post', `/checkout/sessions/${s.id}/expire`); } catch (_) {}
+        }
+        return { ok: true, pixHabilitado: true };
+    } catch (err) {
+        return { ok: true, pixHabilitado: false, erro: err.message };
+    }
+}
+
 module.exports = {
     isConfigured,
     webhookConfigurado,
@@ -265,5 +297,6 @@ module.exports = {
     criarCheckout,
     buscarSessao,
     verificarAssinatura,
+    verificarCapacidadesPix,
     chamar
 }

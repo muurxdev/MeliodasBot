@@ -4,6 +4,7 @@
  */
 
 const rentalService = require('../../services/rentalService')
+const rentalPackages = require('../../services/payments/rentalPackagesService')
 const { getOwnerRank } = require('../../services/ownerService')
 const { getBotName } = require('../../config/botConfig')
 const env = require('../../config/env')
@@ -23,42 +24,63 @@ module.exports = {
 
         // 0. TABELA DE PLANOS E PREÇOS (Livre para todos)
         if (sub === 'planos' || sub === 'tabela' || sub === 'valores' || sub === 'precos' || sub === 'preco') {
+            const pacotes = rentalPackages.getPacotes()
+            const formatBrl = c => (c / 100).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })
+
             let doc = `╔══════════════════════════════╗\n`
             doc += `║   💎 *TABELA DE PLANOS & PREÇOS*   ║\n`
             doc += `╚══════════════════════════════╝\n\n`
             doc += `Escolha a modalidade ideal para liberar os recursos do *${getBotName()}*:\n\n`
 
-            doc += `╭━〔 🏢 1. ALUGUEL DE GRUPO 〕━⬣\n`
-            doc += `┃ 🥉 *Semanal (7 Dias):* R$ 15,00\n`
-            doc += `┃ 🥈 *Quinzenal (15 Dias):* R$ 25,00\n`
-            doc += `┃ 🥇 *Mensal (30 Dias):* R$ 35,00\n`
-            doc += `┃ 💎 *Trimestral (90 Dias):* R$ 90,00\n`
-            doc += `┃ 🌟 *Anual (365 Dias):* R$ 280,00\n`
-            doc += `┃ ♾️ *Vitalício:* A combinar com os Donos\n`
-            doc += `╰━━━━━━━━━━━━━━━━━━⬣\n\n`
+            // 1. Grupos
+            const grupos = pacotes.filter(p => p.escopo === 'Grupo')
+            if (grupos.length > 0) {
+                doc += `╭━〔 🏢 1. ALUGUEL DE GRUPO 〕━⬣\n`
+                for (const p of grupos) {
+                    doc += `┃ \`${p.id}\` — *${p.nome} (${p.dias}d):* ${formatBrl(p.centavos)}\n`
+                }
+                doc += `┃ ♾️ *Vitalício:* A combinar com os Donos\n`
+                doc += `╰━━━━━━━━━━━━━━━━━━⬣\n\n`
+            }
 
-            doc += `╭━〔 👤 2. ALUGUEL DE PV (PRIVADO) 〕━⬣\n`
-            doc += `┃ 🥉 *Semanal (7 Dias):* R$ 10,00\n`
-            doc += `┃ 🥈 *Quinzenal (15 Dias):* R$ 15,00\n`
-            doc += `┃ 🥇 *Mensal (30 Dias):* R$ 20,00\n`
-            doc += `┃ 💎 *Trimestral (90 Dias):* R$ 50,00\n`
-            doc += `┃ 🌟 *Anual (365 Dias):* R$ 150,00\n`
-            doc += `┃ ♾️ *Vitalício:* A combinar com os Donos\n`
-            doc += `╰━━━━━━━━━━━━━━━━━━⬣\n\n`
+            // 2. PV
+            const pvs = pacotes.filter(p => p.escopo === 'PV')
+            if (pvs.length > 0) {
+                doc += `╭━〔 👤 2. ALUGUEL DE PV (PRIVADO) 〕━⬣\n`
+                for (const p of pvs) {
+                    doc += `┃ \`${p.id}\` — *${p.nome} (${p.dias}d):* ${formatBrl(p.centavos)}\n`
+                }
+                doc += `┃ ♾️ *Vitalício:* A combinar com os Donos\n`
+                doc += `╰━━━━━━━━━━━━━━━━━━⬣\n\n`
+            }
 
-            doc += `╭━〔 👑 3. COMBO (GRUPO + PV) 〕━⬣\n`
-            doc += `┃ 🥇 *Mensal (30 Dias):* R$ 45,00 _(Economize R$ 10)_\n`
-            doc += `┃ 💎 *Trimestral (90 Dias):* R$ 120,00 _(Economize R$ 20)_\n`
-            doc += `┃ 🌟 *Anual (365 Dias):* R$ 350,00 _(Super Desconto)_\n`
-            doc += `┃ ♾️ *Vitalício Combo:* A combinar com os Donos\n`
-            doc += `╰━━━━━━━━━━━━━━━━━━⬣\n\n`
+            // 3. Combo
+            const combos = pacotes.filter(p => p.escopo === 'Combo')
+            if (combos.length > 0) {
+                doc += `╭━〔 👑 3. COMBO (GRUPO + PV) 〕━⬣\n`
+                for (const p of combos) {
+                    doc += `┃ \`${p.id}\` — *${p.nome} (${p.dias}d):* ${formatBrl(p.centavos)}\n`
+                }
+                doc += `┃ ♾️ *Vitalício Combo:* A combinar com os Donos\n`
+                doc += `╰━━━━━━━━━━━━━━━━━━⬣\n\n`
+            }
 
             doc += `🎁 *Período de Teste Gratuito:*\n`
             doc += `┃ ⚡ Digite \`.aluguel teste\` para liberar *2 Horas Grátis*!\n\n`
 
             doc += `💳 *Como Contratar:*\n`
-            doc += `┃ 👉 Digite \`.assinar\` para gerar fatura online (Cartão/Pix)\n`
+            doc += `┃ 👉 Digite \`.assinar <código>\` para gerar link de pagamento (Cartão/Pix)\n`
             doc += `┃ 👉 Digite \`.dono\` para falar diretamente com os administradores`
+
+            if (isUserOwner) {
+                doc += `\n\n👑 *Gerenciamento de Planos & Stripe (Donos):*\n`
+                doc += `• \`.aluguel setpreco <id> <valor>\` (ex: \`.aluguel setpreco g2 39.90\`)\n`
+                doc += `• \`.aluguel addplano <id> <Grupo|PV> <dias> <valor> <Nome>\`\n`
+                doc += `• \`.aluguel addcombo <id> <dias> <valor> <Nome>\`\n`
+                doc += `• \`.aluguel delplano <id>\` (remove plano)\n`
+                doc += `• \`.aluguel resetplanos\` (restaura tabela padrão)\n`
+                doc += `• \`.aluguel syncstripe\` (sincroniza todos com a Stripe)`
+            }
 
             return reply(doc.trim())
         }
@@ -223,6 +245,161 @@ module.exports = {
         // Validação de Dono para comandos de escrita subsequentes
         if (!isUserOwner && sub !== 'status' && sub !== '') {
             return reply('❌ *Acesso Negado:* Esta função é de uso exclusivo dos Donos do bot.\n\n💡 *Dica:* Digite `.aluguel planos` para consultar a tabela de aluguéis.')
+        }
+
+        // 0.4 ALTERAR PREÇO E SINCRONIZAR NA STRIPE (.aluguel setpreco <id> <valor>)
+        if (sub === 'setpreco' || sub === 'setprice' || sub === 'alterarpreco' || sub === 'mudarpreco') {
+            const id = (args[1] || '').toLowerCase().trim()
+            const novoValor = args[2]
+
+            if (!id || !novoValor) {
+                return reply(
+                    '📌 *Como usar:* `.aluguel setpreco <id> <novo_valor>`\n\n' +
+                    '💡 *Exemplos:*\n' +
+                    '• `.aluguel setpreco g2 39.90` (Grupo Mensal)\n' +
+                    '• `.aluguel setpreco pv2 25` (PV Mensal)\n' +
+                    '• `.aluguel setpreco c1 49.90` (Combo Mensal)\n\n' +
+                    '👉 Digite `.aluguel planos` para consultar os códigos dos planos.'
+                )
+            }
+
+            try {
+                await reply('⏳ *Atualizando preço e sincronizando com a Stripe...*')
+                const res = await rentalPackages.setPreco(id, novoValor)
+                const p = res.pacote
+                const valorFormat = (p.centavos / 100).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })
+
+                let doc = `✅ *PREÇO ATUALIZADO COM SUCESSO!*\n\n`
+                doc += `📦 *Plano:* ${p.nome} (\`${p.id}\`)\n`
+                doc += `🏢 *Modalidade:* ${p.escopo}\n`
+                doc += `⏱️ *Duração:* ${p.dias} dias\n`
+                doc += `💰 *Novo Valor:* *${valorFormat}*\n\n`
+                if (res.stripeSync?.ok) {
+                    doc += `⚡ *Stripe Sync:* 🟢 Sincronizado em tempo real na Stripe!\n`
+                    doc += `🆔 *Price ID:* \`${res.stripeSync.stripePriceId}\``
+                } else {
+                    doc += `⚠️ *Stripe Sync:* Atualizado no bot, mas Stripe retornou: ${res.stripeSync?.motivo || 'Offline'}`
+                }
+                return reply(doc.trim())
+            } catch (err) {
+                return reply(`❌ *Erro ao alterar preço:* ${err.message}`)
+            }
+        }
+
+        // 0.5 ADICIONAR NOVO PLANO (.aluguel addplano <id> <Grupo|PV> <dias> <valor> <Nome>)
+        if (sub === 'addplano' || sub === 'criarplano' || sub === 'novoplano') {
+            const id = (args[1] || '').toLowerCase().trim()
+            const escopoRaw = (args[2] || '').toLowerCase().trim()
+            const dias = parseInt(args[3], 10)
+            const valor = args[4]
+            const nome = args.slice(5).join(' ').trim()
+
+            const escopoMap = { grupo: 'Grupo', group: 'Grupo', pv: 'PV', privado: 'PV', combo: 'Combo' }
+            const escopo = escopoMap[escopoRaw]
+
+            if (!id || !escopo || isNaN(dias) || !valor || !nome) {
+                return reply(
+                    '📌 *Como usar:* `.aluguel addplano <id> <Grupo|PV> <dias> <valor> <Nome>`\n\n' +
+                    '💡 *Exemplo:*\n' +
+                    '• `.aluguel addplano g5 Grupo 60 70.00 Grupo Bimestral (60 Dias)`\n' +
+                    '• `.aluguel addplano pv5 PV 60 40.00 PV Bimestral (60 Dias)`'
+                )
+            }
+
+            try {
+                await reply('⏳ *Cadastrando plano e sincronizando com a Stripe...*')
+                const res = await rentalPackages.addPlano({ id, escopo, nome, dias, valor })
+                const p = res.pacote
+                const valorFormat = (p.centavos / 100).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })
+
+                let doc = `🎉 *NOVO PLANO CRIADO COM SUCESSO!*\n\n`
+                doc += `📦 *Nome:* ${p.nome}\n`
+                doc += `🆔 *Código:* \`${p.id}\`\n`
+                doc += `🏢 *Modalidade:* ${p.escopo}\n`
+                doc += `⏱️ *Validade:* ${p.dias} dias\n`
+                doc += `💰 *Valor:* *${valorFormat}*\n\n`
+                if (res.stripeSync?.ok) {
+                    doc += `⚡ *Stripe Sync:* 🟢 Produto e Preço oficiais gerados na Stripe!\n`
+                    doc += `🆔 *Price ID:* \`${res.stripeSync.stripePriceId}\``
+                } else {
+                    doc += `⚠️ *Stripe Sync:* Salvo no bot, mas Stripe retornou: ${res.stripeSync?.motivo || 'Offline'}`
+                }
+                return reply(doc.trim())
+            } catch (err) {
+                return reply(`❌ *Erro ao criar plano:* ${err.message}`)
+            }
+        }
+
+        // 0.6 ADICIONAR NOVO COMBO (.aluguel addcombo <id> <dias> <valor> <Nome>)
+        if (sub === 'addcombo' || sub === 'criarcombo' || sub === 'novocombo') {
+            const id = (args[1] || '').toLowerCase().trim()
+            const dias = parseInt(args[2], 10)
+            const valor = args[3]
+            const nome = args.slice(4).join(' ').trim()
+
+            if (!id || isNaN(dias) || !valor || !nome) {
+                return reply(
+                    '📌 *Como usar:* `.aluguel addcombo <id> <dias> <valor> <Nome do Combo>`\n\n' +
+                    '💡 *Exemplo:*\n' +
+                    '• `.aluguel addcombo c4 60 85.00 Combo Bimestral (Grupo + PV)`\n' +
+                    '• `.aluguel addcombo c5 180 200.00 Combo Semestral (Grupo + PV)`'
+                )
+            }
+
+            try {
+                await reply('⏳ *Cadastrando combo e sincronizando com a Stripe...*')
+                const res = await rentalPackages.addPlano({ id, escopo: 'Combo', nome, dias, valor })
+                const p = res.pacote
+                const valorFormat = (p.centavos / 100).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })
+
+                let doc = `👑 *NOVO COMBO CRIADO COM SUCESSO!*\n\n`
+                doc += `📦 *Nome:* ${p.nome}\n`
+                doc += `🆔 *Código:* \`${p.id}\`\n`
+                doc += `👑 *Modalidade:* COMBO (Grupo + PV)\n`
+                doc += `⏱️ *Validade:* ${p.dias} dias\n`
+                doc += `💰 *Valor:* *${valorFormat}*\n\n`
+                if (res.stripeSync?.ok) {
+                    doc += `⚡ *Stripe Sync:* 🟢 Produto e Preço oficiais gerados na Stripe!\n`
+                    doc += `🆔 *Price ID:* \`${res.stripeSync.stripePriceId}\``
+                } else {
+                    doc += `⚠️ *Stripe Sync:* Salvo no bot, mas Stripe retornou: ${res.stripeSync?.motivo || 'Offline'}`
+                }
+                return reply(doc.trim())
+            } catch (err) {
+                return reply(`❌ *Erro ao criar combo:* ${err.message}`)
+            }
+        }
+
+        // 0.7 REMOVER PLANO OU COMBO (.aluguel delplano <id>)
+        if (sub === 'delplano' || sub === 'removerplano' || sub === 'excluirplano') {
+            const id = (args[1] || '').toLowerCase().trim()
+            if (!id) {
+                return reply('📌 *Como usar:* `.aluguel delplano <id>`\n_Exemplo:_ `.aluguel delplano g5`')
+            }
+            try {
+                rentalPackages.delPlano(id)
+                return reply(`🗑️ *PLANO REMOVIDO:*\n\nO plano com código \`${id}\` foi excluído do catálogo com sucesso.`)
+            } catch (err) {
+                return reply(`❌ *Erro:* ${err.message}`)
+            }
+        }
+
+        // 0.8 RESETAR PLANOS PARA O PADRÃO (.aluguel resetplanos)
+        if (sub === 'resetplanos' || sub === 'restaurarplanos') {
+            rentalPackages.resetPacotes()
+            return reply('🔄 *PLANOS RESTAURADOS:*\n\nA tabela de planos e combos foi restaurada para as configurações padrão de fábrica.')
+        }
+
+        // 0.9 FORÇAR SINCRONIZAÇÃO GERAL COM A STRIPE (.aluguel syncstripe)
+        if (sub === 'syncstripe' || sub === 'sincronizarstripe') {
+            await reply('⏳ *Sincronizando todos os planos com o catálogo da Stripe...*')
+            const res = await rentalPackages.sincronizarTodosComStripe()
+            let doc = `⚡ *SINCRONIZAÇÃO COM A STRIPE CONCLUÍDA*\n\n`
+            for (const r of res) {
+                const badge = r.ok ? '🟢' : '🔴'
+                doc += `${badge} \`${r.id}\` — *${r.nome}*: ${r.ok ? `Preço ID \`${r.stripePriceId}\`` : r.motivo}\n`
+            }
+            return reply(doc.trim())
         }
 
         // 1. LISTA DE TODOS OS ALUGUÉIS (.aluguel list / .aluguel lista)
