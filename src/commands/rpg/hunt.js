@@ -1,5 +1,5 @@
 const dataService = require('../../services/dataService')
-const { initializeUser } = require('../../services/xpService')
+const { initializeUser, aplicarBonusRebirthXp } = require('../../services/xpService')
 const { sortearLootMob } = require('../../services/rpgService')
 const { mundos } = require('../../utils/constants')
 const logger = require('../../core/logger')
@@ -28,7 +28,8 @@ module.exports = {
         const poderMonstro = Math.floor(monstro.hp / 20) + monstro.dano + Math.floor(Math.random() * 40)
 
         if (poderJogador >= poderMonstro) {
-            user.xp = (user.xp || 0) + monstro.xp
+            const xpGanho = aplicarBonusRebirthXp(user, monstro.xp)
+            user.xp = (user.xp || 0) + xpGanho
             user.coins = (user.coins || 0) + monstro.coins
             user.wins = (user.wins || 0) + 1
 
@@ -56,8 +57,9 @@ module.exports = {
             logger.info('[HUNT] User ' + sender + ' venceu ' + monstro.nome)
 
             let critText = combat.isCritico ? ' 💥 *ACERTO CRÍTICO!*' : (combat.isDobro ? ' ⚡ *DANO DUPLO!*' : '')
+            const rebTag = (user.rebirthCount || user.rebirth_count) ? ` _(+${(user.rebirthCount || user.rebirth_count) * 25}% Rebirth)_` : ''
 
-            return reply('🗺️ *CAÇADA — VITÓRIA!*' + critText + '\n\n🌍 *Mundo:* ' + mundoAtual.nome + '\n👤 @' + sender.split('@')[0] + ' *VS* ' + monstro.nome + '\n⚔️ *Dano Total:* ' + combat.danoFinal + '\n\n⭐ *+' + monstro.xp + ' XP*\n💰 *+' + monstro.coins + ' Coins*\n🎁 *Loot:* ' + (lootMob || 'Nenhum') +
+            return reply('🗺️ *CAÇADA — VITÓRIA!*' + critText + '\n\n🌍 *Mundo:* ' + mundoAtual.nome + '\n👤 @' + sender.split('@')[0] + ' *VS* ' + monstro.nome + '\n⚔️ *Dano Total:* ' + combat.danoFinal + '\n\n⭐ *+' + xpGanho.toLocaleString('pt-BR') + ' XP*' + rebTag + '\n💰 *+' + monstro.coins.toLocaleString('pt-BR') + ' Coins*\n🎁 *Loot:* ' + (lootMob || 'Nenhum') +
                 (equipDrop
                     ? '\n\n✨ *EQUIPAMENTO RARO ENCONTRADO!*\n' + equipDrop.raridade + ' *' + equipDrop.nome + '*' +
                       '\n⚔️ ATK +' + equipDrop.atk + ' | 🛡️ DEF +' + equipDrop.def + ' | ⚡ ' + equipDrop.cp + ' CP' +

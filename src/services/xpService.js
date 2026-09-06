@@ -58,6 +58,8 @@ function initializeUser(sender, xpData = {}, alternativeJids = []) {
         arenaAtual: 1,
         nicknameRpg: null,
         forgeLevel: 0,
+        dungeonFloor: 1,
+        dungeonRecorde: 0,
         slots: {
             capacete: null,
             peitoral: null,
@@ -190,6 +192,23 @@ function getXpTips(prefix = '.') {
     ]
 }
 
+/**
+ * Retorna o multiplicador de bônus perpétuo por Rebirth (+25% por grau de renascimento).
+ */
+function getRebirthMultiplier(user) {
+    const rebirths = Math.max(0, Number(user?.rebirthCount ?? user?.rebirth_count ?? 0));
+    return 1 + (rebirths * 0.25);
+}
+
+/**
+ * Aplica o bônus de Rebirth (+25% por Rebirth) sobre um valor de XP.
+ */
+function aplicarBonusRebirthXp(user, baseXp) {
+    if (!baseXp || baseXp <= 0) return 0;
+    const mult = getRebirthMultiplier(user);
+    return Math.floor(baseXp * mult);
+}
+
 module.exports = {
     initializeUser,
     getXpProgress,
@@ -198,5 +217,7 @@ module.exports = {
     processarLevelUp,
     barraXP,
     getCargo,
-    getRank
+    getRank,
+    getRebirthMultiplier,
+    aplicarBonusRebirthXp
 }

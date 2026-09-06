@@ -4,7 +4,7 @@ const { formatCoins, formatXP } = require('../../utils/uiEngine')
 const { getCargo, getRank } = require('../../utils/helpers')
 const logger = require('../../core/logger')
 const { achievementsCatalog } = require('../../services/achievementEngine')
-const { resolveHp } = require('../../services/characterEngine')
+const { resolveHp, calculateFullCharacterStats } = require('../../services/characterEngine')
 
 module.exports = {
     name: 'perfil',
@@ -60,9 +60,14 @@ module.exports = {
         doc += `┃ ${prog.barra} ${prog.percent}%\n`
         doc += `┃ 💰 *Coins:* ${user.coins.toLocaleString('pt-BR')}\n`
         doc += `┃ 💬 *Mensagens:* ${(user.messages || 0).toLocaleString('pt-BR')}\n`
+        const stats = calculateFullCharacterStats(user)
         const _hp = resolveHp(user)
-        doc += `┃ ❤️ *HP:* ${_hp.atual}/${_hp.max} ${_hp.barra}\n`
-        doc += `┃ ⚔️ *ATK:* ${user.atk || 10} | 🛡️ *DEF:* ${user.def || 5}\n`
+        doc += `┃ ❤️ *HP:* ${_hp.atual.toLocaleString('pt-BR')}/${_hp.max.toLocaleString('pt-BR')} ${_hp.barra}\n`
+        doc += `┃ ⚔️ *ATK:* ${stats.atk.toLocaleString('pt-BR')} | 🛡️ *DEF:* ${stats.def.toLocaleString('pt-BR')}\n`
+        doc += `┃ ⚡ *Poder (CP):* ${stats.cp.toLocaleString('pt-BR')} CP\n`
+        if (stats.rebirths > 0) {
+            doc += `┃ 🌀 *Rebirth:* ${stats.rebirths}º Renascimento (+${stats.rebirths * 25}% Dano & XP)\n`
+        }
         doc += `╰━━━━━━━━━━━━━━━━━━⬣\n\n`
 
         if (equippedBadge) {

@@ -67,6 +67,12 @@ module.exports = {
         const stats = calculateFullCharacterStats(user);
         const userLevel = Number(user.level || 1);
 
+        // Inicializa andar da masmorra do usuário
+        const defaultUnlockedFloor = userLevel <= 100
+            ? (BASE_DUNGEON_FLOORS.filter(f => userLevel >= f.minLevel).pop()?.andar || 1)
+            : (10 + Math.floor((userLevel - 100) / 10));
+        user.dungeonFloor = Math.max(1, Number(user.dungeonFloor || defaultUnlockedFloor));
+
         const sub = (args[0] || "").toLowerCase().trim();
 
         // 1. LISTA DE ANDARES / INFO
@@ -74,56 +80,58 @@ module.exports = {
             let doc = `╔══════════════════════════════╗\n`;
             doc += `║   🏰 *MASMORRA DE BRITANNIA — ANDARES* 🏰   \n`;
             doc += `╚══════════════════════════════╝\n\n`;
-            doc += `👤 *Guerreiro:* @${sender.split("@")[0]}  |  ⚡ *CP:* ${stats.cp.toLocaleString("pt-BR")} CP\n\n`;
+            doc += `👤 *Guerreiro:* @${sender.split("@")[0]}  |  ⚡ *CP:* ${stats.cp.toLocaleString("pt-BR")} CP\n`;
+            doc += `🚪 *Seu Andar Mais Alto Liberado:* **Andar ${user.dungeonFloor}**\n\n`;
 
             doc += `╭━〔 🏛️ ANDARES DA MASMORRA (INFINITOS) 〕━⬣\n`;
             BASE_DUNGEON_FLOORS.forEach(f => {
-                const canEnter = userLevel >= f.minLevel;
-                const icon = canEnter ? "🟢" : "🔒";
-                doc += `┃ ${icon} *Andar ${f.andar}:* ${f.nome}\n`;
+                const canEnter = f.andar <= user.dungeonFloor || userLevel >= f.minLevel;
+                const isBoss = (f.andar % 5 === 0);
+                const icon = canEnter ? (isBoss ? "👑" : "🟢") : "🔒";
+                const bossTag = isBoss ? " 🐲 *(CHEFE)*" : "";
+                doc += `┃ ${icon} *Andar ${f.andar}:* ${f.nome}${bossTag}\n`;
                 doc += `┃    📌 Requer Nível ${f.minLevel} (${f.reqCp.toLocaleString("pt-BR")} CP) | 💰 +${f.coins.toLocaleString("pt-BR")} Coins | ⭐ +${f.xp.toLocaleString("pt-BR")} XP\n`;
                 doc += `┃    🎁 Drop: ${f.drop}\n┃\n`;
             });
 
-            // Se o usuário já passou do nível 100, exibe os andares procedurais liberados
-            if (userLevel > 100) {
-                const maxFloor = 10 + Math.floor((userLevel - 100) / 10);
-                for (let fl = 11; fl <= Math.min(maxFloor + 1, 11 + 5); fl++) {
+            // Se o usuário já passou do nível 100 ou andar 10, exibe os andares procedurais liberados
+            const maxProcedural = Math.max(user.dungeonFloor, 10 + Math.floor((Math.max(100, userLevel) - 100) / 10));
+            if (maxProcedural > 10) {
+                for (let fl = 11; fl <= Math.min(maxProcedural + 2, 11 + 6); fl++) {
                     const f = getFloorData(fl);
-                    const canEnter = userLevel >= f.minLevel;
-                    const icon = canEnter ? "🟢" : "🔒";
-                    doc += `┃ ${icon} *Andar ${f.andar}:* ${f.nome}\n`;
+                    const canEnter = f.andar <= user.dungeonFloor || userLevel >= f.minLevel;
+                    const isBoss = (f.andar % 5 === 0);
+                    const icon = canEnter ? (isBoss ? "👑" : "🟢") : "🔒";
+                    const bossTag = isBoss ? " 🐲 *(CHEFE CÓSMICO)*" : "";
+                    doc += `┃ ${icon} *Andar ${f.andar}:* ${f.nome}${bossTag}\n`;
                     doc += `┃    📌 Requer Nível ${f.minLevel} (${f.reqCp.toLocaleString("pt-BR")} CP) | 💰 +${f.coins.toLocaleString("pt-BR")} Coins | ⭐ +${f.xp.toLocaleString("pt-BR")} XP\n`;
                     doc += `┃    🎁 Drop: ${f.drop}\n┃\n`;
                 }
             }
             doc += `╰━━━━━━━━━━━━━━━━━━⬣\n\n`;
-            doc += `♾️ _A masmorra possui andares infinitos! A cada 10 níveis acima do 100, novos andares e recompensas cósmicas são desbloqueados._\n\n`;
-            doc += `💡 _Para explorar seu andar mais avançado:_ \`.dungeon\`\n`;
-            doc += `💡 _Para explorar um andar específico:_ \`.dungeon <número>\` (Ex: \`.dungeon 1\`)\n`;
+            doc += `♾️ _A masmorra possui andares infinitos com chefes a cada 5 andares! Ao vencer, o próximo andar é desbloqueado imediatamente._\n\n`;
+            doc += `💡 _Para explorar seu andar atual liberado:_ \`.dungeon\`\n`;
+            doc += `💡 _Para repetir um andar ou farmar o Boss:_ \`.dungeon <número>\` (Ex: \`.dungeon 5\`)\n`;
             doc += `👑 *${botName}*`;
             return reply(doc.trim(), [sender]);
         }
 
-        // 2. ENTRAR NO ANDAR ESCOLHIDO OU MAIS ALTO DISPONÍVEL
+        // 2. ENTRAR NO ANDAR ESCOLHIDO OU NO ANDAR ATUAL LIBERADO
         let currentFloor;
         const requestedFloorNum = parseInt(sub, 10);
 
         if (!isNaN(requestedFloorNum) && requestedFloorNum >= 1) {
             const targetData = getFloorData(requestedFloorNum);
-            if (userLevel < targetData.minLevel) {
-                return reply(`🔒 *ANDAR BLOQUEADO!*\n\nO *Andar ${targetData.andar} (${targetData.nome})* exige Nível *${targetData.minLevel}* e CP recomendado de *${targetData.reqCp.toLocaleString("pt-BR")} CP*.\n(Seu Nível Atual: ${userLevel})`);
+            const canEnter = requestedFloorNum <= user.dungeonFloor || userLevel >= targetData.minLevel || stats.cp >= (targetData.reqCp * 0.8);
+            if (!canEnter) {
+                return reply(`🔒 *ANDAR BLOQUEADO!*\n\nO *Andar ${targetData.andar} (${targetData.nome})* ainda não foi liberado!\n\n📌 *Para Desbloquear:*\n• Conquiste o Andar ${targetData.andar - 1} com \`.dungeon ${targetData.andar - 1}\`\n• Ou atinja Nível *${targetData.minLevel}* (CP Recomendado: ${targetData.reqCp.toLocaleString("pt-BR")} CP)\n\n(Seu Nível: ${userLevel} | Seu Andar Atual Liberado: ${user.dungeonFloor})`);
             }
             currentFloor = targetData;
         } else {
-            if (userLevel <= 100) {
-                const availableFloors = BASE_DUNGEON_FLOORS.filter(f => userLevel >= f.minLevel);
-                currentFloor = availableFloors[availableFloors.length - 1] || BASE_DUNGEON_FLOORS[0];
-            } else {
-                const maxFloor = 10 + Math.floor((userLevel - 100) / 10);
-                currentFloor = getFloorData(maxFloor);
-            }
+            currentFloor = getFloorData(user.dungeonFloor || 1);
         }
+
+        const isBossFloor = (currentFloor.andar % 5 === 0);
 
         // Cálculo balanceado de vitória
         const winProbability = Math.min(95, Math.max(30, Math.floor((stats.cp / currentFloor.reqCp) * 65)));
@@ -131,23 +139,31 @@ module.exports = {
         const won = roll <= winProbability;
 
         if (!won) {
-            const hpLoss = Math.floor(stats.hpMax * 0.35);
+            const hpLoss = Math.floor(stats.hpMax * (isBossFloor ? 0.45 : 0.35));
             user.hp = Math.max(1, (user.hp || stats.hpMax) - hpLoss);
             await dataService.saveXpData(xpData);
 
             let failDoc = `╔══════════════════════════════╗\n`;
             failDoc += `║   ☠️ *DERROTADO NA MASMORRA!* ☠️   \n`;
             failDoc += `╚══════════════════════════════╝\n\n`;
-            failDoc += `🏰 *Andar:* Andar ${currentFloor.andar} — ${currentFloor.nome}\n`;
-            failDoc += `💥 *Resultado:* Você foi encurralado pelos monstros do calabouço!\n`;
-            failDoc += `💔 *Dano Sofrido:* -${hpLoss} HP (Seu HP: ${user.hp}/${stats.hpMax})\n\n`;
-            failDoc += `💡 _Aprimore suas armas no ferreiro (\`.forjar\`) e recupere a vida com \`.curar-max\` antes de tentar novamente._\n`;
+            failDoc += `🏰 *Andar:* Andar ${currentFloor.andar} — ${currentFloor.nome}${isBossFloor ? ' 🐲 *(CHEFE DO ANDAR)*' : ''}\n`;
+            failDoc += `💥 *Resultado:* ${isBossFloor ? 'O Chefe do calabouço esmagou suas defesas!' : 'Você foi encurralado pelos monstros do calabouço!'}\n`;
+            failDoc += `💔 *Dano Sofrido:* -${hpLoss.toLocaleString("pt-BR")} HP (Seu HP: ${user.hp}/${stats.hpMax})\n\n`;
+            failDoc += `💡 _Aprimore suas armas no ferreiro (\`.forjar\`), compre armaduras (\`.shoparmaduras\`) e cure-se com \`.curar-max\` antes de tentar novamente._\n`;
             failDoc += `👑 *${botName}*`;
             return reply(failDoc.trim(), [sender]);
         }
 
-        // VITÓRIA NO ANDAR
-        user.xp = (user.xp || 0) + currentFloor.xp;
+        // VITÓRIA NO ANDAR: Avança a progressão do jogador se venceu o andar atual
+        if (currentFloor.andar >= user.dungeonFloor) {
+            user.dungeonFloor = currentFloor.andar + 1;
+        }
+        user.dungeonRecorde = Math.max(user.dungeonRecorde || 0, currentFloor.andar);
+
+        // Aplica o bônus de 25% de XP por Rebirth
+        const { aplicarBonusRebirthXp } = require("../../services/xpService");
+        const xpGanho = aplicarBonusRebirthXp(user, currentFloor.xp);
+        user.xp = (user.xp || 0) + xpGanho;
         user.coins = (user.coins || 0) + currentFloor.coins;
 
         if (!Array.isArray(user.inventario)) user.inventario = [];
@@ -158,13 +174,13 @@ module.exports = {
             dropGanho = true;
         }
 
-        // Equipamento REAL do catálogo (o drop do andar acima é só um nome solto).
-        // 20% na masmorra — entre a caçada (8%) e o boss (35%).
+        // Equipamento REAL do catálogo (20% na masmorra, 40% em andar de Boss)
         let equipDrop = null;
         try {
             const { sortearEquipamentoDrop } = require('../../services/rpgEquipmentService');
-            if (user.inventario.length < limiteMochila && Math.random() < 0.20) {
-                equipDrop = sortearEquipamentoDrop((user.level || 1) + 5);
+            const equipChance = isBossFloor ? 0.40 : 0.20;
+            if (user.inventario.length < limiteMochila && Math.random() < equipChance) {
+                equipDrop = sortearEquipamentoDrop((user.level || 1) + (isBossFloor ? 10 : 5));
                 if (equipDrop) user.inventario.push({ ...equipDrop });
             }
         } catch (equipErr) {
@@ -177,10 +193,19 @@ module.exports = {
         winDoc += `║   🏆 *ANDAR DA MASMORRA CONQUISTADO!* 🏆   \n`;
         winDoc += `╚══════════════════════════════╝\n\n`;
         winDoc += `🏰 *Andar:* **Andar ${currentFloor.andar} — ${currentFloor.nome}**\n`;
-        winDoc += `👤 *Guerreiro:* @${sender.split("@")[0]}\n\n`;
+        winDoc += `👤 *Guerreiro:* @${sender.split("@")[0]}\n`;
+        if (isBossFloor) {
+            winDoc += `👑 *CHEFE ELIMINADO COM SUCESSO!* 🐲\n`;
+            winDoc += `🔓 *O Andar ${currentFloor.andar + 1} foi desbloqueado com glória!*\n`;
+            winDoc += `💡 _O Chefe deste andar retornou ao seu covil e pode ser enfrentado novamente com \`.dungeon ${currentFloor.andar}\` para farm de loots e equipamentos._\n`;
+        } else {
+            winDoc += `🚪 *Próximo Desafio:* Andar ${user.dungeonFloor} liberado!\n`;
+        }
+        winDoc += `\n`;
 
         winDoc += `╭━〔 🎁 RECOMPENSAS DO CALABOUÇO 〕━⬣\n`;
-        winDoc += `┃ ⭐ *XP Ganho:* +${currentFloor.xp.toLocaleString("pt-BR")} XP\n`;
+        const rebBadge = stats.rebirths > 0 ? ` _(+${stats.rebirths * 25}% Rebirth)_` : '';
+        winDoc += `┃ ⭐ *XP Ganho:* +${xpGanho.toLocaleString("pt-BR")} XP${rebBadge}\n`;
         winDoc += `┃ 💰 *Coins Coletados:* +${currentFloor.coins.toLocaleString("pt-BR")} Coins\n`;
         if (dropGanho) {
             winDoc += `┃ 🎁 *Drop Adquirido:* ${currentFloor.drop}\n`;
@@ -193,6 +218,7 @@ module.exports = {
             winDoc += `┃    💡 \`.equipar ${equipDrop.id}\`\n`;
         }
         winDoc += `╰━━━━━━━━━━━━━━━━━━⬣\n\n`;
+        winDoc += `💡 _Para avançar para o próximo andar liberado:_ \`.dungeon\`\n`;
         winDoc += `👑 *${botName}*`;
 
         return reply(winDoc.trim(), [sender]);

@@ -12,7 +12,7 @@
 
 const { renderCard, formatCoins, formatXP } = require("../../utils/uiEngine");
 const dataService = require("../../services/dataService");
-const { initializeUser, calcularXpNecessario } = require("../../services/xpService");
+const { initializeUser, calcularXpNecessario, aplicarBonusRebirthXp } = require("../../services/xpService");
 const { calculateCharacterStats, sortearEquipamentoDrop } = require("../../services/rpgEquipmentService");
 const logger = require("../../core/logger");
 
@@ -58,7 +58,8 @@ module.exports = {
         }
 
         const nivel = user.level || 1;
-        const xpGanho = Math.floor(calcularXpNecessario(nivel) * 0.06 * (1 + andar / 35)) + andar * 80;
+        const baseXp = Math.floor(calcularXpNecessario(nivel) * 0.06 * (1 + andar / 35)) + andar * 80;
+        const xpGanho = aplicarBonusRebirthXp(user, baseXp);
         const coinsGanho = Math.floor(andar * 300 + 600 + nivel * 30);
 
         user.xp = (user.xp || 0) + xpGanho;

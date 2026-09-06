@@ -15,7 +15,7 @@
  */
 
 const dataService = require("../../services/dataService");
-const { initializeUser, calcularXpNecessario } = require("../../services/xpService");
+const { initializeUser, calcularXpNecessario, aplicarBonusRebirthXp } = require("../../services/xpService");
 const { calculateCharacterStats, sortearEquipamentoDrop } = require("../../services/rpgEquipmentService");
 const { getBotName } = require("../../config/botConfig");
 const logger = require("../../core/logger");
@@ -53,7 +53,8 @@ module.exports = {
 
         const nivel = user.level || 1;
         // Escala com o NÍVEL (para não virar migalha no endgame) e com o ANDAR.
-        const xpReward = Math.floor(calcularXpNecessario(nivel) * 0.05 * (1 + andar / 40)) + andar * 60;
+        const xpBase = Math.floor(calcularXpNecessario(nivel) * 0.05 * (1 + andar / 40)) + andar * 60;
+        const xpReward = aplicarBonusRebirthXp(user, xpBase);
         const coinsReward = Math.floor(andar * 260 + 500 + nivel * 25);
 
         let doc = `╔══════════════════════════════╗\n`;

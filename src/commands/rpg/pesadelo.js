@@ -4,7 +4,7 @@
  */
 
 const dataService = require('../../services/dataService');
-const { initializeUser } = require('../../services/xpService');
+const { initializeUser, aplicarBonusRebirthXp } = require('../../services/xpService');
 const { calculateFullCharacterStats } = require('../../services/characterEngine');
 const { getBotName } = require('../../config/botConfig');
 
@@ -93,7 +93,8 @@ module.exports = {
         }
 
         // Vitória Épica 3x
-        user.xp = (user.xp || 0) + boss.xp;
+        const xpGanho = aplicarBonusRebirthXp(user, boss.xp);
+        user.xp = (user.xp || 0) + xpGanho;
         user.coins = (user.coins || 0) + boss.coins;
         if (!Array.isArray(user.inventario)) user.inventario = [];
         if (user.inventario.length < (user.mochila || 20)) {

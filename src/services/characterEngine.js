@@ -242,7 +242,7 @@ function calculateFullCharacterStats(user) {
  * Informações e regras de Rebirth
  */
 function getRebirthInfo(user) {
-    const rebirths = Math.max(0, Number(user.rebirthCount || user.rebirth_count || 0));
+    const rebirths = Math.max(0, Number(user.rebirthCount ?? user.rebirth_count ?? 0));
     const level = Number(user.level || 1);
     const requiredLevel = 100;
     const canRebirth = level >= requiredLevel;

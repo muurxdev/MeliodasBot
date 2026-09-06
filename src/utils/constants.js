@@ -190,6 +190,7 @@ const bosses = {
         nome: '🐦‍🔥 Fênix Criptografada',
         tipo: 'Celestial',
         vidaBase: 7000000,
+        danoBase: 8500,
         efeito: 'renascimento',
         loot: [
             { nome: '🐦‍🔥 Pluma de Fênix', chance: 25 },
@@ -201,11 +202,72 @@ const bosses = {
         nome: '⏳ Fênix Temporal Criptografada',
         tipo: 'Celestial Temporal',
         vidaBase: 12000000,
+        danoBase: 14000,
         efeito: 'distorção temporal',
         loot: [
             { nome: '⏳ Pluma Temporal', chance: 22 },
             { nome: '⌛ Areia Criptografada', chance: 8 },
             { nome: '🌌 Essência Temporal', chance: 2 }
+        ]
+    },
+    indura: {
+        nome: '🩸 Besta Indura do Purgatório',
+        tipo: 'Demônio Ancestral',
+        vidaBase: 25000000,
+        danoBase: 22000,
+        efeito: 'devoração demoníaca',
+        loot: [
+            { nome: '🩸 Sangue Puro de Indura', chance: 20 },
+            { nome: '🔥 Chifre de Fogo Negro', chance: 8 },
+            { nome: '👑 Coração da Besta Indura', chance: 2 }
+        ]
+    },
+    reidemonio: {
+        nome: '👑 Avatar do Rei Demônio',
+        tipo: 'Soberano do Purgatório',
+        vidaBase: 50000000,
+        danoBase: 45000,
+        efeito: 'inversão absoluta',
+        loot: [
+            { nome: '👑 Coroa do Rei Demônio', chance: 18 },
+            { nome: '🌑 Fragmento de Trevas Puras', chance: 7 },
+            { nome: '⚡ Mandamento da Morte', chance: 1 }
+        ]
+    },
+    supremadeusa: {
+        nome: '✨ Suprema Deusa Celestial',
+        tipo: 'Divindade Astral',
+        vidaBase: 100000000,
+        danoBase: 85000,
+        efeito: 'luz purificadora',
+        loot: [
+            { nome: '✨ Graça Divina Celestial', chance: 15 },
+            { nome: '🪽 Asa de Ouro Celestial', chance: 6 },
+            { nome: '🌟 Centelha da Imortalidade', chance: 1 }
+        ]
+    },
+    caosinfinito: {
+        nome: '🌌 Entidade do Caos Primordial',
+        tipo: 'Caos Infinito',
+        vidaBase: 250000000,
+        danoBase: 150000,
+        efeito: 'vórtice entrópico',
+        loot: [
+            { nome: '🌌 Fragmento do Caos Primordial', chance: 12 },
+            { nome: '🔮 Olho da Realidade Perdida', chance: 4 },
+            { nome: '🪐 Núcleo do Universo Inicial', chance: 1 }
+        ]
+    },
+    cronos: {
+        nome: '⏳ Cronos, Soberano do Espaço-Tempo',
+        tipo: 'Deus Primordial do Tempo',
+        vidaBase: 500000000,
+        danoBase: 280000,
+        efeito: 'dilatação quântica',
+        loot: [
+            { nome: '⌛ Ampulheta do Fim dos Tempos', chance: 10 },
+            { nome: '🌌 Relíquia da Onipotência', chance: 3 },
+            { nome: '♾️ Coroa da Eternidade Cósmica', chance: 1 }
         ]
     }
 }
@@ -562,6 +624,135 @@ const mundos = {
             }
         ],
         bosses: ['fenix', 'fenixtempo']
+    },
+    purgatorio: {
+        nome: '🔥 Purgatório Demoníaco',
+        minLevel: 150,
+        monstros: [
+            {
+                nome: '👹 Indura Selvagem',
+                hp: 120000,
+                dano: 1800,
+                xp: 6000,
+                coins: 8000,
+                loot: [
+                    { nome: '🩸 Sangue de Indura', chance: 30 },
+                    { nome: '🔥 Fragmento Purgatorial', chance: 12 },
+                    { nome: '💎 Coração Sombrio', chance: 2 }
+                ]
+            },
+            {
+                nome: '🔥 Demônio Carmesim Ancestral',
+                hp: 180000,
+                dano: 2400,
+                xp: 8500,
+                coins: 11000,
+                loot: [
+                    { nome: '🔥 Chamas do Purgatório', chance: 28 },
+                    { nome: '💀 Chifre Demoníaco', chance: 10 },
+                    { nome: '🌟 Cinza Imperial', chance: 2 }
+                ]
+            },
+            {
+                nome: '⚔️ Cavaleiro Negro de Belialuin',
+                hp: 250000,
+                dano: 3200,
+                xp: 12000,
+                coins: 15000,
+                loot: [
+                    { nome: '🗡️ Lâmina Sombria Antiga', chance: 25 },
+                    { nome: '🛡️ Placa do Rei Demônio', chance: 8 },
+                    { nome: '🌌 Fragmento de Belialuin', chance: 1 }
+                ]
+            }
+        ],
+        bosses: ['indura', 'reidemonio']
+    },
+    santuariocelestial: {
+        nome: '🪽 Santuário Celestial Supremo',
+        minLevel: 200,
+        monstros: [
+            {
+                nome: '🪽 Serafim de Seis Asas',
+                hp: 400000,
+                dano: 4500,
+                xp: 20000,
+                coins: 25000,
+                loot: [
+                    { nome: '🪽 Pluma Sagrada de Serafim', chance: 28 },
+                    { nome: '✨ Auréola Divina', chance: 10 },
+                    { nome: '💎 Lágrima Celestial', chance: 2 }
+                ]
+            },
+            {
+                nome: '👼 Arcanjo da Graça Divina',
+                hp: 650000,
+                dano: 6500,
+                xp: 32000,
+                coins: 40000,
+                loot: [
+                    { nome: '✨ Graça Divina Radiante', chance: 25 },
+                    { nome: '🔱 Lança Arcangélica', chance: 8 },
+                    { nome: '🌟 Relíquia da Suprema Deusa', chance: 1 }
+                ]
+            },
+            {
+                nome: '☀️ Guardião Solar Primordial',
+                hp: 900000,
+                dano: 8500,
+                xp: 45000,
+                coins: 55000,
+                loot: [
+                    { nome: '☀️ Centelha do Sol Supremo', chance: 22 },
+                    { nome: '🛡️ Escudo Radiante de Mael', chance: 7 },
+                    { nome: '🌌 Núcleo da Luz Imortal', chance: 1 }
+                ]
+            }
+        ],
+        bosses: ['supremadeusa']
+    },
+    caosprimordial: {
+        nome: '🌌 Fenda do Caos Primordial',
+        minLevel: 300,
+        monstros: [
+            {
+                nome: '🌌 Espectro do Vórtice Infinito',
+                hp: 1500000,
+                dano: 15000,
+                xp: 80000,
+                coins: 90000,
+                loot: [
+                    { nome: '🌌 Partícula do Vórtice', chance: 25 },
+                    { nome: '🔮 Prisma da Não-Existência', chance: 8 },
+                    { nome: '💎 Cristal da Singularidade', chance: 1 }
+                ]
+            },
+            {
+                nome: '🪐 Titã do Caos Cósmico',
+                hp: 3000000,
+                dano: 28000,
+                xp: 150000,
+                coins: 180000,
+                loot: [
+                    { nome: '🪐 Fragmento Planetário', chance: 22 },
+                    { nome: '👑 Coroa do Caos Infinito', chance: 6 },
+                    { nome: '🌟 Centelha Onipotente', chance: 1 }
+                ]
+            },
+            {
+                nome: '♾️ Devorador do Espaço-Tempo',
+                hp: 6000000,
+                dano: 45000,
+                xp: 300000,
+                coins: 350000,
+                loot: [
+                    { nome: '⏳ Fragmento Temporal Perdido', chance: 20 },
+                    { nome: '🌌 Tecido do Universo', chance: 5 },
+                    { nome: '♾️ Orbe do Criador Supremo', chance: 1 }
+                ]
+            }
+        ],
+        bosses: ['caosinfinito', 'cronos']
     }
 }
 

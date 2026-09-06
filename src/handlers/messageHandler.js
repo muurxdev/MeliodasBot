@@ -7,7 +7,7 @@ const { dispatch } = require('./commandDispatcher')
 const env = require('../config/env')
 const dataService = require('../services/dataService')
 const groupAuthService = require('../services/groupAuthService')
-const { initializeUser, processarLevelUp } = require('../services/xpService')
+const { initializeUser, processarLevelUp, aplicarBonusRebirthXp } = require('../services/xpService')
 const { getCargo } = require('../utils/helpers')
 const { formatCoins } = require('../utils/uiEngine')
 const { getDatabase } = require('../database/connection')
@@ -156,7 +156,8 @@ async function handleIncomingMessage(client, { messages }) {
             audioMessage: 8, videoMessage: 10, imageMessage: 5,
             stickerMessage: 4, documentMessage: 6
         }[type] || 0
-        const xpEarned = base + typeBonus
+        const rawXp = base + typeBonus
+        const xpEarned = aplicarBonusRebirthXp(user, rawXp)
         user.xp = (user.xp || 0) + xpEarned
         user.weeklyXp = (user.weeklyXp || 0) + xpEarned
         if (isGroup) {
