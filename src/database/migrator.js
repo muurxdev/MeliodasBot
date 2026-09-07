@@ -555,6 +555,75 @@ const migrations = [
                 CREATE INDEX IF NOT EXISTS idx_virtual_numbers_act ON virtual_numbers (activation_id);
             `);
         }
+    },
+    {
+        id: '019_split_levels_and_cleanup_unregistered',
+        description: 'Separação de níveis por escopo (level_group, level_pv, level_rpg), índices de ranking e saneamento de registros não criados via .login',
+        up: (db) => {
+            const cols = [
+                'level_group INTEGER DEFAULT 1',
+                'level_pv INTEGER DEFAULT 1',
+                'level_rpg INTEGER DEFAULT 1',
+                'xp_rpg INTEGER DEFAULT 0'
+            ];
+            for (const c of cols) {
+                try { db.exec(`ALTER TABLE users ADD COLUMN ${c};`); } catch (_) {}
+            }
+
+            // Cria índices para os rankings divididos e velozes
+            try {
+                db.exec(`
+                    CREATE INDEX IF NOT EXISTS idx_users_reg_group ON users (registered, level_group DESC, xp_group DESC);
+                    CREATE INDEX IF NOT EXISTS idx_users_reg_pv ON users (registered, level_pv DESC, xp_pv DESC);
+                    CREATE INDEX IF NOT EXISTS idx_users_reg_rpg ON users (registered, level_rpg DESC, xp_rpg DESC);
+                `);
+            } catch (_) {}
+
+            // SANEAMENTO ESTRITO:
+            // Remove a marcação de 'registered' de usuários que não criaram conta com .login (sem display_nick)
+            try {
+                db.exec(`
+                    UPDATE users
+                    SET registered = 0
+                    WHERE display_nick IS NULL OR trim(display_nick) = '';
+                `);
+            } catch (_) {}
+
+            // BACKFILL: calcula level_group, level_pv e level_rpg para usuários com XP acumulado
+            try {
+                const rows = db.prepare('SELECT jid, xp, level, xp_group, xp_pv, xp_rpg FROM users').all();
+                const calcLevel = (totalXp) => {
+                    let xpRest = Math.max(0, Math.floor(Number(totalXp) || 0));
+                    let lvl = 1;
+                    let req = Math.floor(100 * Math.pow(lvl, 1.5));
+                    while (xpRest >= req && lvl < 5000) {
+                        xpRest -= req;
+                        lvl++;
+                        req = Math.floor(100 * Math.pow(lvl, 1.5));
+                    }
+                    return lvl;
+                };
+
+                const updateStmt = db.prepare(`
+                    UPDATE users
+                    SET level_group = ?,
+                        level_pv = ?,
+                        level_rpg = ?,
+                        xp_rpg = ?
+                    WHERE jid = ?
+                `);
+
+                for (const r of rows) {
+                    const lGroup = calcLevel(r.xp_group || 0);
+                    const lPv = calcLevel(r.xp_pv || 0);
+                    const curXpRpg = (r.xp_rpg && r.xp_rpg > 0) ? r.xp_rpg : (r.xp || 0);
+                    const lRpg = Math.max(r.level || 1, calcLevel(curXpRpg));
+                    updateStmt.run(lGroup, lPv, lRpg, curXpRpg, r.jid);
+                }
+            } catch (err) {
+                logger.warn('[MIGRATION 019] Aviso no backfill de níveis:', err.message);
+            }
+        }
     }
 ]
 

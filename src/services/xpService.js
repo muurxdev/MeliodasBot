@@ -112,6 +112,28 @@ function calcularXpNecessario(level) {
 }
 
 /**
+ * Calcula o nível exato alcançado dado um montante total de XP acumulado no escopo (Grupo, PV ou RPG)
+ * @param {number} totalXp 
+ * @returns {{ level: number, xpNoNivel: number, xpNecessario: number, percent: number }}
+ */
+function calcularLevelDeXpTotal(totalXp) {
+    let xpRestante = Math.max(0, Math.floor(Number(totalXp) || 0));
+    let lvl = 1;
+    let req = calcularXpNecessario(lvl);
+    while (xpRestante >= req && lvl < 5000) {
+        xpRestante -= req;
+        lvl++;
+        req = calcularXpNecessario(lvl);
+    }
+    return {
+        level: lvl,
+        xpNoNivel: xpRestante,
+        xpNecessario: req,
+        percent: Math.min(100, Math.floor((xpRestante / req) * 100))
+    };
+}
+
+/**
  * Processa a subida de nível e concede marcos de evolução (HP, Coins, Conquistas)
  * @param {object} user - Perfil do usuário
  * @param {object} [options] - Opções de controle
@@ -223,12 +245,23 @@ function adicionarXp(user, rawAmount, options = {}) {
 
     if (source === 'group') {
         user.xpGroup = (user.xpGroup || 0) + xpGanho;
+        user.xp_group = user.xpGroup;
+        const progressGroup = calcularLevelDeXpTotal(user.xpGroup);
+        user.levelGroup = Math.max(user.levelGroup || 1, progressGroup.level);
+        user.level_group = user.levelGroup;
     } else if (source === 'pv') {
         user.xpPv = (user.xpPv || 0) + xpGanho;
+        user.xp_pv = user.xpPv;
+        const progressPv = calcularLevelDeXpTotal(user.xpPv);
+        user.levelPv = Math.max(user.levelPv || 1, progressPv.level);
+        user.level_pv = user.levelPv;
     } else {
         // Atividades ativas de RPG (hunt, dungeon, boss, missões, etc.)
         user.xpRpg = (user.xpRpg || 0) + xpGanho;
         user.xp_rpg = user.xpRpg;
+        const progressRpg = calcularLevelDeXpTotal(user.xpRpg);
+        user.levelRpg = Math.max(user.levelRpg || user.level || 1, progressRpg.level);
+        user.level_rpg = user.levelRpg;
     }
 
     const lvlRes = processarLevelUp(user, { maxLevels });
@@ -298,6 +331,7 @@ module.exports = {
     getXpTips,
     getMissoesRecomendadas,
     calcularXpNecessario,
+    calcularLevelDeXpTotal,
     processarLevelUp,
     adicionarXp,
     barraXP,

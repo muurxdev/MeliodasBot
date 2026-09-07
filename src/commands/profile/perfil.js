@@ -26,6 +26,20 @@ module.exports = {
         const xpData = dataService.getXpData()
         const user = initializeUser(alvo, xpData, candidateJids)
 
+        if (!user.registered || !user.displayNick) {
+            const isMe = (alvo === sender || alvo === senderReal);
+            let msg = `⚠️ *Perfil Não Registrado*\n\n`;
+            if (isMe) {
+                msg += `👋 Olá! Você ainda não criou sua conta no *${botName}*.\n\n`;
+                msg += `📝 Para criar seu perfil oficial e participar dos rankings:\n`;
+                msg += `👉 \`${prefix}login <seu nick>\`\n\n`;
+                msg += `💡 _Exemplo:_ \`${prefix}login Meliodas\``;
+            } else {
+                msg += `O usuário @${alvo.split('@')[0]} ainda não criou conta oficial no bot com \`${prefix}login <nick>\`.`;
+            }
+            return reply(msg, [alvo]);
+        }
+
         const level = Number(user.level || 1)
         const xpAtual = Number(user.xp || 0)
         const prog = getXpProgress(user)
@@ -81,9 +95,9 @@ module.exports = {
             doc += `🏷️ *Guerreiro / Nick:* ${nomeRegistrado}\n`
         }
 
-        doc += `\n╭━〔 ⚔️ STATUS & ATRIBUTOS RPG 〕━⬣\n`
-        doc += `┃ 📈 *Nível:* ${level} | 🏆 *Rank:* ${rank}\n`
-        doc += `┃ 🎖️ *Patente:* ${cargo}\n`
+        doc += `\n╭━〔 ⚔️ STATUS & NÍVEIS INDEPENDENTES 〕━⬣\n`
+        doc += `┃ 📈 *Níveis:* 👥 Grupo: Nv. ${user.levelGroup || user.level_group || 1} | 💬 PV: Nv. ${user.levelPv || user.level_pv || 1} | ⚔️ RPG: Nv. ${user.levelRpg || user.level_rpg || level}\n`
+        doc += `┃ 🎖️ *Patente:* ${cargo} | 🏆 *Rank:* ${rank}\n`
         doc += `┃ ⚡ *Poder Total (CP):* ${stats.cp.toLocaleString('pt-BR')} CP\n`
         doc += `┃ ❤️ *HP:* ${_hp.atual.toLocaleString('pt-BR')} / ${_hp.max.toLocaleString('pt-BR')} ${_hp.barra}\n`
         doc += `┃ ⚔️ *ATK Total:* ${stats.atk.toLocaleString('pt-BR')} | 🛡️ *DEF:* ${stats.def.toLocaleString('pt-BR')}\n`

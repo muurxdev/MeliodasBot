@@ -98,6 +98,31 @@ module.exports = {
             }))
         }
 
+        // .skycode cadastros / membros / rank
+        if (sub === 'cadastros' || sub === 'membros' || sub === 'rank') {
+            const dataService = require('../../services/dataService')
+            const topSky = dataService.userRepo.getTopSkycode ? dataService.userRepo.getTopSkycode(10) : []
+            const regCount = dataService.userRepo.getRegisteredCount ? dataService.userRepo.getRegisteredCount() : 0
+
+            let doc = `╔════════════════════════════════════╗\n`
+            doc += `║   🛰️ *SKYCODE CADASTROS AUDITADOS* ║\n`
+            doc += `╚════════════════════════════════════╝\n\n`
+            doc += `🔒 *Membros com Login Real Registrado:* ${regCount}\n`
+            doc += `_Usuários sem .login não são contabilizados no protocolo._\n\n`
+
+            if (topSky.length === 0) {
+                doc += `⚠️ _Nenhum usuário cadastrado no sistema ainda._\n`
+            } else {
+                topSky.forEach(([jid, u], i) => {
+                    const nick = u.displayNick || u.display_nick || u.name || `@${jid.split('@')[0]}`
+                    doc += `*#${i + 1}* ${nick} (@${jid.split('@')[0]})\n`
+                    doc += `📊 Nv. Grupo ${u.levelGroup || u.level_group || 1} · PV ${u.levelPv || u.level_pv || 1} · RPG ${u.levelRpg || u.level_rpg || 1}\n\n`
+                })
+            }
+            doc += `💡 _Ver ranking completo:_ \`${prefix}rank skycode\``
+            return reply(doc.trim())
+        }
+
         // Painel: lista os comandos do grupo, por área, com estado ON/OFF do ambiente
         const porModulo = {}
         for (const cmd of dispatcher.getCommands().values()) {
@@ -126,9 +151,21 @@ module.exports = {
             ]
         })
 
+        const dataService = require('../../services/dataService')
+        const totalCadastrados = dataService.userRepo.getRegisteredCount ? dataService.userRepo.getRegisteredCount() : 0
+
+        sections.push({
+            title: 'Cadastros & Auditoria Skycode', icon: '🛡️', lines: [
+                `*Membros Registrados:* ${totalCadastrados} verificados`,
+                `\`${prefix}rank skycode\` — ranking de membros cadastrados`,
+                `\`${prefix}skycode cadastros\` — lista de identidades reais`,
+                '_Regra: Apenas contas com `.login` entram na contagem._'
+            ]
+        })
+
         return reply(ui.screen({
             title: '🛰️ *PAINEL SKYCODE* 🛰️',
-            intro: `👑 *${getBotName()}* — painel do grupo (só Dono)\n📍 *Ambiente:* ${scope === moduleState.PV_SCOPE ? '💬 Privado' : `👥 \`${scope}\``}\n_Só o que potencializa o grupo. RPG, cassino e jogos ficam fora daqui._`,
+            intro: `👑 *${getBotName()}* — painel do grupo (só Dono)\n📍 *Ambiente:* ${scope === moduleState.PV_SCOPE ? '💬 Privado' : `👥 \`${scope}\``}\n_Só o que potencializa o grupo. Apenas membros cadastrados são contabilizados._`,
             sections,
             hint: `_Liberar tudo aqui:_ \`${prefix}modulo on all\` · _Ver módulos:_ \`${prefix}modulo\``
         }))

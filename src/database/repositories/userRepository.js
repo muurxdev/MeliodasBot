@@ -156,6 +156,14 @@ function rowToUser(row) {
         coins_pv: Number(row.coins_pv || 0),
         coinsGroup: Number(row.coins_group || 0),
         coins_group: Number(row.coins_group || 0),
+        levelGroup: Math.max(1, Number(row.level_group || 1)),
+        level_group: Math.max(1, Number(row.level_group || 1)),
+        levelPv: Math.max(1, Number(row.level_pv || 1)),
+        level_pv: Math.max(1, Number(row.level_pv || 1)),
+        levelRpg: Math.max(1, Number(row.level_rpg || row.level || 1)),
+        level_rpg: Math.max(1, Number(row.level_rpg || row.level || 1)),
+        xpRpg: Math.max(0, Number(row.xp_rpg || row.xp || 0)),
+        xp_rpg: Math.max(0, Number(row.xp_rpg || row.xp || 0)),
         // Perfil de login (Fase B)
         registered: !!row.registered,
         displayNick: row.display_nick || null,
@@ -328,6 +336,10 @@ const COLUMNS = [
     { name: 'group_farm_count',  val: u => u.groupFarmCount ?? u.group_farm_count ?? 0,         set: 'direct' },
     { name: 'coins_pv',          val: u => u.coinsPv ?? u.coins_pv ?? 0,                        set: 'direct' },
     { name: 'coins_group',       val: u => u.coinsGroup ?? u.coins_group ?? 0,                  set: 'direct' },
+    { name: 'level_group',       val: u => u.levelGroup ?? u.level_group ?? 1,                  set: 'max' },
+    { name: 'level_pv',          val: u => u.levelPv ?? u.level_pv ?? 1,                        set: 'max' },
+    { name: 'level_rpg',         val: u => u.levelRpg ?? u.level_rpg ?? u.level ?? 1,           set: 'max' },
+    { name: 'xp_rpg',            val: u => u.xpRpg ?? u.xp_rpg ?? u.xp ?? 0,                    set: 'direct' },
     // Perfil de login (Fase B)
     { name: 'registered',        val: u => (u.registered ? 1 : 0),                              set: 'max' },
     { name: 'display_nick',      val: u => u.displayNick ?? u.display_nick ?? null,             set: 'direct' },
@@ -443,28 +455,53 @@ function incrementCommandCount(jid, isGroup) {
 }
 
 function getTopRank(limit = 10) {
-    const rows = q('SELECT * FROM users ORDER BY level DESC, xp DESC LIMIT ?').all(limit)
+    const rows = q("SELECT * FROM users WHERE registered = 1 AND display_nick IS NOT NULL AND trim(display_nick) != '' ORDER BY level DESC, xp DESC LIMIT ?").all(limit)
     return rows.map(r => [r.jid, rowToUser(r)])
 }
 
 function getTopCoins(limit = 10) {
-    const rows = q('SELECT * FROM users ORDER BY coins DESC LIMIT ?').all(limit)
+    const rows = q("SELECT * FROM users WHERE registered = 1 AND display_nick IS NOT NULL AND trim(display_nick) != '' ORDER BY coins DESC LIMIT ?").all(limit)
     return rows.map(r => [r.jid, rowToUser(r)])
 }
 
 function getTopWeekly(limit = 10) {
-    const rows = q('SELECT * FROM users ORDER BY weekly_xp DESC LIMIT ?').all(limit)
+    const rows = q("SELECT * FROM users WHERE registered = 1 AND display_nick IS NOT NULL AND trim(display_nick) != '' ORDER BY weekly_xp DESC LIMIT ?").all(limit)
     return rows.map(r => [r.jid, rowToUser(r)])
 }
 
 function getTopArena(limit = 10) {
-    const rows = q('SELECT * FROM users ORDER BY arena_pontos DESC LIMIT ?').all(limit)
+    const rows = q("SELECT * FROM users WHERE registered = 1 AND display_nick IS NOT NULL AND trim(display_nick) != '' ORDER BY arena_pontos DESC LIMIT ?").all(limit)
     return rows.map(r => [r.jid, rowToUser(r)])
 }
 
 function getTopXp(limit = 10) {
-    const rows = q('SELECT * FROM users ORDER BY xp DESC LIMIT ?').all(limit)
+    const rows = q("SELECT * FROM users WHERE registered = 1 AND display_nick IS NOT NULL AND trim(display_nick) != '' ORDER BY xp DESC LIMIT ?").all(limit)
     return rows.map(r => [r.jid, rowToUser(r)])
+}
+
+function getTopGroup(limit = 10) {
+    const rows = q("SELECT * FROM users WHERE registered = 1 AND display_nick IS NOT NULL AND trim(display_nick) != '' ORDER BY level_group DESC, xp_group DESC, messages DESC LIMIT ?").all(limit)
+    return rows.map(r => [r.jid, rowToUser(r)])
+}
+
+function getTopPv(limit = 10) {
+    const rows = q("SELECT * FROM users WHERE registered = 1 AND display_nick IS NOT NULL AND trim(display_nick) != '' ORDER BY level_pv DESC, xp_pv DESC, commands_pv DESC LIMIT ?").all(limit)
+    return rows.map(r => [r.jid, rowToUser(r)])
+}
+
+function getTopRpg(limit = 10) {
+    const rows = q("SELECT * FROM users WHERE registered = 1 AND display_nick IS NOT NULL AND trim(display_nick) != '' AND (rpg_enabled = 1 OR rpg_enabled IS NULL) ORDER BY level_rpg DESC, xp_rpg DESC, bosses_mortos DESC, wins DESC LIMIT ?").all(limit)
+    return rows.map(r => [r.jid, rowToUser(r)])
+}
+
+function getTopSkycode(limit = 10) {
+    const rows = q("SELECT * FROM users WHERE registered = 1 AND display_nick IS NOT NULL AND trim(display_nick) != '' ORDER BY created_at ASC, (messages + COALESCE(commands_group, 0) + COALESCE(commands_pv, 0)) DESC LIMIT ?").all(limit)
+    return rows.map(r => [r.jid, rowToUser(r)])
+}
+
+function getRegisteredCount() {
+    const row = q("SELECT count(*) as total FROM users WHERE registered = 1 AND display_nick IS NOT NULL AND trim(display_nick) != ''").get()
+    return row?.total || 0
 }
 
 module.exports = {
@@ -479,5 +516,10 @@ module.exports = {
     getTopWeekly,
     getTopArena,
     getTopXp,
+    getTopGroup,
+    getTopPv,
+    getTopRpg,
+    getTopSkycode,
+    getRegisteredCount,
     rowToUser
 }

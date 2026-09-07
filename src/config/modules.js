@@ -27,7 +27,8 @@ const MODULES = [
     { key: 'livros',          emoji: '📚',  label: 'Livros & Materiais' },
     { key: 'perfil',          emoji: '🏆',  label: 'Perfil & Ranking' },
     { key: 'skycode',         emoji: '🛰️',  label: 'Painel Skycode' },
-    { key: 'owner',           emoji: '👑',  label: 'Dono & Bot' }
+    { key: 'owner',           emoji: '👑',  label: 'Dono & Bot' },
+    { key: 'adicional',       emoji: '⚡',  label: 'Comandos Adicionais & Especiais' }
 ]
 
 const BY_KEY = {}
@@ -107,6 +108,8 @@ function resolveModuleKey(cmd) {
             return 'perfil'
         case 'owner':
             return 'owner'
+        case 'adicional':
+            return 'adicional'
         default:
             return 'utilidades'
     }

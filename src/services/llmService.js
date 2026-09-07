@@ -24,14 +24,16 @@ const TIMEOUT_LOCAL_MS = 75000
 
 function _cfg() {
     return {
-        // Ollama LOCAL (open source, sem chave, sem custo). Tem prioridade quando
-        // configurado: roda no próprio servidor, então não gasta cota de nada.
+        // Ollama LOCAL (open source, sem chave, sem custo).
         ollamaUrl: (process.env.OLLAMA_URL || '').trim().replace(/\/$/, ''),
         ollamaModel: (process.env.OLLAMA_MODEL || 'qwen2.5:3b').trim(),
         groqKey: (process.env.GROQ_API_KEY || '').trim(),
         groqModel: (process.env.GROQ_MODEL || 'llama-3.3-70b-versatile').trim(),
         geminiKey: (process.env.GEMINI_API_KEY || '').trim(),
         geminiModel: (process.env.GEMINI_MODEL || 'gemini-2.0-flash').trim(),
+        geminiSearchGrounding: String(process.env.GEMINI_SEARCH_GROUNDING || 'true').toLowerCase() === 'true',
+        perplexityKey: (process.env.PERPLEXITY_API_KEY || '').trim(),
+        perplexityModel: (process.env.PERPLEXITY_MODEL || 'sonar').trim(),
         cfAccount: (process.env.CLOUDFLARE_ACCOUNT_ID || '').trim(),
         cfToken: (process.env.CLOUDFLARE_API_TOKEN || '').trim(),
         cfModel: (process.env.CLOUDFLARE_AI_MODEL || '@cf/meta/llama-3.1-8b-instruct').trim()
@@ -41,17 +43,18 @@ function _cfg() {
 /** @returns {boolean} há algum provedor configurado? */
 function hasProvider() {
     const c = _cfg()
-    return Boolean(c.ollamaUrl || c.groqKey || c.geminiKey || (c.cfAccount && c.cfToken))
+    return Boolean(c.geminiKey || c.perplexityKey || c.groqKey || c.ollamaUrl || (c.cfAccount && c.cfToken))
 }
 
 /** @returns {string[]} nomes dos provedores ativos (para diagnóstico). */
 function providersAtivos() {
     const c = _cfg()
     const l = []
-    if (c.ollamaUrl) l.push('Ollama local (' + c.ollamaModel + ')')
-    if (c.groqKey) l.push('Groq (' + c.groqModel + ')')
     if (c.geminiKey) l.push('Gemini (' + c.geminiModel + ')')
+    if (c.perplexityKey) l.push('Perplexity (' + c.perplexityModel + ')')
+    if (c.groqKey) l.push('Groq (' + c.groqModel + ')')
     if (c.cfAccount && c.cfToken) l.push('Cloudflare (' + c.cfModel + ')')
+    if (c.ollamaUrl) l.push('Ollama local (' + c.ollamaModel + ')')
     return l
 }
 
@@ -105,17 +108,52 @@ async function _groq(prompt, system, c) {
 
 async function _gemini(prompt, system, c) {
     const url = `https://generativelanguage.googleapis.com/v1beta/models/${encodeURIComponent(c.geminiModel)}:generateContent?key=${encodeURIComponent(c.geminiKey)}`
-    const json = await _fetchJson(url, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-            systemInstruction: { parts: [{ text: system }] },
-            contents: [{ role: 'user', parts: [{ text: prompt }] }],
-            generationConfig: { temperature: 0.4, maxOutputTokens: 900 }
+    const payload = {
+        systemInstruction: { parts: [{ text: system }] },
+        contents: [{ role: 'user', parts: [{ text: prompt }] }],
+        generationConfig: { temperature: 0.3, maxOutputTokens: 900 }
+    }
+    if (c.geminiSearchGrounding) {
+        payload.tools = [{ googleSearch: {} }]
+    }
+
+    let json
+    try {
+        json = await _fetchJson(url, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(payload)
         })
-    })
+    } catch (err) {
+        // Se a API rejeitar o grounding de busca (ex: modelo específico), refaz sem a ferramenta
+        if (payload.tools) {
+            delete payload.tools
+            json = await _fetchJson(url, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(payload)
+            })
+        } else {
+            throw err
+        }
+    }
+
     const partes = json?.candidates?.[0]?.content?.parts
     return Array.isArray(partes) ? partes.map(p => p.text || '').join('').trim() || null : null
+}
+
+async function _perplexity(prompt, system, c) {
+    const json = await _fetchJson('https://api.perplexity.ai/chat/completions', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${c.perplexityKey}` },
+        body: JSON.stringify({
+            model: c.perplexityModel,
+            messages: [{ role: 'system', content: system }, { role: 'user', content: prompt }],
+            temperature: 0.2,
+            max_tokens: 900
+        })
+    })
+    return json?.choices?.[0]?.message?.content?.trim() || null
 }
 
 async function _cloudflare(prompt, system, c) {
@@ -150,15 +188,15 @@ async function ask(prompt, opts = {}) {
 
     const local = []
     const nuvem = []
-    if (c.ollamaUrl) local.push(['Ollama', () => _ollama(texto, system, c)])
-    if (c.groqKey) nuvem.push(['Groq', () => _groq(texto, system, c)])
     if (c.geminiKey) nuvem.push(['Gemini', () => _gemini(texto, system, c)])
+    if (c.perplexityKey) nuvem.push(['Perplexity', () => _perplexity(texto, system, c)])
+    if (c.groqKey) nuvem.push(['Groq', () => _groq(texto, system, c)])
     if (c.cfAccount && c.cfToken) nuvem.push(['Cloudflare', () => _cloudflare(texto, system, c)])
+    if (c.ollamaUrl) local.push(['Ollama', () => _ollama(texto, system, c)])
 
-    // Padrão: LOCAL primeiro (open source, sem cota, sem depender de ninguém).
-    // LLM_PREFER_CLOUD=true inverte, para quando quiser velocidade e já tiver
-    // uma chave gratuita configurada — a nuvem responde em ~1s contra ~20s do local.
-    const preferirNuvem = String(process.env.LLM_PREFER_CLOUD || '').toLowerCase() === 'true'
+    // Padrão: Nuvem primeiro para latência ultra-rápida (~1s vs ~25s do CPU na VPS).
+    // Para priorizar Ollama local: defina LLM_PREFER_CLOUD=false no .env.
+    const preferirNuvem = String(process.env.LLM_PREFER_CLOUD || 'true').toLowerCase() !== 'false'
     const cadeia = preferirNuvem ? [...nuvem, ...local] : [...local, ...nuvem]
     if (!cadeia.length) return null
 

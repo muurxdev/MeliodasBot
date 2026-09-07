@@ -83,6 +83,21 @@ module.exports = {
             if (user.jid) targetCandidateJids.push(user.jid);
             if (user.lid) targetCandidateJids.push(user.lid);
 
+            // Perfil oficial: exige registro real com .login
+            if (!user.registered || !user.displayNick) {
+                const isMe = (targetJid === sender || targetJid === senderReal);
+                let msg = `⚠️ *Perfil Não Registrado*\n\n`;
+                if (isMe) {
+                    msg += `👋 Você ainda não criou sua conta oficial no *${getBotName()}*.\n\n`;
+                    msg += `📝 Para criar seu perfil e registrar seus dados:\n`;
+                    msg += `👉 \`.login <seu nick>\`\n\n`;
+                    msg += `💡 _Exemplo:_ \`.login Dragão Negro\``;
+                } else {
+                    msg += `O usuário @${targetJid.split('@')[0]} ainda não criou uma conta oficial no bot via \`.login <nick>\`.`;
+                }
+                return reply(msg, [targetJid]);
+            }
+
             // Alocação de farm para registros históricos
             if ((user.messagesGroup === 0 && user.messagesPv === 0) && (user.messages || 0) > 0) {
                 user.messagesGroup = user.messages;
@@ -257,6 +272,7 @@ module.exports = {
             doc += "╰━━━━━━━━━━━━━━━━━━⬣\n\n";
 
             doc += "╭━〔 ⚔️ CARREIRA RPG & AVENTURA 〕━⬣\n";
+            doc += "┃ 📊 *Níveis:* 👥 Grupo: Nv. " + (user.levelGroup || user.level_group || 1) + " | 💬 PV: Nv. " + (user.levelPv || user.level_pv || 1) + " | ⚔️ RPG: Nv. " + (user.levelRpg || user.level_rpg || user.level || 1) + "\n";
             doc += "┃ 📈 *Nível:* " + (user.level || 1) + "  " + barra + " (" + progressoPercent + "%)\n";
             doc += "┃ ⭐ *XP Atual:* " + currentXp.toLocaleString('pt-BR') + " / " + maxXp.toLocaleString('pt-BR') + " XP\n";
             doc += "┃ 🏆 *Rank Global:* " + rankPosition + "\n";

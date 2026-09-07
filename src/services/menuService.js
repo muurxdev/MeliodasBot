@@ -196,12 +196,9 @@ function buildMenu({ category = null, page = 1, prefix = '.', userLevel = 1, bot
         doc2 += `┃ 🌟 \`${prefix}menu all\` ➔ Catálogo Completo (${totalVisivel} cmds)\n`
         doc2 += `╰━━━━━━━━━━━━━━━━━━⬣\n\n`
         doc2 += `╭━〔 ℹ️ ATALHOS RÁPIDOS 〕━⬣\n`
-        doc2 += `┃ ➤ \`${prefix}help <cmd>\` — Guia de comandos\n`
-        doc2 += `┃ ➤ \`${prefix}dossie\` / \`${prefix}perfil\` — Perfil no bot\n`
-        doc2 += `┃ ➤ \`${prefix}ia <pergunta>\` — Inteligência Artificial\n`
+        doc2 += `┃ ➤ \`${prefix}help\` — Guia | \`${prefix}perfil\` — Status | \`${prefix}ia\` — Pesquisa\n`
         doc2 += `╰━━━━━━━━━━━━━━━━━━⬣\n\n`
-        doc2 += `▸ _Página 2/2 (fim) — Digite \`${prefix}menu 1\` para voltar ao início_\n`
-        doc2 += `💡 *Dica:* _Abra um submenu digitando direto (ex:_ \`${prefix}ia\`_,_ \`${prefix}livros\`_)!_`
+        doc2 += `▸ _Página 2/2 — Digite \`${prefix}menu 1\` para voltar ao início_`
 
         const pages = [doc1.trim(), doc2.trim()]
         const safePage = Math.min(Math.max(1, page), 2)

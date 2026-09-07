@@ -89,6 +89,7 @@ const CATEGORY_MAP = {
     "livros": "livros", "livro": "livros", "biblioteca": "livros", "ebook": "livros", "gutenberg": "livros",
     "calc": "calc", "calculadora": "calc", "math": "calc",
     "utilidades": "utilidades", "util": "utilidades", "geral": "utilidades", "numfake": "utilidades", "general": "general",
+    "adicional": "utilidades", "adicionais": "utilidades", "extra": "utilidades", "extras": "utilidades", "especial": "utilidades", "especiais": "utilidades",
     "dev": "dev", "software": "dev", "tools": "dev", "debug": "dev",
     "skycode": "skycode", "sky": "skycode", "devnet": "skycode", "painelgrupo": "skycode",
     "rede": "rede", "net": "rede", "telemetria": "rede", "ping": "rede",

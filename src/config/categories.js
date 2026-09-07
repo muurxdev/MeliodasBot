@@ -99,6 +99,12 @@ const CATEGORIES = [
         emoji: '👑',
         label: 'Donos & Aluguel',
         shortcuts: ['dono', 'donos', 'owner', 'aluguel', 'vps', 'planos', 'modulo', 'cmdglobal']
+    },
+    {
+        key: 'adicional',
+        emoji: '⚡',
+        label: 'Adicionais & Especiais',
+        shortcuts: ['adicional', 'adicionais', 'extra', 'extras', 'especial', 'especiais', 'plus', 'tools2']
     }
 ]
 

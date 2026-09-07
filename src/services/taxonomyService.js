@@ -17,7 +17,8 @@ const DEFAULT_BY_CATEGORY = {
     general: '🧭 UTILIDADES & GERAL',
     admin: '🛡️ ADMINISTRAÇÃO',
     profile: '🏆 PERFIL & RANKING',
-    owner: '👑 DONOS & ALUGUEL'
+    owner: '👑 DONOS & ALUGUEL',
+    adicional: '⚡ RECURSOS & COMANDOS ADICIONAIS'
 }
 
 /** @returns {string} título da subcategoria do comando */
