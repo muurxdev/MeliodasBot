@@ -139,15 +139,12 @@ function header(title) {
  * @param {number} o.totalAliases
  * @returns {{pages: string[], page: number, totalPages: number, mediaKey: string, total: number}}
  */
-function buildMenu({ category = null, page = 1, prefix = '.', userLevel = 1, botName = 'Bot', registry, totalAliases = 0 }) {
+function buildMenu({ category = null, requestedCategory = null, page = 1, prefix = '.', userLevel = 1, botName = 'Bot', registry, totalAliases = 0 }) {
     const isAll = category === 'all' || category === 'todos'
     const catKey = isAll ? null : (BY_KEY[category] ? category : null)
 
     // ── Painel principal (índice de categorias) ──
     if (!catKey && !isAll) {
-        // Conta ANTES de montar o texto: o total aparece no cabeçalho, que é escrito
-        // antes da lista. (Antes isso lia `total` da seção de baixo => ReferenceError
-        // "Cannot access 'total' before initialization" e o .menu quebrava.)
         const linhasCategorias = []
         let totalVisivel = 0
         const seen = new Set()
@@ -159,46 +156,60 @@ function buildMenu({ category = null, page = 1, prefix = '.', userLevel = 1, bot
             }
         }
 
+        const categoryLabels = {
+            rpg: 'RPG',
+            economia: 'Economia',
+            cassino: 'Cassino',
+            downloads: 'Downloads',
+            figurinhas: 'Figurinhas',
+            jogos: 'Jogos & Quiz',
+            diversao: 'Diversão',
+            moderacao: 'Moderação',
+            'mensagens-grupo': 'Grupos & Avisos',
+            ia: 'IA & Pesquisa',
+            livros: 'Livros',
+            utilidades: 'Utilidades',
+            perfil: 'Perfil & XP',
+            dev: 'Dev Hub',
+            owner: 'Donos & Aluguel',
+            adicional: 'Extras'
+        }
+
         for (const c of CATEGORIES) {
-            // conta quantos o usuário pode ver, e esconde categorias vazias p/ ele
             let count = 0
-            let aliasCount = 0
             for (const cmd of uniqueCmds) {
                 if (getCmdCategoryKey(cmd) === c.key && canSeeInMenu(cmd, userLevel)) {
                     count++
-                    if (Array.isArray(cmd.aliases)) aliasCount += cmd.aliases.length
                 }
             }
             if (count === 0) continue
             totalVisivel += count
-            linhasCategorias.push(`┃ ${c.emoji} \`${prefix}menu ${c.key}\` ➔ ${c.label} (${count} cmds · ${aliasCount} aliases)\n`)
+            const lbl = categoryLabels[c.key] || c.label
+            linhasCategorias.push(`┃ ${c.emoji} \`${prefix}menu ${c.key}\` ➔ ${lbl} (${count})\n`)
         }
-        // Divide as categorias em 2 páginas para caber com folga no limite de 1000 caracteres do WhatsApp
-        const mid = Math.ceil(linhasCategorias.length / 2)
-        const page1Lines = linhasCategorias.slice(0, mid)
-        const page2Lines = linhasCategorias.slice(mid)
 
-        // Página 1: Primeiras categorias + instrução clara de navegação para a parte 2
+        // Página 1: Todas as 16 categorias reunidas sob 1024 caracteres
         let doc1 = header(`🤖 *${botName}* 🤖`)
-        doc1 += `📌 *Prefixo Ativo:* \`${prefix}\` | ⚡ *${totalVisivel} Comandos* (+${totalAliases} Aliases)\n`
-        doc1 += `💡 _Digite o comando da categoria para ver todos os comandos e aliases:_\n\n`
-        doc1 += `╭━〔 📂 CATEGORIAS DE COMANDOS (PARTE 1/2) 〕━⬣\n`
-        for (const linha of page1Lines) doc1 += linha
+        doc1 += `📌 *Prefixo:* \`${prefix}\` | ⚡ *${totalVisivel} Comandos* (+${totalAliases} Aliases)\n\n`
+        doc1 += `╭━〔 📂 TODAS AS CATEGORIAS 〕━⬣\n`
+        for (const linha of linhasCategorias) doc1 += linha
+        doc1 += `┃ 🌟 \`${prefix}menu all\` ➔ Catálogo Completo (${totalVisivel})\n`
         doc1 += `╰━━━━━━━━━━━━━━━━━━⬣\n\n`
-        doc1 += `▸ _Página 1/2 — Digite \`${prefix}menu 2\` para ver a outra parte do menu_\n`
-        doc1 += `💡 *Dica:* _Abra um submenu digitando direto o nome (ex:_ \`${prefix}rpg\`_,_ \`${prefix}eco\`_,_ \`${prefix}adm\`_)!_`
+        doc1 += `💡 _Dica: Digite \`${prefix}menu 2\` para atalhos ou o nome da categoria (\`${prefix}rpg\`, \`${prefix}dono\`)!_`
 
-        // Página 2: Segundas categorias + catálogo completo + atalhos rápidos
+        // Página 2: Atalhos rápidos, dicas e categorias principais
         let doc2 = header(`🤖 *${botName}* 🤖`)
         doc2 += `📌 *Prefixo:* \`${prefix}\` | ⚡ *${totalVisivel} Comandos* (+${totalAliases} Aliases)\n\n`
-        doc2 += `╭━〔 📂 CATEGORIAS (PARTE 2/2) 〕━⬣\n`
-        for (const linha of page2Lines) doc2 += linha
-        doc2 += `┃ 🌟 \`${prefix}menu all\` ➔ Catálogo Completo (${totalVisivel} cmds)\n`
+        doc2 += `╭━〔 ℹ️ ATALHOS RÁPIDOS & PRINCIPAIS 〕━⬣\n`
+        doc2 += `┃ ⚔️ \`${prefix}rpg\` — Modo RPG Nanatsu no Taizai\n`
+        doc2 += `┃ 💰 \`${prefix}eco\` — Economia, Banco e Transferências\n`
+        doc2 += `┃ 🛡️ \`${prefix}adm\` — Painel de Moderação e Segurança\n`
+        doc2 += `┃ 👑 \`${prefix}dono\` — Hierarquia Militar e Aluguel\n`
+        doc2 += `┃ 🏆 \`${prefix}perfil\` — Perfil, Nível e Conquistas\n`
+        doc2 += `┃ ❓ \`${prefix}help\` — Guia Completo e Documentação\n`
+        doc2 += `┃ 🌟 \`${prefix}menu all\` — Catálogo Completo dos 2000 Comandos\n`
         doc2 += `╰━━━━━━━━━━━━━━━━━━⬣\n\n`
-        doc2 += `╭━〔 ℹ️ ATALHOS RÁPIDOS 〕━⬣\n`
-        doc2 += `┃ ➤ \`${prefix}help\` — Guia | \`${prefix}perfil\` — Status | \`${prefix}ia\` — Pesquisa\n`
-        doc2 += `╰━━━━━━━━━━━━━━━━━━⬣\n\n`
-        doc2 += `▸ _Página 2/2 — Digite \`${prefix}menu 1\` para voltar ao início_`
+        doc2 += `▸ _Página 2/2 — Digite \`${prefix}menu 1\` para voltar à lista geral de categorias_`
 
         const pages = [doc1.trim(), doc2.trim()]
         const safePage = Math.min(Math.max(1, page), 2)
@@ -237,7 +248,7 @@ function buildMenu({ category = null, page = 1, prefix = '.', userLevel = 1, bot
 
     const pages = bodyPages.map((body, i) => {
         let doc = (i === 0 ? head : `${titleText}  — pág. ${i + 1}/${totalPages}\n${statsSub}`) + body
-        const navTarget = isAll ? 'all' : catKey
+        const navTarget = isAll ? 'all' : (requestedCategory || catKey)
         if (totalPages > 1 && i + 1 < totalPages) {
             doc += `\n▸ _Página ${i + 1}/${totalPages} — \`${prefix}menu ${navTarget} ${i + 2}\` para continuar_`
         } else if (totalPages > 1) {

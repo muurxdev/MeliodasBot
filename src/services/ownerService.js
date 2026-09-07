@@ -35,21 +35,29 @@ const DEFAULT_OWNERS = [
  */
 function resolveOwnerName(owner) {
     if (!owner || !owner.jid) return owner?.name || owner?.rank || "Dono";
-    // 1. nick fixo definido para este dono (via .setdono / saveOwners)
-    if (owner.name) return owner.name;
-    // 2. nick de perfil do dono principal (env), só quando bate com o OWNER_JID
-    const profileNick = (process.env.OWNER_PROFILE_NAME || "").trim();
-    if (profileNick && OWNER_JID && owner.jid.replace(/\D/g, "") === OWNER_JID.replace(/\D/g, "")) {
-        return profileNick;
-    }
-    // 3. pushName real do WhatsApp
+
+    // 1. pushName real do WhatsApp ou nick cadastrado no perfil do bot
     try {
         const userRepo = require("../database/repositories/userRepository");
         const digits = owner.jid.replace(/\D/g, "");
         const u = userRepo.getUser(owner.jid) || userRepo.getUser(digits + "@s.whatsapp.net");
-        if (u && u.name) return u.name;
+        if (u && (u.display_nick || u.name)) {
+            return u.display_nick || u.name;
+        }
     } catch (_) {}
-    return owner.rank;
+
+    // 2. nick fixo definido para este dono (via .setdono / saveOwners), se não for numérico ou genérico
+    if (owner.name && !owner.name.startsWith("Dono ") && !/^[+\d\s().-]+$/.test(owner.name)) {
+        return owner.name;
+    }
+
+    // 3. nick de perfil do dono principal (env), só quando bate com o OWNER_JID
+    const profileNick = (process.env.OWNER_PROFILE_NAME || "").trim();
+    if (profileNick && OWNER_JID && owner.jid.replace(/\D/g, "") === OWNER_JID.replace(/\D/g, "")) {
+        return profileNick;
+    }
+
+    return owner.name || owner.rank;
 }
 
 /** Nick de perfil do dono principal (para exibição em .dono e no perfil do dono). */
@@ -120,12 +128,26 @@ function findOwnerByQuery(query, candidates = []) {
 
     // 3. Busca por Dígitos de Telefone ou JID/LID direto
     const allDigits = new Set();
-    if (rawDigits.length >= 8) allDigits.add(rawDigits);
+    if (rawDigits.length >= 8) {
+        allDigits.add(rawDigits);
+        if (rawDigits.length === 10 || rawDigits.length === 11) {
+            allDigits.add("55" + rawDigits);
+        } else if (rawDigits.startsWith("55") && (rawDigits.length === 12 || rawDigits.length === 13)) {
+            allDigits.add(rawDigits.slice(2));
+        }
+    }
     if (Array.isArray(candidates)) {
         for (const c of candidates) {
             if (typeof c === "string") {
                 const d = c.replace(/\D/g, "");
-                if (d.length >= 8) allDigits.add(d);
+                if (d.length >= 8) {
+                    allDigits.add(d);
+                    if (d.length === 10 || d.length === 11) {
+                        allDigits.add("55" + d);
+                    } else if (d.startsWith("55") && (d.length === 12 || d.length === 13)) {
+                        allDigits.add(d.slice(2));
+                    }
+                }
             }
         }
     }
@@ -257,7 +279,7 @@ function updateOwner(rankQuery, newName, phone = "", jid = "", appointedBy = "")
     const owner = list.find(o => normalizeRank(o.rank) === norm);
 
     if (owner) {
-        owner.name = newName;
+        owner.name = newName || owner.name || "";
         owner.active = true;
         owner.appointedBy = appointedBy || owner.appointedBy || "";
         owner.appointedAt = new Date().toLocaleDateString("pt-BR");
@@ -268,8 +290,8 @@ function updateOwner(rankQuery, newName, phone = "", jid = "", appointedBy = "")
                 rawDigits = "55" + rawDigits;
             }
             if (rawDigits.length >= 8) {
-                owner.phone = "+" + rawDigits;
                 owner.jid = rawDigits + "@s.whatsapp.net";
+                owner.phone = env.formatPhoneFromJid(owner.jid) || ("+" + rawDigits);
             }
         }
         saveOwners(list);

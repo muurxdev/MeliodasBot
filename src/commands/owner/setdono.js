@@ -17,20 +17,24 @@ module.exports = {
     description: "Nomeia ou altera um Dono seguindo a hierarquia militar rígida",
     ownerOnly: true,
     cooldownMs: 2000,
-    execute: async ({ args, reply, sender, senderReal, roleJid, mentionedJid, client }) => {
-        if (args.length < 2) {
+    execute: async ({ args, reply, sender, senderReal, roleJid, mentionedJid, client, info, quotedSender }) => {
+        const quotedParticipant = quotedSender || info?.message?.extendedTextMessage?.contextInfo?.participant || null;
+        const hasMention = Array.isArray(mentionedJid) && mentionedJid.length > 0;
+
+        if (args.length < 1 || (args.length < 2 && !quotedParticipant && !hasMention)) {
             let doc = "╔══════════════════════════════╗\n";
             doc += "║   👑 *GESTÃO DE PATENTES* 👑   ║\n";
             doc += "╚══════════════════════════════╝\n\n";
             doc += "📌 *Como usar:*\n";
-            doc += "• \`.setdono <patente> @usuario\`\n";
-            doc += "• \`.setdono <patente> <nome>\`\n";
-            doc += "• \`.setdono <patente> <nome> | <telefone>\`\n\n";
-            doc += "🎖️ *Patentes:* Capitão, Tenente, Sargento, Cabo, Soldado\n\n";
-            doc += "🛡️ *Regras de Hierarquia:*\n";
-            doc += "• 👑 *Capitão:* Altera e nomeia todos os cargos.\n";
-            doc += "• 🎖️ *Tenente:* Altera patentes abaixo dele (Sargento, Cabo, Soldado).\n";
-            doc += "• 🚫 *Imunidade:* Ninguém tem permissão de alterar o Capitão.";
+            doc += "• `.setdono <patente> <telefone>` (Ex: `.setdono Tenente 21 98459-6995`)\n";
+            doc += "• `.setdono <patente> @usuario` (Mencione o usuário)\n";
+            doc += "• `.setdono <patente> <nome> | <telefone>`\n";
+            doc += "• Responder a uma mensagem com `.setdono <patente>`\n\n";
+            doc += "🎖️ *Patentes Oficiais:* Capitão, Tenente, Sargento, Cabo, Soldado, Guardião, Cavaleiro, Escudeiro, Aprendiz, Recruta\n\n";
+            doc += "🛡️ *Regras de Hierarquia Militar:*\n";
+            doc += "• 👑 *Capitão:* Altera e nomeia todas as patentes.\n";
+            doc += "• 🎖️ *Tenente:* Altera patentes abaixo dele (Sargento, Cabo, Soldado...).\n";
+            doc += "• 🚫 *Imunidade:* Ninguém tem autoridade para alterar ou rebaixar o Capitão.";
             return reply(doc.trim());
         }
 
@@ -43,96 +47,118 @@ module.exports = {
         }
 
         const fullInput = args.slice(1).join(" ").trim();
-        let nome = "";
-        let phoneFormatted = "";
         let targetJid = "";
+        let phoneFormatted = "";
+        let customName = "";
 
-        // 1. TRATAMENTO DE MENÇÃO DIRETA (@user)
-        if (Array.isArray(mentionedJid) && mentionedJid.length > 0) {
-            const rawMention = mentionedJid[0];
-            targetJid = rawMention;
+        // 1. VERIFICAÇÃO DE MENÇÃO DIRETA (@usuario)
+        const mention = hasMention ? mentionedJid[0] : (info?.message?.extendedTextMessage?.contextInfo?.mentionedJid?.[0] || null);
 
-            // Tenta resolver o JID real se for LID
-            let resolvedJid = await groupAuthService.resolveRealJid(client, rawMention);
-            let userDb = null;
-
-            try {
-                const db = getDatabase();
-                userDb = db.prepare("SELECT name, phone, jid, lid, display_nick FROM users WHERE lid = ? OR jid = ?").get(rawMention, rawMention);
-            } catch (_) {}
-
-            const xpData = dataService.getXpData();
-            const xpUser = xpData[rawMention] || (resolvedJid ? xpData[resolvedJid] : null);
-
-            // Nome do usuário (prioriza o nick cadastrado no perfil do bot via .login)
-            const rawMentionClean = fullInput.replace(/^@+/, "").trim();
-            nome = userDb?.display_nick || userDb?.name || xpUser?.name || rawMentionClean || "Guerreiro";
-
-            // Número de telefone real
-            const realPhoneDigits = userDb?.phone || (resolvedJid && !resolvedJid.endsWith("@lid") ? resolvedJid.split("@")[0] : "");
-            if (realPhoneDigits) {
-                targetJid = realPhoneDigits.replace(/\D/g, "") + "@s.whatsapp.net";
-                phoneFormatted = formatPhoneFromJid(targetJid);
-            } else if (!rawMention.endsWith("@lid")) {
-                phoneFormatted = formatPhoneFromJid(rawMention);
+        if (mention) {
+            targetJid = mention;
+            customName = fullInput.replace(/@\d+/g, "").trim();
+        }
+        // 2. VERIFICAÇÃO DE RESPOSTA A MENSAGEM (QUOTED)
+        else if (quotedParticipant && (!fullInput || !/\d{8,}/.test(fullInput.replace(/\D/g, "")))) {
+            targetJid = quotedParticipant;
+            customName = fullInput.trim();
+        }
+        // 3. FORMATO COM PIPE (Nome | Telefone ou Telefone | Nome)
+        else if (fullInput.includes("|")) {
+            const parts = fullInput.split("|").map(p => p.trim());
+            const d0 = parts[0].replace(/\D/g, "");
+            const d1 = parts[1].replace(/\D/g, "");
+            if (d1.length >= 8) {
+                targetJid = d1;
+                customName = parts[0];
+            } else if (d0.length >= 8) {
+                targetJid = d0;
+                customName = parts[1];
             } else {
-                phoneFormatted = "+" + rawMention.split("@")[0];
+                customName = fullInput;
             }
         }
-        // 2. TRATAMENTO COM PIPE (Nome | Telefone)
-        else if (fullInput.includes("|")) {
-            const parts = fullInput.split("|");
-            nome = parts[0].trim();
-            const phonePart = parts[1].trim();
-            let rawDigits = phonePart.replace(/\D/g, "");
-            if (rawDigits.length === 10 || rawDigits.length === 11) {
-                rawDigits = "55" + rawDigits;
+        // 4. TELEFONE NO TEXTO (Dígitos diretos, com ou sem espaços, traços, parênteses, +55)
+        else {
+            const cleanDigits = fullInput.replace(/\D/g, "");
+            // A. Entrada puramente de telefone (ex: "21 98459-6995", "+55 21 98459-6995", "(21) 98459-6995")
+            if (/^[+\d\s().-]+$/.test(fullInput) && cleanDigits.length >= 8) {
+                targetJid = cleanDigits;
+                customName = "";
+            } else {
+                // B. Nome acompanhado de telefone (ex: "Daiki 21 98459-6995" ou "21 98459-6995 Daiki")
+                const phoneMatch = fullInput.match(/(?:\+?\d{1,4}[\s-]?)?(?:\(?\d{2,4}\)?[\s-]?)?\d{4,5}[-\s]?\d{4}/);
+                if (phoneMatch && phoneMatch[0].replace(/\D/g, "").length >= 8) {
+                    targetJid = phoneMatch[0].replace(/\D/g, "");
+                    customName = fullInput.replace(phoneMatch[0], "").replace(/[@|]/g, "").trim();
+                } else {
+                    // C. Apenas nome informado
+                    customName = fullInput.trim();
+                }
             }
+        }
+
+        let rawDigits = targetJid.replace(/\D/g, "");
+
+        // Se for LID, tenta resolver o JID canônico real via groupAuthService e users
+        if (targetJid.endsWith("@lid") || (rawDigits.length >= 14 && !rawDigits.startsWith("55"))) {
+            try {
+                const resolved = await groupAuthService.resolveRealJid(client, targetJid);
+                if (resolved && !resolved.endsWith("@lid")) {
+                    targetJid = resolved;
+                    rawDigits = resolved.replace(/\D/g, "");
+                }
+            } catch (_) {}
+        }
+
+        // Inferência automática de DDI Brasil (55) se o número foi digitado com DDD (10 ou 11 dígitos)
+        if (rawDigits.length === 10 || rawDigits.length === 11) {
+            rawDigits = "55" + rawDigits;
+        }
+
+        if (rawDigits.length >= 8) {
             targetJid = rawDigits + "@s.whatsapp.net";
             phoneFormatted = formatPhoneFromJid(targetJid);
         }
-        // 3. TELEFONE DIRETO
-        else if (/^\+?\d{8,}$/.test(fullInput.replace(/\s+/g, ""))) {
-            let raw = fullInput.replace(/\D/g, "");
-            if (raw.length === 10 || raw.length === 11) {
-                raw = "55" + raw;
-            }
-            targetJid = raw + "@s.whatsapp.net";
-            phoneFormatted = formatPhoneFromJid(targetJid);
 
-            // Tenta buscar o nome real no perfil do WhatsApp ou no banco
-            let realName = "";
-            try {
-                if (client?.store?.contacts?.[targetJid]) {
-                    const c = client.store.contacts[targetJid];
-                    realName = c.notify || c.name || "";
-                }
-            } catch (_) {}
-            if (!realName) {
-                try {
-                    const db = getDatabase();
-                    const userDb = db.prepare("SELECT name, display_nick FROM users WHERE jid = ? OR phone LIKE ?").get(targetJid, `%${raw}%`);
-                    realName = userDb?.display_nick || userDb?.name || "";
-                } catch (_) {}
-            }
-            nome = realName || `Dono ${raw.slice(-4)}`;
-        }
-        // 4. APENAS NOME
-        else {
-            nome = fullInput;
-        }
+        // Resolução do Nome Real (WhatsApp PushName / Perfil / Cadastro SQLite)
+        let realWhatsappName = "";
 
-        // Se o nome ficou genérico ("Dono 1234"), tenta obter o pushName real do WhatsApp
-        if ((!nome || nome.startsWith("Dono ")) && targetJid) {
+        if (targetJid) {
+            // A. Store do Baileys
             try {
                 const contact = client?.store?.contacts?.[targetJid];
-                const realWhatsappName = contact?.notify || contact?.name;
-                if (realWhatsappName) nome = realWhatsappName;
+                realWhatsappName = contact?.notify || contact?.name || "";
             } catch (_) {}
+
+            // B. Repositório de Usuários / SQLite
+            if (!realWhatsappName) {
+                try {
+                    const userRepo = require("../../database/repositories/userRepository");
+                    const u = userRepo.getUser(targetJid) || (rawDigits ? userRepo.getUser(rawDigits + "@s.whatsapp.net") : null);
+                    if (u) {
+                        realWhatsappName = u.display_nick || u.name || "";
+                    }
+                } catch (_) {}
+            }
+
+            if (!realWhatsappName && rawDigits) {
+                try {
+                    const db = getDatabase();
+                    const row = db.prepare("SELECT name, display_nick FROM users WHERE jid = ? OR phone LIKE ?").get(targetJid, `%${rawDigits.slice(-8)}%`);
+                    if (row) {
+                        realWhatsappName = row.display_nick || row.name || "";
+                    }
+                } catch (_) {}
+            }
         }
 
-        if (!nome) {
-            return reply("❌ Informe o nome ou marque o usuário (@) para registrar a patente.");
+        // Define o nome final: customName (se o operador digitou um nome explicitamente) ou realWhatsappName
+        let nome = customName || realWhatsappName || "";
+
+        // Se ainda não temos JID nem nome
+        if (!targetJid && !nome) {
+            return reply("❌ Informe o número de telefone (com ou sem DDD), marque o usuário (@) ou digite um nome para registrar a patente.");
         }
 
         const appointedByText = check.senderRank?.name
@@ -144,11 +170,12 @@ module.exports = {
             return reply(`❌ Falha ao atualizar a patente \`${cargo}\`.`);
         }
 
-        // Sincroniza imediatamente o cargo OWNER na tabela user_roles do SQLite
+        // Sincroniza imediatamente o cargo OWNER na tabela user_roles do SQLite e lista TRUSTED
         try {
             const permissionRepo = require("../../database/repositories/permissionRepository");
             if (targetJid) {
                 permissionRepo.setUserRole(targetJid, "OWNER", sender);
+                permissionRepo.setTrusted(targetJid, true, sender, `Nomeado ${updated.rank}`);
             }
         } catch (_) {}
 
@@ -156,12 +183,18 @@ module.exports = {
         if (targetJid) mentions.push(targetJid);
         if (sender) mentions.push(sender);
 
+        const { resolveOwnerName } = require("../../services/ownerService");
+        const liveName = resolveOwnerName(updated);
+        const displayName = liveName && liveName !== updated.rank ? liveName : (updated.name || updated.rank);
+        const contactDisplay = updated.phone || phoneFormatted || (targetJid ? formatPhoneFromJid(targetJid) : "Sem número cadastrado");
+        const tagIdentifier = (updated.jid || targetJid) ? `@${(updated.jid || targetJid).split("@")[0]}` : `@${sender.split("@")[0]}`;
+
         let res = "╔══════════════════════════════╗\n";
         res += "║  👑 *PATENTE DE DONO ATUALIZADA!*  \n";
         res += "╚══════════════════════════════╝\n\n";
         res += `🎖️ *Patente:* **${updated.rank}** (Nível ${updated.level})\n`;
-        res += `👤 *Nome Registrado:* @${(updated.jid || targetJid || sender).split("@")[0]} (${updated.name})\n`;
-        res += `📱 *WhatsApp/Contato:* ${updated.phone || "Manter atual"}\n`;
+        res += `👤 *Nome Registrado:* ${tagIdentifier} (${displayName})\n`;
+        res += `📱 *WhatsApp/Contato:* ${contactDisplay}\n`;
         res += `🟢 *Nomeado por:* ${appointedByText}\n`;
         res += `📅 *Data:* ${updated.appointedAt || "Hoje"}`;
 

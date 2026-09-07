@@ -66,24 +66,28 @@ test('nenhuma página passa de 4096 chars (limite de texto)', () => {
     }
 })
 
-test('painel principal é paginado em 2 partes sob 1024 caracteres', () => {
+test('painel principal reúne todas as categorias sob 1024 caracteres na página 1 e atalhos na página 2', () => {
     const m1 = buildMenu({ category: null, page: 1, prefix: '.', userLevel: 5, botName: 'B', registry: reg, totalAliases: 0 })
     assert.strictEqual(m1.totalPages, 2, 'Painel principal deve ter 2 páginas')
     assert.strictEqual(m1.page, 1)
     assert.ok(m1.pages[0].length <= 1024, `Página 1 deve ser <= 1024 chars, tem ${m1.pages[0].length}`)
-    assert.ok(m1.pages[0].includes('PARTE 1/2'))
     assert.ok(m1.pages[0].includes('.menu 2'))
 
     const m2 = buildMenu({ category: null, page: 2, prefix: '.', userLevel: 5, botName: 'B', registry: reg, totalAliases: 0 })
     assert.strictEqual(m2.page, 2)
     assert.ok(m2.pages[1].length <= 1024, `Página 2 deve ser <= 1024 chars, tem ${m2.pages[1].length}`)
-    assert.ok(m2.pages[1].includes('PARTE 2/2'))
     assert.ok(m2.pages[1].includes('.menu 1'))
 
-    // Todas as categorias devem estar cobertas entre as 2 páginas
-    const allText = m1.pages.join('\n')
+    // 100% das 16 categorias devem estar visíveis diretamente na página 1
     for (const c of CATEGORIES) {
-        assert.ok(allText.includes(`menu ${c.key}`), `falta categoria ${c.key} no painel`)
+        assert.ok(m1.pages[0].includes(`menu ${c.key}`), `falta categoria ${c.key} na página 1 do painel`)
+    }
+})
+
+test('submenus respeitam o atalho digitado pelo usuário na navegação', () => {
+    const mDono = buildMenu({ category: 'owner', requestedCategory: 'dono', page: 1, prefix: '.', userLevel: 5, botName: 'B', registry: reg, totalAliases: 0 })
+    if (mDono.totalPages > 1) {
+        assert.ok(mDono.pages[0].includes('.menu dono 2'), 'deve usar .menu dono 2 na navegação')
     }
 })
 

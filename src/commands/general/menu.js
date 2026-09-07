@@ -33,6 +33,7 @@ module.exports = {
 
         // Resolve categoria e página: via alias do comando (.menurpg 2) ou argumentos (.menu 2, .menu parte 2, .menu rpg 2)
         let category = null
+        let requestedCategory = null
         let pageArg = 1
 
         // 1. Categoria via alias: .menurpg, .menuall, etc.
@@ -41,6 +42,7 @@ module.exports = {
             category = (fromAlias === 'all' || fromAlias === 'completo' || fromAlias === 'total')
                 ? 'all'
                 : resolveCategoryKey(fromAlias)
+            requestedCategory = fromAlias
             if (args[0] && /^\d+$/.test(args[0])) {
                 pageArg = parseInt(args[0], 10) || 1
             }
@@ -79,11 +81,12 @@ module.exports = {
                 }
                 category = null
             }
-            // Caso D: Categoria específica (.menu rpg 2, .menu all 3)
+            // Caso D: Categoria específica (.menu rpg 2, .menu all 3, .menu dono 2)
             else {
                 category = (a0 === 'all' || a0 === 'todos' || a0 === 'completo')
                     ? 'all'
                     : resolveCategoryKey(a0)
+                requestedCategory = a0
                 if (args[1] && /^\d+$/.test(args[1])) {
                     pageArg = parseInt(args[1], 10) || 1
                 }
@@ -92,6 +95,7 @@ module.exports = {
 
         const menu = buildMenu({
             category,
+            requestedCategory,
             page: pageArg,
             prefix,
             userLevel: level,
