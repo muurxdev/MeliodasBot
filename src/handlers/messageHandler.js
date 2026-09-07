@@ -595,6 +595,15 @@ async function handleIncomingMessage(client, { messages }) {
         return sent
     }
 
+    // Função universal de reação por emoji no WhatsApp (segura e não-bloqueante)
+    const react = async (emoji) => {
+        try {
+            if (client?.sendMessage && info?.key && emoji) {
+                return await client.sendMessage(from, { react: { text: String(emoji), key: info.key } })
+            }
+        } catch (_) {}
+    }
+
     // Extração profunda de Mensagem Citada / Marcada (Quoted Message)
     const contextInfo = info.message?.extendedTextMessage?.contextInfo
     const quotedMsg = contextInfo?.quotedMessage || null
@@ -729,6 +738,7 @@ async function handleIncomingMessage(client, { messages }) {
         isOwner,
         client,
         reply,
+        react,
         info,
         type,
         quotedMsg,

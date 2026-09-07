@@ -864,47 +864,71 @@ async function searchBooks(query, limit = 5, requestedLang = 'pt') {
 
     // 2. LAYER 2: Archive.org Open Access (Rápido, 100% público e gratuito, sem bloqueio de empréstimo)
     try {
-        let iaQuery = `title:("${encodeURIComponent(cleanQuery)}")`;
+        const cleanWords = cleanQuery.split(/\s+/).filter(w => w.length > 1);
+        const noiseWordsRegex = /\b(prova|provas|avaliacao|avaliação|exercicio|exercicios|exercício|exercícios|questao|questoes|questão|questões|apostila|apostilas|livro|livros|livrete|pdf|ebook|material|curso|aula|aulas|resumo)\b/gi;
+        const strippedTopic = cleanQuery.replace(noiseWordsRegex, '').replace(/\s+/g, ' ').trim();
+
+        const queriesToTry = [];
         if (parsed.titlePart && parsed.authorPart) {
-            iaQuery = `(title:("${encodeURIComponent(parsed.titlePart)}") OR "${encodeURIComponent(parsed.titlePart)}") AND (creator:("${encodeURIComponent(parsed.authorPart)}") OR "${encodeURIComponent(parsed.authorPart)}")`;
+            queriesToTry.push(`(title:("${encodeURIComponent(parsed.titlePart)}") OR "${encodeURIComponent(parsed.titlePart)}") AND (creator:("${encodeURIComponent(parsed.authorPart)}") OR "${encodeURIComponent(parsed.authorPart)}")`);
         }
-        const iaSearchUrl = `https://archive.org/advancedsearch.php?q=(${iaQuery})+AND+mediatype:(texts)+AND+NOT+access-restricted-item:true+AND+NOT+collection:(inlibrary+OR+printdisabled)&fl[]=identifier,title,creator,year,downloads,publisher,language&rows=${limit * 2}&sort[]=downloads+desc&output=json`;
 
-        const iaData = await fetchJson(iaSearchUrl, { timeout: 6000 }).catch(() => null);
-        if (iaData?.response?.docs?.length > 0) {
-            const normQuery = cleanQuery.replace(/[^a-z0-9]/g, '');
-            const sortedDocs = [...iaData.response.docs].sort((a, b) => {
-                const aNorm = (a.title || '').toLowerCase().replace(/[^a-z0-9]/g, '');
-                const bNorm = (b.title || '').toLowerCase().replace(/[^a-z0-9]/g, '');
-                const aMatch = aNorm === normQuery ? 2 : (aNorm.includes(normQuery) ? 1 : 0);
-                const bMatch = bNorm === normQuery ? 2 : (bNorm.includes(normQuery) ? 1 : 0);
-                if (aMatch !== bMatch) return bMatch - aMatch;
-                return Number(b.downloads || 0) - Number(a.downloads || 0);
-            });
-            for (const doc of sortedDocs) {
-                if (!doc.identifier) continue;
-                if (results.length >= limit * 2) break;
-                const title = doc.title || cleanQuery;
-                const authors = Array.isArray(doc.creator) ? doc.creator.join(', ') : (doc.creator || 'Autor Aberto');
-                const year = doc.year ? String(doc.year) : '—';
-                const publisher = doc.publisher || 'Internet Archive / Domínio Público';
-                const docLang = doc.language ? String(doc.language) : requestedLang;
+        if (cleanWords.length > 1) {
+            // 1. Tenta título exato
+            queriesToTry.push(`title:("${encodeURIComponent(cleanQuery)}")`);
+            // 2. Tenta combinação de palavras-chave
+            queriesToTry.push(`(${cleanWords.map(w => encodeURIComponent(w)).join('+AND+')})`);
+            // 3. Se houver ruído acadêmico (ex: "prova"), tenta o tópico puro
+            if (strippedTopic && strippedTopic !== cleanQuery) {
+                const topicWords = strippedTopic.split(/\s+/).filter(w => w.length > 1);
+                if (topicWords.length > 0) {
+                    queriesToTry.push(`(${topicWords.map(w => encodeURIComponent(w)).join('+AND+')})`);
+                }
+            }
+        } else {
+            queriesToTry.push(`(title:("${encodeURIComponent(cleanQuery)}") OR "${encodeURIComponent(cleanQuery)}")`);
+        }
 
-                addResult({
-                    id: doc.identifier,
-                    title,
-                    author: authors,
-                    year,
-                    edition: 'Edição Digital Integral',
-                    publisher,
-                    pagesCount: 0,
-                    pages: 'Documento Completo',
-                    genre: 'Literatura & Conhecimento',
-                    description: `Obra digital preservada no Internet Archive (${doc.downloads || 0} downloads registrados).`,
-                    source: 'Internet Archive',
-                    language: docLang,
-                    identifier: doc.identifier
+        for (const iaQuery of queriesToTry) {
+            if (results.length >= limit) break;
+            const iaSearchUrl = `https://archive.org/advancedsearch.php?q=(${iaQuery})+AND+mediatype:(texts)+AND+NOT+access-restricted-item:true+AND+NOT+collection:(inlibrary+OR+printdisabled)&fl[]=identifier,title,creator,year,downloads,publisher,language&rows=${limit * 2}&sort[]=downloads+desc&output=json`;
+
+            const iaData = await fetchJson(iaSearchUrl, { timeout: 6000 }).catch(() => null);
+            if (iaData?.response?.docs?.length > 0) {
+                const normQuery = cleanQuery.replace(/[^a-z0-9]/g, '');
+                const sortedDocs = [...iaData.response.docs].sort((a, b) => {
+                    const aNorm = (a.title || '').toLowerCase().replace(/[^a-z0-9]/g, '');
+                    const bNorm = (b.title || '').toLowerCase().replace(/[^a-z0-9]/g, '');
+                    const aMatch = aNorm === normQuery ? 2 : (aNorm.includes(normQuery) ? 1 : 0);
+                    const bMatch = bNorm === normQuery ? 2 : (bNorm.includes(normQuery) ? 1 : 0);
+                    if (aMatch !== bMatch) return bMatch - aMatch;
+                    return Number(b.downloads || 0) - Number(a.downloads || 0);
                 });
+                for (const doc of sortedDocs) {
+                    if (!doc.identifier) continue;
+                    if (results.length >= limit * 2) break;
+                    const title = doc.title || cleanQuery;
+                    const authors = Array.isArray(doc.creator) ? doc.creator.join(', ') : (doc.creator || 'Autor Aberto');
+                    const year = doc.year ? String(doc.year) : '—';
+                    const publisher = doc.publisher || 'Internet Archive / Domínio Público';
+                    const docLang = doc.language ? String(doc.language) : requestedLang;
+
+                    addResult({
+                        id: doc.identifier,
+                        title,
+                        author: authors,
+                        year,
+                        edition: 'Edição Digital Integral',
+                        publisher,
+                        pagesCount: 0,
+                        pages: 'Documento Completo',
+                        genre: 'Literatura & Conhecimento',
+                        description: `Obra digital preservada no Internet Archive (${doc.downloads || 0} downloads registrados).`,
+                        source: 'Internet Archive',
+                        language: docLang,
+                        identifier: doc.identifier
+                    });
+                }
             }
         }
     } catch (err) {
@@ -917,7 +941,10 @@ async function searchBooks(query, limit = 5, requestedLang = 'pt') {
 
     // 3. LAYER 3: Open Library API (Metadados e busca de IDs do Internet Archive)
     try {
-        let olUrl = `https://openlibrary.org/search.json?q=${encodeURIComponent(cleanQuery)}&limit=${limit}&fields=title,author_name,first_publish_year,ia,number_of_pages_median,publisher,ebook_access`;
+        const noiseWordsRegex = /\b(prova|provas|avaliacao|avaliação|exercicio|exercicios|exercício|exercícios|questao|questoes|questão|questões|apostila|apostilas|livro|livros|livrete|pdf|ebook|material|curso|aula|aulas|resumo)\b/gi;
+        const queryForOl = cleanQuery.replace(noiseWordsRegex, '').replace(/\s+/g, ' ').trim() || cleanQuery;
+
+        let olUrl = `https://openlibrary.org/search.json?q=${encodeURIComponent(queryForOl)}&limit=${limit}&fields=title,author_name,first_publish_year,ia,number_of_pages_median,publisher,ebook_access`;
         if (parsed.authorPart && parsed.titlePart) {
             olUrl = `https://openlibrary.org/search.json?title=${encodeURIComponent(parsed.titlePart)}&author=${encodeURIComponent(parsed.authorPart)}&limit=${limit}&fields=title,author_name,first_publish_year,ia,number_of_pages_median,publisher,ebook_access`;
         }
@@ -1025,7 +1052,12 @@ async function resolvePdfUrl(identifier, fallbackQuery = '', lang = 'pt') {
     // 2. Se não tem targetId válido (ou é ol_...), faz busca direta no Archive.org com fallbackQuery
     if ((!targetId || targetId.startsWith('ol_')) && fallbackQuery) {
         try {
-            const iaSearchUrl = `https://archive.org/advancedsearch.php?q=title:("${encodeURIComponent(fallbackQuery)}")+AND+mediatype:(texts)+AND+NOT+access-restricted-item:true+AND+NOT+collection:(inlibrary+OR+printdisabled)&fl[]=identifier&rows=1&sort[]=downloads+desc&output=json`;
+            const cleanFallback = fallbackQuery.toLowerCase().replace(/["']/g, '').trim();
+            const cleanWords = cleanFallback.split(/\s+/).filter(w => w.length > 1);
+            const queryPart = cleanWords.length > 1
+                ? cleanWords.map(w => encodeURIComponent(w)).join('+AND+')
+                : `"${encodeURIComponent(cleanFallback)}"`;
+            const iaSearchUrl = `https://archive.org/advancedsearch.php?q=(${queryPart})+AND+mediatype:(texts)+AND+NOT+access-restricted-item:true+AND+NOT+collection:(inlibrary+OR+printdisabled)&fl[]=identifier&rows=1&sort[]=downloads+desc&output=json`;
             const iaData = await fetchJson(iaSearchUrl, { timeout: 6000 });
             targetId = iaData?.response?.docs?.[0]?.identifier;
             logger.info(`[BOOK RESOLVE] Archive.org fallback resolveu targetId="${targetId}" para "${fallbackQuery}"`);

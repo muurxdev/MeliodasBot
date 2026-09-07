@@ -21,6 +21,145 @@ const aliases = new Map()
 const cooldowns = new Map()
 let lastValidationReport = null
 
+const COMMAND_REACTIONS = {
+    // RPG & Combate
+    batalhar: '⚔️',
+    duelo: '⚔️',
+    cacar: '🏹',
+    boss: '👹',
+    minerar: '⛏️',
+    forjar: '🔨',
+    craft: '🔨',
+    inventario: '🎒',
+    skills: '✨',
+    curar: '🧪',
+    dungeon: '🏰',
+    treinar: '🥋',
+    status: '📊',
+    ranking: '🏆',
+    rank: '🏆',
+    perfil: '👤',
+    dossie: '📁',
+    top: '🥇',
+
+    // Cassino & Economia
+    roleta: '🎰',
+    cassino: '🎰',
+    slots: '🎰',
+    apostar: '🎲',
+    dado: '🎲',
+    coinflip: '🪙',
+    saldo: '💰',
+    banco: '🏦',
+    daily: '🎁',
+    resgatar: '🎁',
+    pix: '💸',
+    transferir: '💸',
+    roubar: '🥷',
+    trabalhar: '💼',
+    loja: '🏪',
+    comprar: '🛒',
+
+    // IA & Conhecimento
+    ia: '🧠',
+    gpt: '🧠',
+    perguntar: '🧠',
+    pesquisa: '🔍',
+    google: '🔍',
+    wiki: '📖',
+    definir: '📚',
+    explicar: '💡',
+    resumo: '📝',
+    traduzir: '🌐',
+    sentimento: '💭',
+    comparar: '⚖️',
+    classify: '🏷️',
+    paraphrase: '🔄',
+
+    // Mídia, Áudio & Vídeo
+    play: '🎵',
+    ytmp3: '🎵',
+    musica: '🎵',
+    audio: '🎧',
+    video: '🎬',
+    ytmp4: '🎬',
+    tiktok: '📱',
+    insta: '📸',
+    instagram: '📸',
+    media: '⏳',
+    letra: '📜',
+    pinterest: '📌',
+
+    // Livros & Documentos
+    livro: '📚',
+    pdf: '📚',
+    ebook: '📚',
+    ler: '📖',
+    buscarlivro: '🔍',
+
+    // Figurinhas & Edição
+    s: '🎨',
+    sticker: '🎨',
+    fig: '🎨',
+    gif: '🎞️',
+    attp: '✨',
+    ttp: '✍️',
+    toimg: '🖼️',
+    tovideo: '📹',
+    tomp3: '🎵',
+    wallpaper: '🌄',
+    wallpapers: '🌄',
+    meme: '🎭',
+
+    // Moderação & Grupo
+    ban: '⚡',
+    kick: '🥾',
+    mute: '🔇',
+    unmute: '🔊',
+    warn: '⚠️',
+    advertencia: '⚠️',
+    limpar: '🧹',
+    limparbot: '🧹',
+    fechargrupo: '🔒',
+    abrirgrupo: '🔓',
+    promover: '⭐',
+    rebaixar: '⬇️',
+    link: '🔗',
+    marcar: '📢',
+    hidetag: '📢',
+
+    // Sistema & Utilidades
+    ping: '🏓',
+    clima: '🌤️',
+    tempo: '🌤️',
+    qrcode: '📱',
+    calc: '🧮',
+    info: 'ℹ️',
+    menu: '📜',
+    help: '🧭',
+    comandos: '📋',
+    dono: '👑',
+    login: '🔐',
+    registrar: '📝'
+}
+
+const CATEGORY_REACTIONS = {
+    rpg: '⚔️',
+    cassino: '🎰',
+    economia: '💰',
+    jogos: '🎮',
+    media: '🎬',
+    downloads: '📥',
+    livros: '📚',
+    ia: '🧠',
+    figurinhas: '🎨',
+    admin: '🛡️',
+    moderacao: '🔨',
+    dono: '👑',
+    utilitarios: '⚙️',
+    geral: '✨'
+}
+
 function loadCommands(commandsDir = path.join(__dirname, '..', 'commands')) {
     commands.clear()
     aliases.clear()
@@ -426,6 +565,17 @@ async function dispatch(context) {
     }
 
     const startTime = Date.now()
+
+    // Disparo dinâmico e não-bloqueante de reação contextual por comando ou categoria
+    if (typeof context.react === 'function') {
+        const reactionEmoji = COMMAND_REACTIONS[cmd.name] ||
+            (cmd.category && CATEGORY_REACTIONS[cmd.category.toLowerCase()]) ||
+            '⚡'
+        if (reactionEmoji) {
+            context.react(reactionEmoji).catch(() => {})
+        }
+    }
+
     try {
         await cmd.execute(context)
         const latencyMs = Date.now() - startTime
@@ -445,6 +595,9 @@ async function dispatch(context) {
 
         return true
     } catch (err) {
+        if (typeof context.react === 'function') {
+            context.react('❌').catch(() => {})
+        }
         const latencyMs = Date.now() - startTime
         telemetryService.recordExecution(cmd.name, latencyMs, false, err)
         logger.error(`[COMMAND ERROR] Falha ao executar ${cmd.name} de ${sender}:`, err)
