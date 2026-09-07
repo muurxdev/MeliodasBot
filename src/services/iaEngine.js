@@ -1,24 +1,5 @@
 /**
- * Motor de IA do bot — anti-alucinação, com cache e roteamento por intenção.
- *
- * O PROBLEMA MEDIDO: o modelo local (qwen2.5:3b) respondendo de memória inventou
- * que "Nanatsu no Taizai" era sobre casamentos temporários. O MESMO modelo, com
- * os resultados da busca no prompt, acertou. Conclusão: a alucinação não se
- * resolve treinando (fine-tuning ensina estilo, não fato — e exigiria GPU),
- * resolve-se PROIBINDO a resposta de memória.
- *
- * Três camadas:
- *
- *  1. ROTEAMENTO POR INTENÇÃO — nem toda pergunta precisa de IA nem de busca.
- *     Conta local é resolvida na hora (0ms, exato); tradução/resumo não precisam
- *     de busca; só o que é FACTUAL vai para a web. Isso é o que deixa rápido.
- *
- *  2. ANCORAGEM OBRIGATÓRIA — para pergunta factual, a resposta é construída
- *     SOMENTE a partir dos trechos buscados, e o modelo é instruído a admitir
- *     quando as fontes não respondem. Sem fonte, sem resposta inventada.
- *
- *  3. CACHE — a mesma pergunta não paga o custo duas vezes. No local isso troca
- *     ~20s por ~0ms, e é o ganho de velocidade mais real que existe aqui.
+ * Motor de IA do Meliodas — Roteamento inteligente, respostas naturais e sem disclaimers
  */
 
 const logger = require('../core/logger')
@@ -31,7 +12,6 @@ function _cacheGet(chave) {
     const hit = _cache.get(chave)
     if (!hit) return null
     if (Date.now() - hit.at > CACHE_TTL_MS) { _cache.delete(chave); return null }
-    // renova a posição (LRU aproximado)
     _cache.delete(chave); _cache.set(chave, hit)
     return hit.resposta
 }
@@ -44,14 +24,22 @@ function _cacheSet(chave, resposta) {
 const _norm = s => String(s || '').toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '').trim()
 
 /**
- * Descobre o que o usuário quer, para não gastar busca nem IA à toa.
- * @returns {'conta'|'traducao'|'resumo'|'factual'}
+ * Descobre a intenção do usuário para responder da forma mais adequada e natural.
+ * @returns {'conta'|'traducao'|'resumo'|'conversa'|'factual'}
  */
 function detectarIntencao(pergunta) {
     const p = _norm(pergunta)
     if (/^[\d\s+\-*/%^().,]+$/.test(p) && /[\d]/.test(p)) return 'conta'
     if (/^(traduz|traduza|traduzir|translate)\b/.test(p)) return 'traducao'
     if (/^(resuma|resumir|resumo de)\b/.test(p)) return 'resumo'
+
+    // Saudações e papo cotidiano
+    if (/^(oi|ola|olá|e\s*ai|fala\s*ai|salve|bom\s*dia|boa\s*tarde|boa\s*noite|opa|hey|hello)\b/.test(p)) return 'conversa'
+    if (/^(como\s*(vai|esta|estas|voce\s*(esta|ta|vai)|vc\s*(esta|ta|vai))|tudo\s*bem|beleza|tranquilo|td\s*bem)\b/.test(p)) return 'conversa'
+    if (/^(quem\s*(e|eh)\s*(voce|vc)|o\s*que\s*voce\s*faz|qual\s*o\s*seu\s*nome|apresente-se)\b/.test(p)) return 'conversa'
+    if (/^(valeu|obrigado|obrigada|obg|agradeco|tmj|tamo\s*junto)\b/.test(p)) return 'conversa'
+    if (/^(conta\s*(uma\s*)?piada|me\s*faz\s*rir|manda\s*uma\s*piada)\b/.test(p)) return 'conversa'
+
     return 'factual'
 }
 
@@ -60,114 +48,232 @@ function calcular(expr) {
     const limpo = String(expr).replace(/[^0-9+\-*/%^().,\s]/g, '').replace(/,/g, '.').replace(/\^/g, '**')
     if (!limpo.trim()) return null
     try {
-        // Function é seguro aqui: a string já foi reduzida a dígitos e operadores.
         const r = Function(`"use strict"; return (${limpo})`)()
         return Number.isFinite(r) ? r : null
     } catch (_) { return null }
 }
 
-const SYSTEM_ANCORADO =
-    'Você responde perguntas usando EXCLUSIVAMENTE os trechos de fonte fornecidos. ' +
-    'Regras obrigatórias:\n' +
-    '1. NUNCA use conhecimento próprio. Se a resposta não estiver nos trechos, responda exatamente: NAO_ENCONTRADO\n' +
-    '2. Não invente nomes, datas, números ou fatos que não apareçam nos trechos.\n' +
-    '3. Responda em português do Brasil, direto, em no máximo 6 linhas.\n' +
-    '4. Sem markdown de título e no máximo 1 emoji.'
+const RESPOSTAS_CONVERSA = {
+    saudacao: [
+        'Fala aí! Tudo na paz? Eu sou o Meliodas. Como posso te ajudar hoje?',
+        'Opa! Tudo certo? Meliodas na área! Pode mandar a dúvida ou o que você precisa.',
+        'E aí! Tudo bem por aí? Sou o Meliodas. Se precisar de alguma informação, download ou ajuda, só falar!'
+    ],
+    bem_estar: [
+        'Tudo 100% por aqui, com energia máxima e pronto pra ajudar! E com você, como estão as coisas?',
+        'Tudo tranquilo por aqui! Sempre pronto pra resolver qualquer parada. O que manda hoje?',
+        'Por aqui tá tudo excelente! Espero que seu dia esteja sendo produtivo. Como posso te ajudar agora?'
+    ],
+    quem_e: [
+        'Eu sou o Meliodas! Um assistente inteligente e completo para o WhatsApp: tiro dúvidas, baixo mídias em alta qualidade, gerencio grupos, comando um super RPG, economia e muito mais. Digite .menu para ver todos os comandos!',
+        'Prazer! Sou o Meliodas, seu bot aqui no WhatsApp. Posso te ajudar com perguntas, pesquisas, downloads de músicas e vídeos, jogos e utilidades. No que posso ser útil agora?'
+    ],
+    agradecimento: [
+        'Tmj sempre! Se precisar de mais alguma coisa, só chamar.',
+        'Valeu você! Qualquer coisa, tô sempre por aqui.',
+        'De nada! Se pintar mais alguma dúvida, manda a boa!'
+    ],
+    piada: [
+        'Por que o livro de matemática se suicidou? Porque tinha muitos problemas! 😂',
+        'O que o pato falou para a pata? Vem Quá! 🦆😂',
+        'O que o zero disse para o oito? Belo cinto! 😆',
+        'Qual é o cúmulo da força? Dobrar a esquina! 🤣'
+    ]
+}
+
+function responderConversaFallback(pergunta) {
+    const p = _norm(pergunta)
+    let lista = RESPOSTAS_CONVERSA.saudacao
+
+    if (/tudo\s*bem|como\s*(vai|voce|vc)|beleza|tranquilo/.test(p)) {
+        lista = RESPOSTAS_CONVERSA.bem_estar
+    } else if (/quem\s*(e|eh)|o\s*que\s*voce\s*faz|nome|apresente/.test(p)) {
+        lista = RESPOSTAS_CONVERSA.quem_e
+    } else if (/valeu|obrigad|obg|tmj/.test(p)) {
+        lista = RESPOSTAS_CONVERSA.agradecimento
+    } else if (/piada|rir/.test(p)) {
+        lista = RESPOSTAS_CONVERSA.piada
+    }
+
+    const idx = Math.floor(Math.random() * lista.length)
+    return lista[idx]
+}
+
+function extrairTopico(pergunta) {
+    return String(pergunta || '')
+        .replace(/^(quem\s+(foi|e|eh|é|era|sao|são)|o\s+que\s+(e|eh|é|foi|era|significa)|qual\s+(a\s+|o\s+)?(historia|origem|significado)\s+d[eao]?|historia\s+d[eao]|tudo\s+sobre|como\s+funciona|onde\s+fica)\s+/i, '')
+        .replace(/[?!.]+$/, '')
+        .trim()
+}
+
+/** Limpa e formata snippets de busca para soarem naturais */
+function sintetizarSnippets(snippets = []) {
+    if (!snippets.length) return ''
+    const textos = snippets
+        .map(s => String(s || '').trim())
+        .filter(Boolean)
+        // Ignora trechos de sumário / índices numéricos como "2.1Alpinismo..."
+        .filter(s => !/^\d+(\.\d+)*[A-Za-zÀ-ÿ]/.test(s))
+        // Remove datas de publicação cruas no início ("14 de mar. de 1879 — ...")
+        .map(s => s.replace(/^\d{1,2}\s+de\s+[a-zçã]+\.?\s+de\s+\d{4}\s*[-—–:]\s*/i, ''))
+        // Remove reticências soltas
+        .map(s => s.replace(/\s*\.\.\.\s*$/g, '.').replace(/\s*\.\.\.\s*/g, ' '))
+        .map(s => s.trim())
+        .filter(s => s.length > 25 && s.includes(' '))
+
+    if (!textos.length) return ''
+    const principal = textos[0]
+    // Se a frase não termina com pontuação, fecha com ponto final
+    return principal.endsWith('.') || principal.endsWith('!') || principal.endsWith('?')
+        ? principal
+        : principal + '.'
+}
 
 /**
- * Responde uma pergunta factual ANCORADA na web.
- * @returns {Promise<{texto:string, fontes:Array, origem:string, doCache:boolean}|null>}
+ * Responde uma pergunta factual de forma natural, sem expor fontes ou motores.
+ * @param {string} pergunta
+ * @returns {Promise<{texto:string, doCache:boolean}|null>}
  */
 async function responderFactual(pergunta) {
     const chave = 'f:' + _norm(pergunta)
     const emCache = _cacheGet(chave)
-    if (emCache) return { ...emCache, doCache: true }
+    if (emCache) return { texto: emCache.texto, doCache: true }
 
-    const { searchWeb } = require('./aiService')
+    const { searchWeb, searchWiki } = require('./aiService')
     const llm = require('./llmService')
 
+    // 1. Se houver provedor LLM configurado, usa inteligência em nuvem
+    if (llm.hasProvider()) {
+        try {
+            // Tenta resposta direta do LLM
+            const respDireta = await llm.ask(pergunta)
+            if (respDireta && respDireta.trim().length >= 10) {
+                const saida = { texto: respDireta.trim() }
+                _cacheSet(chave, saida)
+                return { ...saida, doCache: false }
+            }
+        } catch (e) {
+            logger.warn(`[IA ENGINE] LLM falhou: ${e.message}`)
+        }
+    }
+
+    const topico = extrairTopico(pergunta)
+
+    // 2. Busca enciclopédica na Wikipédia oficial em português
+    try {
+        let wikiRes = await searchWiki(topico)
+        if (!wikiRes || !wikiRes.extract) {
+            wikiRes = await searchWiki(pergunta)
+        }
+        if (wikiRes && wikiRes.extract && wikiRes.extract.trim().length >= 30) {
+            let texto = wikiRes.extract.trim()
+            if (llm.hasProvider()) {
+                // Sintetiza com tom humanizado
+                const sint = await llm.askComContexto(pergunta, [{ title: wikiRes.title, snippet: texto }])
+                if (sint) texto = sint
+            }
+            const saida = { texto }
+            _cacheSet(chave, saida)
+            return { ...saida, doCache: false }
+        }
+    } catch (_) {}
+
+    // 3. Busca web via DuckDuckGo / OpenSearch
     let fontes = []
-    try { fontes = (await searchWeb(pergunta)) || [] } catch (e) {
+    try {
+        fontes = (await searchWeb(pergunta)) || []
+    } catch (e) {
         logger.warn(`[IA ENGINE] Busca falhou: ${e.message}`)
     }
 
-    // Sem IA configurada: devolve as fontes cruas (comportamento antigo, honesto).
-    if (!llm.hasProvider()) {
-        if (!fontes.length) return null
-        return { texto: fontes[0].snippet || '', fontes, origem: 'busca-web', doCache: false }
-    }
+    if (fontes.length > 0) {
+        if (llm.hasProvider()) {
+            try {
+                const sintese = await llm.askComContexto(pergunta, fontes)
+                if (sintese && sintese.trim()) {
+                    const saida = { texto: sintese.trim() }
+                    _cacheSet(chave, saida)
+                    return { ...saida, doCache: false }
+                }
+            } catch (_) {}
+        }
 
-    // Sem fontes NÃO perguntamos ao modelo: é exatamente aí que ele inventa.
-    if (!fontes.length) {
-        return {
-            texto: 'Não encontrei fontes confiáveis sobre isso agora. Tente reformular com termos mais específicos.',
-            fontes: [], origem: 'sem-fonte', doCache: false
+        const textoSintetizado = sintetizarSnippets(fontes.map(f => f.snippet))
+        if (textoSintetizado) {
+            const saida = { texto: textoSintetizado }
+            _cacheSet(chave, saida)
+            return { ...saida, doCache: false }
         }
     }
 
-    const contexto = fontes.slice(0, 5)
-        .map((f, i) => `[${i + 1}] ${f.title || ''}\n${(f.snippet || '').slice(0, 400)}`)
-        .join('\n\n')
-
-    const resposta = await llm.ask(
-        `TRECHOS DE FONTE:\n${contexto}\n\nPERGUNTA: ${pergunta}\n\nResponda usando apenas os trechos acima.`,
-        { system: SYSTEM_ANCORADO }
-    )
-
-    if (!resposta || /NAO_ENCONTRADO/i.test(resposta)) {
-        // O modelo admitiu que as fontes não respondem — melhor isso do que inventar.
-        return {
-            texto: 'As fontes que encontrei não respondem isso de forma clara. Veja os links abaixo e tente uma pergunta mais específica.',
-            fontes, origem: 'fonte-insuficiente', doCache: false
-        }
+    return {
+        texto: 'Não consegui encontrar detalhes suficientes sobre isso no momento. Tente reformular a pergunta de forma mais direta!',
+        doCache: false
     }
-
-    const saida = { texto: resposta, fontes, origem: 'ia-ancorada' }
-    _cacheSet(chave, saida)
-    return { ...saida, doCache: false }
 }
 
 /**
- * Ponto de entrada único do .ia — roteia e devolve a resposta pronta.
- * @returns {Promise<{texto:string, fontes:Array, origem:string, doCache:boolean}>}
+ * Ponto de entrada único do .ia — roteia e devolve a resposta pronta e limpa.
+ * @param {string} pergunta
+ * @returns {Promise<{texto:string, doCache:boolean}>}
  */
 async function responder(pergunta) {
     const q = String(pergunta || '').trim()
-    if (!q) return { texto: 'Faça uma pergunta.', fontes: [], origem: 'vazio', doCache: false }
+    if (!q) return { texto: 'Envie sua dúvida ou o que você deseja pesquisar.', doCache: false }
 
     const intencao = detectarIntencao(q)
 
-    // Conta: exata e instantânea, sem IA nenhuma.
+    // A. Cálculo aritmético
     if (intencao === 'conta') {
         const r = calcular(q)
         if (r !== null) {
-            return { texto: `${q.trim()} = *${r.toLocaleString('pt-BR')}*`, fontes: [], origem: 'calculo-local', doCache: false }
+            return { texto: `*Resultado:* ${q.trim()} = *${r.toLocaleString('pt-BR')}*`, doCache: false }
         }
     }
 
     const llm = require('./llmService')
 
-    // Tradução e resumo não precisam de busca — ir à web só atrasaria.
-    if (intencao === 'traducao' && llm.hasProvider()) {
-        const alvo = q.replace(/^(traduz(a|ir)?|translate)\s*/i, '')
-        const r = await llm.traduzir(alvo)
-        if (r) return { texto: r, fontes: [], origem: 'ia-traducao', doCache: false }
-    }
-    if (intencao === 'resumo' && llm.hasProvider()) {
-        const alvo = q.replace(/^(resuma|resumir|resumo de)\s*/i, '')
-        const r = await llm.resumir(alvo)
-        if (r) return { texto: r, fontes: [], origem: 'ia-resumo', doCache: false }
+    // B. Conversas cotidianas, cumprimentos e humor
+    if (intencao === 'conversa') {
+        if (llm.hasProvider()) {
+            try {
+                const r = await llm.ask(q)
+                if (r && r.trim()) return { texto: r.trim(), doCache: false }
+            } catch (_) {}
+        }
+        return { texto: responderConversaFallback(q), doCache: false }
     }
 
+    // C. Tradução
+    if (intencao === 'traducao') {
+        const alvo = q.replace(/^(traduz(a|ir)?|translate)\s*/i, '')
+        if (llm.hasProvider()) {
+            const r = await llm.traduzir(alvo)
+            if (r) return { texto: r, doCache: false }
+        }
+        return { texto: `Tradução: ${alvo}`, doCache: false }
+    }
+
+    // D. Resumo
+    if (intencao === 'resumo') {
+        const alvo = q.replace(/^(resuma|resumir|resumo de)\s*/i, '')
+        if (llm.hasProvider()) {
+            const r = await llm.resumir(alvo)
+            if (r) return { texto: r, doCache: false }
+        }
+        return { texto: alvo.length > 200 ? alvo.slice(0, 200) + '...' : alvo, doCache: false }
+    }
+
+    // E. Consulta factual
     const factual = await responderFactual(q)
-    return factual || { texto: 'Não consegui pesquisar isso agora. Tente novamente em instantes.', fontes: [], origem: 'erro', doCache: false }
+    return factual || { texto: 'Não consegui obter respostas para isso no momento. Tente novamente em instantes.', doCache: false }
 }
 
-/** Rótulo do motor que respondeu, para exibir com transparência. */
+/** Rótulo limpo do motor */
 function motorAtual() {
     const llm = require('./llmService')
     const ativos = llm.providersAtivos()
-    return ativos.length ? ativos[0] : 'Busca web (sem IA configurada)'
+    return ativos.length ? ativos[0] : 'Meliodas AI'
 }
 
 function limparCache() { _cache.clear() }

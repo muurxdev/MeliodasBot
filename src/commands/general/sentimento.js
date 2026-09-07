@@ -7,13 +7,44 @@ const { getBotName } = require("../../config/botConfig");
 const { askAI } = require("../../services/aiService");
 const logger = require("../../core/logger");
 
+const PALAVRAS_POSITIVAS = [
+    'incrivel', 'excelente', 'maravilhoso', 'otimo', 'bom', 'boa', 'feliz', 'alegria',
+    'adorei', 'amei', 'sucesso', 'parabens', 'top', 'perfeito', 'ganhei', 'vitoria',
+    'positivo', 'amor', 'melhor', 'legal', 'massa', 'show', 'bater', 'consegui', 'meta'
+]
+const PALAVRAS_NEGATIVAS = [
+    'pessimo', 'ruim', 'triste', 'chateado', 'odeio', 'odiei', 'falha', 'defeito',
+    'problema', 'raiva', 'odio', 'horrivel', 'droga', 'perdi', 'derrota', 'negativo',
+    'dor', 'lamentavel', 'horrendo', 'lixo', 'bosta', 'merda', 'decepcionado', 'pior'
+]
+
+function analisarSentimentoLocal(texto) {
+    const limpo = String(texto || '').toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '')
+    const palavras = limpo.split(/\W+/).filter(Boolean)
+    let scorePos = 0
+    let scoreNeg = 0
+
+    for (const p of palavras) {
+        if (PALAVRAS_POSITIVAS.includes(p)) scorePos++
+        if (PALAVRAS_NEGATIVAS.includes(p)) scoreNeg++
+    }
+
+    if (scorePos > scoreNeg) {
+        return '😊 *Positivo*\n\nO texto transmite um tom animado, otimista e positivo, demonstrando entusiasmo ou satisfação.'
+    } else if (scoreNeg > scorePos) {
+        return '😔 *Negativo*\n\nO texto expressa insatisfação, queixa ou desconforto em relação ao que foi abordado.'
+    } else {
+        return '😐 *Neutro*\n\nO texto mantém um tom informativo e descritivo equilibrado, sem forte carga emocional.'
+    }
+}
+
 module.exports = {
     name: "sentimento",
     aliases: ["sentiment", "analisarsentimento", "emoçao"],
     category: "general",
     subcategory: "IA & Pesquisa",
     description: "Analisa o sentimento de um texto (positivo, negativo, neutro)",
-    cooldownMs: 5000,
+    cooldownMs: 4000,
     execute: async ({ sender, text, reply }) => {
         const botName = getBotName();
 
@@ -24,14 +55,25 @@ module.exports = {
         try {
             await reply("🔄 *Analisando sentimento...*");
 
-            const prompt = `Analise o sentimento do texto abaixo. Responda APENAS com um emoji e uma palavra (positivo/negativo/neutro), depois uma breve explicação em português:\n\nTexto: ${text}`;
-            const response = await askAI(prompt);
+            const llm = require("../../services/llmService");
+            let response = null;
+
+            if (llm.hasProvider()) {
+                const prompt = `Analise o tom e o sentimento do texto abaixo. Responda com um emoji e a classificação (positivo/negativo/neutro), seguido de uma breve explicação amigável em português:\n\nTexto: ${text}`;
+                response = await askAI(prompt);
+            }
+
+            if (!response) {
+                response = analisarSentimentoLocal(text);
+            }
 
             let doc = "╔══════════════════════════════╗\n";
-            doc += "║   💭 *ANÁLISE DE SENTIMENTO* 💭   ║\n";
+            doc += "║ 💭 *ANÁLISE DE SENTIMENTO* 💭 ║\n";
             doc += "╚══════════════════════════════╝\n\n";
-            doc += response;
-            doc += `\n\n💡 _Análise por IA_\n👑 *${botName}*`;
+            doc += `╭━〔 🎭 RESULTADO 〕━⬣\n`;
+            doc += `${response}\n`;
+            doc += `╰━━━━━━━━━━━━━━━━━━⬣\n\n`;
+            doc += `👑 *${botName}*`;
 
             return reply(doc.trim());
         } catch (err) {

@@ -1,72 +1,51 @@
 /**
- * LLM Service — IA de verdade para .ia / .explicar / .resumir / .traduzir.
  * LLM Service — IA em Nuvem de Alta Velocidade para .ia / .explicar / .resumir / .traduzir.
  *
- * Provedores, na ORDEM em que são tentados (o primeiro configurado vence; se
- * falhar, cai para o próximo):
- *   1. OLLAMA_URL   — LLM local, 100% open source, sem chave e sem cota. Roda no
- *                     container `meliodas_ollama`. Preferido justamente por não
- *                     depender de ninguém. Contrapartida: a VPS tem 2 vCPUs e
- *                     nenhuma GPU, então modelo pequeno e resposta em ~10-30s.
- *   2. GROQ_API_KEY — 30 req/min, 1.000/dia. Rápido. https://console.groq.com/keys
- *   3. GEMINI_API_KEY — Flash gratuito.      https://aistudio.google.com/apikey
- *   4. CLOUDFLARE_ACCOUNT_ID + CLOUDFLARE_API_TOKEN — 10k neurons/dia.
- *
- * SEM NENHUM configurado o serviço fica inativo e quem chama cai no comportamento
- * antigo (busca web no DuckDuckGo) — nada quebra.
  * Provedores em nuvem (respostas instantâneas em ~1-2s):
- *   1. GEMINI_API_KEY — Google Gemini 2.0 Flash oficial gratuito com Google Search Grounding.
- *   2. GROQ_API_KEY   — Groq Llama-3.3-70b-versatile ultra-rápido.
+ *   1. GEMINI_API_KEY     — Google Gemini 2.0 Flash oficial com Search Grounding opcional.
+ *   2. GROQ_API_KEY       — Groq Llama-3.3-70b-versatile ultra-rápido.
  *   3. PERPLEXITY_API_KEY — Sonar com busca em tempo real.
  *   4. CLOUDFLARE_ACCOUNT_ID + CLOUDFLARE_API_TOKEN — Workers AI.
+ *   5. OLLAMA_URL         — Ollama local opcional.
  */
 
 const logger = require('../core/logger')
 
 const TIMEOUT_MS = 25000
-// O LLM local roda em CPU e leva 20-30s; com o timeout padrão ele era cortado
-// exatamente no limite. Nuvem continua com o prazo curto.
-const TIMEOUT_LOCAL_MS = 75000
+const TIMEOUT_LOCAL_MS = 60000
 
 function _cfg() {
     return {
-        // Ollama LOCAL (open source, sem chave, sem custo).
-        ollamaUrl: (process.env.OLLAMA_URL || '').trim().replace(/\/$/, ''),
-        ollamaModel: (process.env.OLLAMA_MODEL || 'qwen2.5:3b').trim(),
         geminiKey: (process.env.GEMINI_API_KEY || '').trim(),
         geminiModel: (process.env.GEMINI_MODEL || 'gemini-2.0-flash').trim(),
         geminiSearchGrounding: String(process.env.GEMINI_SEARCH_GROUNDING || 'true').toLowerCase() !== 'false',
         groqKey: (process.env.GROQ_API_KEY || '').trim(),
         groqModel: (process.env.GROQ_MODEL || 'llama-3.3-70b-versatile').trim(),
-        geminiKey: (process.env.GEMINI_API_KEY || '').trim(),
-        geminiModel: (process.env.GEMINI_MODEL || 'gemini-2.0-flash').trim(),
-        geminiSearchGrounding: String(process.env.GEMINI_SEARCH_GROUNDING || 'false').toLowerCase() === 'true',
         perplexityKey: (process.env.PERPLEXITY_API_KEY || '').trim(),
         perplexityModel: (process.env.PERPLEXITY_MODEL || 'sonar').trim(),
         cfAccount: (process.env.CLOUDFLARE_ACCOUNT_ID || '').trim(),
         cfToken: (process.env.CLOUDFLARE_API_TOKEN || '').trim(),
-        cfModel: (process.env.CLOUDFLARE_AI_MODEL || '@cf/meta/llama-3.1-8b-instruct').trim()
+        cfModel: (process.env.CLOUDFLARE_AI_MODEL || '@cf/meta/llama-3.1-8b-instruct').trim(),
+        ollamaUrl: (process.env.OLLAMA_URL || '').trim().replace(/\/$/, ''),
+        ollamaModel: (process.env.OLLAMA_MODEL || 'qwen2.5:3b').trim()
     }
 }
 
 /** @returns {boolean} há algum provedor configurado? */
 function hasProvider() {
     const c = _cfg()
-    return Boolean(c.geminiKey || c.perplexityKey || c.groqKey || c.ollamaUrl || (c.cfAccount && c.cfToken))
-    return Boolean(c.geminiKey || c.groqKey || c.perplexityKey || (c.cfAccount && c.cfToken))
+    return Boolean(c.geminiKey || c.groqKey || c.perplexityKey || (c.cfAccount && c.cfToken) || c.ollamaUrl)
 }
 
 /** @returns {string[]} nomes dos provedores ativos (para diagnóstico). */
 function providersAtivos() {
     const c = _cfg()
     const l = []
-    if (c.geminiKey) l.push('Gemini (' + c.geminiModel + ')')
-    if (c.geminiKey) l.push('Google Gemini (' + c.geminiModel + ')')
-    if (c.groqKey) l.push('Groq (' + c.groqModel + ')')
-    if (c.perplexityKey) l.push('Perplexity (' + c.perplexityModel + ')')
-    if (c.groqKey) l.push('Groq (' + c.groqModel + ')')
-    if (c.cfAccount && c.cfToken) l.push('Cloudflare (' + c.cfModel + ')')
-    if (c.ollamaUrl) l.push('Ollama local (' + c.ollamaModel + ')')
+    if (c.geminiKey) l.push(`Google Gemini (${c.geminiModel})`)
+    if (c.groqKey) l.push(`Groq (${c.groqModel})`)
+    if (c.perplexityKey) l.push(`Perplexity (${c.perplexityModel})`)
+    if (c.cfAccount && c.cfToken) l.push(`Cloudflare (${c.cfModel})`)
+    if (c.ollamaUrl) l.push(`Ollama local (${c.ollamaModel})`)
     return l
 }
 
@@ -88,22 +67,6 @@ async function _fetchJson(url, options, timeoutMs = TIMEOUT_MS) {
     }
 }
 
-async function _ollama(prompt, system, c) {
-    // Ollama expõe uma API compatível com OpenAI em /v1/chat/completions.
-    const json = await _fetchJson(`${c.ollamaUrl}/v1/chat/completions`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-            model: c.ollamaModel,
-            messages: [{ role: 'system', content: system }, { role: 'user', content: prompt }],
-            temperature: 0.3,
-            // Resposta curta é resposta rápida: em CPU o custo é por token gerado.
-            max_tokens: 320
-        })
-    }, TIMEOUT_LOCAL_MS)
-    return json?.choices?.[0]?.message?.content?.trim() || null
-}
-
 async function _groq(prompt, system, c) {
     const json = await _fetchJson('https://api.groq.com/openai/v1/chat/completions', {
         method: 'POST',
@@ -111,8 +74,8 @@ async function _groq(prompt, system, c) {
         body: JSON.stringify({
             model: c.groqModel,
             messages: [{ role: 'system', content: system }, { role: 'user', content: prompt }],
-            temperature: 0.4,
-            max_tokens: 900
+            temperature: 0.5,
+            max_tokens: 1200
         })
     })
     return json?.choices?.[0]?.message?.content?.trim() || null
@@ -123,7 +86,7 @@ async function _gemini(prompt, system, c, returnSources = false) {
     const payload = {
         systemInstruction: { parts: [{ text: system }] },
         contents: [{ role: 'user', parts: [{ text: prompt }] }],
-        generationConfig: { temperature: 0.3, maxOutputTokens: 900 }
+        generationConfig: { temperature: 0.5, maxOutputTokens: 1200 }
     }
     if (c.geminiSearchGrounding) {
         payload.tools = [{ googleSearch: {} }]
@@ -137,7 +100,7 @@ async function _gemini(prompt, system, c, returnSources = false) {
             body: JSON.stringify(payload)
         })
     } catch (err) {
-        // Se a API rejeitar o grounding de busca (ex: modelo específico), refaz sem a ferramenta
+        // Se a API rejeitar o grounding de busca, refaz sem a ferramenta
         if (payload.tools) {
             delete payload.tools
             json = await _fetchJson(url, {
@@ -154,13 +117,12 @@ async function _gemini(prompt, system, c, returnSources = false) {
     const partes = candidate?.content?.parts
     const text = Array.isArray(partes) ? partes.map(p => p.text || '').join('').trim() || null : null
 
-    // Fontes do Google Grounding
     const sources = []
     const chunks = candidate?.groundingMetadata?.groundingChunks || []
     for (const chunk of chunks) {
         if (chunk.web?.uri) {
             sources.push({
-                title: chunk.web.title || 'Google Search',
+                title: chunk.web.title || 'Web Search',
                 url: chunk.web.uri,
                 snippet: ''
             })
@@ -180,8 +142,8 @@ async function _perplexity(prompt, system, c) {
         body: JSON.stringify({
             model: c.perplexityModel,
             messages: [{ role: 'system', content: system }, { role: 'user', content: prompt }],
-            temperature: 0.2,
-            max_tokens: 900
+            temperature: 0.3,
+            max_tokens: 1200
         })
     })
     return json?.choices?.[0]?.message?.content?.trim() || null
@@ -194,23 +156,37 @@ async function _cloudflare(prompt, system, c) {
         headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${c.cfToken}` },
         body: JSON.stringify({
             messages: [{ role: 'system', content: system }, { role: 'user', content: prompt }],
-            max_tokens: 900
+            max_tokens: 1000
         })
     })
     return (json?.result?.response || '').trim() || null
 }
 
+async function _ollama(prompt, system, c) {
+    const json = await _fetchJson(`${c.ollamaUrl}/v1/chat/completions`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+            model: c.ollamaModel,
+            messages: [{ role: 'system', content: system }, { role: 'user', content: prompt }],
+            temperature: 0.4,
+            max_tokens: 500
+        })
+    }, TIMEOUT_LOCAL_MS)
+    return json?.choices?.[0]?.message?.content?.trim() || null
+}
+
 const SYSTEM_PADRAO =
-    'Você é um assistente de um bot de WhatsApp brasileiro. Responda SEMPRE em português do Brasil, ' +
-    'de forma direta e objetiva, em no máximo 8 linhas. Use no máximo 2 emojis. ' +
-    'Não invente fatos: se não souber, diga que não sabe. Não use markdown de título (#).'
+    'Você é o Meliodas, assistente virtual inteligente, amigável e descontraído de um bot de WhatsApp brasileiro. ' +
+    'Responda SEMPRE em português do Brasil de forma natural, humana, fluida e prestativa. ' +
+    'Adapte o tamanho da resposta ao que foi perguntado: seja direto quando a pergunta for simples e explicativo quando necessário. ' +
+    'Use parágrafos bem espaçados para facilitar a leitura no WhatsApp e poucos emojis com bom senso. ' +
+    'NUNCA cite nomes de fontes, links, buscadores, motores ou mencione termos como "conforme fontes", "pesquisado na web" ou "gerado por IA". ' +
+    'Apenas entregue o conteúdo e a resposta de forma direta e excelente.'
 
 /**
  * Pergunta ao primeiro provedor disponível, com fallback em cadeia.
- * Pergunta ao primeiro provedor disponível em nuvem, com fallback em cadeia.
  * @param {string} prompt
- * @param {{system?: string}} [opts]
- * @returns {Promise<string|null>} resposta ou null se nenhum provedor respondeu
  * @param {{system?: string, returnSources?: boolean}} [opts]
  * @returns {Promise<string|{text: string, sources: Array}|null>}
  */
@@ -236,8 +212,12 @@ async function ask(prompt, opts = {}) {
         return returnSources ? { text, sources: [] } : text
     }])
 
-    // Padrão: Nuvem primeiro para latência ultra-rápida (~1s vs ~25s do CPU na VPS).
-    // Para priorizar Ollama local: defina LLM_PREFER_CLOUD=false no .env.
+    const local = []
+    if (c.ollamaUrl) local.push(['Ollama local', async () => {
+        const text = await _ollama(texto, system, c)
+        return returnSources ? { text, sources: [] } : text
+    }])
+
     const preferirNuvem = String(process.env.LLM_PREFER_CLOUD || 'true').toLowerCase() !== 'false'
     const cadeia = preferirNuvem ? [...nuvem, ...local] : [...local, ...nuvem]
     if (!cadeia.length) return null
@@ -247,7 +227,7 @@ async function ask(prompt, opts = {}) {
             const r = await fn()
             const hasText = returnSources ? (r && r.text) : Boolean(r)
             if (hasText) return r
-            logger.warn(`[LLM] ${nome} respondeu vazio; tentando o próximo.`)
+            logger.warn(`[LLM] ${nome} respondeu vazio; tentando o próximo provedor.`)
         } catch (e) {
             logger.warn(`[LLM] ${nome} falhou: ${e.message}`)
         }
@@ -256,33 +236,33 @@ async function ask(prompt, opts = {}) {
 }
 
 /**
- * Responde uma pergunta APOIADA em resultados de busca web (reduz alucinação).
+ * Responde uma pergunta APOIADA em informações de apoio, de forma natural.
  * @param {string} pergunta
  * @param {Array<{title?:string, snippet?:string, url?:string}>} resultados
  */
 async function askComContexto(pergunta, resultados = []) {
     if (!resultados.length) return ask(pergunta)
     const contexto = resultados.slice(0, 5)
-        .map((r, i) => `[${i + 1}] ${r.title || ''}\n${r.snippet || ''}\n(${r.url || ''})`)
+        .map((r, i) => `${r.title ? r.title + ':\n' : ''}${r.snippet || ''}`)
         .join('\n\n')
     const prompt =
-        `Pergunta: ${pergunta}\n\n` +
-        `Resultados de busca na web:\n${contexto}\n\n` +
-        `Responda à pergunta usando os resultados acima. Se eles não responderem, diga isso claramente.`
+        `Pergunta do usuário: ${pergunta}\n\n` +
+        `Informações de apoio:\n${contexto}\n\n` +
+        `Com base nas informações acima, responda à pergunta do usuário de forma natural, fluida e amigável em português do Brasil. Não mencione fontes, links ou trechos: apenas responda o assunto diretamente.`
     return ask(prompt)
 }
 
-/** Tradução via LLM (melhor que endpoint literal p/ gíria e contexto). */
+/** Tradução via LLM (preserva tom e gírias). */
 async function traduzir(texto, idiomaDestino = 'português do Brasil') {
     return ask(`Traduza para ${idiomaDestino}. Devolva APENAS a tradução, sem comentários:\n\n${texto}`, {
-        system: 'Você é um tradutor profissional. Devolva somente a tradução, preservando o tom do original.'
+        system: 'Você é um tradutor profissional. Devolva somente a tradução direta, preservando o tom do original.'
     })
 }
 
 /** Resumo via LLM. */
 async function resumir(texto) {
-    return ask(`Resuma o texto abaixo em até 5 linhas, em português:\n\n${texto}`, {
-        system: 'Você resume textos de forma fiel e objetiva, sem inventar informação.'
+    return ask(`Resuma o texto abaixo de forma clara e coesa em português do Brasil:\n\n${texto}`, {
+        system: 'Você é um especialista em síntese de textos. Crie um resumo fiel, fluido e agradável de ler.'
     })
 }
 

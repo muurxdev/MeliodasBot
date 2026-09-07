@@ -1,6 +1,6 @@
 /**
  * AI & Web Search Intelligence Service v3
- * Motor de pesquisa Web em tempo real com fontes verificadas, síntese factual e links oficiais
+ * Motor de inteligência e pesquisa em tempo real, natural e sem disclaimers
  */
 
 const https = require('https')
@@ -12,9 +12,8 @@ const { getBotName } = require('../config/botConfig')
 const logger = require('../core/logger')
 
 /**
- * Pesquisa em tempo real na Web (DuckDuckGo + Google HTML Scraper)
  * Pesquisa em tempo real na Web (Wikipedia API + DuckDuckGo API + HTML Lite)
- * Retorna títulos, snippets e URLs diretas de fontes reais
+ * Retorna títulos, snippets e URLs diretas
  * @param {string} query
  * @returns {Promise<Array<{url: string, title: string, snippet: string}>>}
  */
@@ -23,7 +22,7 @@ async function searchWeb(query) {
     const results = []
     const cleanQuery = query.trim()
 
-    // 1. Wikipedia API em Português (respostas factuais instantâneas e sem bloqueio de IP)
+    // 1. Wikipedia API em Português (respostas factuais instantâneas)
     try {
         const wikiUrl = `https://pt.wikipedia.org/w/api.php?action=opensearch&search=${encodeURIComponent(cleanQuery)}&limit=4&namespace=0&format=json`
         const res = await fetch(wikiUrl, {
@@ -79,6 +78,7 @@ async function searchWeb(query) {
             }
         } catch (_) {}
     }
+
     // 3. DuckDuckGo HTML Scraper com headers rotativos como fallback
     if (results.length < 3) {
         try {
@@ -126,8 +126,74 @@ async function searchWeb(query) {
 }
 
 /**
- * Síntese inteligente de resposta a partir de pesquisa na Web com fontes reais
- * Síntese inteligente de resposta a partir de IA Google com Search Grounding e fontes reais
+ * Consulta oficial de artigos na Wikipédia em português
+ * @param {string} query
+ * @returns {Promise<{title: string, extract: string, url: string}|null>}
+ */
+async function searchWiki(query) {
+    if (!query || typeof query !== 'string') return null
+    const clean = query.trim()
+
+    // 1. Tenta API REST oficial de sumário da Wikipédia em português
+    try {
+        const url = `https://pt.wikipedia.org/api/rest_v1/page/summary/${encodeURIComponent(clean.replace(/\s+/g, '_'))}`
+        const res = await fetch(url, {
+            headers: { 'User-Agent': 'MeliodasBot/2.0 (WhatsApp Assistant; contact@meliodasbot.com)' },
+            signal: AbortSignal.timeout(5000)
+        })
+        if (res.ok) {
+            const data = await res.json()
+            if (data.extract && data.type !== 'disambiguation') {
+                return {
+                    title: data.title,
+                    extract: data.extract,
+                    url: data.content_urls?.desktop?.page || `https://pt.wikipedia.org/wiki/${encodeURIComponent(data.title)}`
+                }
+            }
+        }
+    } catch (_) {}
+
+    // 2. Fallback: Opensearch para achar o título exato mais próximo
+    try {
+        const searchUrl = `https://pt.wikipedia.org/w/api.php?action=opensearch&search=${encodeURIComponent(clean)}&limit=1&namespace=0&format=json`
+        const res = await fetch(searchUrl, {
+            headers: { 'User-Agent': 'MeliodasBot/2.0 (WhatsApp Assistant; contact@meliodasbot.com)' },
+            signal: AbortSignal.timeout(5000)
+        })
+        if (res.ok) {
+            const data = await res.json()
+            const title = data[1]?.[0]
+            const snippet = data[2]?.[0]
+            const url = data[3]?.[0]
+            if (title) {
+                try {
+                    const sumRes = await fetch(`https://pt.wikipedia.org/api/rest_v1/page/summary/${encodeURIComponent(title.replace(/\s+/g, '_'))}`, {
+                        headers: { 'User-Agent': 'MeliodasBot/2.0 (WhatsApp Assistant; contact@meliodasbot.com)' },
+                        signal: AbortSignal.timeout(4000)
+                    })
+                    if (sumRes.ok) {
+                        const sumData = await sumRes.json()
+                        if (sumData.extract) {
+                            return {
+                                title: sumData.title,
+                                extract: sumData.extract,
+                                url: sumData.content_urls?.desktop?.page || url
+                            }
+                        }
+                    }
+                } catch (_) {}
+                if (snippet) {
+                    return { title, extract: snippet, url }
+                }
+            }
+        }
+    } catch (_) {}
+
+    return null
+}
+
+/**
+ * Resposta direta de Inteligência Artificial sem fontes ou certificações expostas
  * @param {string} prompt
  * @returns {Promise<string>}
  */
@@ -136,7 +202,7 @@ async function askAI(prompt) {
     const botName = getBotName()
 
     if (!cleanPrompt) {
-        return `🤖 Olá! Sou o *${botName}*.\n\nComo posso ajudar? Você pode me fazer perguntas sobre qualquer assunto, notícias, ciência ou pesquisar na web em tempo real!\n\n📌 *Exemplo:* \`.ia quem descobriu o brasil data\``
+        return `Olá! Sou o *${botName}*.\n\nComo posso te ajudar hoje? Você pode me fazer perguntas sobre qualquer assunto, curiosidades, resumos, traduções ou cálculos!`
     }
 
     const lower = cleanPrompt.toLowerCase()
@@ -156,22 +222,18 @@ async function askAI(prompt) {
         let card = `╔══════════════════════════════╗\n`
         card += `║    🤖 *SOBRE O ${botName}* 🤖    ║\n`
         card += `╚══════════════════════════════╝\n\n`
-        card += `✨ *Olá! Sou o ${botName}*, um assistente e sistema modular completo para WhatsApp.\n\n`
+        card += `✨ *Olá! Sou o ${botName}*, assistente virtual inteligente e sistema modular completo para WhatsApp.\n\n`
         card += `╭━〔 ⚙️ ARQUITETURA & TECNOLOGIA 〕━⬣\n`
-        card += `┃ 🧠 *Linguagem:* Node.js moderno de alta performance\n`
-        card += `┃ 🌐 *Bot:* ${botName}\n`
+        card += `┃ 🧠 *Núcleo:* Node.js moderno de alta performance\n`
         card += `┃ 🗄️ *Banco de Dados:* SQLite WAL (100% Persistente e Atômico)\n`
-        card += `┃ 📦 *Módulos:* 200+ comandos em 14 categorias\n`
-        card += `┃ 📦 *Módulos:* 2000 comandos em 16 categorias\n`
+        card += `┃ 📦 *Módulos:* Mais de 2000 comandos em 16 categorias\n`
         card += `╰━━━━━━━━━━━━━━━━━━⬣\n\n`
         card += `╭━〔 🌟 PRINCIPAIS FUNCIONALIDADES 〕━⬣\n`
-        card += `┃ ⚔️ *RPG & Combates:* Classes, Caça, Duelos, Bosses e Guildas\n`
         card += `┃ ⚔️ *RPG Nanatsu no Taizai:* 500 comandos, Clãs, Mandamentos e Forja\n`
-        card += `┃ 📥 *Media Hub HD:* Downloads de Spotify, Kwai, TikTok, YouTube, Insta, X\n`
+        card += `┃ 📥 *Media Hub HD:* Downloads de Spotify, TikTok, YouTube, Kwai, Insta, X\n`
         card += `┃ 🏆 *Economia & Níveis:* Sistema de XP infinito, Carteira, Cassino\n`
         card += `┃ 🛡️ *Moderação:* Anti-Link, Warnings, Banimento e Aluguel\n`
-        card += `┃ 🔍 *Pesquisa & IA:* Web Search em tempo real com fontes verificadas\n`
-        card += `┃ 🔍 *Pesquisa & IA:* Google Search Grounding em tempo real com fontes verificadas\n`
+        card += `┃ 🔍 *Pesquisa & IA:* Respostas rápidas, inteligentes e naturais\n`
         card += `╰━━━━━━━━━━━━━━━━━━⬣\n\n`
         card += `👑 *Dono:* ${botName}\n`
         card += `💡 _Digite_ \`.menu\` _para navegar por todos os comandos!_`
@@ -179,87 +241,44 @@ async function askAI(prompt) {
     }
 
     try {
-        // B. Pesquisa Web em tempo real prioritária (com fontes reais e verificadas)
         const llm = require('./llmService')
 
-        // 1. Prioridade Máxima: Google Gemini com Search Grounding em tempo real
+        // 1. Provedores de IA em nuvem
         if (llm.hasProvider()) {
             try {
-                const aiResult = await llm.ask(cleanPrompt, { returnSources: true })
+                const aiResult = await llm.ask(cleanPrompt)
                 const text = typeof aiResult === 'object' ? aiResult?.text : aiResult
-                const sources = typeof aiResult === 'object' ? (aiResult?.sources || []) : []
-
                 if (text && text.trim()) {
-                    let doc = `╔══════════════════════════════╗\n`
-                    doc += `║   🧠 *PESQUISA & INTELIGÊNCIA* 🧠   ║\n`
-                    doc += `╚══════════════════════════════╝\n\n`
-                    doc += `📌 *Pesquisa:* _"${cleanPrompt}"_\n\n`
-                    doc += `╭━〔 💡 RESPOSTA SINTETIZADA 〕━⬣\n`
-                    doc += `📝 ${text.trim()}\n`
-                    doc += `╰━━━━━━━━━━━━━━━━━━⬣\n\n`
-
-                    if (sources.length > 0) {
-                        doc += `╭━〔 🌐 FONTES & REFERÊNCIAS REAIS 〕━⬣\n`
-                        sources.slice(0, 3).forEach((item, i) => {
-                            doc += `┃ ${i + 1}. *${item.title.slice(0, 50)}*\n`
-                            doc += `┃    🔗 ${item.url}\n`
-                        })
-                        doc += `╰━━━━━━━━━━━━━━━━━━⬣\n\n`
-                    }
-
-                    doc += `✨ _Informações pesquisadas em tempo real na Web._\n`
-                    doc += `👑 *${botName}*`
-                    return doc.trim()
+                    return text.trim()
                 }
             } catch (llmErr) {
                 logger.warn(`[AI SERVICE] Falha primária no LLM: ${llmErr.message}`)
             }
         }
 
-        // 2. Fallback: Pesquisa Web em tempo real (Wikipedia + DuckDuckGo)
+        // 2. Consulta inteligente via iaEngine (trata conversas, contas, Wikipedia e busca sem disclaimers)
+        const iaEngine = require('./iaEngine')
+        const r = await iaEngine.responder(cleanPrompt)
+        if (r && r.texto && r.texto.trim()) {
+            return r.texto.trim()
+        }
+
+        // 3. Fallback: Pesquisa Web limpa
         const webResults = await searchWeb(cleanPrompt)
-
         if (webResults && webResults.length > 0) {
-            let doc = `╔══════════════════════════════╗\n`
-            doc += `║   🧠 *PESQUISA & INTELIGÊNCIA* 🧠   ║\n`
-            doc += `╚══════════════════════════════╝\n\n`
-            doc += `📌 *Pesquisa:* _"${cleanPrompt}"_\n\n`
-
-            // Síntese: se houver uma IA configurada (Groq/Gemini/Cloudflare), ela
-            // LÊ os resultados e responde de fato. Sem chave, mantém o antigo —
-            // que só copiava o trecho do 1º resultado, muitas vezes sem responder.
             const primary = webResults[0]
             let sintese = null
             try {
-                const llm = require('./llmService')
                 if (llm.hasProvider()) sintese = await llm.askComContexto(cleanPrompt, webResults)
-            } catch (e) {
-                logger.warn(`[IA] Falha na síntese por LLM: ${e.message}`)
-            }
+            } catch (_) {}
 
-            doc += `╭━〔 💡 RESPOSTA SINTETIZADA 〕━⬣\n`
-            doc += `📝 ${sintese || primary.snippet}\n`
-            doc += `╰━━━━━━━━━━━━━━━━━━⬣\n\n`
-
-            // Fontes e referências reais adicionais
-            doc += `╭━〔 🌐 FONTES & REFERÊNCIAS REAIS 〕━⬣\n`
-            webResults.slice(0, 3).forEach((item, i) => {
-                doc += `┃ ${i + 1}. *${item.title.slice(0, 50)}*\n`
-                doc += `┃    🔗 ${item.url}\n`
-                if (i < 2 && item !== primary) {
-                    doc += `┃    💬 _"${item.snippet.slice(0, 100)}..."_\n`
-                }
-            })
-            doc += `╰━━━━━━━━━━━━━━━━━━⬣\n\n`
-            doc += `✨ _Informações pesquisadas em tempo real na Web._\n`
-            doc += `👑 *${botName}*`
-            return doc.trim()
+            return (sintese || primary.snippet || '').trim()
         }
 
-        return `🤖 *${botName} Inteligência:*\n\nNão foi possível obter respostas atualizadas para _"${cleanPrompt}"_ no momento. Tente pesquisar com termos mais diretos (ex: \`.ia quem foi Santos Dumont\`)!`
+        return `Não consegui encontrar detalhes sobre isso no momento. Tente reformular a pergunta de forma mais direta!`
     } catch (err) {
         logger.error('[AI SERVICE ERROR]', err)
-        return `❌ *Erro ao processar pesquisa:* ${err.message}`
+        return `Não foi possível processar sua solicitação no momento.`
     }
 }
 
@@ -295,6 +314,7 @@ async function generateTTS(text) {
 
 module.exports = {
     searchWeb,
+    searchWiki,
     askAI,
     generateTTS
 }
