@@ -538,6 +538,27 @@ function demoteOwnerComplete(targetOwner, senderRank, actorJid) {
     return previousData;
 }
 
+/**
+ * Envia uma notificação privada via WhatsApp para os Donos do bot (Capitão, Tenente, etc.).
+ * @param {object} client - Baileys socket client
+ * @param {string} messageText - Conteúdo da mensagem
+ * @param {object} [opts] - Opções extras (ex: mentions)
+ */
+async function notifyDonos(client, messageText, opts = {}) {
+    if (!client || !messageText) return;
+    const owners = getOwners().filter(o => o.active && o.jid);
+    const jids = new Set(owners.map(o => o.jid));
+    if (OWNER_JID) jids.add(OWNER_JID);
+
+    for (const targetJid of jids) {
+        try {
+            await client.sendMessage(targetJid, { text: messageText, mentions: opts.mentions || [] });
+        } catch (e) {
+            logger.warn(`[NOTIFY DONO WARN] Falha ao enviar para ${targetJid}: ${e.message}`);
+        }
+    }
+}
+
 module.exports = {
     DEFAULT_OWNERS,
     getOwners,
@@ -555,4 +576,7 @@ module.exports = {
     resolveOwnerName,
     getOwnerProfileName,
     getOwnerRank
+    getOwnerRank,
+    notifyDonos
 };
+

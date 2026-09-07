@@ -25,6 +25,9 @@ module.exports = {
             return reply("❌ Informe um link válido do TikTok.\n\n📌 *Exemplos:*\n• `.tiktok https://vt.tiktok.com/xxxxxx/` (Vídeo na melhor qualidade ou Carrossel)\n• `.tiktok mp3 https://vt.tiktok.com/xxxxxx/` (Áudio MP3)");
         }
 
+        if (client && from && info?.key) {
+            try { await client.sendMessage(from, { react: { text: '⏳', key: info.key } }); } catch (_) {}
+        }
         await reply(isMp3 ? "🎵 *Extraindo áudio MP3 do TikTok...* Aguarde." : "🎵 *Processando mídia do TikTok sem marca d'água...* Aguarde.");
 
         try {
@@ -32,6 +35,7 @@ module.exports = {
                 url: queryUrl,
                 format: isMp3 ? "mp3" : "mp4",
                 user: sender,
+                timeoutMs: 60000,
                 runFn: () => downloadTikTokVideo(queryUrl)
             });
 
@@ -57,6 +61,9 @@ module.exports = {
                     }, { quoted: info });
                     try { fs.unlinkSync(item.path); } catch (_) {}
                 }
+                if (client && from && info?.key) {
+                    try { await client.sendMessage(from, { react: { text: '✅', key: info.key } }); } catch (_) {}
+                }
                 return logger.info("[TIKTOK] Carrossel com " + mediaData.carouselCount + " fotos enviado para " + sender);
             }
 
@@ -77,6 +84,8 @@ module.exports = {
                 author: mediaData.author,
                 durationFormatted: mediaData.durationFormatted,
                 url: mediaData.url,
+                uploadDate: mediaData.uploadDate,
+                year: mediaData.year,
                 isAudio: isMp3
             });
 
@@ -109,11 +118,18 @@ module.exports = {
                 });
             }
 
+            if (client && from && info?.key) {
+                try { await client.sendMessage(from, { react: { text: '✅', key: info.key } }); } catch (_) {}
+            }
+
             try { if (mediaData.filePath && fs.existsSync(mediaData.filePath)) fs.unlinkSync(mediaData.filePath); } catch (_) {}
             try { if (finalFilePath && finalFilePath !== mediaData.filePath && fs.existsSync(finalFilePath)) fs.unlinkSync(finalFilePath); } catch (_) {}
             logger.info("[TIKTOK] Mídia enviada com sucesso para " + sender);
         } catch (err) {
             logger.error("[TIKTOK ERROR]", err);
+            if (client && from && info?.key) {
+                try { await client.sendMessage(from, { react: { text: '❌', key: info.key } }); } catch (_) {}
+            }
             await reply("❌ *Erro no download do TikTok:* " + err.message);
         }
     }

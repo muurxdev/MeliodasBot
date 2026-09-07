@@ -70,6 +70,10 @@ module.exports = {
         const isMp3 = isCommandMp3 || hasMp3Flag || (!isMp4);
         const cleanQuery = cleanUrl || queryWithoutFormat;
 
+        if (client && from && info?.key) {
+            try { await client.sendMessage(from, { react: { text: '⏳', key: info.key } }); } catch (_) {}
+        }
+
         const isKwai = /kwai\.com|k\.kwai\.com|v\.kwai\.com|kwai-video\.com/i.test(cleanQuery);
         const isTikTok = /tiktok\.com|vt\.tiktok\.com|vm\.tiktok\.com/i.test(cleanQuery);
         const isTwitter = /twitter\.com|x\.com/i.test(cleanQuery);
@@ -308,6 +312,7 @@ module.exports = {
                     url: cleanQuery,
                     format: isMp3 ? "mp3" : "mp4",
                     user: sender,
+                    timeoutMs: 60000,
                     runFn: () => downloadTikTokVideo(cleanQuery)
                 });
 
@@ -325,6 +330,8 @@ module.exports = {
                     author: mediaData.author,
                     durationFormatted: mediaData.durationFormatted,
                     url: mediaData.url,
+                    uploadDate: mediaData.uploadDate,
+                    year: mediaData.year,
                     isAudio: isMp3
                 });
 
@@ -339,14 +346,19 @@ module.exports = {
 
                     // Card medido do ARQUIVO REALMENTE ENVIADO (o mp3 convertido) —
                     // o caption acima descreve o mp4 de origem, não o que sai daqui.
+                    // Card medido do ARQUIVO REALMENTE ENVIADO (o mp3 convertido)
                     const captionMp3 = formatMediaCaption({
                         filePath: mp3Out,
                         elapsedMs: mediaData.elapsedMs,
                         platform: mediaData.platform || "Web",
+                        platform: mediaData.platform || "TikTok",
                         title: mediaData.title,
                         author: mediaData.author,
                         durationFormatted: mediaData.durationFormatted,
                         url: mediaData.url,
+                        uploadDate: mediaData.uploadDate,
+                        year: mediaData.year,
+                        audioBitrate: "320 kbps",
                         isAudio: true
                     });
                     try {
@@ -364,11 +376,18 @@ module.exports = {
                     });
                 }
 
+                if (client && from && info?.key) {
+                    try { await client.sendMessage(from, { react: { text: '✅', key: info.key } }); } catch (_) {}
+                }
+
                 try { if (mediaData.filePath && fs.existsSync(mediaData.filePath)) fs.unlinkSync(mediaData.filePath); } catch (_) {}
                 try { if (finalFilePath && finalFilePath !== mediaData.filePath && fs.existsSync(finalFilePath)) fs.unlinkSync(finalFilePath); } catch (_) {}
                 return logger.info("[MEDIA HUB] TikTok enviado para " + sender);
             } catch (err) {
                 logger.error("[MEDIA HUB TIKTOK ERROR]", err);
+                if (client && from && info?.key) {
+                    try { await client.sendMessage(from, { react: { text: '❌', key: info.key } }); } catch (_) {}
+                }
                 return reply("❌ *Erro no download do TikTok:* " + err.message);
             }
         }
@@ -515,6 +534,8 @@ module.exports = {
                         author: meta.author,
                         durationFormatted: meta.durationFormatted,
                         url: targetUrl,
+                        uploadDate: meta.uploadDate || meta.upload_date,
+                        year: meta.year || meta.release_year,
                         isAudio: false
                     });
 
@@ -526,6 +547,9 @@ module.exports = {
                             fileName: `${cleanTitle}.mp4`,
                             preferirDocumento: /(^|\s)-?doc(umento)?(\s|$)/i.test(String(text || ''))
                         })
+                        if (client && from && info?.key) {
+                            try { await client.sendMessage(from, { react: { text: '✅', key: info.key } }); } catch (_) {}
+                        }
                         logger.info("[MEDIA HUB] Vídeo (" + sizeMb + " MB) enviado para " + sender + ": " + meta.title);
                     } finally {
                         try { fs.unlinkSync(filePath); } catch (_) {}
@@ -534,6 +558,9 @@ module.exports = {
                 }
             } catch (videoErr) {
                 logger.error("[MEDIA HUB VIDEO ERROR]", videoErr);
+                if (client && from && info?.key) {
+                    try { await client.sendMessage(from, { react: { text: '❌', key: info.key } }); } catch (_) {}
+                }
                 return reply("❌ *Erro no download do vídeo:* " + videoErr.message + "\n\n💡 *Dica:* Se desejar apenas o áudio, tente `.media mp3 " + cleanQuery + "` ou `.play`");
             }
         }
@@ -560,6 +587,9 @@ module.exports = {
                 author: mediaData.author,
                 durationFormatted: mediaData.durationFormatted,
                 url: mediaData.url,
+                uploadDate: mediaData.uploadDate || mediaData.upload_date,
+                year: mediaData.year || mediaData.release_year,
+                audioBitrate: "320 kbps",
                 isAudio: true
             });
 
@@ -578,6 +608,9 @@ module.exports = {
                         fileName: `${cleanTitle}.mp3`,
                         preferirPartes: /(^|\s)-?partes?(\s|$)/i.test(String(text || ''))
                     });
+                    if (client && from && info?.key) {
+                        try { await client.sendMessage(from, { react: { text: '✅', key: info.key } }); } catch (_) {}
+                    }
                 } finally {
                     try { fs.unlinkSync(mediaData.filePath); } catch (_) {}
                 }
@@ -586,6 +619,9 @@ module.exports = {
             logger.info("[MEDIA HUB] Áudio enviado para " + sender);
         } catch (err) {
             logger.error("[MEDIA HUB ERROR]", err);
+            if (client && from && info?.key) {
+                try { await client.sendMessage(from, { react: { text: '❌', key: info.key } }); } catch (_) {}
+            }
             await reply("❌ *Falha no processamento da mídia:* " + err.message + "\n\n💡 *Dica:* Verifique se o link é público ou use `.play <nome da música>`.");
         }
     }

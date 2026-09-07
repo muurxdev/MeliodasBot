@@ -139,8 +139,8 @@ const fs = require('fs')
 
 
 /**
- * Traduz a ALTURA REAL do vídeo (do ffprobe) no rótulo de qualidade que o usuário
- * espera ver — 4K / 2K / 1080p ..., em vez de um "HD" genérico e mentiroso.
+ * Traduz a ALTURA/LARGURA do vídeo no rótulo de qualidade limpo: 4K / 2K / 1080p / 720p.
+ * Sem pixels crus (sem 1920x1080) e sem parênteses (sem 2160p).
  * @param {number} height
  * @param {number} [width]
  * @returns {string|null}
@@ -148,14 +148,65 @@ const fs = require('fs')
 function qualityLabel(height, width) {
     const h = Number(height) || 0
     const w = Number(width) || 0
-    if (!h) return null
-    if (h >= 2160 || w >= 3840) return '4K (2160p)'
-    if (h >= 1440 || w >= 2560) return '2K (1440p)'
-    if (h >= 1080) return '1080p'
-    if (h >= 720) return '720p'
-    if (h >= 480) return '480p'
-    if (h >= 360) return '360p'
-    return h + 'p'
+    if (!h && !w) return null
+    if (h >= 2160 || w >= 3840) return '4K'
+    if (h >= 1440 || w >= 2560) return '2K'
+    if (h >= 1080 || w >= 1920) return '1080p'
+    if (h >= 720 || w >= 1280) return '720p'
+    if (h >= 480 || w >= 854) return '480p'
+    if (h >= 360 || w >= 640) return '360p'
+    return h ? `${h}p` : null
+}
+
+/**
+ * Normaliza e formata data e ano de postagem a partir de metadados ou tags ID3/FFprobe
+ */
+function parseMediaDateAndYear(rawDate, rawYear, probeTags) {
+    let year = rawYear ? String(rawYear).trim() : null
+    let formattedDate = null
+
+    if (rawDate) {
+        if (typeof rawDate === 'number') {
+            const d = new Date(rawDate > 1e11 ? rawDate : rawDate * 1000)
+            if (!isNaN(d.getTime())) {
+                year = year || String(d.getFullYear())
+                formattedDate = `${String(d.getDate()).padStart(2, '0')}/${String(d.getMonth() + 1).padStart(2, '0')}/${d.getFullYear()}`
+            }
+        } else if (typeof rawDate === 'string') {
+            const s = rawDate.trim()
+            if (/^\d{8}$/.test(s)) {
+                const y = s.slice(0, 4)
+                const m = s.slice(4, 6)
+                const d = s.slice(6, 8)
+                year = year || y
+                formattedDate = `${d}/${m}/${y}`
+            } else if (/^\d{4}-\d{2}-\d{2}/.test(s)) {
+                const parts = s.split('T')[0].split('-')
+                year = year || parts[0]
+                formattedDate = `${parts[2]}/${parts[1]}/${parts[0]}`
+            } else if (/^\d{4}$/.test(s)) {
+                year = year || s
+            }
+        }
+    }
+
+    if (probeTags && typeof probeTags === 'object') {
+        const tagDate = probeTags.date || probeTags.DATE || probeTags.creation_time || probeTags.TYER || probeTags.TDRC || probeTags.year || probeTags.YEAR
+        if (tagDate) {
+            const str = String(tagDate).trim()
+            if (!formattedDate) {
+                if (/^\d{4}-\d{2}-\d{2}/.test(str)) {
+                    const parts = str.split('T')[0].split('-')
+                    year = year || parts[0]
+                    formattedDate = `${parts[2]}/${parts[1]}/${parts[0]}`
+                } else if (/^\d{4}$/.test(str)) {
+                    year = year || str
+                }
+            }
+        }
+    }
+
+    return { year, formattedDate }
 }
 
 /** Formata bytes em KB / MB / GB legível (nunca mostra bytes crus). */
@@ -178,6 +229,7 @@ function formatElapsed(ms) {
  * Inspeciona o arquivo REAL com ffprobe e retorna dados verdadeiros — nada inventado.
  * @param {string} filePath
  * @returns {null | { container, vcodec, acodec, width, height, resolution, sizeBytes, sizeMB, durationSec, isAudio }}
+ * @returns {null | { container, vcodec, acodec, bitrateKbps, width, height, resolution, sizeBytes, sizeMB, durationSec, isAudio, tags }}
  */
 function probeMedia(filePath) {
     try {
@@ -188,9 +240,12 @@ function probeMedia(filePath) {
         if (r.status !== 0 || !r.stdout) return null
         const data = JSON.parse(r.stdout)
         const fmt = data.format || {}
+        const tags = fmt.tags || {}
         const streams = data.streams || []
         const v = streams.find(s => s.codec_type === 'video' && s.disposition?.attached_pic !== 1)
         const a = streams.find(s => s.codec_type === 'audio')
+        const rawBitrate = Number(a?.bit_rate || fmt.bit_rate || 0)
+        const bitrateKbps = rawBitrate > 0 ? `${Math.round(rawBitrate / 1000)} kbps` : null
         const sizeBytes = (filePath && fs.existsSync(filePath)) ? fs.statSync(filePath).size : (Number(fmt.size) || 0)
         const durationSec = Math.round(Number(fmt.duration || (v?.duration) || (a?.duration) || 0))
         // ffprobe reporta a família "mov,mp4,m4a,3gp,..." — normaliza para MP4/M4A.
@@ -203,13 +258,15 @@ function probeMedia(filePath) {
             container: container.toUpperCase(),
             vcodec: v?.codec_name || null,
             acodec: a?.codec_name || null,
+            bitrateKbps,
             width: v?.width || 0,
             height: v?.height || 0,
             resolution: v ? `${v.width}x${v.height}` : null,
             sizeBytes,
             sizeMB: sizeBytes ? (sizeBytes / 1024 / 1024).toFixed(2) : null,
             durationSec,
-            isAudio: !v
+            isAudio: !v,
+            tags
         }
     } catch (_) {
         return null
@@ -219,10 +276,25 @@ function probeMedia(filePath) {
 /**
  * Formata um cartão com os dados REAIS da mídia baixada (via ffprobe quando há filePath).
  * Sem claims inventados ("alta fidelidade", "sem marca d'água"): só formato e resolução reais.
+ * Sem dimensões cruas em pixel e com ano/data e qualidade em kbps.
  * @param {object} params
  * @returns {string}
  */
-function formatMediaCaption({ platform = 'Web', title = 'Mídia', author = 'Desconhecido', durationFormatted = '—', url = '', isAudio = false, filePath = null, elapsedMs = null, fileProbe = null } = {}) {
+function formatMediaCaption({
+    platform = 'Web',
+    title = 'Mídia',
+    author = 'Desconhecido',
+    durationFormatted = '—',
+    url = '',
+    isAudio = false,
+    filePath = null,
+    elapsedMs = null,
+    fileProbe = null,
+    uploadDate = null,
+    year = null,
+    audioBitrate = null,
+    quality = null
+} = {}) {
     const botName = getBotName()
     const probe = fileProbe || (filePath ? probeMedia(filePath) : null)
     const audio = probe ? probe.isAudio : isAudio
@@ -244,12 +316,24 @@ function formatMediaCaption({ platform = 'Web', title = 'Mídia', author = 'Desc
         doc += `┃ ⏱️ *Duração:* ${durationFormatted}\n`
     }
 
+    // Ano e Data de postagem (Vídeo e Áudio)
+    const { year: parsedYear, formattedDate } = parseMediaDateAndYear(uploadDate, year, probe?.tags)
+    if (formattedDate && parsedYear) {
+        doc += `┃ 📅 *Postado:* ${formattedDate} (${parsedYear})\n`
+    } else if (parsedYear) {
+        doc += `┃ 📅 *Ano:* ${parsedYear}\n`
+    }
+
     if (probe) {
         // Dados 100% reais do arquivo
-        if (!audio && (probe.height || probe.resolution)) {
-            const q = qualityLabel(probe.height, probe.width)
-            doc += `┃ 🎬 *Qualidade:* ${q || probe.resolution}\n`
+        if (!audio) {
+            const q = qualityLabel(probe.height, probe.width) || (probe.height ? `${probe.height}p` : (quality || '1080p'))
+            doc += `┃ 🎬 *Qualidade:* ${q}\n`
+        } else {
+            const kbps = probe.bitrateKbps ? `${probe.bitrateKbps} kbps` : (audioBitrate || quality || '320 kbps')
+            doc += `┃ 🎧 *Qualidade:* ${kbps}\n`
         }
+
         // Formato: só mostra codec se for diferente do container (evita "MP3 / mp3")
         const codecInfo = audio && probe.acodec && probe.acodec.toLowerCase() !== probe.container.toLowerCase()
             ? ` (${probe.acodec})` : ''
@@ -257,7 +341,12 @@ function formatMediaCaption({ platform = 'Web', title = 'Mídia', author = 'Desc
         const sizeStr = formatBytes(probe.sizeBytes)
         if (sizeStr) doc += `┃ 💾 *Tamanho:* ${sizeStr}\n`
     } else {
-        // Sem probe: mostra só o formato-alvo, sem inventar resolução/qualidade
+        // Sem probe: mostra qualidade e formato padrão informados
+        if (!audio) {
+            doc += `┃ 🎬 *Qualidade:* ${quality || '1080p'}\n`
+        } else {
+            doc += `┃ 🎧 *Qualidade:* ${audioBitrate || quality || '320 kbps'}\n`
+        }
         doc += `┃ 📦 *Formato:* ${audio ? 'MP3' : 'MP4'}\n`
         if (filePath && fs.existsSync(filePath)) {
             const sizeStr = formatBytes(fs.statSync(filePath).size)

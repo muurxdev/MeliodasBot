@@ -78,6 +78,9 @@ class MediaQueue extends EventEmitter {
             } else if (format === 'mp4') {
                 // Vídeos longos podem demorar; garante teto alto sem cortar em 3 min
                 effectiveTimeout = maxTimeout
+                // Vídeos comuns da web (TikTok, Kwai, Insta, etc.) sem duração prévia:
+                // teto seguro de 3 minutos (180s) para evitar deadlock/loop infinito na fila
+                effectiveTimeout = Math.min(maxTimeout, Math.max(this.defaultTimeoutMs || 180000, 180000))
             } else {
                 effectiveTimeout = this.defaultTimeoutMs
             }

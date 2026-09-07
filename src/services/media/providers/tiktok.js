@@ -1,10 +1,8 @@
 /**
- * TikTok Media Provider & Fast Downloader (TikWM API)
+ * TikTok Media Provider & Resilient Downloader
  * Download direto de vídeos do TikTok em alta resolução sem marca d'água e suporte a Carrossel de Fotos
  */
 
-const https = require("https");
-const http = require("http");
 const fs = require("fs");
 const path = require("path");
 const BaseProvider = require("./baseProvider");
@@ -12,43 +10,57 @@ const { PLATFORMS } = require("../constants");
 const { tempDir } = require("../../../config/paths");
 const logger = require("../../../core/logger");
 
-async function fetchJSON(url) {
-    return new Promise((resolve, reject) => {
-        const parsed = new URL(url);
-        const client = parsed.protocol === "https:" ? https : http;
-        client.get(url, { headers: { "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64)" } }, res => {
-            let data = "";
-            res.on("data", chunk => { data += chunk; });
-            res.on("end", () => {
-                try {
-                    resolve(JSON.parse(data));
-                } catch (err) {
-                    reject(new Error("Resposta inválida do servidor TikTok."));
-                }
-            });
-        }).on("error", reject);
-    });
+/**
+ * Resolve redirecionamentos de URLs encurtadas (vt.tiktok.com, vm.tiktok.com, /t/)
+ */
+async function expandShortUrl(url) {
+    try {
+        if (!url.includes('vt.tiktok.com') && !url.includes('vm.tiktok.com') && !url.includes('/t/')) {
+            return url;
+        }
+        const res = await fetch(url, {
+            method: 'HEAD',
+            redirect: 'follow',
+            headers: {
+                'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36'
+            },
+            signal: AbortSignal.timeout(8000)
+        });
+        return res.url || url;
+    } catch (_) {
+        return url;
+    }
 }
 
-async function downloadFile(url, destPath) {
-    return new Promise((resolve, reject) => {
-        const parsed = new URL(url);
-        const client = parsed.protocol === "https:" ? https : http;
-        client.get(url, { headers: { "User-Agent": "Mozilla/5.0" } }, res => {
-            if (res.statusCode >= 300 && res.statusCode < 400 && res.headers.location) {
-                return downloadFile(res.headers.location, destPath).then(resolve).catch(reject);
-            }
-            if (res.statusCode !== 200) {
-                return reject(new Error("Falha ao baixar arquivo de mídia (HTTP " + res.statusCode + ")"));
-            }
-            const fileStream = fs.createWriteStream(destPath);
-            res.pipe(fileStream);
-            fileStream.on("finish", () => {
-                fileStream.close(() => resolve(destPath));
-            });
-            fileStream.on("error", reject);
-        }).on("error", reject);
+/**
+ * Consulta JSON com timeout estrito via native fetch
+ */
+async function fetchJSON(url, timeoutMs = 12000) {
+    const res = await fetch(url, {
+        headers: {
+            "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36",
+            "Accept": "application/json, text/plain, */*"
+        },
+        signal: AbortSignal.timeout(timeoutMs)
     });
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    return res.json();
+}
+
+/**
+ * Download de arquivo com timeout estrito
+ */
+async function downloadFile(url, destPath, timeoutMs = 45000) {
+    const res = await fetch(url, {
+        headers: {
+            "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36"
+        },
+        signal: AbortSignal.timeout(timeoutMs)
+    });
+    if (!res.ok) throw new Error(`Falha HTTP ${res.status}`);
+    const arrayBuf = await res.arrayBuffer();
+    fs.writeFileSync(destPath, Buffer.from(arrayBuf));
+    return destPath;
 }
 
 function downloadTikTokWithYtDlp(url, outputPath) {
@@ -60,6 +72,7 @@ function downloadTikTokWithYtDlp(url, outputPath) {
         const proc = spawn("yt-dlp", [
             "--no-playlist",
             "--no-warnings",
+            "--impersonate", "chrome",
             "-f", "bv*+ba/b",
             "-S", "res,fps",
             "--merge-output-format", "mp4",
@@ -71,7 +84,7 @@ function downloadTikTokWithYtDlp(url, outputPath) {
         proc.stderr.on("data", d => { err += d; });
         const timer = setTimeout(() => {
             try { proc.kill("SIGKILL"); } catch (_) {}
-            reject(new Error("Timeout no yt-dlp"));
+            reject(new Error("Timeout no yt-dlp (45s)"));
         }, 45000);
 
         proc.on("close", code => {
@@ -87,8 +100,8 @@ function downloadTikTokWithYtDlp(url, outputPath) {
 }
 
 async function downloadTikTokVideo(tiktokUrl) {
-    const cleanUrl = tiktokUrl.trim();
-    const apiUrl = "https://www.tikwm.com/api/?url=" + encodeURIComponent(cleanUrl) + "&hd=1";
+    const initialUrl = tiktokUrl.trim();
+    const cleanUrl = await expandShortUrl(initialUrl);
 
     const videoTempDir = path.join(tempDir, "tiktok");
     if (!fs.existsSync(videoTempDir)) {
@@ -98,16 +111,20 @@ async function downloadTikTokVideo(tiktokUrl) {
     const jobId = "tiktok_" + Date.now() + "_" + Math.random().toString(36).slice(2, 7);
     const outputPath = path.join(videoTempDir, jobId + ".mp4");
 
+    // 1. TENTATIVA COM TIKWM API
     let res = null;
     try {
-        res = await fetchJSON(apiUrl);
+        const apiUrl = "https://www.tikwm.com/api/?url=" + encodeURIComponent(cleanUrl) + "&hd=1";
+        res = await fetchJSON(apiUrl, 10000);
     } catch (e) {
-        logger.warn("[TIKTOK] Falha ao consultar TikWM API: " + e.message + ". Tentando yt-dlp...");
+        logger.warn("[TIKTOK] TikWM API indisponível: " + e.message);
     }
 
-    // 1. SE TIKWM RESPONDEU COM SUCESSO
+    // SE TIKWM RESPONDEU COM SUCESSO
     if (res && res.code === 0 && res.data) {
         const data = res.data;
+        const uploadDate = data.create_time ? new Date(data.create_time * 1000).toISOString() : null;
+        const year = data.create_time ? String(new Date(data.create_time * 1000).getFullYear()) : null;
 
         // VERIFICAÇÃO DE CARROSSEL DE FOTOS / SLIDESHOW
         if (data.images && Array.isArray(data.images) && data.images.length > 0) {
@@ -119,7 +136,7 @@ async function downloadTikTokVideo(tiktokUrl) {
                 if (imgUrl.startsWith("/")) imgUrl = "https://www.tikwm.com" + imgUrl;
                 const imgPath = path.join(videoTempDir, jobId + "_slide_" + (i + 1) + ".jpg");
                 try {
-                    await downloadFile(imgUrl, imgPath);
+                    await downloadFile(imgUrl, imgPath, 20000);
                     carouselItems.push({ path: imgPath, type: "image", index: i + 1 });
                 } catch (imgErr) {
                     logger.warn("[TIKTOK CAROUSEL WARN] Falha ao baixar slide " + (i + 1) + ": " + imgErr.message);
@@ -135,18 +152,21 @@ async function downloadTikTokVideo(tiktokUrl) {
                 durationFormatted: "—",
                 thumbnail: data.cover || data.origin_cover,
                 url: cleanUrl,
+                uploadDate,
+                year,
                 musicTitle: data.music_info?.title || ""
             };
         }
 
         // VÍDEO DO TIKTOK: Prioriza hdplay (1080p sem marca d'água)
         let videoUrl = data.hdplay || data.play || data.wmplay;
+        if (videoUrl) {
+            if (videoUrl.startsWith("/")) {
+                videoUrl = "https://www.tikwm.com" + videoUrl;
+            }
 
-        // Se hdplay não veio na API do TikWM, tenta obter 1080p direto com yt-dlp
-        if (!data.hdplay) {
             try {
-                logger.info("[TIKTOK] TikWM sem stream HD direta; tentando yt-dlp para extrair 1080p...");
-                await downloadTikTokWithYtDlp(cleanUrl, outputPath);
+                await downloadFile(videoUrl, outputPath, 40000);
                 return {
                     isCarousel: false,
                     filePath: outputPath,
@@ -155,35 +175,42 @@ async function downloadTikTokVideo(tiktokUrl) {
                     durationFormatted: data.duration ? (Math.floor(data.duration / 60) + ":" + String(data.duration % 60).padStart(2, "0")) : "—",
                     thumbnail: data.cover || data.origin_cover,
                     url: cleanUrl,
+                    uploadDate,
+                    year,
                     musicTitle: data.music_info?.title || ""
                 };
-            } catch (ytErr) {
-                logger.warn("[TIKTOK] yt-dlp fallback falhou (" + ytErr.message + "), usando stream padrão TikWM.");
+            } catch (dlErr) {
+                logger.warn("[TIKTOK] Falha no download do stream TikWM: " + dlErr.message);
             }
-        }
-
-        if (videoUrl) {
-            if (videoUrl.startsWith("/")) {
-                videoUrl = "https://www.tikwm.com" + videoUrl;
-            }
-
-            await downloadFile(videoUrl, outputPath);
-
-            return {
-                isCarousel: false,
-                filePath: outputPath,
-                title: data.title || "Vídeo do TikTok",
-                author: data.author?.nickname || data.author?.unique_id || "TikTok User",
-                durationFormatted: data.duration ? (Math.floor(data.duration / 60) + ":" + String(data.duration % 60).padStart(2, "0")) : "—",
-                thumbnail: data.cover || data.origin_cover,
-                url: cleanUrl,
-                musicTitle: data.music_info?.title || ""
-            };
         }
     }
 
-    // 2. FALLBACK DIRETO VIA YT-DLP CASO TIKWM FALHE COMPLETAMENTE
-    logger.info("[TIKTOK] Baixando via engine yt-dlp na resolução máxima...");
+    // 2. TENTATIVA COM TIKLYDOWN API
+    try {
+        const tiklyUrl = "https://api.tiklydown.eu.org/api/download?url=" + encodeURIComponent(cleanUrl);
+        const tRes = await fetchJSON(tiklyUrl, 8000);
+        if (tRes && (tRes.video || tRes.url)) {
+            const stream = tRes.video?.noWatermark || tRes.video?.watermark || tRes.url;
+            if (stream) {
+                await downloadFile(stream, outputPath, 40000);
+                return {
+                    isCarousel: false,
+                    filePath: outputPath,
+                    title: tRes.title || "Vídeo do TikTok",
+                    author: tRes.author?.name || "TikTok Creator",
+                    durationFormatted: "—",
+                    thumbnail: null,
+                    url: cleanUrl,
+                    uploadDate: tRes.created_at || null,
+                    year: tRes.created_at ? String(new Date(tRes.created_at).getFullYear()) : null,
+                    musicTitle: tRes.music?.title || ""
+                };
+            }
+        }
+    } catch (_) {}
+
+    // 3. FALLBACK VIA YT-DLP COM IMPERSONATE CHROME
+    logger.info("[TIKTOK] Baixando via yt-dlp na resolução máxima...");
     await downloadTikTokWithYtDlp(cleanUrl, outputPath);
 
     return {
@@ -194,6 +221,8 @@ async function downloadTikTokVideo(tiktokUrl) {
         durationFormatted: "—",
         thumbnail: null,
         url: cleanUrl,
+        uploadDate: null,
+        year: null,
         musicTitle: ""
     };
 }

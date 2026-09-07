@@ -13,6 +13,7 @@ const logger = require('../core/logger')
 
 /**
  * Pesquisa em tempo real na Web (DuckDuckGo + Google HTML Scraper)
+ * Pesquisa em tempo real na Web (Wikipedia API + DuckDuckGo API + HTML Lite)
  * Retorna títulos, snippets e URLs diretas de fontes reais
  * @param {string} query
  * @returns {Promise<Array<{url: string, title: string, snippet: string}>>}
@@ -22,6 +23,7 @@ async function searchWeb(query) {
     const results = []
     const cleanQuery = query.trim()
 
+    // 1. Wikipedia API em Português (respostas factuais instantâneas e sem bloqueio de IP)
     try {
         const url = 'https://html.duckduckgo.com/html/?q=' + encodeURIComponent(cleanQuery)
         const res = await fetch(url, {
@@ -31,6 +33,10 @@ async function searchWeb(query) {
                 'Accept-Language': 'pt-BR,pt;q=0.9,en;q=0.8'
             },
             signal: AbortSignal.timeout(7000)
+        const wikiUrl = `https://pt.wikipedia.org/w/api.php?action=opensearch&search=${encodeURIComponent(cleanQuery)}&limit=4&namespace=0&format=json`
+        const res = await fetch(wikiUrl, {
+            headers: { 'User-Agent': 'MeliodasBot/2.0 (WhatsApp Assistant; contact@meliodasbot.com)' },
+            signal: AbortSignal.timeout(5000)
         })
 
         if (res.ok) {
@@ -41,6 +47,21 @@ async function searchWeb(query) {
                 const urlMatch = block.match(/href="([^"]+)"[^>]*class="result__url"/i) || block.match(/class="result__url"[^>]*href="([^"]+)"/i) || block.match(/href="([^"]+)"/i)
                 const titleMatch = block.match(/class="result__title"[^>]*>([\s\S]*?)<\/h2>/i) || block.match(/class="result__a"[^>]*>([\s\S]*?)<\/a>/i)
                 const snippetMatch = block.match(/class="result__snippet"[^>]*>([\s\S]*?)<\/a>/i) || block.match(/class="result__snippet"[^>]*>([\s\S]*?)<\/span>/i)
+            const data = await res.json()
+            const titles = data[1] || []
+            const snippets = data[2] || []
+            const urls = data[3] || []
+            for (let i = 0; i < titles.length && results.length < 3; i++) {
+                if (urls[i] && snippets[i]) {
+                    results.push({
+                        title: titles[i],
+                        snippet: snippets[i],
+                        url: urls[i]
+                    })
+                }
+            }
+        }
+    } catch (_) {}
 
                 if (urlMatch && (titleMatch || snippetMatch)) {
                     let u = urlMatch[1]
@@ -48,16 +69,84 @@ async function searchWeb(query) {
                         const parsed = new URL(u, 'https://duckduckgo.com')
                         if (parsed.searchParams.has('uddg')) u = decodeURIComponent(parsed.searchParams.get('uddg'))
                     } catch (_) {}
+    // 2. DuckDuckGo Instant Answer API
+    if (results.length < 3) {
+        try {
+            const ddgApiUrl = `https://api.duckduckgo.com/?q=${encodeURIComponent(cleanQuery)}&format=json&no_html=1&skip_disambig=1`
+            const res = await fetch(ddgApiUrl, {
+                headers: { 'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64)' },
+                signal: AbortSignal.timeout(5000)
+            })
+            if (res.ok) {
+                const data = await res.json()
+                if (data.AbstractText && data.AbstractURL) {
+                    results.push({
+                        title: data.Heading || cleanQuery,
+                        snippet: data.AbstractText,
+                        url: data.AbstractURL
+                    })
+                }
+                if (data.RelatedTopics && Array.isArray(data.RelatedTopics)) {
+                    for (const topic of data.RelatedTopics) {
+                        if (topic.Text && topic.FirstURL && results.length < 4) {
+                            results.push({
+                                title: topic.Text.slice(0, 50),
+                                snippet: topic.Text,
+                                url: topic.FirstURL
+                            })
+                        }
+                    }
+                }
+            }
+        } catch (_) {}
+    }
 
                     const clean = (str) => (str || '').replace(/<[^>]+>/g, '').replace(/&amp;/g, '&').replace(/&#x27;/g, "'").replace(/&quot;/g, '"').trim()
                     const title = clean(titleMatch ? titleMatch[1] : '')
                     const snippet = clean(snippetMatch ? snippetMatch[1] : '')
+    // 3. DuckDuckGo HTML Scraper com headers rotativos como fallback
+    if (results.length < 3) {
+        try {
+            const url = 'https://html.duckduckgo.com/html/?q=' + encodeURIComponent(cleanQuery)
+            const res = await fetch(url, {
+                headers: {
+                    'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36',
+                    'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
+                    'Accept-Language': 'pt-BR,pt;q=0.9,en;q=0.8'
+                },
+                signal: AbortSignal.timeout(6000)
+            })
 
                     if (snippet && !u.includes('duckduckgo.com') && !u.includes('y.js')) {
                         results.push({ url: u, title: title || 'Fonte Web', snippet })
+            if (res.ok) {
+                const html = await res.text()
+                const blocks = html.split(/class="result\s+/)
+                for (let i = 1; i < blocks.length && results.length < 5; i++) {
+                    const block = blocks[i]
+                    const urlMatch = block.match(/href="([^"]+)"[^>]*class="result__url"/i) || block.match(/class="result__url"[^>]*href="([^"]+)"/i) || block.match(/href="([^"]+)"/i)
+                    const titleMatch = block.match(/class="result__title"[^>]*>([\s\S]*?)<\/h2>/i) || block.match(/class="result__a"[^>]*>([\s\S]*?)<\/a>/i)
+                    const snippetMatch = block.match(/class="result__snippet"[^>]*>([\s\S]*?)<\/a>/i) || block.match(/class="result__snippet"[^>]*>([\s\S]*?)<\/span>/i)
+
+                    if (urlMatch && (titleMatch || snippetMatch)) {
+                        let u = urlMatch[1]
+                        try {
+                            const parsed = new URL(u, 'https://duckduckgo.com')
+                            if (parsed.searchParams.has('uddg')) u = decodeURIComponent(parsed.searchParams.get('uddg'))
+                        } catch (_) {}
+
+                        const clean = (str) => (str || '').replace(/<[^>]+>/g, '').replace(/&amp;/g, '&').replace(/&#x27;/g, "'").replace(/&quot;/g, '"').trim()
+                        const title = clean(titleMatch ? titleMatch[1] : '')
+                        const snippet = clean(snippetMatch ? snippetMatch[1] : '')
+
+                        if (snippet && !u.includes('duckduckgo.com') && !u.includes('y.js')) {
+                            results.push({ url: u, title: title || 'Fonte Web', snippet })
+                        }
                     }
                 }
             }
+        } catch (err) {
+            logger.warn(`[SEARCH WEB WARN] ${err.message}`)
         }
     } catch (err) {
         logger.warn(`[SEARCH WEB WARN] ${err.message}`)
@@ -68,6 +157,7 @@ async function searchWeb(query) {
 
 /**
  * Síntese inteligente de resposta a partir de pesquisa na Web com fontes reais
+ * Síntese inteligente de resposta a partir de IA Google com Search Grounding e fontes reais
  * @param {string} prompt
  * @returns {Promise<string>}
  */
@@ -102,13 +192,16 @@ async function askAI(prompt) {
         card += `┃ 🌐 *Bot:* ${botName}\n`
         card += `┃ 🗄️ *Banco de Dados:* SQLite WAL (100% Persistente e Atômico)\n`
         card += `┃ 📦 *Módulos:* 200+ comandos em 14 categorias\n`
+        card += `┃ 📦 *Módulos:* 2000 comandos em 16 categorias\n`
         card += `╰━━━━━━━━━━━━━━━━━━⬣\n\n`
         card += `╭━〔 🌟 PRINCIPAIS FUNCIONALIDADES 〕━⬣\n`
         card += `┃ ⚔️ *RPG & Combates:* Classes, Caça, Duelos, Bosses e Guildas\n`
+        card += `┃ ⚔️ *RPG Nanatsu no Taizai:* 500 comandos, Clãs, Mandamentos e Forja\n`
         card += `┃ 📥 *Media Hub HD:* Downloads de Spotify, Kwai, TikTok, YouTube, Insta, X\n`
         card += `┃ 🏆 *Economia & Níveis:* Sistema de XP infinito, Carteira, Cassino\n`
         card += `┃ 🛡️ *Moderação:* Anti-Link, Warnings, Banimento e Aluguel\n`
         card += `┃ 🔍 *Pesquisa & IA:* Web Search em tempo real com fontes verificadas\n`
+        card += `┃ 🔍 *Pesquisa & IA:* Google Search Grounding em tempo real com fontes verificadas\n`
         card += `╰━━━━━━━━━━━━━━━━━━⬣\n\n`
         card += `👑 *Dono:* ${botName}\n`
         card += `💡 _Digite_ \`.menu\` _para navegar por todos os comandos!_`
@@ -117,6 +210,43 @@ async function askAI(prompt) {
 
     try {
         // B. Pesquisa Web em tempo real prioritária (com fontes reais e verificadas)
+        const llm = require('./llmService')
+
+        // 1. Prioridade Máxima: Google Gemini com Search Grounding em tempo real
+        if (llm.hasProvider()) {
+            try {
+                const aiResult = await llm.ask(cleanPrompt, { returnSources: true })
+                const text = typeof aiResult === 'object' ? aiResult?.text : aiResult
+                const sources = typeof aiResult === 'object' ? (aiResult?.sources || []) : []
+
+                if (text && text.trim()) {
+                    let doc = `╔══════════════════════════════╗\n`
+                    doc += `║   🧠 *PESQUISA & INTELIGÊNCIA* 🧠   ║\n`
+                    doc += `╚══════════════════════════════╝\n\n`
+                    doc += `📌 *Pesquisa:* _"${cleanPrompt}"_\n\n`
+                    doc += `╭━〔 💡 RESPOSTA SINTETIZADA 〕━⬣\n`
+                    doc += `📝 ${text.trim()}\n`
+                    doc += `╰━━━━━━━━━━━━━━━━━━⬣\n\n`
+
+                    if (sources.length > 0) {
+                        doc += `╭━〔 🌐 FONTES & REFERÊNCIAS REAIS 〕━⬣\n`
+                        sources.slice(0, 3).forEach((item, i) => {
+                            doc += `┃ ${i + 1}. *${item.title.slice(0, 50)}*\n`
+                            doc += `┃    🔗 ${item.url}\n`
+                        })
+                        doc += `╰━━━━━━━━━━━━━━━━━━⬣\n\n`
+                    }
+
+                    doc += `✨ _Informações pesquisadas em tempo real na Web._\n`
+                    doc += `👑 *${botName}*`
+                    return doc.trim()
+                }
+            } catch (llmErr) {
+                logger.warn(`[AI SERVICE] Falha primária no LLM: ${llmErr.message}`)
+            }
+        }
+
+        // 2. Fallback: Pesquisa Web em tempo real (Wikipedia + DuckDuckGo)
         const webResults = await searchWeb(cleanPrompt)
 
         if (webResults && webResults.length > 0) {
@@ -136,6 +266,7 @@ async function askAI(prompt) {
             } catch (e) {
                 logger.warn(`[IA] Falha na síntese por LLM: ${e.message}`)
             }
+            } catch (_) {}
 
             doc += `╭━〔 💡 RESPOSTA SINTETIZADA 〕━⬣\n`
             doc += `📝 ${sintese || primary.snippet}\n`

@@ -96,6 +96,23 @@ module.exports = {
             return reply(doc.trim())
         }
 
+        // 0.05 GERAR CHECKOUT STRIPE (.aluguel checkout <plano> [alvo])
+        if (sub === 'checkout' || sub === 'assinar' || sub === 'pagar') {
+            const assinarCmd = require('./assinar')
+            return assinarCmd.execute({
+                sender,
+                from,
+                isGroup,
+                args: args.slice(1),
+                reply,
+                client,
+                info,
+                quotedSender,
+                isOwner,
+                userRole
+            })
+        }
+
         // 0.1 MODO TESTE GRATUITO (.aluguel teste / .aluguel trial)
         if (sub === 'teste' || sub === 'trial' || sub === 'degustacao') {
             const requestedType = isGroup ? 'group' : 'pv'

@@ -1,5 +1,6 @@
 /**
  * LLM Service — IA de verdade para .ia / .explicar / .resumir / .traduzir.
+ * LLM Service — IA em Nuvem de Alta Velocidade para .ia / .explicar / .resumir / .traduzir.
  *
  * Provedores, na ORDEM em que são tentados (o primeiro configurado vence; se
  * falhar, cai para o próximo):
@@ -13,6 +14,11 @@
  *
  * SEM NENHUM configurado o serviço fica inativo e quem chama cai no comportamento
  * antigo (busca web no DuckDuckGo) — nada quebra.
+ * Provedores em nuvem (respostas instantâneas em ~1-2s):
+ *   1. GEMINI_API_KEY — Google Gemini 2.0 Flash oficial gratuito com Google Search Grounding.
+ *   2. GROQ_API_KEY   — Groq Llama-3.3-70b-versatile ultra-rápido.
+ *   3. PERPLEXITY_API_KEY — Sonar com busca em tempo real.
+ *   4. CLOUDFLARE_ACCOUNT_ID + CLOUDFLARE_API_TOKEN — Workers AI.
  */
 
 const logger = require('../core/logger')
@@ -27,6 +33,9 @@ function _cfg() {
         // Ollama LOCAL (open source, sem chave, sem custo).
         ollamaUrl: (process.env.OLLAMA_URL || '').trim().replace(/\/$/, ''),
         ollamaModel: (process.env.OLLAMA_MODEL || 'qwen2.5:3b').trim(),
+        geminiKey: (process.env.GEMINI_API_KEY || '').trim(),
+        geminiModel: (process.env.GEMINI_MODEL || 'gemini-2.0-flash').trim(),
+        geminiSearchGrounding: String(process.env.GEMINI_SEARCH_GROUNDING || 'true').toLowerCase() !== 'false',
         groqKey: (process.env.GROQ_API_KEY || '').trim(),
         groqModel: (process.env.GROQ_MODEL || 'llama-3.3-70b-versatile').trim(),
         geminiKey: (process.env.GEMINI_API_KEY || '').trim(),
@@ -44,6 +53,7 @@ function _cfg() {
 function hasProvider() {
     const c = _cfg()
     return Boolean(c.geminiKey || c.perplexityKey || c.groqKey || c.ollamaUrl || (c.cfAccount && c.cfToken))
+    return Boolean(c.geminiKey || c.groqKey || c.perplexityKey || (c.cfAccount && c.cfToken))
 }
 
 /** @returns {string[]} nomes dos provedores ativos (para diagnóstico). */
@@ -51,6 +61,8 @@ function providersAtivos() {
     const c = _cfg()
     const l = []
     if (c.geminiKey) l.push('Gemini (' + c.geminiModel + ')')
+    if (c.geminiKey) l.push('Google Gemini (' + c.geminiModel + ')')
+    if (c.groqKey) l.push('Groq (' + c.groqModel + ')')
     if (c.perplexityKey) l.push('Perplexity (' + c.perplexityModel + ')')
     if (c.groqKey) l.push('Groq (' + c.groqModel + ')')
     if (c.cfAccount && c.cfToken) l.push('Cloudflare (' + c.cfModel + ')')
@@ -107,6 +119,7 @@ async function _groq(prompt, system, c) {
 }
 
 async function _gemini(prompt, system, c) {
+async function _gemini(prompt, system, c, returnSources = false) {
     const url = `https://generativelanguage.googleapis.com/v1beta/models/${encodeURIComponent(c.geminiModel)}:generateContent?key=${encodeURIComponent(c.geminiKey)}`
     const payload = {
         systemInstruction: { parts: [{ text: system }] },
@@ -140,6 +153,27 @@ async function _gemini(prompt, system, c) {
 
     const partes = json?.candidates?.[0]?.content?.parts
     return Array.isArray(partes) ? partes.map(p => p.text || '').join('').trim() || null : null
+    const candidate = json?.candidates?.[0]
+    const partes = candidate?.content?.parts
+    const text = Array.isArray(partes) ? partes.map(p => p.text || '').join('').trim() || null : null
+
+    // Fontes do Google Grounding
+    const sources = []
+    const chunks = candidate?.groundingMetadata?.groundingChunks || []
+    for (const chunk of chunks) {
+        if (chunk.web?.uri) {
+            sources.push({
+                title: chunk.web.title || 'Google Search',
+                url: chunk.web.uri,
+                snippet: ''
+            })
+        }
+    }
+
+    if (returnSources) {
+        return { text, sources }
+    }
+    return text
 }
 
 async function _perplexity(prompt, system, c) {
@@ -176,15 +210,19 @@ const SYSTEM_PADRAO =
 
 /**
  * Pergunta ao primeiro provedor disponível, com fallback em cadeia.
+ * Pergunta ao primeiro provedor disponível em nuvem, com fallback em cadeia.
  * @param {string} prompt
  * @param {{system?: string}} [opts]
  * @returns {Promise<string|null>} resposta ou null se nenhum provedor respondeu
+ * @param {{system?: string, returnSources?: boolean}} [opts]
+ * @returns {Promise<string|{text: string, sources: Array}|null>}
  */
 async function ask(prompt, opts = {}) {
     const texto = String(prompt || '').trim()
     if (!texto) return null
     const c = _cfg()
     const system = opts.system || SYSTEM_PADRAO
+    const returnSources = Boolean(opts.returnSources)
 
     const local = []
     const nuvem = []
@@ -193,6 +231,19 @@ async function ask(prompt, opts = {}) {
     if (c.groqKey) nuvem.push(['Groq', () => _groq(texto, system, c)])
     if (c.cfAccount && c.cfToken) nuvem.push(['Cloudflare', () => _cloudflare(texto, system, c)])
     if (c.ollamaUrl) local.push(['Ollama', () => _ollama(texto, system, c)])
+    if (c.geminiKey) nuvem.push(['Google Gemini', () => _gemini(texto, system, c, returnSources)])
+    if (c.groqKey) nuvem.push(['Groq', async () => {
+        const text = await _groq(texto, system, c)
+        return returnSources ? { text, sources: [] } : text
+    }])
+    if (c.perplexityKey) nuvem.push(['Perplexity', async () => {
+        const text = await _perplexity(texto, system, c)
+        return returnSources ? { text, sources: [] } : text
+    }])
+    if (c.cfAccount && c.cfToken) nuvem.push(['Cloudflare', async () => {
+        const text = await _cloudflare(texto, system, c)
+        return returnSources ? { text, sources: [] } : text
+    }])
 
     // Padrão: Nuvem primeiro para latência ultra-rápida (~1s vs ~25s do CPU na VPS).
     // Para priorizar Ollama local: defina LLM_PREFER_CLOUD=false no .env.
@@ -201,9 +252,12 @@ async function ask(prompt, opts = {}) {
     if (!cadeia.length) return null
 
     for (const [nome, fn] of cadeia) {
+    for (const [nome, fn] of nuvem) {
         try {
             const r = await fn()
             if (r) return r
+            const hasText = returnSources ? (r && r.text) : Boolean(r)
+            if (hasText) return r
             logger.warn(`[LLM] ${nome} respondeu vazio; tentando o próximo.`)
         } catch (e) {
             logger.warn(`[LLM] ${nome} falhou: ${e.message}`)
