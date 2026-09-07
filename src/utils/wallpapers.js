@@ -89,7 +89,7 @@ const CATEGORY_MAP = {
     "livros": "livros", "livro": "livros", "biblioteca": "livros", "ebook": "livros", "gutenberg": "livros",
     "calc": "calc", "calculadora": "calc", "math": "calc",
     "utilidades": "utilidades", "util": "utilidades", "geral": "utilidades", "numfake": "utilidades", "general": "general",
-    "adicional": "utilidades", "adicionais": "utilidades", "extra": "utilidades", "extras": "utilidades", "especial": "utilidades", "especiais": "utilidades",
+    "adicional": "adicional", "adicionais": "adicional", "extra": "adicional", "extras": "adicional", "especial": "adicional", "especiais": "adicional",
     "dev": "dev", "software": "dev", "tools": "dev", "debug": "dev",
     "divulgacao": "divulgacao", "divulgar": "divulgacao", "broadcast": "divulgacao", "transmissao": "divulgacao",
     "rede": "rede", "net": "rede", "telemetria": "rede", "ping": "rede",
@@ -121,7 +121,7 @@ const MENU_KEYS_ORDER = [
     "media", "figurinhas", "jogos", "fun", "interacao", "pesquisa", "ia",
     "arquivos", "livros", "calc", "utilidades", "general", "dev", "divulgacao",
     "rede", "admin", "config", "avisos", "aluguel", "owner", "profile", "dossie",
-    "levelup", "welcome", "leave", "help"
+    "levelup", "welcome", "leave", "help", "adicional"
 ];
 
 /**
