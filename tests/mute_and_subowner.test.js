@@ -114,3 +114,4 @@ test('setRental com targetType bot cria Subdono ativo com liberação de PV', ()
 
 console.log(`\n📊 Mute & Subdonos: ✅ ${pass}  ❌ ${fail}`)
 if (fail > 0) process.exit(1)
+
