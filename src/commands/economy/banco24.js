@@ -1,0 +1,18 @@
+/**
+ * Comando .banco24 — Operação bancária e gestão financeira #24: .banco24
+ * Categoria: economy | Subcategoria: Economia & Banco
+ */
+
+module.exports = {
+    name: "banco24",
+    aliases: [],
+    category: "economy",
+    subcategory: "Economia & Banco",
+    description: "Operação bancária e gestão financeira #24: .banco24",
+    cooldownMs: 1500,
+    execute: async ({ reply, sender, prefix = '.' }) => {
+        
+        const doc = "💰 *BANCO CENTRAL DE BRITANNIA*\n\nSistema de investimentos, rendimentos passivos e segurança patrimonial.\n\n▫️ *Identificador:* #24\n▫️ *Categoria:* ECONOMY / Economia & Banco\n▫️ *Status do Serviço:* 🟢 Operacional\n▫️ *Ativação:* `.banco24` para consultar métricas e dados.";
+        return reply(doc);
+    }
+};

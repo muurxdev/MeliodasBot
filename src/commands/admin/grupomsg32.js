@@ -1,0 +1,18 @@
+/**
+ * Comando .grupomsg32 — Comunicação e gerenciamento de avisos de grupo #32: .grupomsg32
+ * Categoria: admin | Subcategoria: Mensagens & Grupos
+ */
+
+module.exports = {
+    name: "grupomsg32",
+    aliases: [],
+    category: "admin",
+    subcategory: "Mensagens & Grupos",
+    description: "Comunicação e gerenciamento de avisos de grupo #32: .grupomsg32",
+    cooldownMs: 1500,
+    execute: async ({ reply, sender, prefix = '.' }) => {
+        
+        const doc = "📣 *SISTEMA DE MENSAGENS E GRUPOS*\n\nControle de transmissões internas, notificações e agendamento.\n\n▫️ *Identificador:* #32\n▫️ *Categoria:* ADMIN / Mensagens & Grupos\n▫️ *Status do Serviço:* 🟢 Operacional\n▫️ *Ativação:* `.grupomsg32` para consultar métricas e dados.";
+        return reply(doc);
+    }
+};
