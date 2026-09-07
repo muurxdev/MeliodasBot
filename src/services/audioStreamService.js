@@ -386,6 +386,36 @@ async function searchAndDownloadAudio(query) {
                         }, query, startedAt);
                     }
                 } catch (_) {}
+            } else {
+                // Para links de outras redes (TikTok, Kwai, Instagram, Twitter, etc.)
+                try {
+                    const { downloadMedia } = require("./mediaEngine");
+                    const dlResult = await downloadMedia({
+                        url: sourceUrl,
+                        format: "mp3",
+                        source: sourceUrl
+                    });
+                    const resPath = dlResult?.filePath || dlResult?.primaryFile || (dlResult?.files && dlResult.files[0]);
+                    if (resPath && fs.existsSync(resPath)) {
+                        return wrapAudioSuccess({
+                            filePath: resPath,
+                            title: dlResult.title || title,
+                            author: dlResult.author || author,
+                            durationFormatted: dlResult.durationFormatted || durationFormatted,
+                            thumbnail: dlResult.thumbnail || thumbnail,
+                            url: sourceUrl,
+                            isVideo: false,
+                            isAudio: true,
+                            mimetype: "audio/mpeg",
+                            platform: dlResult.platform || platform,
+                            jobId
+                        }, query, startedAt);
+                    }
+                } catch (otherErr) {
+                    logger.warn("[AUDIO DIRECT OTHER PLATFORM WARN] " + otherErr.message);
+                }
+                // Se for URL direta de outra plataforma e falhar, não pesquisa URL como texto no YouTube
+                throw new Error(`Não foi possível extrair o áudio do link fornecido (${platform}). Verifique se o post é público e tente novamente.`);
             }
         }
     }

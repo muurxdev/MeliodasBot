@@ -156,29 +156,44 @@ function pontuar(candidato, consulta, opts = {}) {
         }
     }
 
-    // Se tem separador "Música - Artista", o lado que NÃO casou com o canal é a MÚSICA.
-    // Se o título do vídeo não contém a música pedida, penaliza fortemente para não
-    // entregar outra música do mesmo canal (ex: Baile do Bruxo em vez de Dentro da B).
+    // ── 2.1 Identificação da MÚSICA vs ARTISTA e Proteção Rigorosa Contra Outra Música do Mesmo Artista
+    let tokensMusica = []
+    let textoMusica = ''
+
     if (consulta.temSeparador) {
-        const ladoMusica = casaAutorA >= casaAutorB ? consulta.ladoB : consulta.ladoA
-        const tokensMusica = tokens(ladoMusica)
-        if (tokensMusica.length > 0) {
-            const cobMusica = cobertura(tokensMusica, tTitulo)
-            const nMusica = normalizar(ladoMusica)
-            if (nTitulo.includes(nMusica)) {
-                score += 50
-                motivos.push('título contém nome da música')
-            } else if (cobMusica < 0.3) {
-                score -= 75
-                motivos.push('título não corresponde à música pedida')
-            }
+        textoMusica = casaAutorA >= casaAutorB ? consulta.ladoB : consulta.ladoA
+        tokensMusica = tokens(textoMusica)
+    } else if (casaAutor >= 0.4) {
+        // Sem separador (ex: "99 enzo cello" ou "enzo cello 99"):
+        // Se parte dos termos casou com o canal ou autor, os termos restantes são obrigatoriamente a música!
+        const setAutor = new Set(tAutor)
+        tokensMusica = qTokens.filter(t => !setAutor.has(t) && !tAutor.some(a => a.length >= 4 && a.startsWith(t.slice(0, 4))))
+        textoMusica = tokensMusica.join(' ')
+    }
+
+    if (tokensMusica.length > 0) {
+        const cobMusica = cobertura(tokensMusica, tTitulo)
+        const nMusica = normalizar(textoMusica)
+        const hasExactSub = nMusica.length >= 2 && nTitulo.includes(nMusica)
+
+        if (hasExactSub || cobMusica >= 0.8) {
+            score += 85
+            motivos.push(`título contém a música específica solicitada ("${textoMusica}")`)
+        } else if (cobMusica >= 0.4) {
+            score += 35
+            motivos.push(`título parece conter a música ("${textoMusica}")`)
+        } else {
+            // Se o canal ou autor casou com o artista da busca, mas o título NÃO TEM a música pedida,
+            // é com certeza outra música do mesmo artista (ex: pediu "99", vídeo é "Kama Sutra").
+            score -= 120
+            motivos.push(`descartado: outra música do mesmo artista (falta "${textoMusica}")`)
         }
     } else if (opts.expectedTitle) {
         const tokensExp = tokens(opts.expectedTitle)
         if (tokensExp.length > 0) {
             const cobExp = cobertura(tokensExp, tTitulo)
             if (!nTitulo.includes(normalizar(opts.expectedTitle)) && cobExp < 0.3) {
-                score -= 75
+                score -= 100
                 motivos.push('título não corresponde à música esperada')
             }
         }
