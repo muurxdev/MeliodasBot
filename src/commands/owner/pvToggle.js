@@ -3,7 +3,7 @@
  * Exclusivo do Dono.
  * 
  * Permite ativar ou desativar o bot no PV facilmente:
- *   .pv on   → Ativa os módulos comuns no PV (menos skycode)
+ *   .pv on   → Ativa os módulos comuns no PV (menos divulgacao)
  *   .pv off  → Desativa os módulos no PV
  *   .pv status → Exibe o status atual do PV
  */
@@ -31,7 +31,7 @@ module.exports = {
             doc += `║    💬 *COMANDOS NO PV ATIVADOS* 💬   ║\n`
             doc += `╚════════════════════════════════════╝\n\n`
             doc += `🟢 *Estado:* ATIVADO (Comandos liberados no Privado)\n`
-            doc += `🔒 *Nota:* Protocolo \`skycode\` mantido desativado por isolamento.\n\n`
+            doc += `🔒 *Nota:* Módulo \`divulgacao\` mantido sob controle do Dono.\n\n`
             doc += `💡 _Para desativar o PV:_ \`${prefix}pv off\`\n`
             doc += `👑 *${botName}*`
             return reply(doc.trim())
@@ -59,7 +59,7 @@ module.exports = {
         doc += `📍 *Ambiente:* Chat Privado (PV)\n`
         doc += `📊 *Módulos Ativos:* ${enabledCount}/${totalCount}\n\n`
         doc += `╭━〔 ⚙️ COMANDOS DE CONTROLE 〕━⬣\n`
-        doc += `┃ ➤ \`${prefix}pv on\` — Libera comandos no privado (exceto skycode)\n`
+        doc += `┃ ➤ \`${prefix}pv on\` — Libera comandos no privado (exceto divulgacao)\n`
         doc += `┃ ➤ \`${prefix}pv off\` — Bloqueia todos os comandos no privado\n`
         doc += `┃ ➤ \`${prefix}modulo on/off <modulo> pv\` — Ajusta módulo específico no PV\n`
         doc += `╰━━━━━━━━━━━━━━━━━━⬣\n\n`
@@ -67,4 +67,3 @@ module.exports = {
         return reply(doc.trim())
     }
 }
-

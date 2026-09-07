@@ -263,9 +263,12 @@ function updateOwner(rankQuery, newName, phone = "", jid = "", appointedBy = "")
         owner.appointedAt = new Date().toLocaleDateString("pt-BR");
         const targetNumber = phone || jid;
         if (targetNumber) {
-            const rawDigits = targetNumber.replace(/\D/g, "");
+            let rawDigits = targetNumber.replace(/\D/g, "");
+            if (rawDigits.length === 10 || rawDigits.length === 11) {
+                rawDigits = "55" + rawDigits;
+            }
             if (rawDigits.length >= 8) {
-                owner.phone = phone.startsWith("+") ? phone : ("+" + rawDigits);
+                owner.phone = "+" + rawDigits;
                 owner.jid = rawDigits + "@s.whatsapp.net";
             }
         }
@@ -325,7 +328,14 @@ function resolveAllCandidateDigits(jid, candidates = []) {
     for (const item of list) {
         if (!item || typeof item !== "string") continue;
         const clean = item.split(":")[0].split("@")[0].replace(/\D/g, "");
-        if (clean.length >= 8) set.add(clean);
+        if (clean.length >= 8) {
+            set.add(clean);
+            if (clean.length === 10 || clean.length === 11) {
+                set.add("55" + clean);
+            } else if (clean.startsWith("55") && (clean.length === 12 || clean.length === 13)) {
+                set.add(clean.slice(2));
+            }
+        }
     }
 
     // Se houver algum item com @lid, tenta buscar o telefone real no SQLite
@@ -335,8 +345,22 @@ function resolveAllCandidateDigits(jid, candidates = []) {
                 const db = getDatabase();
                 const row = db.prepare("SELECT phone, jid FROM users WHERE lid = ? OR jid = ?").get(item, item);
                 if (row) {
-                    if (row.phone) set.add(row.phone.replace(/\D/g, ""));
-                    if (row.jid) set.add(row.jid.split("@")[0].replace(/\D/g, ""));
+                    if (row.phone) {
+                        const p = row.phone.replace(/\D/g, "");
+                        if (p.length >= 8) {
+                            set.add(p);
+                            if (p.length === 10 || p.length === 11) set.add("55" + p);
+                            else if (p.startsWith("55") && (p.length === 12 || p.length === 13)) set.add(p.slice(2));
+                        }
+                    }
+                    if (row.jid) {
+                        const j = row.jid.split("@")[0].replace(/\D/g, "");
+                        if (j.length >= 8) {
+                            set.add(j);
+                            if (j.length === 10 || j.length === 11) set.add("55" + j);
+                            else if (j.startsWith("55") && (j.length === 12 || j.length === 13)) set.add(j.slice(2));
+                        }
+                    }
                 }
             } catch (_) {}
         }

@@ -1,61 +1,95 @@
 /**
- * Comando .mute
- * Silencia um membro no grupo (registrado no SQLite)
+ * Comando .mute / .mutar / .silenciar
+ * Silencia um membro no grupo com tempo determinado e motivo
  */
 
-const { getDatabase } = require("../../database/connection");
+const muteService = require("../../services/muteService");
 const { getBotName } = require("../../config/botConfig");
 
 module.exports = {
     name: "mute",
     aliases: ["silenciar", "mutar", "calaboca"],
     category: "admin",
-    description: "Silencia um usuário no grupo",
+    description: "Silencia um usuário no grupo por tempo determinado",
     groupOnly: true,
     adminOnly: true,
-    execute: async ({ client, from, args, mentioned, info, reply, isOwner, isAdmin, sender }) => {
+    execute: async ({ client, from, args = [], mentioned, info, reply, isOwner, isAdmin, sender, prefix = '.' }) => {
         const botName = getBotName();
         if (!isAdmin && !isOwner) {
             return reply("🚫 *Apenas administradores podem silenciar membros.*");
         }
 
         const quotedParticipant = info?.message?.extendedTextMessage?.contextInfo?.participant;
-        const argNum = (args && args[0]) ? args[0].replace(/[@\s]/g, "").replace(/\D/g, "") : "";
-        const targetJid = mentioned || quotedParticipant || (argNum ? (argNum + "@s.whatsapp.net") : null);
+        let targetJid = mentioned || quotedParticipant;
+        let remainingArgs = [...args];
+
+        if (!targetJid && remainingArgs.length > 0) {
+            const firstArg = remainingArgs[0].replace(/[@\s]/g, "").replace(/\D/g, "");
+            if (firstArg.length >= 8) {
+                targetJid = firstArg + "@s.whatsapp.net";
+                remainingArgs.shift();
+            }
+        }
 
         if (!targetJid) {
-            return reply("❌ *Uso incorreto:* Marque a mensagem ou usuário com `.mute @usuario`");
+            let help = `╔══════════════════════════════╗\n`;
+            help += `║   🔇 *SISTEMA DE MUTE / SILÊNCIO*   ║\n`;
+            help += `╚══════════════════════════════╝\n\n`;
+            help += `📌 *Uso:* \`${prefix}mute @usuario [tempo] [motivo]\`\n\n`;
+            help += `╭━〔 ⏱️ EXEMPLOS DE USO 〕━⬣\n`;
+            help += `┃ ➤ \`${prefix}mute @usuario\` (Padrão: 15 minutos)\n`;
+            help += `┃ ➤ \`${prefix}mute @usuario 10m Spam no chat\`\n`;
+            help += `┃ ➤ \`${prefix}mute @usuario 1h Desrespeito às regras\`\n`;
+            help += `┃ ➤ \`${prefix}mute @usuario 1d Ofensas recorrentes\`\n`;
+            help += `┃ ➤ \`${prefix}mute @usuario 0 Motivo grave\` (Indefinido)\n`;
+            help += `┃\n`;
+            help += `┃ 🔓 \`${prefix}unmute @usuario\` ➔ Desmutar membro\n`;
+            help += `┃ 📋 \`${prefix}mutados\` ➔ Listar silenciados no grupo\n`;
+            help += `╰━━━━━━━━━━━━━━━━━━⬣\n\n`;
+            help += `👑 *${botName}*`;
+            return reply(help.trim());
+        }
+
+        // Analisa tempo e motivo
+        let durationMinutes = '15m';
+        let reason = 'Conduta inadequada ou flood';
+
+        if (remainingArgs.length > 0) {
+            const possibleDuration = remainingArgs[0].trim();
+            if (/^\d+(s|m|h|d)?$/i.test(possibleDuration) || ['inf', 'indefinido', '0'].includes(possibleDuration.toLowerCase())) {
+                durationMinutes = possibleDuration;
+                remainingArgs.shift();
+                if (remainingArgs.length > 0) {
+                    reason = remainingArgs.join(' ').trim();
+                }
+            } else {
+                reason = remainingArgs.join(' ').trim();
+            }
         }
 
         const targetNum = targetJid.split("@")[0].split(":")[0];
         const senderNum = sender.split("@")[0].split(":")[0];
-        const db = getDatabase();
 
         try {
-            db.prepare(`
-                CREATE TABLE IF NOT EXISTS muted_members (
-                    group_jid TEXT,
-                    user_jid TEXT,
-                    muted_by TEXT,
-                    created_at INTEGER,
-                    PRIMARY KEY (group_jid, user_jid)
-                )
-            `).run();
-
-            db.prepare(`
-                INSERT OR REPLACE INTO muted_members (group_jid, user_jid, muted_by, created_at)
-                VALUES (?, ?, ?, ?)
-            `).run(from, targetJid, sender, Date.now());
+            const res = muteService.muteUser({
+                groupJid: from,
+                userJid: targetJid,
+                mutedBy: `@${senderNum}`,
+                durationMinutes,
+                reason
+            });
 
             let doc = `╔══════════════════════════════╗\n`;
-            doc += `║   🔇 *MODERAÇÃO & SILÊNCIO* 🔇   ║\n`;
+            doc += `║   🔇 *MEMBRO SILENCIADO* 🔇   ║\n`;
             doc += `╚══════════════════════════════╝\n\n`;
-            doc += `╭━〔 ⚙️ CONTROLE DE PARTICIPANTE 〕━⬣\n`;
-            doc += `┃ 👤 *Usuário Silenciado:* @${targetNum}\n`;
-            doc += `┃ 🔇 *Estado:* *MUTADO NO GRUPO*\n`;
-            doc += `┃ 🛡️ *Administrador:* @${senderNum}\n`;
+            doc += `╭━〔 ⚙️ DETALHES DA PUNIÇÃO 〕━⬣\n`;
+            doc += `┃ 👤 *Infrator:* @${targetNum}\n`;
+            doc += `┃ ⏱️ *Duração:* *${res.durationText}*\n`;
+            doc += `┃ 📝 *Motivo:* ${res.reason}\n`;
+            doc += `┃ 🛡️ *Aplicado por:* @${senderNum}\n`;
             doc += `╰━━━━━━━━━━━━━━━━━━⬣\n\n`;
-            doc += `💡 _Para remover o silenciamento:_ \`.unmute @${targetNum}\`\n`;
+            doc += `🗑️ _Todas as mensagens enviadas pelo membro neste grupo serão apagadas automaticamente pelo bot._\n\n`;
+            doc += `💡 _Para revogar a punição:_ \`${prefix}unmute @${targetNum}\`\n`;
             doc += `👑 *${botName}*`;
 
             await client.sendMessage(from, {

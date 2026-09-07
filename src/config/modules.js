@@ -26,7 +26,7 @@ const MODULES = [
     { key: 'ia',              emoji: '🧠',  label: 'IA & Pesquisa' },
     { key: 'livros',          emoji: '📚',  label: 'Livros & Materiais' },
     { key: 'perfil',          emoji: '🏆',  label: 'Perfil & Ranking' },
-    { key: 'skycode',         emoji: '🛰️',  label: 'Painel Skycode' },
+    { key: 'divulgacao',      emoji: '📢',  label: 'Divulgação & Broadcast' },
     { key: 'owner',           emoji: '👑',  label: 'Dono & Bot' },
     { key: 'adicional',       emoji: '⚡',  label: 'Comandos Adicionais & Especiais' }
 ]
@@ -34,8 +34,8 @@ const MODULES = [
 const BY_KEY = {}
 for (const m of MODULES) BY_KEY[m.key] = m
 
-// Todo módulo começa desligado. (Constante única para não divergir.)
-const DEFAULT_ENABLED = false
+// Todo módulo começa ligado por padrão para garantir disponibilidade imediata.
+const DEFAULT_ENABLED = true
 
 // Overrides por NOME de comando (têm prioridade sobre categoria/subcategoria).
 // Só precisa listar os transversais que não seguem a categoria.
@@ -68,9 +68,8 @@ addNames('livros', ['livro', 'livros', 'livroaleatorio', 'apostila', 'apostilas'
     // Lote 2 Livros (Open Library, keyless)
     'buscarlivro', 'livrosautor', 'livrogenero', 'capalivro', 'isbn', 'recomendarlivro',
     'autorlivro', 'resumolivro'])
-// Painel do grupo: módulo próprio para poder ser desligado sozinho, sem mexer
-// no restante dos comandos de dono.
-addNames('skycode', ['skycode'])
+// Módulo oficial de comunicação e transmissão em massa
+addNames('divulgacao', ['divulgacao', 'divulgar', 'broadcast', 'transmissao', 'anunciar'])
 
 /**
  * Resolve o módulo de um comando.

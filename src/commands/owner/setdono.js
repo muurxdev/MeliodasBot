@@ -84,20 +84,51 @@ module.exports = {
             const parts = fullInput.split("|");
             nome = parts[0].trim();
             const phonePart = parts[1].trim();
-            const rawDigits = phonePart.replace(/\D/g, "");
+            let rawDigits = phonePart.replace(/\D/g, "");
+            if (rawDigits.length === 10 || rawDigits.length === 11) {
+                rawDigits = "55" + rawDigits;
+            }
             targetJid = rawDigits + "@s.whatsapp.net";
             phoneFormatted = formatPhoneFromJid(targetJid);
         }
         // 3. TELEFONE DIRETO
-        else if (/^\+?\d{9,}$/.test(fullInput.replace(/\s+/g, ""))) {
-            const raw = fullInput.replace(/\D/g, "");
+        else if (/^\+?\d{8,}$/.test(fullInput.replace(/\s+/g, ""))) {
+            let raw = fullInput.replace(/\D/g, "");
+            if (raw.length === 10 || raw.length === 11) {
+                raw = "55" + raw;
+            }
             targetJid = raw + "@s.whatsapp.net";
             phoneFormatted = formatPhoneFromJid(targetJid);
-            nome = `Dono ${raw.slice(-4)}`;
+
+            // Tenta buscar o nome real no perfil do WhatsApp ou no banco
+            let realName = "";
+            try {
+                if (client?.store?.contacts?.[targetJid]) {
+                    const c = client.store.contacts[targetJid];
+                    realName = c.notify || c.name || "";
+                }
+            } catch (_) {}
+            if (!realName) {
+                try {
+                    const db = getDatabase();
+                    const userDb = db.prepare("SELECT name, display_nick FROM users WHERE jid = ? OR phone LIKE ?").get(targetJid, `%${raw}%`);
+                    realName = userDb?.display_nick || userDb?.name || "";
+                } catch (_) {}
+            }
+            nome = realName || `Dono ${raw.slice(-4)}`;
         }
         // 4. APENAS NOME
         else {
             nome = fullInput;
+        }
+
+        // Se o nome ficou genérico ("Dono 1234"), tenta obter o pushName real do WhatsApp
+        if ((!nome || nome.startsWith("Dono ")) && targetJid) {
+            try {
+                const contact = client?.store?.contacts?.[targetJid];
+                const realWhatsappName = contact?.notify || contact?.name;
+                if (realWhatsappName) nome = realWhatsappName;
+            } catch (_) {}
         }
 
         if (!nome) {
@@ -112,6 +143,14 @@ module.exports = {
         if (!updated) {
             return reply(`❌ Falha ao atualizar a patente \`${cargo}\`.`);
         }
+
+        // Sincroniza imediatamente o cargo OWNER na tabela user_roles do SQLite
+        try {
+            const permissionRepo = require("../../database/repositories/permissionRepository");
+            if (targetJid) {
+                permissionRepo.setUserRole(targetJid, "OWNER", sender);
+            }
+        } catch (_) {}
 
         const mentions = [];
         if (targetJid) mentions.push(targetJid);

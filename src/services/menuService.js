@@ -26,7 +26,7 @@ function getCmdCategoryKey(cmd) {
     if (!cmd) return 'utilidades'
     const mod = resolveModuleKey(cmd)
     if (mod === 'xp') return 'perfil'
-    if (mod === 'skycode') return 'owner'
+    if (mod === 'skycode' || mod === 'divulgacao') return 'owner'
     return mod || cmd.category || 'utilidades'
 }
 

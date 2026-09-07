@@ -44,7 +44,55 @@ async function handleIncomingMessage(client, { messages }) {
     if (info.key && info.key.fromMe) return
 
     const from = info.key.remoteJid
-    if (!from || from === 'status@broadcast') return
+    if (!from) return
+
+    // ═══════════════════════════════════════════════════════════════
+    // 📢 DETECÇÃO DE MARCAÇÃO DE STATUS (STATUS MENTION PROTECTION)
+    // ═══════════════════════════════════════════════════════════════
+    if (from === 'status@broadcast') {
+        try {
+            const participant = info.key?.participant || info.participant;
+            if (participant) {
+                const contextInfo = info.message?.extendedTextMessage?.contextInfo ||
+                    info.message?.imageMessage?.contextInfo ||
+                    info.message?.videoMessage?.contextInfo;
+                const mentionedJids = contextInfo?.mentionedJid || [];
+
+                for (const targetJid of mentionedJids) {
+                    if (targetJid && targetJid.endsWith('@g.us')) {
+                        const configs = dataService.getConfigsData();
+                        const warnLimit = configs[targetJid]?.warnLimit || 3;
+                        const warns = dataService.getWarnsData();
+                        warns[participant] = (warns[participant] || 0) + 1;
+                        const total = warns[participant];
+                        await dataService.saveWarnsData(warns);
+
+                        logger.warn(`[STATUS MENTION DETECTED] ${participant} mencionou grupo ${targetJid} nos status. (${total}/${warnLimit})`);
+
+                        const authorNum = participant.split('@')[0].split(':')[0];
+                        let alert = `⚠️ *INFRAÇÃO DE STATUS DETECTADA:*\n\n` +
+                            `👤 *Autor:* @${authorNum}\n` +
+                            `📢 *Motivo:* Marcação indevida deste grupo nos status do WhatsApp.\n` +
+                            `⚠️ *Advertência:* *${total} / ${warnLimit}*\n\n`;
+
+                        if (total >= warnLimit) {
+                            alert += `🚫 *EXPULSÃO AUTOMÁTICA:* O usuário atingiu o limite de ${warnLimit} advertências e foi removido do grupo.`;
+                            try {
+                                await client.groupParticipantsUpdate(targetJid, [participant], 'remove');
+                            } catch (_) {}
+                        } else {
+                            alert += `💡 _Evite marcar o grupo ou seus participantes em atualizações públicas de status._`;
+                        }
+
+                        await client.sendMessage(targetJid, { text: alert, mentions: [participant] }).catch(() => {});
+                    }
+                }
+            }
+        } catch (statusErr) {
+            logger.debug('[STATUS PROCESS ERROR]', statusErr.message);
+        }
+        return;
+    }
 
     // Marcar como lida
     try {
@@ -274,6 +322,27 @@ async function handleIncomingMessage(client, { messages }) {
             `senderGroupAdmin=${isAdmin} botGroupAdmin=${isBotAdmin} owner=${isOwner}`)
 
         // ═══════════════════════════════════════
+        // 🔇 VERIFICAÇÃO DE SILENCIAMENTO (MUTE)
+        // ═══════════════════════════════════════
+        const muteService = require('../services/muteService');
+        const muteCheck = muteService.isMuted(from, sender);
+        if (muteCheck.muted && !isOwner) {
+            if (isBotAdmin && info?.key) {
+                await client.sendMessage(from, { delete: info.key }).catch(() => {});
+            }
+            if (muteService.shouldNotifyMuted(from, sender)) {
+                const senderNum = sender.split('@')[0].split(':')[0];
+                const alertMsg = `🔇 *VOCÊ ESTÁ SILENCIADO NESTE GRUPO:*\n\n` +
+                    `👤 *Membro:* @${senderNum}\n` +
+                    `⏱️ *Tempo Restante:* ${muteCheck.remainingText}\n` +
+                    `📝 *Motivo:* ${muteCheck.reason}\n` +
+                    `🗑️ *Ação:* Suas mensagens estão sendo apagadas automaticamente pelo bot.`;
+                await client.sendMessage(from, { text: alertMsg, mentions: [sender] }).catch(() => {});
+            }
+            return;
+        }
+
+        // ═══════════════════════════════════════
         // 🔗 SISTEMA DE LINKS, AFILIADOS & ANTI-LINK
         // ═══════════════════════════════════════
         const configs = dataService.getConfigsData();
@@ -491,9 +560,15 @@ async function handleIncomingMessage(client, { messages }) {
             }, { quoted: info })
         }
 
-        if (configs['global']?.blockAllDMs) {
+        // Subdonos (usuários com aluguel do Bot ou PV ativo) têm acesso exclusivo ao privado
+        const rentalService = require('../services/rentalService');
+        const botRental = rentalService.hasActiveRental(sender, 'bot', [senderReal]);
+        const pvRental = rentalService.hasActiveRental(sender, 'pv', [senderReal]);
+        const isSubowner = botRental.active || pvRental.active;
+
+        if (configs['global']?.blockAllDMs && !isSubowner) {
             return client.sendMessage(from, {
-                text: '🚫 *Privado Fechado:*\n\n🔒 O atendimento no privado do bot está temporariamente bloqueado pela administração.\n💡 *Dica:* Utilize os comandos nos grupos onde o bot está presente.'
+                text: '🚫 *Privado Fechado:*\n\n🔒 O atendimento no privado do bot está restrito a Donos e Subdonos (usuários com plano ativo de aluguel do bot).\n💡 *Dica:* Para alugar o bot e se tornar um Subdono com acesso liberado no PV, consulte os planos nos grupos oficiais.'
             }, { quoted: info })
         }
 

@@ -1,0 +1,12 @@
+services:
+  meliodas-bot:
+    environment:
+      - WHISPER_API_URL=http://hpvision-transcricao-1:8000/v1/audio/transcriptions
+      - WHISPER_API_MODEL=Systran/faster-whisper-small
+    networks:
+      - bot-net
+      - hpvision_default
+
+networks:
+  hpvision_default:
+    external: true

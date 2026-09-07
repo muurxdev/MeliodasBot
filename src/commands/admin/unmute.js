@@ -1,22 +1,31 @@
 /**
- * Comando .unmute
- * Remove o silenciamento de um membro no grupo
+ * Comando .unmute / .desmutar / .dessilenciar
+ * Remove o silenciamento de um membro ou de todos no grupo
  */
 
-const { getDatabase } = require("../../database/connection");
+const muteService = require("../../services/muteService");
 const { getBotName } = require("../../config/botConfig");
 
 module.exports = {
     name: "unmute",
-    aliases: ["dessilenciar", "desmutar"],
+    aliases: ["dessilenciar", "desmutar", "tirarmute", "resetmute"],
     category: "admin",
-    description: "Remove o silenciamento de um usuário no grupo",
+    description: "Remove o silenciamento de um usuário ou de todos no grupo",
     groupOnly: true,
     adminOnly: true,
-    execute: async ({ client, from, args, mentioned, info, reply, isOwner, isAdmin, sender }) => {
+    execute: async ({ client, from, args = [], mentioned, info, reply, isOwner, isAdmin, sender, prefix = '.' }) => {
         const botName = getBotName();
         if (!isAdmin && !isOwner) {
             return reply("🚫 *Apenas administradores podem dessilenciar membros.*");
+        }
+
+        const sub = (args[0] || '').toLowerCase().trim();
+        const senderNum = sender.split("@")[0].split(":")[0];
+
+        // 1. Resetar todos os silenciados do grupo (.unmute all / .unmute todos)
+        if (['all', 'todos', 'tudo', 'reset'].includes(sub)) {
+            const count = muteService.resetAllMutes(from);
+            return reply(`🔊 *SILENCIAMENTOS REVOGADOS!*\n\nTodos os membros do grupo tiveram a voz liberada (${count} membro(s) desmutado(s)).`);
         }
 
         const quotedParticipant = info?.message?.extendedTextMessage?.contextInfo?.participant;
@@ -24,27 +33,22 @@ module.exports = {
         const targetJid = mentioned || quotedParticipant || (argNum ? (argNum + "@s.whatsapp.net") : null);
 
         if (!targetJid) {
-            return reply("❌ *Uso incorreto:* Marque a mensagem ou usuário com `.unmute @usuario`");
+            return reply(`❌ *Uso:* \`${prefix}unmute @usuario\` ou \`${prefix}unmute all\` para liberar todos.`);
         }
 
         const targetNum = targetJid.split("@")[0].split(":")[0];
-        const senderNum = sender.split("@")[0].split(":")[0];
-        const db = getDatabase();
 
         try {
-            db.prepare(`
-                DELETE FROM muted_members WHERE group_jid = ? AND user_jid = ?
-            `).run(from, targetJid);
+            muteService.unmuteUser(from, targetJid);
 
             let doc = `╔══════════════════════════════╗\n`;
-            doc += `║   🔊 *MODERAÇÃO & VOZ LIBERADA* 🔊   ║\n`;
+            doc += `║   🔊 *VOZ LIBERADA NO GRUPO* 🔊   ║\n`;
             doc += `╚══════════════════════════════╝\n\n`;
             doc += `╭━〔 ⚙️ CONTROLE DE PARTICIPANTE 〕━⬣\n`;
-            doc += `┃ 👤 *Usuário Dessilenciado:* @${targetNum}\n`;
-            doc += `┃ 🔊 *Estado:* *VOZ LIBERADA NO GRUPO*\n`;
+            doc += `┃ 👤 *Usuário Liberado:* @${targetNum}\n`;
+            doc += `┃ 🔊 *Estado:* *DESMUTADO*\n`;
             doc += `┃ 🛡️ *Administrador:* @${senderNum}\n`;
             doc += `╰━━━━━━━━━━━━━━━━━━⬣\n\n`;
-            doc += `💡 _Para silenciar novamente:_ \`.mute @${targetNum}\`\n`;
             doc += `👑 *${botName}*`;
 
             await client.sendMessage(from, {

@@ -43,6 +43,12 @@ function resolveUserRole(sender, isGroupAdmin = false, isOwnerFlag = false) {
     if (isOwnerFlag === true || (isOwnerFlag !== false && env.isOwnerJid(cleanSender))) {
         return { level: ROLES.OWNER, name: 'OWNER' }
     }
+    try {
+        const ownerService = require('./ownerService')
+        if (ownerService.isOwner(sender)) {
+            return { level: ROLES.OWNER, name: 'OWNER' }
+        }
+    } catch (_) {}
 
     // 2. Checagem de Cargo no Banco de Dados SQLite
     const savedRole = permissionRepo.getUserRole(sender)

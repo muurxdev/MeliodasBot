@@ -1,6 +1,6 @@
 /**
- * Comando .warn
- * Aplica advertência com contador e remoção automática ao atingir o limite configurável do grupo
+ * Comando .warn / .advertir / .aviso
+ * Aplica advertência com contador, descrição de motivo e remoção automática ao atingir o limite
  */
 
 const dataService = require('../../services/dataService');
@@ -12,10 +12,10 @@ module.exports = {
     name: 'warn',
     aliases: ['advertir', 'aviso', 'advertencia', 'adicionaraviso'],
     category: 'admin',
-    description: 'Aplica advertência a um membro com limite configurável de expulsão por grupo',
+    description: 'Aplica advertência a um membro com motivo e expulsão ao atingir o limite do grupo',
     groupOnly: true,
     adminOnly: true,
-    execute: async ({ info, from, sender, isBotAdmin, client, reply, mentioned, args, prefix = '.' }) => {
+    execute: async ({ info, from, sender, isBotAdmin, client, reply, mentioned, args = [], prefix = '.' }) => {
         const botName = getBotName();
         const configs = dataService.getConfigsData();
         if (!configs[from]) configs[from] = {};
@@ -30,7 +30,7 @@ module.exports = {
         if (sub === 'limit' || sub === 'limite' || sub === 'max') {
             const novoLimite = parseInt(param, 10);
             if (isNaN(novoLimite) || novoLimite < 1 || novoLimite > 20) {
-                return reply(`❌ Informe um limite válido de advertências de 1 a 20 (ex: \`${prefix}warn limit 5\` ou \`${prefix}setwarnlimit 5\`).`);
+                return reply(`❌ Informe um limite válido de advertências de 1 a 20 (ex: \`${prefix}warn limit 3\` ou \`${prefix}setwarnlimit 3\`).`);
             }
 
             configs[from].warnLimit = novoLimite;
@@ -81,24 +81,40 @@ module.exports = {
 
         // 4. Aplicação de Advertência
         const quotedParticipant = info?.message?.extendedTextMessage?.contextInfo?.participant;
-        const warned = mentioned || quotedParticipant;
+        let warned = mentioned || quotedParticipant;
+
+        // Se não tiver mention ou quote, tenta extrair número do primeiro argumento
+        if (!warned && args.length > 0) {
+            const candidate = args[0].replace(/[@\s]/g, "").replace(/\D/g, "");
+            if (candidate.length >= 8) {
+                warned = candidate + "@s.whatsapp.net";
+            }
+        }
 
         if (!warned) {
             let guide = `╔══════════════════════════════╗\n`;
             guide += `║   ⚠️ *SISTEMA DE ADVERTÊNCIAS* ⚠️   ║\n`;
             guide += `╚══════════════════════════════╝\n\n`;
-            guide += `📌 *Limite Atual do Grupo:* ${warnLimit} Advertências para Expulsão\n`;
+            guide += `📌 *Limite Padrão do Grupo:* ${warnLimit} Advertências para Expulsão\n`;
             guide += `🛡️ *Modo Estrito:* ${isStrict ? "🟢 Ativo (Aplica a Admins)" : "⚪ Apenas Membros"}\n\n`;
             guide += `╭━〔 ⚙️ COMANDOS DISPONÍVEIS 〕━⬣\n`;
-            guide += `┃ ➤ \`${prefix}warn @usuario\` ➔ Advertir membro\n`;
-            guide += `┃ ➤ \`${prefix}warn limit <n>\` ➔ Alterar limite de advertências\n`;
-            guide += `┃ ➤ \`${prefix}warn strict on/off\` ➔ Regra padrão para todos\n`;
-            guide += `┃ ➤ \`${prefix}limparavisos @usuario\` ➔ Resetar advertências\n`;
-            guide += `┃ ➤ \`${prefix}warn preview\` ➔ Ver simulação do alerta\n`;
+            guide += `┃ ➤ \`${prefix}warn @usuario [motivo]\` ➔ Advertir membro\n`;
+            guide += `┃ ➤ \`${prefix}warn limit <n>\` ➔ Alterar limite (padrão 3)\n`;
+            guide += `┃ ➤ \`${prefix}warn strict on/off\` ➔ Regra para admins\n`;
+            guide += `┃ ➤ \`${prefix}limparavisos @usuario\` ➔ Zerar avisos do usuário\n`;
+            guide += `┃ ➤ \`${prefix}limparavisos all\` ➔ Zerar avisos do grupo\n`;
+            guide += `┃ ➤ \`${prefix}warnings @usuario\` ➔ Consultar advertências\n`;
             guide += `╰━━━━━━━━━━━━━━━━━━⬣\n\n`;
             guide += `👑 *${botName}*`;
 
             return reply(guide.trim());
+        }
+
+        // Extrai motivo personalizado ou utiliza padrão
+        let reason = 'Conduta inadequada ou descumprimento das regras';
+        const reasonParts = args.filter(a => !a.startsWith('@') && !a.includes('@s.whatsapp.net') && !/^\d{8,}$/.test(a));
+        if (reasonParts.length > 0) {
+            reason = reasonParts.join(' ').trim();
         }
 
         const warns = dataService.getWarnsData();
@@ -109,14 +125,15 @@ module.exports = {
         const targetNum = warned.split('@')[0].split(':')[0];
         const senderNum = sender.split('@')[0].split(':')[0];
 
-        logger.info(`[WARN] Admin ${sender} advertiu ${warned} (${totalWarns}/${warnLimit})`);
+        logger.info(`[WARN] Admin ${sender} advertiu ${warned} (${totalWarns}/${warnLimit}) por: ${reason}`);
 
         let doc = `╔══════════════════════════════╗\n`;
         doc += `║   ⚠️ *ADVERTÊNCIA DE CONDUTA* ⚠️   ║\n`;
         doc += `╚══════════════════════════════╝\n\n`;
         doc += `╭━〔 📋 REGISTRO DE INFRAÇÃO 〕━⬣\n`;
         doc += `┃ 👤 *Membro Advertido:* @${targetNum}\n`;
-        doc += `┃ ⚠️ *Total de Avisos:* *${totalWarns} / ${warnLimit}*\n`;
+        doc += `┃ ⚠️ *Avisos Acumulados:* *${totalWarns} / ${warnLimit}*\n`;
+        doc += `┃ 📝 *Motivo:* ${reason}\n`;
         doc += `┃ 🛡️ *Aplicado por:* @${senderNum}\n`;
         doc += `╰━━━━━━━━━━━━━━━━━━⬣\n\n`;
 
@@ -125,11 +142,13 @@ module.exports = {
                 await client.groupParticipantsUpdate(from, [warned], 'remove');
                 warns[warned] = 0;
                 await dataService.saveWarnsData(warns);
-                doc += `🚫 *PUNIÇÃO EXECUTADA:* O usuário atingiu o limite máximo de ${warnLimit} advertências e foi removido permanentemente do grupo.\n\n`;
+                doc += `🚫 *EXPULSÃO EXECUTADA:* O usuário atingiu o limite máximo de ${warnLimit} advertências e foi removido do grupo.\n\n`;
             } else {
-                doc += `⚠️ *Atenção:* O usuário atingiu o limite máximo de ${warnLimit} advertências. Promova o bot a admin para remoção automática.\n\n`;
+                doc += `⚠️ *Atenção:* O usuário atingiu o limite máximo de ${warnLimit} advertências. Promova o bot a admin para remoção automática imediata.\n\n`;
             }
         } else {
+            const restantes = warnLimit - totalWarns;
+            doc += `⚡ *Alerta:* Mais ${restantes} advertência(s) resultarão em *expulsão automática (Ban)*!\n\n`;
             doc += `💡 _Para consultar advertências ativas:_ \`${prefix}warnings @${targetNum}\`\n`;
         }
 

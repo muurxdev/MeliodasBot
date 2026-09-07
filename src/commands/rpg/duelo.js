@@ -79,9 +79,36 @@ module.exports = {
             const critOponente = Math.random() * 100 < statsOponente.crit
             if (critOponente) rollOponente = Math.floor(rollOponente * 1.5)
 
-            // Redução por defesa e esquiva
-            rollSender = Math.max(10, rollSender - Math.floor(statsOponente.def * 0.4))
-            rollOponente = Math.max(10, rollOponente - Math.floor(statsSender.def * 0.4))
+            // Redução por defesa, esquiva e escudo dinâmico
+            const shieldEngine = require('../../services/shieldEngine')
+            const shieldStatusSender = shieldEngine.getShieldStatus(userSender)
+            const shieldStatusOponente = shieldEngine.getShieldStatus(userOponente)
+            let shieldMsgSender = ''
+            let shieldMsgOponente = ''
+
+            if (shieldStatusOponente && shieldStatusOponente.active) {
+                const abs = shieldEngine.processDamageAbsorption(userOponente, rollSender, { name: userSender.name, cp: statsSender.cp })
+                if (abs.broken) {
+                    shieldMsgOponente = `\n   💥 *ESCUDO DESTRUÍDO:* O escudo de @${oponente.split('@')[0]} estilhaçou sob o impacto! (Desprotegido temporariamente)`
+                } else {
+                    shieldMsgOponente = `\n   🛡️ *ESCUDO ABSORVEU:* [${abs.hpBar}] ${abs.shieldHpRemaining}/${abs.maxHp} HP (-${abs.absorbedDamage} absorvido)`
+                }
+                rollSender = Math.max(5, rollSender - abs.absorbedDamage)
+            } else {
+                rollSender = Math.max(10, rollSender - Math.floor(statsOponente.def * 0.4))
+            }
+
+            if (shieldStatusSender && shieldStatusSender.active) {
+                const abs = shieldEngine.processDamageAbsorption(userSender, rollOponente, { name: userOponente.name, cp: statsOponente.cp })
+                if (abs.broken) {
+                    shieldMsgSender = `\n   💥 *ESCUDO DESTRUÍDO:* O escudo de @${sender.split('@')[0]} estilhaçou sob o impacto! (Desprotegido temporariamente)`
+                } else {
+                    shieldMsgSender = `\n   🛡️ *ESCUDO ABSORVEU:* [${abs.hpBar}] ${abs.shieldHpRemaining}/${abs.maxHp} HP (-${abs.absorbedDamage} absorvido)`
+                }
+                rollOponente = Math.max(5, rollOponente - abs.absorbedDamage)
+            } else {
+                rollOponente = Math.max(10, rollOponente - Math.floor(statsSender.def * 0.4))
+            }
 
             const senderVenceu = rollSender >= rollOponente
             const vencedorJid = senderVenceu ? sender : oponente
@@ -137,11 +164,11 @@ module.exports = {
 
             doc += `🥊 @${sender.split('@')[0]} (⚡ ${statsSender.cp} CP)\n`
             doc += `   ⚔️ *Arma:* ${armaSender} ${critSender ? '💥 *(GOLPE CRÍTICO!)*' : ''}\n`
-            doc += `   💥 *Dano Total Desferido:* *${rollSender.toLocaleString('pt-BR')}*\n\n`
+            doc += `   💥 *Dano Desferido:* *${rollSender.toLocaleString('pt-BR')}*${shieldMsgSender}\n\n`
             doc += `      *VS*\n\n`
             doc += `🥊 @${oponente.split('@')[0]} (⚡ ${statsOponente.cp} CP)\n`
             doc += `   ⚔️ *Arma:* ${armaOponente} ${critOponente ? '💥 *(GOLPE CRÍTICO!)*' : ''}\n`
-            doc += `   💥 *Dano Total Desferido:* *${rollOponente.toLocaleString('pt-BR')}*\n\n`
+            doc += `   💥 *Dano Desferido:* *${rollOponente.toLocaleString('pt-BR')}*${shieldMsgOponente}\n\n`
 
             doc += `╭━〔 🏆 VENCEDOR DA BATALHA 〕━⬣\n`
             doc += `┃ 👑 *Campeão:* ${nomeVencedor} (@${vencedorJid.split('@')[0]})\n`

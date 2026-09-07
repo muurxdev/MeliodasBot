@@ -55,50 +55,71 @@ function run(cmd, args, timeoutMs = 180000) {
  * @returns {Promise<{ text: string, engine: string }>}
  */
 /**
- * Transcreve via servidor HTTP compatível com a API OpenAA (ex.: faster-whisper-server).
- * Ativado por WHISPER_API_URL (endpoint /v1/audio/transcriptions).
+ * Transcreve via API Whisper em nuvem de altíssima velocidade (Groq whisper-large-v3-turbo / OpenAI).
+ * Não consome CPU da VPS e transcreve áudios em menos de 1 segundo.
  */
-async function transcribeViaApi(audioBuffer) {
-    const url = process.env.WHISPER_API_URL
-    const model = process.env.WHISPER_API_MODEL || 'Systran/faster-whisper-small'
+async function transcribeViaGroqOrOpenAi(audioBuffer) {
+    const apiKey = (process.env.GROQ_API_KEY || process.env.WHISPER_API_KEY || '').trim()
+    if (!apiKey && !process.env.WHISPER_API_URL) return null
+
     const dir = path.join(tempDir, 'stt')
     if (!fs.existsSync(dir)) fs.mkdirSync(dir, { recursive: true })
     const inPath = path.join(dir, 'api_' + Date.now() + '.ogg')
-    const wavPath = inPath.replace(/\.ogg$/, '.wav')
+    const m4aPath = inPath.replace(/\.ogg$/, '.m4a')
     fs.writeFileSync(inPath, audioBuffer)
+
     try {
-        // Converte para WAV 16k mono (formato universal p/ o servidor decodificar)
-        await run('ffmpeg', ['-y', '-i', inPath, '-ar', '16000', '-ac', '1', '-c:a', 'pcm_s16le', wavPath], 60000)
-        const wavBuf = fs.readFileSync(wavPath)
+        try {
+            await run('ffmpeg', ['-y', '-i', inPath, '-vn', '-c:a', 'aac', '-b:a', '64k', m4aPath], 30000)
+        } catch (_) {}
+
+        const targetFile = fs.existsSync(m4aPath) ? m4aPath : inPath
+        const fileBuf = fs.readFileSync(targetFile)
+
         const form = new FormData()
-        form.append('file', new Blob([wavBuf], { type: 'audio/wav' }), 'audio.wav')
-        form.append('model', model)
-        form.append('response_format', 'text')
+        form.append('file', new Blob([fileBuf], { type: 'audio/m4a' }), 'audio.m4a')
+        form.append('model', process.env.WHISPER_API_MODEL || 'whisper-large-v3-turbo')
+        form.append('response_format', 'json')
         if (WHISPER_LANG && WHISPER_LANG !== 'auto') form.append('language', WHISPER_LANG)
 
+        const url = process.env.WHISPER_API_URL || 'https://api.groq.com/openai/v1/audio/transcriptions'
         const ctrl = new AbortController()
-        const to = setTimeout(() => ctrl.abort(), 180000)
-        const res = await fetch(url, { method: 'POST', body: form, signal: ctrl.signal }).finally(() => clearTimeout(to))
-        if (!res.ok) throw new Error(`API de transcrição respondeu ${res.status}`)
-        const text = (await res.text()).trim()
-        if (!text) throw new Error('Transcrição vazia da API.')
-        return { text, engine: 'faster-whisper (API)' }
+        const to = setTimeout(() => ctrl.abort(), 45000)
+
+        const headers = {}
+        if (apiKey) headers['Authorization'] = `Bearer ${apiKey}`
+
+        const res = await fetch(url, {
+            method: 'POST',
+            headers,
+            body: form,
+            signal: ctrl.signal
+        }).finally(() => clearTimeout(to))
+
+        if (!res.ok) {
+            const errBody = await res.text()
+            throw new Error(`Whisper API HTTP ${res.status}: ${errBody.slice(0, 150)}`)
+        }
+
+        const data = await res.json()
+        const text = (data.text || '').trim()
+        if (!text) throw new Error('Transcrição retornou vazia da API.')
+        return { text, engine: 'Whisper API (Turbo)' }
     } finally {
-        try { fs.unlinkSync(inPath) } catch (_) {}
-        try { fs.unlinkSync(wavPath) } catch (_) {}
+        try { if (fs.existsSync(inPath)) fs.unlinkSync(inPath) } catch (_) {}
+        try { if (fs.existsSync(m4aPath)) fs.unlinkSync(m4aPath) } catch (_) {}
     }
 }
 
 async function transcribeAudio(audioBuffer) {
     if (!audioBuffer || !audioBuffer.length) throw new Error('Áudio vazio.')
 
-    // Prioriza o servidor HTTP (faster-whisper) quando configurado.
-    if (process.env.WHISPER_API_URL) {
-        try {
-            return await transcribeViaApi(audioBuffer)
-        } catch (e) {
-            logger.warn(`[STT] API falhou (${e.message}); tentando whisper local...`)
-        }
+    // 1. Prioriza a API Whisper em nuvem (ultra-rápida, gratuita e leve)
+    try {
+        const apiRes = await transcribeViaGroqOrOpenAi(audioBuffer)
+        if (apiRes && apiRes.text) return apiRes
+    } catch (e) {
+        logger.warn(`[STT] Whisper API falhou (${e.message}); tentando whisper local...`)
     }
 
     const engine = detectWhisper()

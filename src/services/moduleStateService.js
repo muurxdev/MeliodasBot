@@ -152,12 +152,12 @@ function clearCommand(name, scope = GLOBAL_SCOPE) {
 }
 
 /** Liga TODOS os módulos — somente no escopo informado.
- * NOTA: O módulo 'skycode' é exclusivo de devs/infra e NUNCA é ativado pelo enableAll.
+ * NOTA: O módulo 'divulgacao' é exclusivo do Dono e ativado sob demanda.
  */
 function enableAll(scope = GLOBAL_SCOPE) {
     const modules = {}
     for (const m of MODULES) {
-        modules[m.key] = (m.key === 'skycode' ? false : true)
+        modules[m.key] = (m.key === 'divulgacao' ? false : true)
     }
     _mutate(scope, () => ({ modules, commands: {} }))
     return { ok: true }

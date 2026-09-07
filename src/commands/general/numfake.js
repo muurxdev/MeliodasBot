@@ -16,7 +16,7 @@ const creditsService = require('../../services/payments/creditsService')
 
 module.exports = {
     name: 'numfake',
-    aliases: ['fakephone', 'numerofake', 'smsfake', 'virtualnumber', 'gerarnumero'],
+    aliases: ['fakephone', 'numerofake', 'smsfake', 'virtualnumber', 'gerarnumero', 'menunumfake', 'menufake'],
     category: 'general',
     subcategory: 'Utilidades',
     description: 'Gera números virtuais com escolha de DDD e recebe SMS para WhatsApp',
@@ -480,6 +480,17 @@ module.exports = {
         }
         if (!isOwner) {
             doc += `\n💳 _Precisa de créditos? Use_ \`${prefix}comprarcreditos\` _para recarregar via PIX!_`
+        }
+
+        if (process.env.NODE_ENV !== 'test') {
+            try {
+                const { sendMenuMediaMessage } = require('../../utils/wallpapers')
+                return await sendMenuMediaMessage(client, from, {
+                    category: 'utilidades',
+                    text: doc.trim(),
+                    quoted: info
+                })
+            } catch (_) {}
         }
 
         return reply(doc.trim())

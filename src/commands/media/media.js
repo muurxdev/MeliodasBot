@@ -63,17 +63,21 @@ module.exports = {
 
         const isCommandMp3 = ["mp3", "playmp3"].includes(commandName?.toLowerCase());
         const isCommandMp4 = ["mp4", "video", "baixarvideo"].includes(commandName?.toLowerCase());
-        const defaultFormat = isCommandMp3 ? "mp3" : (isCommandMp4 ? "mp4" : "mp4");
+        const defaultFormat = isCommandMp4 ? "mp4" : "mp3";
 
         const { url: cleanUrl, isMp3: hasMp3Flag, isMp4: hasMp4Flag, cleanQuery: queryWithoutFormat } = extractUrlAndFormat(rawInput, defaultFormat);
-        const isMp3 = isCommandMp3 || hasMp3Flag;
         const isMp4 = isCommandMp4 || hasMp4Flag;
+        const isMp3 = isCommandMp3 || hasMp3Flag || (!isMp4);
         const cleanQuery = cleanUrl || queryWithoutFormat;
 
         const isKwai = /kwai\.com|k\.kwai\.com|v\.kwai\.com|kwai-video\.com/i.test(cleanQuery);
         const isTikTok = /tiktok\.com|vt\.tiktok\.com|vm\.tiktok\.com/i.test(cleanQuery);
         const isTwitter = /twitter\.com|x\.com/i.test(cleanQuery);
         const isPinterest = /pinterest\.com|pin\.it/i.test(cleanQuery);
+        const isInstagram = /instagram\.com|instagr\.am/i.test(cleanQuery);
+        const isSpotify = /spotify\.com/i.test(cleanQuery);
+        const isYouTube = /youtube\.com|youtu\.be/i.test(cleanQuery);
+        const isFacebook = /facebook\.com|fb\.watch/i.test(cleanQuery);
         const platformName = getPlatformDisplayName(cleanQuery);
 
         // 1. SUPORTE A PLAYLISTS E ÁLBUNS COMPLETOS (Spotify & YouTube)
@@ -88,15 +92,15 @@ module.exports = {
                 playlistDoc += "┃ 📱 *Plataforma:* " + playlistInfo.platform + "\n";
                 playlistDoc += "┃ 📂 *Título:* " + playlistInfo.title + "\n";
                 playlistDoc += "┃ 📦 *Total de Faixas:* *" + totalTracks + " faixas*\n";
-                playlistDoc += "┃ 🎧 *Formato:* MP3 (alta fidelidade)\n";
-                playlistDoc += "┃ ⏳ *Status:* Processando download sequencial das músicas...\n";
+                playlistDoc += "┃ 🎧 *Formato:* " + (isMp4 ? "MP4 (Vídeo)" : "MP3 (alta fidelidade)") + "\n";
+                playlistDoc += "┃ ⏳ *Status:* Processando download sequencial das mídias...\n";
                 playlistDoc += "╰━━━━━━━━━━━━━━━━━━⬣\n\n";
                 playlistDoc += "👑 *" + botName + "*";
 
                 await reply(playlistDoc.trim());
 
-                // Processa cada música sequencialmente (limite de segurança de até 25 faixas por comando)
-                const limit = Math.min(totalTracks, 25);
+                // Processa cada música sequencialmente (teto expandido: até 500 áudios ou 250 vídeos)
+                const limit = Math.min(totalTracks, isMp4 ? 250 : 500);
                 for (let i = 0; i < limit; i++) {
                     const track = playlistInfo.tracks[i];
                     try {
@@ -442,20 +446,39 @@ module.exports = {
             }
         }
 
-        // 6. VÍDEO (MP4) GERAL — YOUTUBE, INSTAGRAM, FACEBOOK, REDDIT, VÍDEO WEB
+        // 5. INSTAGRAM NATIVO (REELS, POSTS, CARROSSEL E ÁUDIO)
+        if (isInstagram) {
+            await reply(isMp4 ? "📸 *Baixando Reels/Post do Instagram em alta definição...* Aguarde." : "📸 *Extraindo áudio MP3 do Instagram...* Aguarde.");
+            try {
+                const instaCmd = require("./insta");
+                if (instaCmd && typeof instaCmd.execute === "function") {
+                    return await instaCmd.execute({
+                        sender,
+                        text: (isMp4 ? "mp4 " : "mp3 ") + (cleanUrl || cleanQuery),
+                        reply,
+                        client,
+                        from,
+                        info,
+                        quotedText
+                    });
+                }
+            } catch (instaErr) {
+                logger.error("[MEDIA HUB INSTAGRAM ERROR]", instaErr);
+                return reply("❌ *Erro no download do Instagram:* " + instaErr.message);
+            }
+        }
+
+        // 6. VÍDEO (MP4) GERAL — YOUTUBE, FACEBOOK, REDDIT, VÍDEO WEB
         const isForceAudio = isMp3 || /spotify\.com|soundcloud\.com/i.test(cleanQuery);
         const shouldDownloadVideo = (!isForceAudio) && (isMp4 || looksLikeUrl(cleanQuery));
 
         if (shouldDownloadVideo) {
-            const { formatDownloadProgressCard } = require("../../services/media/formatResolver");
             const { ensureMobileVideoCompatibility } = require("../../services/media/mediaProcessor");
 
-            const initialCard = formatDownloadProgressCard({
-                platform: platformName,
-                isAudio: false,
-                quality: 'Máxima disponível'
-            });
-            await reply(initialCard);
+            let msgVideo = "🎥 *Baixando vídeo MP4 em alta qualidade (4K/HD)...* Aguarde.";
+            if (isYouTube) msgVideo = "🎥 *Baixando vídeo do YouTube em alta qualidade (4K/HD)...* Aguarde.";
+            else if (isFacebook) msgVideo = "📘 *Baixando vídeo do Facebook em alta definição...* Aguarde.";
+            await reply(msgVideo);
 
             try {
                 const meta = await extractMetadata(cleanQuery, { isSearch: !looksLikeUrl(cleanQuery), userJid: sender });
@@ -516,12 +539,10 @@ module.exports = {
         }
 
         // 7. ÁUDIO MP3 DE ALTA FIDELIDADE
-        const { formatDownloadProgressCard } = require("../../services/media/formatResolver");
-        const initialAudioCard = formatDownloadProgressCard({
-            platform: platformName,
-            isAudio: true
-        });
-        await reply(initialAudioCard);
+        let msgAudio = "🎵 *Extraindo áudio MP3 em alta fidelidade...* Aguarde.";
+        if (isYouTube) msgAudio = "🎵 *Baixando faixa do YouTube em alta fidelidade...* Aguarde.";
+        else if (isSpotify) msgAudio = "🎧 *Baixando faixa do Spotify em alta fidelidade...* Aguarde.";
+        await reply(msgAudio);
 
         try {
             const mediaData = await mediaQueue.enqueue({

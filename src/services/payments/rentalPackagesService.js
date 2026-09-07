@@ -26,7 +26,14 @@ const PACOTES_PADRAO = [
     // Combos (Grupo + PV)
     { id: 'c1', escopo: 'Combo', nome: 'Combo Mensal (Grupo + PV)', centavos: 4500, dias: 30 },
     { id: 'c2', escopo: 'Combo', nome: 'Combo Trimestral (Grupo + PV)', centavos: 12000, dias: 90 },
-    { id: 'c3', escopo: 'Combo', nome: 'Combo Anual (Grupo + PV)', centavos: 35000, dias: 365 }
+    { id: 'c3', escopo: 'Combo', nome: 'Combo Anual (Grupo + PV)', centavos: 35000, dias: 365 },
+
+    // Aluguel do Bot Completo (Subdono — Liberação do PV, Entrada/Saída e Comandos de Gerência)
+    { id: 'b1', escopo: 'Bot (Subdono)', nome: 'Subdono Semanal', centavos: 3000, dias: 7 },
+    { id: 'b2', escopo: 'Bot (Subdono)', nome: 'Subdono Mensal', centavos: 7000, dias: 30 },
+    { id: 'b3', escopo: 'Bot (Subdono)', nome: 'Subdono Trimestral', centavos: 16000, dias: 90 },
+    { id: 'b4', escopo: 'Bot (Subdono)', nome: 'Subdono Anual', centavos: 45000, dias: 365 },
+    { id: 'b5', escopo: 'Bot (Subdono)', nome: 'Subdono Vitalício', centavos: 80000, dias: 36500, isLifetime: true }
 ];
 
 function _lerPacotes() {

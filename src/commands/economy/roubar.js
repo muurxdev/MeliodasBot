@@ -32,17 +32,18 @@ module.exports = {
         const victim = initializeUser(mentioned, xpData)
         const victimCoins = victim.coins || 0
 
-        // Escudo comprado com .protecao — bloqueia antes de qualquer sorteio.
-        // Também NÃO consome o cooldown do ladrão: ele não chegou a tentar,
-        // foi barrado na porta. Cobrar 2h por isso seria punir sem crime.
-        const protecao = require("../../services/protectionService")
-        if (protecao.estaProtegido(victim)) {
-            const restante = protecao.formatarRestante(protecao.restanteMs(victim))
+        // Escudo dinâmico com HP — bloqueia antes de qualquer sorteio.
+        const shieldEngine = require("../../services/shieldEngine")
+        const shieldStatus = shieldEngine.getShieldStatus(victim)
+        if (shieldStatus && shieldStatus.active) {
+            const hpBar = shieldEngine.renderHpBar(shieldStatus.hp, shieldStatus.maxHp, 10)
+            const restante = (shieldStatus.timeLeftMs / 3600000).toFixed(1)
             return reply(
-                "🛡️ *ALVO PROTEGIDO*\n\n" +
-                "@" + mentioned.split("@")[0] + " está com *proteção anti-roubo* ativa.\n\n" +
-                "⏳ _Ainda restam " + restante + " de escudo._\n" +
-                "💡 _Seu cooldown não foi gasto._",
+                `🛡️ *TENTATIVA DE ROUBO BLOQUEADA!*\n\n` +
+                `@${mentioned.split("@")[0]} possui um **${shieldStatus.name}** ${shieldStatus.emoji} ativo!\n` +
+                `❤️ *Integridade da Defesa:* [${hpBar}] ${shieldStatus.hp.toLocaleString('pt-BR')} / ${shieldStatus.maxHp.toLocaleString('pt-BR')} HP\n` +
+                `⏳ *Proteção Ativa por:* Mais ${restante} horas\n\n` +
+                `💡 _A barreira repeliu você antes que conseguisse se aproximar do cofre! (Seu cooldown foi preservado)_`,
                 [mentioned]
             )
         }

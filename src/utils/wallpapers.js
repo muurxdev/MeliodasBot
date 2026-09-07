@@ -91,7 +91,7 @@ const CATEGORY_MAP = {
     "utilidades": "utilidades", "util": "utilidades", "geral": "utilidades", "numfake": "utilidades", "general": "general",
     "adicional": "utilidades", "adicionais": "utilidades", "extra": "utilidades", "extras": "utilidades", "especial": "utilidades", "especiais": "utilidades",
     "dev": "dev", "software": "dev", "tools": "dev", "debug": "dev",
-    "skycode": "skycode", "sky": "skycode", "devnet": "skycode", "painelgrupo": "skycode",
+    "divulgacao": "divulgacao", "divulgar": "divulgacao", "broadcast": "divulgacao", "transmissao": "divulgacao",
     "rede": "rede", "net": "rede", "telemetria": "rede", "ping": "rede",
     "admin": "admin", "adm": "admin", "moderacao": "admin", "seguranca": "admin",
     "config": "config", "configs": "config", "configuracoes": "config", "mensagensgrupo": "config",
@@ -119,7 +119,7 @@ function normalizeCategory(cat) {
 const MENU_KEYS_ORDER = [
     "main", "rpg", "boss", "coliseu", "dungeon", "economy", "cassino", "banco",
     "media", "figurinhas", "jogos", "fun", "interacao", "pesquisa", "ia",
-    "arquivos", "livros", "calc", "utilidades", "general", "dev", "skycode",
+    "arquivos", "livros", "calc", "utilidades", "general", "dev", "divulgacao",
     "rede", "admin", "config", "avisos", "aluguel", "owner", "profile", "dossie",
     "levelup", "welcome", "leave", "help"
 ];
@@ -504,7 +504,7 @@ function getAllMenuMediaStatus() {
         { key: "utilidades", label: "Utilidades & Telefonia (.menu utilidades)" },
         { key: "general", label: "Geral & Comandos Úteis (.menu general)" },
         { key: "dev", label: "Dev Hub & Ferramentas (.menu dev)" },
-        { key: "skycode", label: "Terminal Cibernético Skycode (.skycode)" },
+        { key: "divulgacao", label: "Central de Divulgação & Avisos (.divulgacao)" },
         { key: "rede", label: "Rede & Telemetria (.menu rede)" },
         { key: "admin", label: "Administração do Grupo (.menu admin)" },
         { key: "config", label: "Configurações do Grupo (.menu config)" },

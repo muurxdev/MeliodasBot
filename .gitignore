@@ -28,6 +28,12 @@ cookies.txt
 
 # Backups legados e lixo
 *.bak
+*.bak.*
+.env.bak*
+sessao_bak/
+check_vps_rpg.js
+reset-users.js
+indexx.js
 indexxxxx/
 /database/
 
@@ -44,12 +50,13 @@ legacy_backup/
 skills-lock.json
 
 # Banco de dados de produção (dados reais de usuários) — NUNCA versionar
-data/*.sqlite
-data/*.sqlite-wal
-data/*.sqlite-shm
-
-# Dados legados/runtime com informação real de usuários — não versionar
-data/*.json
+data/
+boss.json
+configs.json
+missoes.json
+warns.json
+xp.json
+moewalls_all_anime.json
 audit-report.json
 
 # Banco isolado da suite de testes (NODE_ENV=test)

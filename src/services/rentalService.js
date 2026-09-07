@@ -62,7 +62,8 @@ function formatTimeRemaining(diffMs, isLifetime = false) {
 const TARGET_TYPES = {
     GROUP: 'group',
     PV: 'pv',
-    COMBO: 'combo'
+    COMBO: 'combo',
+    BOT: 'bot'
 }
 
 /**
@@ -232,6 +233,10 @@ function hasActiveRental(targetJid, scope = 'group', candidateJids = []) {
     const rental = rentalRepo.getRental(targetJid, allCandidates)
     if (!rental || !rental.isActive) {
         return { active: false, reason: 'not_found', rental: null }
+    }
+
+    if (scope === 'bot' && !['bot', 'combo'].includes(rental.targetType) && !rental.isLifetime) {
+        return { active: false, reason: 'wrong_scope', rental }
     }
 
     const now = Date.now()
@@ -473,6 +478,22 @@ function getAllRentalsList(targetType = null) {
     })
 }
 
+function getAllSubowners() {
+    const all = rentalRepo.getAllRentals('bot') || []
+    const now = Date.now()
+    return all.filter(r => r.isActive && (r.isLifetime || r.expiresAt > now)).map(r => {
+        const isLifetime = Boolean(r.isLifetime) || (r.expiresAt - now >= 50 * 365 * 86400 * 1000)
+        const remainingMs = isLifetime ? Infinity : Math.max(0, r.expiresAt - now)
+        return {
+            ...r,
+            isLifetime,
+            remainingMs,
+            remainingText: formatTimeRemaining(remainingMs, isLifetime),
+            expiresAtFormatted: isLifetime ? '♾️ Permanente (Vitalício)' : new Date(r.expiresAt).toLocaleString('pt-BR')
+        }
+    })
+}
+
 module.exports = {
     TARGET_TYPES,
     parseRentalDuration,
@@ -487,6 +508,7 @@ module.exports = {
     addRentalTime,
     removeRental,
     getRentalInfo,
-    getAllRentalsList
+    getAllRentalsList,
+    getAllSubowners
 }
 

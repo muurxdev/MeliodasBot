@@ -31,7 +31,7 @@ function _cfg() {
         groqModel: (process.env.GROQ_MODEL || 'llama-3.3-70b-versatile').trim(),
         geminiKey: (process.env.GEMINI_API_KEY || '').trim(),
         geminiModel: (process.env.GEMINI_MODEL || 'gemini-2.0-flash').trim(),
-        geminiSearchGrounding: String(process.env.GEMINI_SEARCH_GROUNDING || 'true').toLowerCase() === 'true',
+        geminiSearchGrounding: String(process.env.GEMINI_SEARCH_GROUNDING || 'false').toLowerCase() === 'true',
         perplexityKey: (process.env.PERPLEXITY_API_KEY || '').trim(),
         perplexityModel: (process.env.PERPLEXITY_MODEL || 'sonar').trim(),
         cfAccount: (process.env.CLOUDFLARE_ACCOUNT_ID || '').trim(),

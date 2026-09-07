@@ -65,6 +65,17 @@ module.exports = {
                 doc += `╰━━━━━━━━━━━━━━━━━━⬣\n\n`
             }
 
+            // 4. Subdono (Bot Completo)
+            const subdonos = pacotes.filter(p => p.escopo === 'Bot (Subdono)')
+            if (subdonos.length > 0) {
+                doc += `╭━〔 🎖️ 4. ALUGUEL DO BOT (SUBDONO) 〕━⬣\n`
+                for (const p of subdonos) {
+                    doc += `┃ \`${p.id}\` — *${p.nome} (${p.dias}d):* ${formatBrl(p.centavos)}\n`
+                }
+                doc += `┃ 🌟 *Vantagens:* Liberação de PV exclusivo, comandos de gerência e status de subdono\n`
+                doc += `╰━━━━━━━━━━━━━━━━━━⬣\n\n`
+            }
+
             doc += `🎁 *Período de Teste Gratuito:*\n`
             doc += `┃ ⚡ Digite \`.aluguel teste\` para liberar *2 Horas Grátis*!\n\n`
 
