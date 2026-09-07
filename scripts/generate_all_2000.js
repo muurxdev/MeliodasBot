@@ -169,3 +169,4 @@ while (created < needed && cycle <= 1000) {
 console.log(`[GLOBAL EXPANSION CONCLUÍDO] Foram gerados ${created} novos comandos.`);
 const finalTotal = getCurrentTotal();
 console.log(`[TOTAL FINAL DO BOT] ${finalTotal} comandos carregados com sucesso!`);
+
