@@ -20,7 +20,8 @@ const logger = require('../../core/logger');
 module.exports = {
     name: 'livro',
     aliases: ['pdf', 'ebook', 'book', 'libro', 'livre', 'livros', 'ler', 'arquivo', 'documento', 'baixarpdf', 'doc'],
-    category: 'general',
+    category: 'livros',
+    subcategory: 'Livros & Materiais',
     description: 'Busca inteligente multilíngue de livros e envio de PDFs com autor, ano, edição e sinopse',
     cooldownMs: 3000,
     execute: async ({ text, args, from, client, reply, prefix = '.', info, sender }) => {
@@ -75,12 +76,14 @@ module.exports = {
         const i18n = getI18nLabels(lang);
 
         try {
+            if (client?.sendMessage && info?.key) client.sendMessage(from, { react: { text: '⏳', key: info.key } }).catch(() => {});
             const loadingMsg = i18n.loading.replace('{query}', cleanQuery);
             await reply(loadingMsg);
 
             const results = await searchBooks(cleanQuery, 6, lang);
 
             if (!results || results.length === 0) {
+                if (client?.sendMessage && info?.key) client.sendMessage(from, { react: { text: '❌', key: info.key } }).catch(() => {});
                 const notFoundMsg = i18n.notFound.replace('{query}', cleanQuery);
                 return reply(notFoundMsg);
             }
@@ -145,6 +148,7 @@ module.exports = {
                     en: `❌ *No PDF available for download for:* _"${cleanQuery}"_\n\n📚 *Other books found in the archive:*\n\n${suggestions}\n\n💡 *Tip:* Use \`${prefix}book <title>\` to try downloading any of the books listed above.`,
                     es: `❌ *Ningún PDF disponible para descargar para:* _"${cleanQuery}"_\n\n📚 *Otros libros encontrados en el acervo:*\n\n${suggestions}\n\n💡 *Consejo:* Use \`${prefix}libro <título>\` para intentar descargar alguno de los libros listados arriba.`
                 };
+                if (client?.sendMessage && info?.key) client.sendMessage(from, { react: { text: '❌', key: info.key } }).catch(() => {});
                 return reply(notFoundMsg[lang] || notFoundMsg.pt);
             }
 
@@ -209,8 +213,11 @@ module.exports = {
                 caption
             }, { quoted: info });
 
+            if (client?.sendMessage && info?.key) client.sendMessage(from, { react: { text: '✅', key: info.key } }).catch(() => {});
+
         } catch (err) {
             logger.error('[LIVRO ERROR]', err);
+            if (client?.sendMessage && info?.key) client.sendMessage(from, { react: { text: '❌', key: info.key } }).catch(() => {});
             return reply(`❌ Error: ${err.message}`);
         }
     }

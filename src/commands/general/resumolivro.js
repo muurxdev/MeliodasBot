@@ -9,7 +9,8 @@ const { renderCard } = require('../../utils/uiEngine');
 module.exports = {
     name: 'resumolivro',
     aliases: ['sinopse', 'resumo', 'sinopselivro', 'resumir'],
-    category: 'general',
+    category: 'livros',
+    subcategory: 'Livros & Materiais',
     description: 'Exibe o resumo completo, sinopse e detalhes técnicos de qualquer livro',
     cooldownMs: 2000,
     execute: async ({ text, reply, prefix = '.', sender }) => {

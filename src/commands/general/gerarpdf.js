@@ -3,7 +3,8 @@ const { getBotName } = require('../../config/botConfig');
 module.exports = {
     name: 'gerarpdf',
     aliases: ['pdfia', 'criarpdf', 'documentopdf'],
-    category: 'general',
+    category: 'livros',
+    subcategory: 'Livros & Materiais',
     description: 'Gera documento PDF a partir de qualquer tema ou texto fornecido',
     cooldownMs: 4000,
     execute: async ({ client, from, text, reply, info }) => {

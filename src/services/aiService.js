@@ -25,14 +25,6 @@ async function searchWeb(query) {
 
     // 1. Wikipedia API em Português (respostas factuais instantâneas e sem bloqueio de IP)
     try {
-        const url = 'https://html.duckduckgo.com/html/?q=' + encodeURIComponent(cleanQuery)
-        const res = await fetch(url, {
-            headers: {
-                'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36',
-                'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
-                'Accept-Language': 'pt-BR,pt;q=0.9,en;q=0.8'
-            },
-            signal: AbortSignal.timeout(7000)
         const wikiUrl = `https://pt.wikipedia.org/w/api.php?action=opensearch&search=${encodeURIComponent(cleanQuery)}&limit=4&namespace=0&format=json`
         const res = await fetch(wikiUrl, {
             headers: { 'User-Agent': 'MeliodasBot/2.0 (WhatsApp Assistant; contact@meliodasbot.com)' },
@@ -40,13 +32,6 @@ async function searchWeb(query) {
         })
 
         if (res.ok) {
-            const html = await res.text()
-            const blocks = html.split(/class="result\s+/)
-            for (let i = 1; i < blocks.length && results.length < 5; i++) {
-                const block = blocks[i]
-                const urlMatch = block.match(/href="([^"]+)"[^>]*class="result__url"/i) || block.match(/class="result__url"[^>]*href="([^"]+)"/i) || block.match(/href="([^"]+)"/i)
-                const titleMatch = block.match(/class="result__title"[^>]*>([\s\S]*?)<\/h2>/i) || block.match(/class="result__a"[^>]*>([\s\S]*?)<\/a>/i)
-                const snippetMatch = block.match(/class="result__snippet"[^>]*>([\s\S]*?)<\/a>/i) || block.match(/class="result__snippet"[^>]*>([\s\S]*?)<\/span>/i)
             const data = await res.json()
             const titles = data[1] || []
             const snippets = data[2] || []
@@ -63,12 +48,6 @@ async function searchWeb(query) {
         }
     } catch (_) {}
 
-                if (urlMatch && (titleMatch || snippetMatch)) {
-                    let u = urlMatch[1]
-                    try {
-                        const parsed = new URL(u, 'https://duckduckgo.com')
-                        if (parsed.searchParams.has('uddg')) u = decodeURIComponent(parsed.searchParams.get('uddg'))
-                    } catch (_) {}
     // 2. DuckDuckGo Instant Answer API
     if (results.length < 3) {
         try {
@@ -100,10 +79,6 @@ async function searchWeb(query) {
             }
         } catch (_) {}
     }
-
-                    const clean = (str) => (str || '').replace(/<[^>]+>/g, '').replace(/&amp;/g, '&').replace(/&#x27;/g, "'").replace(/&quot;/g, '"').trim()
-                    const title = clean(titleMatch ? titleMatch[1] : '')
-                    const snippet = clean(snippetMatch ? snippetMatch[1] : '')
     // 3. DuckDuckGo HTML Scraper com headers rotativos como fallback
     if (results.length < 3) {
         try {
@@ -116,9 +91,6 @@ async function searchWeb(query) {
                 },
                 signal: AbortSignal.timeout(6000)
             })
-
-                    if (snippet && !u.includes('duckduckgo.com') && !u.includes('y.js')) {
-                        results.push({ url: u, title: title || 'Fonte Web', snippet })
             if (res.ok) {
                 const html = await res.text()
                 const blocks = html.split(/class="result\s+/)
@@ -148,8 +120,6 @@ async function searchWeb(query) {
         } catch (err) {
             logger.warn(`[SEARCH WEB WARN] ${err.message}`)
         }
-    } catch (err) {
-        logger.warn(`[SEARCH WEB WARN] ${err.message}`)
     }
 
     return results
@@ -266,7 +236,6 @@ async function askAI(prompt) {
             } catch (e) {
                 logger.warn(`[IA] Falha na síntese por LLM: ${e.message}`)
             }
-            } catch (_) {}
 
             doc += `╭━〔 💡 RESPOSTA SINTETIZADA 〕━⬣\n`
             doc += `📝 ${sintese || primary.snippet}\n`

@@ -575,7 +575,6 @@ module.exports = {
     isOwner,
     resolveOwnerName,
     getOwnerProfileName,
-    getOwnerRank
     getOwnerRank,
     notifyDonos
 };

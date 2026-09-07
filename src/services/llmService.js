@@ -118,7 +118,6 @@ async function _groq(prompt, system, c) {
     return json?.choices?.[0]?.message?.content?.trim() || null
 }
 
-async function _gemini(prompt, system, c) {
 async function _gemini(prompt, system, c, returnSources = false) {
     const url = `https://generativelanguage.googleapis.com/v1beta/models/${encodeURIComponent(c.geminiModel)}:generateContent?key=${encodeURIComponent(c.geminiKey)}`
     const payload = {
@@ -151,8 +150,6 @@ async function _gemini(prompt, system, c, returnSources = false) {
         }
     }
 
-    const partes = json?.candidates?.[0]?.content?.parts
-    return Array.isArray(partes) ? partes.map(p => p.text || '').join('').trim() || null : null
     const candidate = json?.candidates?.[0]
     const partes = candidate?.content?.parts
     const text = Array.isArray(partes) ? partes.map(p => p.text || '').join('').trim() || null : null
@@ -224,13 +221,7 @@ async function ask(prompt, opts = {}) {
     const system = opts.system || SYSTEM_PADRAO
     const returnSources = Boolean(opts.returnSources)
 
-    const local = []
     const nuvem = []
-    if (c.geminiKey) nuvem.push(['Gemini', () => _gemini(texto, system, c)])
-    if (c.perplexityKey) nuvem.push(['Perplexity', () => _perplexity(texto, system, c)])
-    if (c.groqKey) nuvem.push(['Groq', () => _groq(texto, system, c)])
-    if (c.cfAccount && c.cfToken) nuvem.push(['Cloudflare', () => _cloudflare(texto, system, c)])
-    if (c.ollamaUrl) local.push(['Ollama', () => _ollama(texto, system, c)])
     if (c.geminiKey) nuvem.push(['Google Gemini', () => _gemini(texto, system, c, returnSources)])
     if (c.groqKey) nuvem.push(['Groq', async () => {
         const text = await _groq(texto, system, c)
@@ -252,10 +243,8 @@ async function ask(prompt, opts = {}) {
     if (!cadeia.length) return null
 
     for (const [nome, fn] of cadeia) {
-    for (const [nome, fn] of nuvem) {
         try {
             const r = await fn()
-            if (r) return r
             const hasText = returnSources ? (r && r.text) : Boolean(r)
             if (hasText) return r
             logger.warn(`[LLM] ${nome} respondeu vazio; tentando o próximo.`)

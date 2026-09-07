@@ -296,7 +296,7 @@ const MULTILANG_POPULAR_BOOKS = [
         language: "Português (pt-BR)",
         genre: "Suspense / Thriller Psicológico",
         description: "Em 1986, Eddie e seus amigos passam a maior parte dos dias andando de bicicleta pela pacata cidade de Anderbury e usando homens de giz desenhados para deixar mensagens secretas. Mas um dia, um boneco de giz os leva até o corpo de uma garota assassinada. Trinta anos depois, o passado volta para assombrá-los.",
-        identifier: null,
+        identifier: "el-hombre-de-tiza-c-j-tudor",
         source: "Acervo Digital / Editora Intrínseca"
     },
     {
@@ -313,8 +313,144 @@ const MULTILANG_POPULAR_BOOKS = [
         language: "Português (pt-BR)",
         genre: "Humor Infantojuvenil / Ficção Cômica",
         description: "Não é fácil ser criança. E ninguém sabe disso melhor do que Greg Heffley, um garoto que se vê jogado no ensino fundamental onde garotos nanicos dividem os corredores com garotos que são mais altos e já fazem a barba.",
-        identifier: null,
+        identifier: "1739709629203",
         source: "Acervo Digital / V&R Editoras"
+    },
+    {
+        lang: 'pt',
+        keywords: ["pai rico pai pobre", "pai rico", "robert kiyosaki", "kiyosaki", "financas"],
+        title: "Pai Rico, Pai Pobre",
+        originalTitle: "Rich Dad Poor Dad",
+        author: "Robert T. Kiyosaki",
+        year: "1997",
+        edition: "Edição Atualizada e Ampliada",
+        publisher: "Alta Books / Elsevier",
+        pagesCount: 336,
+        pages: "336 págs.",
+        language: "Português (pt-BR)",
+        genre: "Educação Financeira / Desenvolvimento Pessoal",
+        description: "Um dos livros de finanças mais vendidos do mundo. Ensina a diferença entre ativos e passivos, inteligência financeira e como fazer o dinheiro trabalhar por você em vez de trabalhar por dinheiro.",
+        identifier: "pairicopaipobre",
+        source: "Acervo Digital / Alta Books"
+    },
+    {
+        lang: 'pt',
+        keywords: ["1984", "george orwell", "orwell", "grande irmao", "big brother"],
+        title: "1984",
+        originalTitle: "Nineteen Eighty-Four",
+        author: "George Orwell",
+        year: "1949",
+        edition: "Edição Integral — Companhia das Letras",
+        publisher: "Companhia das Letras",
+        pagesCount: 416,
+        pages: "416 págs.",
+        language: "Português (pt-BR)",
+        genre: "Ficção Distópica / Clássico",
+        description: "Winston Smith vive sob a vigilância constante do Grande Irmão em um regime totalitário onde pensar diferente é um crime gravíssimo. Um clássico atemporal sobre liberdade e verdade.",
+        identifier: "orwell-1984_202101",
+        source: "Acervo Digital / Companhia das Letras"
+    },
+    {
+        lang: 'pt',
+        keywords: ["revolucao dos bichos", "a revolucao dos bichos", "revolução dos bichos", "animal farm", "orwell"],
+        title: "A Revolução dos Bichos",
+        originalTitle: "Animal Farm",
+        author: "George Orwell",
+        year: "1945",
+        edition: "Edição Especial — Companhia das Letras",
+        publisher: "Companhia das Letras",
+        pagesCount: 152,
+        pages: "152 págs.",
+        language: "Português (pt-BR)",
+        genre: "Sátira Política / Fábula",
+        description: "Os animais de uma granja se rebelam contra seus donos humanos para criar uma sociedade justa e igualitária. Uma sátira brilhante sobre o poder, a corrupção e os regimes autoritários.",
+        identifier: "orwell-a-revolucao-dos-bichos",
+        source: "Acervo Digital / Companhia das Letras"
+    },
+    {
+        lang: 'pt',
+        keywords: ["poder do habito", "o poder do habito", "o poder do hábito", "charles duhigg", "habito"],
+        title: "O Poder do Hábito",
+        originalTitle: "The Power of Habit",
+        author: "Charles Duhigg",
+        year: "2012",
+        edition: "1ª Edição Oficial — Editora Objetiva",
+        publisher: "Editora Objetiva",
+        pagesCount: 408,
+        pages: "408 págs.",
+        language: "Português (pt-BR)",
+        genre: "Psicologia Aplicada / Produtividade",
+        description: "Explora a ciência por trás da formação e transformação de hábitos na vida pessoal, nas empresas e nas sociedades. Revela o 'loop do hábito': deixa, rotina e recompensa.",
+        identifier: "livro-o-poder-do-habito_202503",
+        source: "Acervo Digital / Editora Objetiva"
+    },
+    {
+        lang: 'pt',
+        keywords: ["harry potter", "pedra filosofal", "j k rowling", "jk rowling", "hogwarts", "bruxo"],
+        title: "Harry Potter e a Pedra Filosofal",
+        originalTitle: "Harry Potter and the Philosopher's Stone",
+        author: "J. K. Rowling",
+        year: "1997",
+        edition: "Edição Oficial — Editora Rocco",
+        publisher: "Editora Rocco",
+        pagesCount: 264,
+        pages: "264 págs.",
+        language: "Português (pt-BR)",
+        genre: "Fantasia Infantojuvenil / Aventura",
+        description: "Harry Potter descobre no seu aniversário de 11 anos que é um bruxo e é convidado para estudar na Escola de Magia e Bruxaria de Hogwarts, iniciando a saga mais famosa da literatura mundial.",
+        identifier: "livro-harry-potter-e-a-pedra-filosofal",
+        source: "Acervo Digital / Editora Rocco"
+    },
+    {
+        lang: 'pt',
+        keywords: ["o principe", "o príncipe", "maquiavel", "nicolau maquiavel", "politica"],
+        title: "O Príncipe",
+        originalTitle: "Il Principe",
+        author: "Nicolau Maquiavel",
+        year: "1532",
+        edition: "Edição Clássica Comentada — Domínio Público",
+        publisher: "Domínio Público",
+        pagesCount: 160,
+        pages: "160 págs.",
+        language: "Português (pt-BR)",
+        genre: "Filosofia Política / Ciência Política",
+        description: "O mais influente tratado sobre a conquista e manutenção do poder político. Uma análise crua e pragmática sobre liderança, governança e estratégia de Estado.",
+        identifier: "o-principe-maquiavel",
+        source: "Domínio Público / Internet Archive"
+    },
+    {
+        lang: 'pt',
+        keywords: ["sapiens", "uma breve historia da humanidade", "yuval noah harari", "harari", "humanidade"],
+        title: "Sapiens: Uma Breve História da Humanidade",
+        originalTitle: "Sapiens: A Brief History of Humankind",
+        author: "Yuval Noah Harari",
+        year: "2014",
+        edition: "Edição Ilustrada Integral — L&PM / Companhia das Letras",
+        publisher: "Companhia das Letras",
+        pagesCount: 464,
+        pages: "464 págs.",
+        language: "Português (pt-BR)",
+        genre: "História / Antropologia / Divulgação Científica",
+        description: "Narra como um macaco insignificante se tornou o governante do planeta Terra, das revoluções cognitiva, agrícola e científica até o futuro da inteligência artificial.",
+        identifier: "sapiens_202112",
+        source: "Acervo Digital / Companhia das Letras"
+    },
+    {
+        lang: 'pt',
+        keywords: ["habitos atomicos", "hábitos atômicos", "james clear", "atomicos", "rotina"],
+        title: "Hábitos Atômicos",
+        originalTitle: "Atomic Habits",
+        author: "James Clear",
+        year: "2018",
+        edition: "1ª Edição Oficial — Paralela / Companhia das Letras",
+        publisher: "Editora Paralela",
+        pagesCount: 320,
+        pages: "320 págs.",
+        language: "Português (pt-BR)",
+        genre: "Desenvolvimento Pessoal / Produtividade",
+        description: "Um método comprovado para construir bons hábitos e eliminar os maus através de pequenas melhorias diárias de 1% que geram resultados gigantescos ao longo do tempo.",
+        identifier: "habitos-atomicos-emerson-eduardo-rodrigues",
+        source: "Acervo Digital / Editora Paralela"
     },
     {
         lang: 'pt',
@@ -434,7 +570,7 @@ const MULTILANG_POPULAR_BOOKS = [
         language: "English (en-GB)",
         genre: "Dystopian Fiction / Political Satire",
         description: "Winston Smith lives in a society ruled by the totalitarian Party and its ubiquitous leader, Big Brother. A harrowing vision of totalitarian surveillance and truth manipulation.",
-        identifier: "1984georgeorwell0000unse",
+        identifier: "GeorgeOrwells1984",
         source: "Internet Archive / Secker & Warburg"
     },
     {
@@ -521,7 +657,7 @@ const MULTILANG_POPULAR_BOOKS = [
         language: "Español (es-ES)",
         genre: "Estrategia Militar / Filosofía",
         description: "Tratado militar de sabiduría y estrategia más célebre de la historia, aplicable al combate, la política y la superación de adversidades.",
-        identifier: "elartedelaguerra_2020",
+        identifier: "sun-tzu.-el-arte-de-la-guerra-2017",
         source: "Dominio Público / Internet Archive"
     },
 
@@ -670,7 +806,7 @@ function scoreBookCatalog(book, parsed) {
 }
 
 /**
- * Busca livros filtrando e priorizando o idioma solicitado com inteligência de parsing
+ * Busca livros filtrando e priorizando o catálogo curado e acervo Open Access do Archive.org
  */
 async function searchBooks(query, limit = 5, requestedLang = 'pt') {
     if (!query || !query.trim()) return [];
@@ -679,378 +815,179 @@ async function searchBooks(query, limit = 5, requestedLang = 'pt') {
     const cleanQuery = parsed.original.toLowerCase().replace(/["']/g, '').trim();
     const results = [];
     const seenTitles = new Set();
+    const seenIds = new Set();
 
-    // ORDEM DE PRIORIDADE: fontes com PDF real primeiro
-    // 1. Gutenberg (PDF direto garantido)  2. DOAB (PDF direto)  3. OAPEN (PDF direto)
-    // 4. SpringerOpen (PDF direto)  5. arXiv (PDF direto)  6. Google Books (PDF direto)
-    // 7. HathiTrust  8. Archive.org  9. OpenLibrary  10. Catálogo interno
+    const addResult = (item) => {
+        if (!item || !item.title) return false;
+        const normKey = item.title.toLowerCase().replace(/[^a-z0-9]/g, '');
+        const normId = (item.id || item.identifier || '').toLowerCase();
+        if (normId && seenIds.has(normId)) return false;
+        if (normKey && seenTitles.has(normKey)) return false;
+        if (normKey) seenTitles.add(normKey);
+        if (normId) seenIds.add(normId);
+        results.push(item);
+        return true;
+    };
 
-    // 1. Project Gutenberg (gutendex) — domínio público, PDF direto
-    try {
-        const gLang = LANG_CODE_MAP[requestedLang] ? `&languages=${LANG_CODE_MAP[requestedLang]}` : '';
-        const gUrl = `https://gutendex.com/books?search=${encodeURIComponent(cleanQuery)}${gLang}`;
-        const gData = await fetchJson(gUrl, { timeout: 8000 });
-        if (gData?.results && Array.isArray(gData.results)) {
-            for (const b of gData.results) {
-                if (results.length >= limit * 3) break;
-                const title = b.title || cleanQuery;
-                const normTitleKey = title.toLowerCase().replace(/[^a-z0-9]/g, '');
-                if (seenTitles.has(normTitleKey) || seenTitles.has(title.toLowerCase())) continue;
-                const fmts = b.formats || {};
-                const dl = fmts['application/pdf'] || fmts['application/epub+zip'] ||
-                           fmts['text/plain; charset=utf-8'] || fmts['text/plain'] || null;
-                if (!dl || /\.zip$/i.test(dl)) continue;
-                seenTitles.add(normTitleKey);
-                results.push({
-                    id: `gt_${b.id}`,
-                    title,
-                    author: (b.authors && b.authors[0] && b.authors[0].name) || 'Domínio Público',
-                    year: (b.authors && b.authors[0] && b.authors[0].birth_year) ? String(b.authors[0].birth_year) : '—',
-                    edition: 'Project Gutenberg',
-                    publisher: 'Project Gutenberg',
-                    pagesCount: 0,
-                    pages: '—',
-                    genre: (b.subjects && b.subjects[0]) || 'Domínio Público',
-                    description: `Obra de domínio público no Project Gutenberg (${b.download_count || 0} downloads).`,
-                    source: 'Project Gutenberg',
-                    language: requestedLang,
-                    identifier: `gt_${b.id}`
-                });
-            }
-        }
-    } catch (err) {
-        logger.warn(`[BOOK SERVICE] Gutenberg indisponível: ${err.message}`);
-    }
-
-    // 2. DOAB — Directory of Open Access Books (PDF direto)
-    try {
-        const doabUrl = `https://www.doabooks.org/rest/search?query=${encodeURIComponent(cleanQuery)}&rows=${limit * 2}&mode=and`;
-        const doabData = await fetchJson(doabUrl, { timeout: 8000 }).catch(() => null);
-        if (doabData?.searchResult?.resultList) {
-            for (const doc of doabData.searchResult.resultList) {
-                if (results.length >= limit * 3) break;
-                const title = doc.title || cleanQuery;
-                const normTitleKey = title.toLowerCase().replace(/[^a-z0-9]/g, '');
-                if (seenTitles.has(normTitleKey)) continue;
-                const authors = doc.authors?.map(a => a.name || a.surname).join(', ') || '';
-                seenTitles.add(normTitleKey);
-                results.push({
-                    id: `doab_${doc.id || doc.handle || Math.random().toString(36).substring(2, 8)}`,
-                    title,
-                    author: authors || 'Open Access Author',
-                    year: doc.publicationDate?.substring(0, 4) || '—',
-                    edition: 'DOAB Open Access',
-                    publisher: doc.publisherName || 'Directory of Open Access Books',
-                    pagesCount: doc.numberedPagesCount || 0,
-                    pages: doc.numberedPagesCount ? `${doc.numberedPagesCount} pages` : 'Full Document',
-                    genre: 'Open Access Academic',
-                    description: `Open access academic book from DOAB. DOI: ${doc.doi || 'N/A'}.`,
-                    source: 'DOAB',
-                    language: requestedLang,
-                    identifier: `doab_${doc.id || doc.handle || ''}`
-                });
-            }
-        }
-    } catch (err) {
-        logger.warn(`[BOOK SERVICE] DOAB indisponível: ${err.message}`);
-    }
-
-    // 3. OAPEN — Open Access Publishing in European Networks (PDF direto)
-    try {
-        const oapenUrl = `https://api.oapen.org/rest/search?query=${encodeURIComponent(cleanQuery)}&rows=${limit * 2}&mode=and`;
-        const oapenData = await fetchJson(oapenUrl, { timeout: 8000 }).catch(() => null);
-        if (oapenData?.searchResult?.resultList) {
-            for (const doc of oapenData.searchResult.resultList) {
-                if (results.length >= limit * 3) break;
-                const title = doc.title || cleanQuery;
-                const normTitleKey = title.toLowerCase().replace(/[^a-z0-9]/g, '');
-                if (seenTitles.has(normTitleKey)) continue;
-                const authors = doc.authors?.map(a => a.name || a.surname).join(', ') || '';
-                seenTitles.add(normTitleKey);
-                results.push({
-                    id: `oapen_${doc.id || doc.handle || Math.random().toString(36).substring(2, 8)}`,
-                    title,
-                    author: authors || 'European Author',
-                    year: doc.publicationDate?.substring(0, 4) || '—',
-                    edition: 'OAPEN Open Access',
-                    publisher: doc.publisherName || 'OAPEN',
-                    pagesCount: doc.numberedPagesCount || 0,
-                    pages: doc.numberedPagesCount ? `${doc.numberedPagesCount} pages` : 'Full Document',
-                    genre: 'Open Access Academic',
-                    description: `Open access academic book from OAPEN. DOI: ${doc.doi || 'N/A'}.`,
-                    source: 'OAPEN',
-                    language: requestedLang,
-                    identifier: `oapen_${doc.id || doc.handle || ''}`
-                });
-            }
-        }
-    } catch (err) {
-        logger.warn(`[BOOK SERVICE] OAPEN indisponível: ${err.message}`);
-    }
-
-    // 4. SpringerOpen — livros acadêmicos de acesso aberto (PDF direto)
-    try {
-        const sprUrl = `https://api.springernature.com/openaccess/json?q=title:${encodeURIComponent(cleanQuery)}&p=${limit * 2}`;
-        const sprData = await fetchJson(sprUrl, { timeout: 8000 }).catch(() => null);
-        if (sprData?.records) {
-            for (const doc of sprData.records) {
-                if (results.length >= limit * 3) break;
-                const title = doc.title || cleanQuery;
-                const normTitleKey = title.toLowerCase().replace(/[^a-z0-9]/g, '');
-                if (seenTitles.has(normTitleKey)) continue;
-                const pdfUrl = doc.url?.find(u => u.format === 'pdf')?.value || '';
-                if (!pdfUrl) continue;
-                seenTitles.add(normTitleKey);
-                results.push({
-                    id: `spr_${doc.doi?.replace('10.1007/', '') || Math.random().toString(36).substring(2, 8)}`,
-                    title,
-                    author: doc.creators?.map(c => c.creator).join(', ') || 'Springer Author',
-                    year: doc.publicationDate?.substring(0, 4) || '—',
-                    edition: 'SpringerOpen',
-                    publisher: doc.publisher || 'Springer Nature',
-                    pagesCount: 0,
-                    pages: 'Full Document',
-                    genre: 'Open Access Academic',
-                    description: `Open access book from Springer Nature. DOI: ${doc.doi || 'N/A'}.`,
-                    source: 'SpringerOpen',
-                    language: requestedLang,
-                    identifier: `spr_${doc.doi?.replace('10.1007/', '') || ''}`,
-                    directPdfUrl: pdfUrl
-                });
-            }
-        }
-    } catch (err) {
-        logger.warn(`[BOOK SERVICE] SpringerOpen indisponível: ${err.message}`);
-    }
-
-    // 5. arXiv — papers e livros científicos (PDF direto)
-    try {
-        const arxivUrl = `http://export.arxiv.org/api/query?search_query=all:${encodeURIComponent(cleanQuery)}&start=0&max_results=${limit * 2}`;
-        const arxivXml = await new Promise((resolve, reject) => {
-            const client = arxivUrl.startsWith('https:') ? https : http;
-            const req = client.get(arxivUrl, { timeout: 8000 }, (res) => {
-                const chunks = [];
-                res.on('data', c => chunks.push(c));
-                res.on('end', () => resolve(Buffer.concat(chunks).toString()));
-            });
-            req.on('error', reject);
-            req.on('timeout', () => { req.destroy(); reject(new Error('timeout')); });
-        });
-        const entries = arxivXml.split('<entry>').slice(1);
-        for (const entry of entries) {
-            if (results.length >= limit * 3) break;
-            const titleMatch = entry.match(/<title>([\s\S]*?)<\/title>/);
-            const authorMatch = entry.match(/<name>([\s\S]*?)<\/name>/);
-            const idMatch = entry.match(/<id>([\s\S]*?)<\/id>/);
-            const summaryMatch = entry.match(/<summary>([\s\S]*?)<\/summary>/);
-            const publishedMatch = entry.match(/<published>([\s\S]*?)<\/published>/);
-            const title = (titleMatch?.[1] || cleanQuery).replace(/\s+/g, ' ').trim();
-            const normTitleKey = title.toLowerCase().replace(/[^a-z0-9]/g, '');
-            if (seenTitles.has(normTitleKey)) continue;
-            const arxivId = idMatch?.[1]?.split('/abs/')?.[1] || '';
-            if (!arxivId) continue;
-            seenTitles.add(normTitleKey);
-            results.push({
-                id: `arxiv_${arxivId}`,
-                title,
-                author: authorMatch?.[1] || 'arXiv Author',
-                year: publishedMatch?.[1]?.substring(0, 4) || '—',
-                edition: 'arXiv Preprint',
-                publisher: 'arXiv.org',
-                pagesCount: 0,
-                pages: 'Full Document',
-                genre: 'Scientific Paper',
-                description: (summaryMatch?.[1] || '').replace(/\s+/g, ' ').trim().substring(0, 200),
-                source: 'arXiv',
-                language: 'en',
-                identifier: `arxiv_${arxivId}`,
-                directPdfUrl: `https://arxiv.org/pdf/${arxivId}.pdf`
-            });
-        }
-    } catch (err) {
-        logger.warn(`[BOOK SERVICE] arXiv indisponível: ${err.message}`);
-    }
-
-    // 6. Google Books — livros gratuitos com PDF direto
-    try {
-        const gbUrl = `https://www.googleapis.com/books/v1/volumes?q=${encodeURIComponent(cleanQuery)}&filter=free-ebooks&maxResults=${limit * 2}`;
-        const gbData = await fetchJson(gbUrl, { timeout: 8000 }).catch(() => null);
-        if (gbData?.items) {
-            for (const item of gbData.items) {
-                if (results.length >= limit * 3) break;
-                const vi = item.volumeInfo;
-                const title = vi.title || cleanQuery;
-                const normTitleKey = title.toLowerCase().replace(/[^a-z0-9]/g, '');
-                if (seenTitles.has(normTitleKey)) continue;
-                const authors = vi.authors?.join(', ') || '';
-                const pdfUrl = vi.accessInfo?.pdf?.downloadLink || vi.accessInfo?.webReaderLink || '';
-                if (!pdfUrl) continue;
-                seenTitles.add(normTitleKey);
-                results.push({
-                    id: `gb_${item.id}`,
-                    title,
-                    author: authors || 'Google Books Author',
-                    year: vi.publishedDate?.substring(0, 4) || '—',
-                    edition: 'Google Books Free',
-                    publisher: vi.publisher || 'Google Books',
-                    pagesCount: vi.pageCount || 0,
-                    pages: vi.pageCount ? `${vi.pageCount} pages` : 'Full Document',
-                    genre: vi.categories?.[0] || 'Literature',
-                    description: vi.description || `Free ebook available on Google Books.`,
-                    source: 'Google Books',
-                    language: requestedLang,
-                    identifier: `gb_${item.id}`,
-                    directPdfUrl: pdfUrl
-                });
-            }
-        }
-    } catch (err) {
-        logger.warn(`[BOOK SERVICE] Google Books indisponível: ${err.message}`);
-    }
-
-    // 7. HathiTrust Digital Library
-    try {
-        const htQuery = parsed.authorPart ? `${parsed.titlePart || cleanQuery} ${parsed.authorPart}` : cleanQuery;
-        const htApiUrl = `https://catalog.hathitrust.org/api/volumes/brief/oclc/${encodeURIComponent(htQuery)}.json`;
-        const htData = await fetchJson(htApiUrl, { timeout: 8000 }).catch(() => null);
-        if (htData?.records) {
-            const recordIds = Object.keys(htData.records).slice(0, 3);
-            for (const recId of recordIds) {
-                if (results.length >= limit * 3) break;
-                const rec = htData.records[recId];
-                const title = rec.title || cleanQuery;
-                const normTitleKey = title.toLowerCase().replace(/[^a-z0-9]/g, '');
-                if (seenTitles.has(normTitleKey)) continue;
-                const pdfUrl = `https://babel.hathitrust.org/cgi/pt?id=${recId}&format=pdf`;
-                seenTitles.add(normTitleKey);
-                results.push({
-                    id: `ht_${recId}`,
-                    title,
-                    author: rec.contributor || rec.author || 'Various Authors',
-                    year: rec.pubDate || '—',
-                    edition: 'HathiTrust Digital Library',
-                    publisher: rec.publisher || 'HathiTrust',
-                    pagesCount: rec.numPages || 0,
-                    pages: rec.numPages ? `${rec.numPages} pages` : 'Full Document',
-                    genre: 'Digital Library',
-                    description: `Preserved in HathiTrust Digital Library (${rec.rights || 'open access'}).`,
-                    source: 'HathiTrust',
-                    language: requestedLang,
-                    identifier: `ht_${recId}`,
-                    directPdfUrl: pdfUrl
-                });
-            }
-        }
-    } catch (err) {
-        logger.warn(`[BOOK SERVICE] HathiTrust indisponível: ${err.message}`);
-    }
-
-    // 8. Archive.org — fallback (muitos resultados mas PDF nem sempre disponível)
-    try {
-        const iaLangFilter = LANG_CODE_MAP[requestedLang] ? `+AND+language:(${LANG_CODE_MAP[requestedLang]})` : '';
-        let iaQuery = `title:(${encodeURIComponent('"' + (parsed.titlePart || cleanQuery) + '"')})`;
-        if (parsed.authorPart) {
-            iaQuery = `(title:(${encodeURIComponent(parsed.titlePart)})+OR+"${encodeURIComponent(parsed.titlePart)}")+AND+(creator:(${encodeURIComponent(parsed.authorPart)})+OR+"${encodeURIComponent(parsed.authorPart)}")`;
-        }
-        const iaSearchUrl = `https://archive.org/advancedsearch.php?q=(${iaQuery})+AND+mediatype:(texts)${iaLangFilter}&fl[]=identifier,title,creator,year,downloads,publisher,language&rows=${limit * 2}&sort[]=downloads+desc&output=json`;
-        const iaData = await fetchJson(iaSearchUrl, { timeout: 8000 });
-        if (iaData?.response?.docs?.length > 0) {
-            for (const doc of iaData.response.docs) {
-                if (!doc.identifier) continue;
-                if (results.length >= limit * 3) break;
-                const title = doc.title || cleanQuery;
-                const authors = Array.isArray(doc.creator) ? doc.creator.join(', ') : (doc.creator || '');
-                const year = doc.year ? String(doc.year) : '2018';
-                const publisher = doc.publisher || 'Internet Archive / Digital Library';
-                const docLang = doc.language ? String(doc.language) : requestedLang;
-                const normTitleKey = title.toLowerCase().replace(/[^a-z0-9]/g, '');
-                if (!seenTitles.has(normTitleKey)) {
-                    seenTitles.add(normTitleKey);
-                    results.push({
-                        id: doc.identifier,
-                        title,
-                        author: authors || 'Open Domain / Various Authors',
-                        year,
-                        edition: 'Complete Digital Edition',
-                        publisher,
-                        pagesCount: 260,
-                        pages: 'Full Document',
-                        genre: 'Digital Library',
-                        description: `Digital book preserved in Internet Archive with ${doc.downloads || 0} registered downloads.`,
-                        source: 'Internet Archive',
-                        language: docLang,
-                        identifier: doc.identifier
-                    });
-                }
-            }
-        }
-    } catch (err) {
-        logger.warn(`[BOOK SERVICE] Archive.org indisponível: ${err.message}`);
-    }
-
-    // 9. OpenLibrary — fallback (catálogo global, PDF nem sempre disponível)
-    try {
-        let olUrl = `https://openlibrary.org/search.json?q=${encodeURIComponent(cleanQuery)}&limit=${limit}`;
-        if (parsed.authorPart && parsed.titlePart) {
-            olUrl = `https://openlibrary.org/search.json?title=${encodeURIComponent(parsed.titlePart)}&author=${encodeURIComponent(parsed.authorPart)}&limit=${limit}`;
-        }
-        const olData = await fetchJson(olUrl, { timeout: 8000 });
-        if (olData?.docs && Array.isArray(olData.docs)) {
-            for (const doc of olData.docs) {
-                if (results.length >= limit * 3) break;
-                const title = doc.title || cleanQuery;
-                const authors = Array.isArray(doc.author_name) ? doc.author_name.join(', ') : (doc.author_name || '');
-                const year = doc.first_publish_year ? String(doc.first_publish_year) : (doc.publish_year?.[0] ? String(doc.publish_year[0]) : '2020');
-                const edition = doc.edition_count ? `${doc.edition_count} Edition / Revision` : '1st Official Edition';
-                const publisher = doc.publisher?.[0] || 'Digital Library';
-                const pages = doc.number_of_pages_median ? `${doc.number_of_pages_median} pages` : '280 pages';
-                const iaId = doc.ia?.[0] || '';
-                const normTitleKey = title.toLowerCase().replace(/[^a-z0-9]/g, '');
-                if (!seenTitles.has(normTitleKey) && !seenTitles.has(title.toLowerCase())) {
-                    seenTitles.add(normTitleKey);
-                    results.push({
-                        id: iaId || `ol_${doc.key?.replace('/works/', '') || Math.random().toString(36).substring(2, 8)}`,
-                        title,
-                        author: authors || 'Classical Author',
-                        year,
-                        edition,
-                        publisher,
-                        pagesCount: doc.number_of_pages_median || 280,
-                        pages,
-                        genre: 'Literature & Knowledge',
-                        description: `Cataloged in Open Library global index. ${doc.edition_count || 1} registered editions.`,
-                        source: 'Open Library',
-                        language: requestedLang,
-                        identifier: iaId || ''
-                    });
-                }
-            }
-        }
-    } catch (err) {
-        logger.warn(`[BOOK SERVICE] OpenLibrary indisponível: ${err.message}`);
-    }
-
-    // 10. Catálogo Multilíngue Verificado (interno)
+    // 1. LAYER 1 (INSTANT HIT): Catálogo Curado Multilíngue Verificado (0ms)
+    // Tenta primeiro no idioma solicitado, depois em outros idiomas
     const langCatalog = MULTILANG_POPULAR_BOOKS.filter(b => b.lang === requestedLang);
     const otherCatalog = MULTILANG_POPULAR_BOOKS.filter(b => b.lang !== requestedLang);
-    const scoredLang = langCatalog.map(b => ({ book: b, score: scoreBookCatalog(b, parsed) })).filter(item => item.score >= 50).sort((a, b) => b.score - a.score);
+
+    const scoredLang = langCatalog
+        .map(b => ({ book: b, score: scoreBookCatalog(b, parsed) }))
+        .filter(item => item.score >= 50)
+        .sort((a, b) => b.score - a.score);
+
     for (const item of scoredLang) {
-        if (results.length >= limit * 3) break;
-        const normTitleKey = item.book.title.toLowerCase().replace(/[^a-z0-9]/g, '');
-        if (!seenTitles.has(normTitleKey)) {
-            seenTitles.add(normTitleKey);
-            results.push({ ...item.book });
+        if (results.length >= limit) break;
+        addResult({ ...item.book, id: item.book.identifier });
+    }
+
+    if (results.length < limit) {
+        const scoredOther = otherCatalog
+            .map(b => ({ book: b, score: scoreBookCatalog(b, parsed) }))
+            .filter(item => item.score >= 50)
+            .sort((a, b) => b.score - a.score);
+
+        for (const item of scoredOther) {
+            if (results.length >= limit) break;
+            addResult({ ...item.book, id: item.book.identifier });
         }
     }
-    if (results.length < limit) {
-        const scoredOther = otherCatalog.map(b => ({ book: b, score: scoreBookCatalog(b, parsed) })).filter(item => item.score >= 50).sort((a, b) => b.score - a.score);
-        for (const item of scoredOther) {
-            if (results.length >= limit * 3) break;
-            const normTitleKey = item.book.title.toLowerCase().replace(/[^a-z0-9]/g, '');
-            if (!seenTitles.has(normTitleKey)) {
-                seenTitles.add(normTitleKey);
-                results.push({ ...item.book });
+
+    // Se temos correspondência exata ou de altíssima relevância no catálogo curado (score >= 85),
+    // ou se já atingimos o limite solicitado, retornamos imediatamente (0ms)
+    if (results.length >= limit || (results.length > 0 && scoredLang[0]?.score >= 85)) {
+        return results.slice(0, limit);
+    }
+
+    // 2. LAYER 2: Archive.org Open Access (Rápido, 100% público e gratuito, sem bloqueio de empréstimo)
+    try {
+        let iaQuery = `title:("${encodeURIComponent(cleanQuery)}")`;
+        if (parsed.titlePart && parsed.authorPart) {
+            iaQuery = `(title:("${encodeURIComponent(parsed.titlePart)}") OR "${encodeURIComponent(parsed.titlePart)}") AND (creator:("${encodeURIComponent(parsed.authorPart)}") OR "${encodeURIComponent(parsed.authorPart)}")`;
+        }
+        const iaSearchUrl = `https://archive.org/advancedsearch.php?q=(${iaQuery})+AND+mediatype:(texts)+AND+NOT+access-restricted-item:true+AND+NOT+collection:(inlibrary+OR+printdisabled)&fl[]=identifier,title,creator,year,downloads,publisher,language&rows=${limit * 2}&sort[]=downloads+desc&output=json`;
+
+        const iaData = await fetchJson(iaSearchUrl, { timeout: 6000 }).catch(() => null);
+        if (iaData?.response?.docs?.length > 0) {
+            const normQuery = cleanQuery.replace(/[^a-z0-9]/g, '');
+            const sortedDocs = [...iaData.response.docs].sort((a, b) => {
+                const aNorm = (a.title || '').toLowerCase().replace(/[^a-z0-9]/g, '');
+                const bNorm = (b.title || '').toLowerCase().replace(/[^a-z0-9]/g, '');
+                const aMatch = aNorm === normQuery ? 2 : (aNorm.includes(normQuery) ? 1 : 0);
+                const bMatch = bNorm === normQuery ? 2 : (bNorm.includes(normQuery) ? 1 : 0);
+                if (aMatch !== bMatch) return bMatch - aMatch;
+                return Number(b.downloads || 0) - Number(a.downloads || 0);
+            });
+            for (const doc of sortedDocs) {
+                if (!doc.identifier) continue;
+                if (results.length >= limit * 2) break;
+                const title = doc.title || cleanQuery;
+                const authors = Array.isArray(doc.creator) ? doc.creator.join(', ') : (doc.creator || 'Autor Aberto');
+                const year = doc.year ? String(doc.year) : '—';
+                const publisher = doc.publisher || 'Internet Archive / Domínio Público';
+                const docLang = doc.language ? String(doc.language) : requestedLang;
+
+                addResult({
+                    id: doc.identifier,
+                    title,
+                    author: authors,
+                    year,
+                    edition: 'Edição Digital Integral',
+                    publisher,
+                    pagesCount: 0,
+                    pages: 'Documento Completo',
+                    genre: 'Literatura & Conhecimento',
+                    description: `Obra digital preservada no Internet Archive (${doc.downloads || 0} downloads registrados).`,
+                    source: 'Internet Archive',
+                    language: docLang,
+                    identifier: doc.identifier
+                });
             }
+        }
+    } catch (err) {
+        logger.warn(`[BOOK SERVICE] Archive.org search falhou: ${err.message}`);
+    }
+
+    if (results.length >= limit) {
+        return results.slice(0, limit);
+    }
+
+    // 3. LAYER 3: Open Library API (Metadados e busca de IDs do Internet Archive)
+    try {
+        let olUrl = `https://openlibrary.org/search.json?q=${encodeURIComponent(cleanQuery)}&limit=${limit}&fields=title,author_name,first_publish_year,ia,number_of_pages_median,publisher,ebook_access`;
+        if (parsed.authorPart && parsed.titlePart) {
+            olUrl = `https://openlibrary.org/search.json?title=${encodeURIComponent(parsed.titlePart)}&author=${encodeURIComponent(parsed.authorPart)}&limit=${limit}&fields=title,author_name,first_publish_year,ia,number_of_pages_median,publisher,ebook_access`;
+        }
+        const olData = await fetchJson(olUrl, { timeout: 6000 }).catch(() => null);
+        if (olData?.docs && Array.isArray(olData.docs)) {
+            for (const doc of olData.docs) {
+                if (results.length >= limit * 2) break;
+                const title = doc.title || cleanQuery;
+                const authors = Array.isArray(doc.author_name) ? doc.author_name.join(', ') : (doc.author_name || 'Autor Clássico');
+                const year = doc.first_publish_year ? String(doc.first_publish_year) : '—';
+                const edition = 'Edição Oficial / Open Library';
+                const publisher = doc.publisher?.[0] || 'Digital Library';
+                const pages = doc.number_of_pages_median ? `${doc.number_of_pages_median} págs.` : 'Documento Completo';
+                const iaId = Array.isArray(doc.ia) ? doc.ia.find(id => id && typeof id === 'string') : (doc.ia || null);
+
+                addResult({
+                    id: iaId || `ol_${doc.key?.replace('/works/', '') || Math.random().toString(36).substring(2, 8)}`,
+                    title,
+                    author: authors,
+                    year,
+                    edition,
+                    publisher,
+                    pagesCount: doc.number_of_pages_median || 0,
+                    pages,
+                    genre: 'Literatura & Obras',
+                    description: `Catalogado no índice global Open Library.`,
+                    source: 'Open Library',
+                    language: requestedLang,
+                    identifier: iaId || ''
+                });
+            }
+        }
+    } catch (err) {
+        logger.warn(`[BOOK SERVICE] OpenLibrary search falhou: ${err.message}`);
+    }
+
+    // 4. LAYER 4: Google Books API (Ebooks Gratuitos)
+    if (results.length < limit) {
+        try {
+            const gbUrl = `https://www.googleapis.com/books/v1/volumes?q=${encodeURIComponent(cleanQuery)}&filter=free-ebooks&maxResults=${limit}`;
+            const gbData = await fetchJson(gbUrl, { timeout: 6000 }).catch(() => null);
+            if (gbData?.items) {
+                for (const item of gbData.items) {
+                    if (results.length >= limit * 2) break;
+                    const vi = item.volumeInfo;
+                    const title = vi.title || cleanQuery;
+                    const authors = vi.authors?.join(', ') || 'Google Books Author';
+                    const pdfUrl = vi.accessInfo?.pdf?.downloadLink || vi.accessInfo?.webReaderLink || '';
+                    if (!pdfUrl) continue;
+
+                    addResult({
+                        id: `gb_${item.id}`,
+                        title,
+                        author: authors,
+                        year: vi.publishedDate?.substring(0, 4) || '—',
+                        edition: 'Google Books Free Ebook',
+                        publisher: vi.publisher || 'Google Books',
+                        pagesCount: vi.pageCount || 0,
+                        pages: vi.pageCount ? `${vi.pageCount} págs.` : 'Documento Completo',
+                        genre: vi.categories?.[0] || 'Literatura',
+                        description: vi.description ? vi.description.slice(0, 300) : 'Ebook gratuito disponibilizado no Google Books.',
+                        source: 'Google Books',
+                        language: requestedLang,
+                        identifier: `gb_${item.id}`,
+                        directPdfUrl: pdfUrl
+                    });
+                }
+            }
+        } catch (err) {
+            logger.warn(`[BOOK SERVICE] Google Books search falhou: ${err.message}`);
         }
     }
 
@@ -1058,57 +995,20 @@ async function searchBooks(query, limit = 5, requestedLang = 'pt') {
 }
 
 /**
- * Obtém a URL do PDF real
+ * Obtém a URL do PDF real verificado
  */
 async function resolvePdfUrl(identifier, fallbackQuery = '', lang = 'pt') {
     let targetId = identifier;
-    logger.info(`[BOOK RESOLVE] Resolvendo PDF para identifier=${identifier}, query=${fallbackQuery}`);
+    logger.info(`[BOOK RESOLVE] Resolvendo PDF para identifier="${identifier}", fallbackQuery="${fallbackQuery}"`);
 
-    // Project Gutenberg: identifier gt_<id> → resolve o formato baixável direto.
-    if (targetId && targetId.startsWith('gt_')) {
-        try {
-            const gid = targetId.slice(3);
-            const b = await fetchJson(`https://gutendex.com/books/${encodeURIComponent(gid)}`, { timeout: 8000 });
-            const fmts = (b && b.formats) || {};
-            const pdf = fmts['application/pdf'];
-            const epub = fmts['application/epub+zip'];
-            const url = pdf || epub;
-            if (url && !/\.zip$/i.test(url)) {
-                logger.info(`[BOOK RESOLVE] Gutenberg OK: ${url.substring(0, 80)}`);
-                return {
-                    downloadUrl: url,
-                    detailsUrl: `https://www.gutenberg.org/ebooks/${gid}`,
-                    fileName: `${(b.title || 'livro').slice(0, 40).replace(/[^a-z0-9]+/gi, '_')}.${pdf ? 'pdf' : 'epub'}`,
-                    sizeBytes: 0
-                };
-            }
-        } catch (e) { logger.warn(`[BOOK RESOLVE] Gutenberg falhou: ${e.message}`); }
-        return null;
-    }
-
-    // arXiv — PDF direto
-    if (targetId && targetId.startsWith('arxiv_')) {
-        const arxivId = targetId.slice(6);
-        const url = `https://arxiv.org/pdf/${arxivId}.pdf`;
-        logger.info(`[BOOK RESOLVE] arXiv PDF: ${url}`);
-        return {
-            downloadUrl: url,
-            detailsUrl: `https://arxiv.org/abs/${arxivId}`,
-            fileName: `arxiv_${arxivId}.pdf`,
-            sizeBytes: 0
-        };
-    }
-
-    // Google Books — PDF direto
+    // 1. Google Books (gb_<id>)
     if (targetId && targetId.startsWith('gb_')) {
         const gbId = targetId.slice(3);
         try {
             const gbUrl = `https://www.googleapis.com/books/v1/volumes/${encodeURIComponent(gbId)}`;
-            const gbData = await fetchJson(gbUrl, { timeout: 8000 });
-            const pdfUrl = gbData?.accessInfo?.pdf?.downloadLink ||
-                           gbData?.accessInfo?.webReaderLink || '';
+            const gbData = await fetchJson(gbUrl, { timeout: 6000 });
+            const pdfUrl = gbData?.accessInfo?.pdf?.downloadLink || gbData?.accessInfo?.webReaderLink || '';
             if (pdfUrl) {
-                logger.info(`[BOOK RESOLVE] Google Books OK: ${pdfUrl.substring(0, 80)}`);
                 return {
                     downloadUrl: pdfUrl,
                     detailsUrl: `https://books.google.com/books?id=${gbId}`,
@@ -1116,113 +1016,54 @@ async function resolvePdfUrl(identifier, fallbackQuery = '', lang = 'pt') {
                     sizeBytes: 0
                 };
             }
-        } catch (e) { logger.warn(`[BOOK RESOLVE] Google Books falhou: ${e.message}`); }
+        } catch (e) {
+            logger.warn(`[BOOK RESOLVE] Google Books falhou: ${e.message}`);
+        }
         return null;
     }
 
-    // SpringerOpen — PDF direto via DOI
-    if (targetId && targetId.startsWith('spr_')) {
-        const doi = `10.1007/${targetId.slice(4)}`;
-        const url = `https://link.springer.com/content/pdf/${doi}.pdf`;
-        logger.info(`[BOOK RESOLVE] SpringerOpen PDF: ${url}`);
-        return {
-            downloadUrl: url,
-            detailsUrl: `https://doi.org/${doi}`,
-            fileName: `${targetId}.pdf`,
-            sizeBytes: 0
-        };
-    }
-
-    // HathiTrust — PDF via babel (pode exigir auth)
-    if (targetId && targetId.startsWith('ht_')) {
-        const htId = targetId.slice(3);
-        const url = `https://babel.hathitrust.org/cgi/pt?id=${htId}&format=pdf`;
-        logger.info(`[BOOK RESOLVE] HathiTrust PDF: ${url}`);
-        return {
-            downloadUrl: url,
-            detailsUrl: `https://catalog.hathitrust.org/Record/${htId}`,
-            fileName: `hathitrust_${htId}.pdf`,
-            sizeBytes: 0
-        };
-    }
-
-    // DOAB — PDF via bitstream API
-    if (targetId && targetId.startsWith('doab_')) {
-        const doabId = targetId.slice(5);
+    // 2. Se não tem targetId válido (ou é ol_...), faz busca direta no Archive.org com fallbackQuery
+    if ((!targetId || targetId.startsWith('ol_')) && fallbackQuery) {
         try {
-            // Busca bitstreams do item
-            const bitstreamUrl = `https://doabooks.org/rest/bitstreams/search?query=item.handle:${doabId}`;
-            const bitData = await fetchJson(bitstreamUrl, { timeout: 8000 }).catch(() => null);
-            const bitstreams = bitData?.searchResult?.resultList || [];
-            const pdfBit = bitstreams.find(b => (b.format || '').toLowerCase().includes('pdf') || (b.name || '').toLowerCase().endsWith('.pdf'));
-            if (pdfBit?.id) {
-                const url = `https://doabooks.org/rest/bitstreams/${pdfBit.id}/retrieve`;
-                logger.info(`[BOOK RESOLVE] DOAB OK: ${url}`);
-                return {
-                    downloadUrl: url,
-                    detailsUrl: `https://doabooks.org/handle/${doabId}`,
-                    fileName: pdfBit.name || `doab_${doabId}.pdf`,
-                    sizeBytes: Number(pdfBit.size || 0)
-                };
-            }
-        } catch (e) { logger.warn(`[BOOK RESOLVE] DOAB falhou: ${e.message}`); }
-        return null;
+            const iaSearchUrl = `https://archive.org/advancedsearch.php?q=title:("${encodeURIComponent(fallbackQuery)}")+AND+mediatype:(texts)+AND+NOT+access-restricted-item:true+AND+NOT+collection:(inlibrary+OR+printdisabled)&fl[]=identifier&rows=1&sort[]=downloads+desc&output=json`;
+            const iaData = await fetchJson(iaSearchUrl, { timeout: 6000 });
+            targetId = iaData?.response?.docs?.[0]?.identifier;
+            logger.info(`[BOOK RESOLVE] Archive.org fallback resolveu targetId="${targetId}" para "${fallbackQuery}"`);
+        } catch (e) {
+            logger.warn(`[BOOK RESOLVE] Archive.org fallback falhou: ${e.message}`);
+        }
     }
 
-    // OAPEN — PDF via bitstream API
-    if (targetId && targetId.startsWith('oapen_')) {
-        const oapenId = targetId.slice(6);
-        try {
-            const bitstreamUrl = `https://library.oapen.org/rest/bitstreams/search?query=item.handle:${oapenId}`;
-            const bitData = await fetchJson(bitstreamUrl, { timeout: 8000 }).catch(() => null);
-            const bitstreams = bitData?.searchResult?.resultList || [];
-            const pdfBit = bitstreams.find(b => (b.format || '').toLowerCase().includes('pdf') || (b.name || '').toLowerCase().endsWith('.pdf'));
-            if (pdfBit?.id) {
-                const url = `https://library.oapen.org/rest/bitstreams/${pdfBit.id}/retrieve`;
-                logger.info(`[BOOK RESOLVE] OAPEN OK: ${url}`);
-                return {
-                    downloadUrl: url,
-                    detailsUrl: `https://library.oapen.org/handle/${oapenId}`,
-                    fileName: pdfBit.name || `oapen_${oapenId}.pdf`,
-                    sizeBytes: Number(pdfBit.size || 0)
-                };
-            }
-        } catch (e) { logger.warn(`[BOOK RESOLVE] OAPEN falhou: ${e.message}`); }
-        return null;
-    }
-
-    if (!targetId && fallbackQuery) {
-        const iaLangFilter = LANG_CODE_MAP[lang] ? `+AND+language:(${LANG_CODE_MAP[lang]})` : '';
-        const iaSearchUrl = `https://archive.org/advancedsearch.php?q=title:(${encodeURIComponent('"' + fallbackQuery + '"')})+AND+mediatype:(texts)${iaLangFilter}&fl[]=identifier&rows=1&sort[]=downloads+desc&output=json`;
-        const iaData = await fetchJson(iaSearchUrl, { timeout: 8000 }).catch(() => ({}));
-        targetId = iaData?.response?.docs?.[0]?.identifier;
-        logger.info(`[BOOK RESOLVE] Archive.org fallback: identifier=${targetId} para query="${fallbackQuery}"`);
-    }
-
+    // 3. Resolve arquivos para targetId no Archive.org
     if (targetId && !targetId.startsWith('ol_')) {
         try {
             const metaUrl = `https://archive.org/metadata/${encodeURIComponent(targetId)}/files`;
-            const meta = await fetchJson(metaUrl, { timeout: 10000 });
+            const meta = await fetchJson(metaUrl, { timeout: 8000 });
 
             if (meta?.result && Array.isArray(meta.result)) {
+                // Filtra arquivos PDF válidos:
+                // - Termina com .pdf ou format inclui pdf
+                // - Exclui thumbs, previews, capas isoladas, ocr parcial
+                // - Tamanho > 50KB (evita PDFs de 1 página / amostra) e < 95MB (limite WhatsApp)
                 const pdfFiles = meta.result.filter(f => {
                     const name = (f.name || '').toLowerCase();
                     const format = (f.format || '').toLowerCase();
-                    return (name.endsWith('.pdf') || format.includes('pdf')) && !name.includes('_thumb') && !name.includes('_cover');
+                    const size = Number(f.size || 0);
+                    const isPdf = name.endsWith('.pdf') || format.includes('pdf');
+                    const isExcluded = name.includes('_thumb') || name.includes('_cover') || name.includes('_encrypted') || name.includes('_chocr');
+                    const isGoodSize = size > 50000 && size < 95000000;
+                    return isPdf && !isExcluded && isGoodSize;
                 });
 
-                logger.info(`[BOOK RESOLVE] Archive.org ${targetId}: ${pdfFiles.length} PDFs encontrados de ${meta.result.length} arquivos`);
+                logger.info(`[BOOK RESOLVE] Archive.org ${targetId}: ${pdfFiles.length} PDFs válidos encontrados`);
 
                 if (pdfFiles.length > 0) {
-                    // SEMPRE o MAIOR arquivo: o menor costuma ser a capa/amostra
-                    // (era isso que entregava um PDF de 1 página, ~50 KB, em vez
-                    // do livro inteiro).
+                    // Ordena pelo maior arquivo (o livro completo é o maior)
                     pdfFiles.sort((a, b) => Number(b.size || 0) - Number(a.size || 0));
                     const chosenFile = pdfFiles[0];
                     const encodedFileName = encodeURIComponent(chosenFile.name).replace(/%2F/g, '/');
                     const downloadUrl = `https://archive.org/download/${encodeURIComponent(targetId)}/${encodedFileName}`;
 
-                    logger.info(`[BOOK RESOLVE] Archive.org OK: ${downloadUrl.substring(0, 100)}`);
                     return {
                         downloadUrl,
                         detailsUrl: `https://archive.org/details/${encodeURIComponent(targetId)}`,
@@ -1230,60 +1071,117 @@ async function resolvePdfUrl(identifier, fallbackQuery = '', lang = 'pt') {
                         sizeBytes: Number(chosenFile.size || 0)
                     };
                 }
+
+                // Fallback: se nenhum arquivo passou no filtro de tamanho > 50KB, tenta qualquer .pdf < 95MB
+                const anyPdf = meta.result.filter(f => {
+                    const name = (f.name || '').toLowerCase();
+                    const format = (f.format || '').toLowerCase();
+                    const size = Number(f.size || 0);
+                    return (name.endsWith('.pdf') || format.includes('pdf')) && size < 95000000;
+                });
+
+                if (anyPdf.length > 0) {
+                    anyPdf.sort((a, b) => Number(b.size || 0) - Number(a.size || 0));
+                    const chosenFile = anyPdf[0];
+                    const encodedFileName = encodeURIComponent(chosenFile.name).replace(/%2F/g, '/');
+                    return {
+                        downloadUrl: `https://archive.org/download/${encodeURIComponent(targetId)}/${encodedFileName}`,
+                        detailsUrl: `https://archive.org/details/${encodeURIComponent(targetId)}`,
+                        fileName: chosenFile.name || `${targetId}.pdf`,
+                        sizeBytes: Number(chosenFile.size || 0)
+                    };
+                }
             }
-        } catch (e) { logger.warn(`[BOOK RESOLVE] Archive.org metadata falhou: ${e.message}`); }
+        } catch (e) {
+            logger.warn(`[BOOK RESOLVE] Archive.org metadata falhou: ${e.message}`);
+        }
     }
 
     return null;
 }
 
 /**
- * Baixa buffer do PDF real
+ * Baixa buffer do PDF real com validação de assinatura e limites de tamanho
  */
-async function downloadPdfBuffer(downloadUrl, bookMeta = {}) {
-    if (downloadUrl) {
-        logger.info(`[BOOK DOWNLOAD] Baixando PDF de: ${downloadUrl.substring(0, 120)}`);
-        try {
-            const bufPromise = new Promise((resolve, reject) => {
-                const client = downloadUrl.startsWith('https:') ? https : http;
-                const req = client.get(downloadUrl, {
-                    // ATENÇÃO: header HTTP só aceita ASCII/latin1. Injetar o nome do
-                    // bot aqui quebrava TODO download de livro quando o nick tinha
-                    // caracteres unicode ("Invalid character in header content").
-                    headers: { 'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/128.0.0.0 Safari/537.36' },
-                    family: 4,
-                    timeout: 45000
-                }, (res) => {
-                    if (res.statusCode >= 300 && res.statusCode < 400 && res.headers.location) {
-                        return downloadPdfBuffer(res.headers.location, bookMeta).then(resolve).catch(reject);
-                    }
-                    if (res.statusCode >= 400) {
-                        return reject(new Error(`HTTP ${res.statusCode}`));
-                    }
-                    const chunks = [];
-                    res.on('data', c => chunks.push(c));
-                    res.on('end', () => {
-                        const finalBuffer = Buffer.concat(chunks);
-                        resolve({
-                            buffer: finalBuffer,
-                            sizeMb: (finalBuffer.length / (1024 * 1024)).toFixed(2) + ' MB'
-                        });
-                    });
-                });
-                req.on('error', reject);
-                req.on('timeout', () => { req.destroy(); reject(new Error('Timeout')); });
-            });
-
-            const res = await bufPromise;
-            if (res && res.buffer && res.buffer.length > 1000) {
-                return res;
-            }
-        } catch (e) {
-            logger.warn(`[BOOK PDF DOWNLOAD] Falha no download remoto: ${e.message}`);
-        }
+async function downloadPdfBuffer(downloadUrl, bookMeta = {}, redirectCount = 0) {
+    if (!downloadUrl) return null;
+    if (redirectCount > 5) {
+        logger.warn(`[BOOK PDF DOWNLOAD] Excesso de redirecionamentos (>5) para: ${downloadUrl}`);
+        return null;
     }
 
-    return null;
+    logger.info(`[BOOK DOWNLOAD] Baixando PDF de: ${downloadUrl.substring(0, 120)} (redirect=${redirectCount})`);
+
+    try {
+        const client = downloadUrl.startsWith('https:') ? https : http;
+        const res = await new Promise((resolve, reject) => {
+            const req = client.get(downloadUrl, {
+                headers: {
+                    'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/128.0.0.0 Safari/537.36',
+                    'Accept': 'application/pdf,*/*'
+                },
+                family: 4,
+                timeout: 60000
+            }, (response) => {
+                // Redirecionamento (301, 302, 303, 307, 308)
+                if (response.statusCode >= 300 && response.statusCode < 400 && response.headers.location) {
+                    const nextUrl = new URL(response.headers.location, downloadUrl).toString();
+                    return resolve(downloadPdfBuffer(nextUrl, bookMeta, redirectCount + 1));
+                }
+
+                if (response.statusCode >= 400) {
+                    return reject(new Error(`HTTP ${response.statusCode}`));
+                }
+
+                const chunks = [];
+                let totalBytes = 0;
+                response.on('data', chunk => {
+                    chunks.push(chunk);
+                    totalBytes += chunk.length;
+                    // Se exceder 95MB, interrompe o download para respeitar limite do WhatsApp
+                    if (totalBytes > 95 * 1024 * 1024) {
+                        req.destroy();
+                        return reject(new Error('PDF excede o limite máximo suportado de 95MB.'));
+                    }
+                });
+
+                response.on('end', () => {
+                    const finalBuffer = Buffer.concat(chunks);
+                    resolve(finalBuffer);
+                });
+            });
+
+            req.on('error', reject);
+            req.on('timeout', () => {
+                req.destroy();
+                reject(new Error('Timeout de download excedido (60s)'));
+            });
+        });
+
+        if (!res) return null;
+        const finalBuffer = Buffer.isBuffer(res) ? res : res.buffer;
+        if (!finalBuffer || !Buffer.isBuffer(finalBuffer)) return null;
+
+        // Validação de integridade do PDF
+        if (finalBuffer.length < 10000) {
+            logger.warn(`[BOOK PDF DOWNLOAD] Buffer muito pequeno (${finalBuffer.length} bytes), rejeitado.`);
+            return null;
+        }
+
+        const head = finalBuffer.slice(0, 1024).toString('binary');
+        if (!head.includes('%PDF-')) {
+            logger.warn(`[BOOK PDF DOWNLOAD] Buffer não é um arquivo PDF válido (sem assinatura %PDF-). Rejeitado.`);
+            return null;
+        }
+
+        return {
+            buffer: finalBuffer,
+            sizeMb: (finalBuffer.length / (1024 * 1024)).toFixed(2) + ' MB'
+        };
+    } catch (e) {
+        logger.warn(`[BOOK PDF DOWNLOAD] Falha no download remoto: ${e.message}`);
+        return null;
+    }
 }
 
 module.exports = {
@@ -1293,5 +1191,6 @@ module.exports = {
     formatPageBreakdown,
     searchBooks,
     resolvePdfUrl,
-    downloadPdfBuffer
+    downloadPdfBuffer,
+    MULTILANG_POPULAR_BOOKS
 };

@@ -4,7 +4,7 @@
 module.exports = {
     name: "capalivro",
     aliases: ["capa","coverlivro"],
-    category: "general",
+    category: "livros",
     subcategory: "Livros & Materiais",
     description: "Envia a capa de um livro pelo título",
     cooldownMs: 5000,

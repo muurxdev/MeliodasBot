@@ -9,7 +9,7 @@
 module.exports = {
     name: "buscarlivro",
     aliases: ["acharlivro", "procurarlivro"],
-    category: "general",
+    category: "livros",
     subcategory: "Livros & Materiais",
     description: "Busca livros por título e mostra sinopse, capa e onde ler",
     cooldownMs: 4000,

@@ -228,7 +228,13 @@ function buildMenu({ category = null, requestedCategory = null, page = 1, prefix
             const meta = BY_KEY[key]
             units.push({ type: 'divider', text: `\n${meta.emoji} ═══ *${meta.label.toUpperCase()}* ═══` })
         }
-        for (const [sub, cmds] of [...groups.entries()].sort((a, b) => a[0].localeCompare(b[0]))) {
+        const sortedGroups = [...groups.entries()].sort((a, b) => {
+            const isBatchA = a[1].every(c => /\d+$/.test(c.name));
+            const isBatchB = b[1].every(c => /\d+$/.test(c.name));
+            if (isBatchA !== isBatchB) return isBatchA ? 1 : -1;
+            return a[0].localeCompare(b[0]);
+        });
+        for (const [sub, cmds] of sortedGroups) {
             total += cmds.length
             for (const c of cmds) {
                 if (Array.isArray(c.aliases)) totalCatAliases += c.aliases.length

@@ -26,7 +26,7 @@ const DEV_TOPICS = [
 module.exports = {
     name: 'livroaleatorio',
     aliases: ['randombook', 'livrorandom', 'sorteiolivro', 'apostilaaleatoria'],
-    category: 'general',
+    category: 'livros',
     subcategory: 'Livros & Materiais',
     description: 'Sorteia e baixa um livro/apostila de programação (foco dev)',
     cooldownMs: 5000,

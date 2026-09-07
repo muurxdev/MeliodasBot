@@ -9,7 +9,8 @@ const { renderCard } = require('../../utils/uiEngine');
 module.exports = {
     name: 'autorlivro',
     aliases: ['autor', 'obras', 'obrasautor', 'bibliografia'],
-    category: 'general',
+    category: 'livros',
+    subcategory: 'Livros & Materiais',
     description: 'Lista as principais obras e livros catalogados de um autor',
     cooldownMs: 2000,
     execute: async ({ text, reply, prefix = '.', sender }) => {

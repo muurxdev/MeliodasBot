@@ -67,7 +67,7 @@ addNames('figurinhas', [
 addNames('livros', ['livro', 'livros', 'livroaleatorio', 'apostila', 'apostilas', 'gutenberg',
     // Lote 2 Livros (Open Library, keyless)
     'buscarlivro', 'livrosautor', 'livrogenero', 'capalivro', 'isbn', 'recomendarlivro',
-    'autorlivro', 'resumolivro'])
+    'autorlivro', 'resumolivro', 'gerarpdf'])
 // Módulo oficial de comunicação e transmissão em massa
 addNames('divulgacao', ['divulgacao', 'divulgar', 'broadcast', 'transmissao', 'anunciar'])
 
