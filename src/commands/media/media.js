@@ -116,13 +116,15 @@ module.exports = {
                         });
 
                         const caption = formatMediaCaption({
-                filePath: mediaData.filePath,
-                elapsedMs: mediaData.elapsedMs,
+                            filePath: mediaData.filePath,
+                            elapsedMs: mediaData.elapsedMs,
                             platform: playlistInfo.platform,
                             title: `[${i + 1}/${limit}] ${mediaData.title}`,
                             author: mediaData.author,
                             durationFormatted: mediaData.durationFormatted,
                             url: mediaData.url,
+                            uploadDate: mediaData.uploadDate,
+                            year: mediaData.year,
                             isAudio: true
                         });
 
@@ -204,7 +206,10 @@ module.exports = {
                     author: mediaData.author,
                     durationFormatted: mediaData.durationFormatted,
                     url: mediaData.url,
-                    isAudio: isMp3
+                    uploadDate: mediaData.uploadDate,
+                    year: mediaData.year,
+                    isAudio: isMp3,
+                    isImage: !mediaData.isVideo && !isMp3
                 });
 
                 try {
@@ -256,6 +261,8 @@ module.exports = {
                     author: mediaData.author,
                     durationFormatted: mediaData.durationFormatted,
                     url: mediaData.url,
+                    uploadDate: mediaData.uploadDate,
+                    year: mediaData.year,
                     isAudio: isMp3
                 });
 
@@ -263,7 +270,7 @@ module.exports = {
                     const { spawn } = require("child_process");
                     const mp3Out = mediaData.filePath.replace(/\.mp4$/i, ".mp3");
                     await new Promise((resolve, reject) => {
-                        const ff = spawn("ffmpeg", ["-y", "-i", mediaData.filePath, "-vn", "-c:a", "libmp3lame", "-b:a", "320k", "-ar", "48000", mp3Out]);
+                        const ff = spawn("ffmpeg", ["-y", "-threads", "0", "-i", mediaData.filePath, "-vn", "-c:a", "libmp3lame", "-b:a", "320k", "-ar", "48000", mp3Out]);
                         ff.on("close", code => (code === 0 ? resolve() : reject(new Error("Erro na conversão MP3"))));
                         ff.on("error", reject);
                     });
@@ -273,11 +280,13 @@ module.exports = {
                     const captionMp3 = formatMediaCaption({
                         filePath: mp3Out,
                         elapsedMs: mediaData.elapsedMs,
-                        platform: mediaData.platform || "Web",
+                        platform: mediaData.platform || "Kwai",
                         title: mediaData.title,
                         author: mediaData.author,
                         durationFormatted: mediaData.durationFormatted,
                         url: mediaData.url,
+                        uploadDate: mediaData.uploadDate,
+                        year: mediaData.year,
                         isAudio: true
                     });
                     try {
@@ -339,18 +348,15 @@ module.exports = {
                     const { spawn } = require("child_process");
                     const mp3Out = mediaData.filePath.replace(/\.mp4$/i, ".mp3");
                     await new Promise((resolve, reject) => {
-                        const ff = spawn("ffmpeg", ["-y", "-i", mediaData.filePath, "-vn", "-c:a", "libmp3lame", "-b:a", "320k", "-ar", "48000", mp3Out]);
+                        const ff = spawn("ffmpeg", ["-y", "-threads", "0", "-i", mediaData.filePath, "-vn", "-c:a", "libmp3lame", "-b:a", "320k", "-ar", "48000", mp3Out]);
                         ff.on("close", code => (code === 0 ? resolve() : reject(new Error("Erro na conversão MP3"))));
                         ff.on("error", reject);
                     });
 
-                    // Card medido do ARQUIVO REALMENTE ENVIADO (o mp3 convertido) —
-                    // o caption acima descreve o mp4 de origem, não o que sai daqui.
                     // Card medido do ARQUIVO REALMENTE ENVIADO (o mp3 convertido)
                     const captionMp3 = formatMediaCaption({
                         filePath: mp3Out,
                         elapsedMs: mediaData.elapsedMs,
-                        platform: mediaData.platform || "Web",
                         platform: mediaData.platform || "TikTok",
                         title: mediaData.title,
                         author: mediaData.author,
@@ -417,6 +423,8 @@ module.exports = {
                     author: mediaData.author,
                     durationFormatted: mediaData.durationFormatted,
                     url: mediaData.url,
+                    uploadDate: mediaData.uploadDate,
+                    year: mediaData.year,
                     isAudio: isMp3
                 });
 
@@ -424,7 +432,7 @@ module.exports = {
                     const { spawn } = require("child_process");
                     const mp3Out = mediaData.filePath.replace(/\.mp4$/i, ".mp3");
                     await new Promise((resolve, reject) => {
-                        const ff = spawn("ffmpeg", ["-y", "-i", mediaData.filePath, "-vn", "-c:a", "libmp3lame", "-b:a", "320k", "-ar", "48000", mp3Out]);
+                        const ff = spawn("ffmpeg", ["-y", "-threads", "0", "-i", mediaData.filePath, "-vn", "-c:a", "libmp3lame", "-b:a", "320k", "-ar", "48000", mp3Out]);
                         ff.on("close", code => (code === 0 ? resolve() : reject(new Error("Erro na conversão MP3"))));
                         ff.on("error", reject);
                     });
@@ -434,11 +442,13 @@ module.exports = {
                     const captionMp3 = formatMediaCaption({
                         filePath: mp3Out,
                         elapsedMs: mediaData.elapsedMs,
-                        platform: mediaData.platform || "Web",
+                        platform: mediaData.platform || "Twitter (X)",
                         title: mediaData.title,
                         author: mediaData.author,
                         durationFormatted: mediaData.durationFormatted,
                         url: mediaData.url,
+                        uploadDate: mediaData.uploadDate,
+                        year: mediaData.year,
                         isAudio: true
                     });
                     try {

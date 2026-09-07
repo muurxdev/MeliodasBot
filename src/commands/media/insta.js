@@ -87,6 +87,8 @@ module.exports = {
                 author: meta.author,
                 durationFormatted: meta.durationFormatted,
                 url: meta.webpageUrl,
+                uploadDate: meta.uploadDate,
+                year: meta.year,
                 isAudio: isMp3
             });
 

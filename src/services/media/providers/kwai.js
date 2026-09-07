@@ -148,13 +148,19 @@ async function downloadKwaiVideo(rawInput) {
 
     await downloadFile(videoUrl, outputPath);
 
+    const timestampMatch = html.match(/"timestamp":\s*(\d+)/i) || html.match(/"uploadTime":\s*"([^"]+)"/i) || html.match(/"createTime":\s*(\d+)/i);
+    let uploadDate = timestampMatch ? timestampMatch[1] : null;
+    let year = uploadDate ? (String(uploadDate).length >= 10 ? String(new Date(Number(uploadDate) * 1000).getFullYear()) : (new Date(uploadDate).getFullYear() ? String(new Date(uploadDate).getFullYear()) : null)) : null;
+
     return {
         filePath: outputPath,
         title,
         author,
         durationFormatted: "—",
         thumbnail,
-        url: finalUrl
+        url: finalUrl,
+        uploadDate,
+        year
     };
 }
 

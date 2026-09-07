@@ -73,6 +73,15 @@ async function bootstrap() {
         logger.error('❌ Falha ao inicializar Bot Scheduler:', errSched)
     }
 
+    // 4.1 Garantir inicialização em modo restrito (todos os módulos OFF por padrão no boot, obedecendo exclusivamente ao Dono)
+    try {
+        const moduleState = require('./services/moduleStateService')
+        moduleState.invalidateCache()
+        logger.info('🔒 [SECURITY] Módulos inicializados em modo restrito (OFF por padrão). Apenas Donos liberados.')
+    } catch (errMod) {
+        logger.warn('Aviso na inicialização de módulos no boot:', errMod.message)
+    }
+
     // 5. Iniciar conexão Baileys
     if (process.env.NODE_ENV !== 'test') {
         try {

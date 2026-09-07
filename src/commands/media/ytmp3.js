@@ -60,6 +60,8 @@ module.exports = {
                 author: meta.author,
                 durationFormatted: meta.durationFormatted,
                 url: targetUrl,
+                uploadDate: meta.uploadDate,
+                year: meta.year,
                 isAudio: true
             })
 

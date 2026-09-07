@@ -104,6 +104,9 @@ async function downloadMedia(job, onProgress = null) {
     const args = buildYtDlpArgs([
         '--no-playlist',
         '--no-warnings',
+        '--concurrent-fragments', '5',
+        '--buffer-size', '16M',
+        '--http-chunk-size', '10M',
         '-o', outputTemplate,
         ...formatConfig.args,
         job.source

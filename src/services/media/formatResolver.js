@@ -180,27 +180,66 @@ function parseMediaDateAndYear(rawDate, rawYear, probeTags) {
                 const d = s.slice(6, 8)
                 year = year || y
                 formattedDate = `${d}/${m}/${y}`
+            } else if (/^\d{10,13}$/.test(s)) {
+                const num = Number(s)
+                const d = new Date(num > 1e11 ? num : num * 1000)
+                if (!isNaN(d.getTime())) {
+                    year = year || String(d.getFullYear())
+                    formattedDate = `${String(d.getDate()).padStart(2, '0')}/${String(d.getMonth() + 1).padStart(2, '0')}/${d.getFullYear()}`
+                }
             } else if (/^\d{4}-\d{2}-\d{2}/.test(s)) {
                 const parts = s.split('T')[0].split('-')
                 year = year || parts[0]
                 formattedDate = `${parts[2]}/${parts[1]}/${parts[0]}`
             } else if (/^\d{4}$/.test(s)) {
                 year = year || s
+            } else if (/(\d+)\s+year[s]?\s+ago/i.test(s)) {
+                const yearsAgo = parseInt(s.match(/(\d+)\s+year[s]?\s+ago/i)[1], 10)
+                const currentY = new Date().getFullYear()
+                year = year || String(currentY - yearsAgo)
+            } else if (/(\d+)\s+month[s]?\s+ago/i.test(s)) {
+                const monthsAgo = parseInt(s.match(/(\d+)\s+month[s]?\s+ago/i)[1], 10)
+                const d = new Date()
+                d.setMonth(d.getMonth() - monthsAgo)
+                year = year || String(d.getFullYear())
+                formattedDate = `${String(d.getDate()).padStart(2, '0')}/${String(d.getMonth() + 1).padStart(2, '0')}/${d.getFullYear()}`
+            } else if (/(\d+)\s+day[s]?\s+ago/i.test(s)) {
+                const daysAgo = parseInt(s.match(/(\d+)\s+day[s]?\s+ago/i)[1], 10)
+                const d = new Date()
+                d.setDate(d.getDate() - daysAgo)
+                year = year || String(d.getFullYear())
+                formattedDate = `${String(d.getDate()).padStart(2, '0')}/${String(d.getMonth() + 1).padStart(2, '0')}/${d.getFullYear()}`
+            } else {
+                const d = new Date(s)
+                if (!isNaN(d.getTime()) && d.getFullYear() > 1970) {
+                    year = year || String(d.getFullYear())
+                    formattedDate = `${String(d.getDate()).padStart(2, '0')}/${String(d.getMonth() + 1).padStart(2, '0')}/${d.getFullYear()}`
+                }
             }
         }
     }
 
     if (probeTags && typeof probeTags === 'object') {
-        const tagDate = probeTags.date || probeTags.DATE || probeTags.creation_time || probeTags.TYER || probeTags.TDRC || probeTags.year || probeTags.YEAR
-        if (tagDate) {
+        const tagDate = probeTags.date || probeTags.DATE || probeTags.creation_time || probeTags.TYER || probeTags.TDRC || probeTags.year || probeTags.YEAR || probeTags.RELEASE_TIME
+        if (tagDate && !formattedDate) {
             const str = String(tagDate).trim()
-            if (!formattedDate) {
-                if (/^\d{4}-\d{2}-\d{2}/.test(str)) {
-                    const parts = str.split('T')[0].split('-')
-                    year = year || parts[0]
-                    formattedDate = `${parts[2]}/${parts[1]}/${parts[0]}`
-                } else if (/^\d{4}$/.test(str)) {
-                    year = year || str
+            if (/^\d{4}-\d{2}-\d{2}/.test(str)) {
+                const parts = str.split('T')[0].split('-')
+                year = year || parts[0]
+                formattedDate = `${parts[2]}/${parts[1]}/${parts[0]}`
+            } else if (/^\d{8}$/.test(str)) {
+                const y = str.slice(0, 4)
+                const m = str.slice(4, 6)
+                const d = str.slice(6, 8)
+                year = year || y
+                formattedDate = `${d}/${m}/${y}`
+            } else if (/^\d{4}$/.test(str)) {
+                year = year || str
+            } else {
+                const d = new Date(str)
+                if (!isNaN(d.getTime()) && d.getFullYear() > 1970) {
+                    year = year || String(d.getFullYear())
+                    formattedDate = `${String(d.getDate()).padStart(2, '0')}/${String(d.getMonth() + 1).padStart(2, '0')}/${d.getFullYear()}`
                 }
             }
         }
@@ -287,6 +326,7 @@ function formatMediaCaption({
     durationFormatted = '—',
     url = '',
     isAudio = false,
+    isImage = false,
     filePath = null,
     elapsedMs = null,
     fileProbe = null,
@@ -297,9 +337,10 @@ function formatMediaCaption({
 } = {}) {
     const botName = getBotName()
     const probe = fileProbe || (filePath ? probeMedia(filePath) : null)
-    const audio = probe ? probe.isAudio : isAudio
-    const icon = audio ? '🎵' : '🎬'
-    const headerTitle = audio ? 'ÁUDIO BAIXADO' : 'VÍDEO BAIXADO'
+    const isImg = isImage || (filePath && /\.(jpe?g|png|webp|gif|bmp)$/i.test(filePath))
+    const audio = !isImg && (probe ? probe.isAudio : isAudio)
+    const icon = isImg ? '📸' : (audio ? '🎵' : '🎬')
+    const headerTitle = isImg ? 'IMAGEM BAIXADA' : (audio ? 'ÁUDIO BAIXADO' : 'VÍDEO BAIXADO')
 
     let doc = `╔══════════════════════════════╗\n`
     doc += `║   ${icon} *${headerTitle}* ${icon}   ║\n`
@@ -309,45 +350,58 @@ function formatMediaCaption({
     doc += `┃ 📝 *Título:* ${String(title || 'Mídia').slice(0, 100)}\n`
     doc += `┃ 👤 *Autor:* ${author || 'Desconhecido'}\n`
 
-    // Duração real (do arquivo) tem prioridade sobre a informada
-    if (probe && probe.durationSec > 0) {
-        doc += `┃ ⏱️ *Duração:* ${formatDuration(probe.durationSec)}\n`
-    } else if (durationFormatted && durationFormatted !== '—' && durationFormatted !== '00:00') {
-        doc += `┃ ⏱️ *Duração:* ${durationFormatted}\n`
+    // Duração real (do arquivo) tem prioridade sobre a informada (apenas para áudio ou vídeo)
+    if (!isImg) {
+        if (probe && probe.durationSec > 0) {
+            doc += `┃ ⏱️ *Duração:* ${formatDuration(probe.durationSec)}\n`
+        } else if (durationFormatted && durationFormatted !== '—' && durationFormatted !== '00:00') {
+            doc += `┃ ⏱️ *Duração:* ${durationFormatted}\n`
+        }
     }
 
-    // Ano e Data de postagem (Vídeo e Áudio)
+    // Ano e Data de publicação (Vídeo, Áudio e Imagem)
     const { year: parsedYear, formattedDate } = parseMediaDateAndYear(uploadDate, year, probe?.tags)
     if (formattedDate && parsedYear) {
-        doc += `┃ 📅 *Postado:* ${formattedDate} (${parsedYear})\n`
+        doc += `┃ 📅 *Publicado:* ${formattedDate} (${parsedYear})\n`
+    } else if (formattedDate) {
+        doc += `┃ 📅 *Publicado:* ${formattedDate}\n`
     } else if (parsedYear) {
-        doc += `┃ 📅 *Ano:* ${parsedYear}\n`
+        doc += `┃ 📅 *Publicado:* ${parsedYear}\n`
     }
 
     if (probe) {
-        // Dados 100% reais do arquivo
-        if (!audio) {
+        if (isImg) {
+            const res = (probe.width && probe.height) ? `${probe.width}x${probe.height}` : null
+            if (res) doc += `┃ 🖼️ *Resolução:* ${res}\n`
+            doc += `┃ 📦 *Formato:* ${probe.container}\n`
+            const sizeStr = formatBytes(probe.sizeBytes)
+            if (sizeStr) doc += `┃ 💾 *Tamanho:* ${sizeStr}\n`
+        } else if (!audio) {
             const q = qualityLabel(probe.height, probe.width) || (probe.height ? `${probe.height}p` : (quality || '1080p'))
             doc += `┃ 🎬 *Qualidade:* ${q}\n`
+            doc += `┃ 📦 *Formato:* ${probe.container}\n`
+            const sizeStr = formatBytes(probe.sizeBytes)
+            if (sizeStr) doc += `┃ 💾 *Tamanho:* ${sizeStr}\n`
         } else {
             const kbps = probe.bitrateKbps ? `${probe.bitrateKbps} kbps` : (audioBitrate || quality || '320 kbps')
             doc += `┃ 🎧 *Qualidade:* ${kbps}\n`
+            const codecInfo = audio && probe.acodec && probe.acodec.toLowerCase() !== probe.container.toLowerCase()
+                ? ` (${probe.acodec})` : ''
+            doc += `┃ 📦 *Formato:* ${probe.container}${codecInfo}\n`
+            const sizeStr = formatBytes(probe.sizeBytes)
+            if (sizeStr) doc += `┃ 💾 *Tamanho:* ${sizeStr}\n`
         }
-
-        // Formato: só mostra codec se for diferente do container (evita "MP3 / mp3")
-        const codecInfo = audio && probe.acodec && probe.acodec.toLowerCase() !== probe.container.toLowerCase()
-            ? ` (${probe.acodec})` : ''
-        doc += `┃ 📦 *Formato:* ${probe.container}${codecInfo}\n`
-        const sizeStr = formatBytes(probe.sizeBytes)
-        if (sizeStr) doc += `┃ 💾 *Tamanho:* ${sizeStr}\n`
     } else {
         // Sem probe: mostra qualidade e formato padrão informados
-        if (!audio) {
+        if (isImg) {
+            doc += `┃ 📦 *Formato:* IMAGEM\n`
+        } else if (!audio) {
             doc += `┃ 🎬 *Qualidade:* ${quality || '1080p'}\n`
+            doc += `┃ 📦 *Formato:* MP4\n`
         } else {
             doc += `┃ 🎧 *Qualidade:* ${audioBitrate || quality || '320 kbps'}\n`
+            doc += `┃ 📦 *Formato:* MP3\n`
         }
-        doc += `┃ 📦 *Formato:* ${audio ? 'MP3' : 'MP4'}\n`
         if (filePath && fs.existsSync(filePath)) {
             const sizeStr = formatBytes(fs.statSync(filePath).size)
             if (sizeStr) doc += `┃ 💾 *Tamanho:* ${sizeStr}\n`

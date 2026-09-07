@@ -51,6 +51,7 @@ function convertVideoToMp3(videoPath, mp3Path) {
     return new Promise((resolve, reject) => {
         const ffmpeg = spawn("ffmpeg", [
             "-y",
+            "-threads", "0",
             "-i", videoPath,
             "-vn",
             "-c:a", "libmp3lame",
@@ -137,6 +138,16 @@ async function downloadPinterestMedia(urlOrQuery, { format = "mp4" } = {}) {
             }
         }
 
+        let uploadDate = null;
+        let year = null;
+        const dateMatch = html.match(/<meta[^>]+(?:property|name)=["'](?:article:published_time|og:updated_time)["'][^>]+content=["']([^"']+)["']/i)
+            || html.match(/"(?:uploadDate|datePublished|createdAt)":\s*"([^"]+)"/i);
+        if (dateMatch && dateMatch[1]) {
+            uploadDate = dateMatch[1];
+            const parsedY = new Date(dateMatch[1]).getUTCFullYear();
+            if (parsedY && !isNaN(parsedY)) year = String(parsedY);
+        }
+
         // 0. Chromium (headless) — LIVE WALLPAPERS/vídeo em alta qualidade. O HTML
         //    puro costuma não trazer o mp4 (o Pinterest carrega o vídeo por JS).
         //    Tolerante: se não houver Chromium, cai no método fetch abaixo.
@@ -190,6 +201,8 @@ async function downloadPinterestMedia(urlOrQuery, { format = "mp4" } = {}) {
                     durationFormatted: "—",
                     thumbnail: null,
                     url: finalUrl,
+                    uploadDate,
+                    year,
                     isVideo: false,
                     isAudio: true,
                     mimetype: "audio/mpeg",
@@ -204,6 +217,8 @@ async function downloadPinterestMedia(urlOrQuery, { format = "mp4" } = {}) {
                 durationFormatted: "—",
                 thumbnail: null,
                 url: finalUrl,
+                uploadDate,
+                year,
                 isVideo: true,
                 isAudio: false,
                 mimetype: "video/mp4",
@@ -243,6 +258,8 @@ async function downloadPinterestMedia(urlOrQuery, { format = "mp4" } = {}) {
                 durationFormatted: "—",
                 thumbnail: imgUrl,
                 url: finalUrl,
+                uploadDate,
+                year,
                 isVideo: false,
                 isAudio: false,
                 mimetype: ext === "png" ? "image/png" : "image/jpeg",

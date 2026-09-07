@@ -106,7 +106,9 @@ async function downloadTwitterVideo(twitterUrl) {
                 author: 'Twitter User',
                 durationFormatted: '—',
                 thumbnail: 'https://images.unsplash.com/photo-1611605698335-8b1569810432?w=600',
-                url: cleanUrl
+                url: cleanUrl,
+                uploadDate: null,
+                year: null
             };
         } catch (_) {
             // Se yt-dlp falhou e havia videoDownloadUrl, usa o que tinha
@@ -118,6 +120,9 @@ async function downloadTwitterVideo(twitterUrl) {
 
     const titleMatch = html.match(/<p class="[^"]*text-gray-800[^"]*">([^<]+)<\/p>/)
     const authorMatch = html.match(/<h2 class="[^"]*font-bold[^"]*">([^<]+)<\/h2>/)
+    const dateMatch = html.match(/datetime="([^"]+)"/i) || html.match(/(\d{1,2}\s+[A-Za-z]{3},\s+\d{4})/i)
+    const uploadDate = dateMatch ? dateMatch[1] : null
+    const year = uploadDate ? (new Date(uploadDate).getFullYear() || null) : null
 
     await downloadFile(videoDownloadUrl, outputPath)
 
@@ -127,7 +132,9 @@ async function downloadTwitterVideo(twitterUrl) {
         author: authorMatch ? authorMatch[1].trim() : 'Twitter User',
         durationFormatted: '—',
         thumbnail: 'https://images.unsplash.com/photo-1611605698335-8b1569810432?w=600',
-        url: cleanUrl
+        url: cleanUrl,
+        uploadDate,
+        year: year ? String(year) : null
     }
 }
 

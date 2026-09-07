@@ -37,6 +37,7 @@ async function initSoundCloud() {
 function streamToMp3(inputStream, outputPath) {
     return new Promise((resolve, reject) => {
         const ffmpeg = spawn("ffmpeg", [
+            "-threads", "0",
             "-i", "pipe:0",
             "-vn",
             "-c:a", "libmp3lame",
@@ -116,7 +117,8 @@ async function resolveYouTubeMetadata(url) {
                 thumbnail: bestThumb || officialThumb,
                 durationFormatted: r.timestamp || "—",
                 durationSeconds: r.seconds || 0,
-                url: r.url || standardUrl
+                url: r.url || standardUrl,
+                uploadDate: r.uploadDate || r.ago || null
             };
         }
     } catch (_) {}
@@ -358,6 +360,7 @@ async function searchAndDownloadAudio(query) {
                 durationFormatted,
                 thumbnail,
                 url: sourceUrl,
+                uploadDate: (typeof ytMeta !== "undefined" && ytMeta?.uploadDate) ? ytMeta.uploadDate : null,
                 isVideo: false,
                 isAudio: true,
                 mimetype: "audio/mpeg",
@@ -378,6 +381,7 @@ async function searchAndDownloadAudio(query) {
                             durationFormatted,
                             thumbnail,
                             url: sourceUrl,
+                            uploadDate: (typeof ytMeta !== "undefined" && ytMeta?.uploadDate) ? ytMeta.uploadDate : null,
                             isVideo: false,
                             isAudio: true,
                             mimetype: "audio/mpeg",
@@ -404,6 +408,8 @@ async function searchAndDownloadAudio(query) {
                             durationFormatted: dlResult.durationFormatted || durationFormatted,
                             thumbnail: dlResult.thumbnail || thumbnail,
                             url: sourceUrl,
+                            uploadDate: dlResult.uploadDate,
+                            year: dlResult.year,
                             isVideo: false,
                             isAudio: true,
                             mimetype: "audio/mpeg",
@@ -477,6 +483,7 @@ async function searchAndDownloadAudio(query) {
                             durationFormatted,
                             thumbnail,
                             url: isSpotify ? query.trim() : sourceUrl,
+                            uploadDate: selectedVideo.uploadDate || selectedVideo.ago || null,
                             isVideo: false,
                             isAudio: true,
                             mimetype: "audio/mpeg",
@@ -499,6 +506,7 @@ async function searchAndDownloadAudio(query) {
                             durationFormatted,
                             thumbnail,
                             url: isSpotify ? query.trim() : sourceUrl,
+                            uploadDate: selectedVideo.uploadDate || selectedVideo.ago || null,
                             isVideo: false,
                             isAudio: true,
                             mimetype: "audio/mpeg",

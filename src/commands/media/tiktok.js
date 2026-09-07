@@ -94,7 +94,7 @@ module.exports = {
                 const mp3Out = mediaData.filePath.replace(/\.mp4$/i, ".mp3");
 
                 await new Promise((resolve, reject) => {
-                    const ff = spawn("ffmpeg", ["-y", "-i", mediaData.filePath, "-vn", "-c:a", "libmp3lame", "-b:a", "320k", "-ar", "48000", mp3Out]);
+                    const ff = spawn("ffmpeg", ["-y", "-threads", "0", "-i", mediaData.filePath, "-vn", "-c:a", "libmp3lame", "-b:a", "320k", "-ar", "48000", mp3Out]);
                     ff.on("close", code => (code === 0 ? resolve() : reject(new Error("Erro na conversão MP3"))));
                     ff.on("error", reject);
                 });

@@ -265,9 +265,17 @@ class MediaQueue extends EventEmitter {
         })
         if (this.history.length > 50) this.history.shift()
     }
+
+    getStatus() {
+        return {
+            active: this.activeCount,
+            queued: this.queue.length,
+            totalHistory: this.history.length
+        }
+    }
 }
 
-const mediaQueue = new MediaQueue({ maxConcurrency: 2 })
+const mediaQueue = new MediaQueue({ maxConcurrency: 4 })
 
 module.exports = {
     MediaQueue,

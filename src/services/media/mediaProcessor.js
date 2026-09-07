@@ -25,7 +25,7 @@ async function processMedia(inputPath, outputPath, { format = 'mp3', coverPath =
             return reject(err)
         }
 
-        let args = ['-y', '-i', inputPath]
+        let args = ['-y', '-threads', '0', '-i', inputPath]
 
         if (format === 'mp3') {
             if (coverPath && fs.existsSync(coverPath)) {
@@ -177,22 +177,36 @@ async function ensureMobileVideoCompatibility(filePath) {
         return filePath
     }
 
-    // Converte para H.264 + AAC com alta velocidade (preset veryfast) e sem perdas perceptíveis (CRF 22)
+    // Converte para H.264 + AAC com alta velocidade e suporte a multi-threading (-threads 0)
     const outPath = path.join(path.dirname(filePath), `mobile_${Date.now()}_${path.basename(filePath, ext)}.mp4`)
     try {
-        const args = [
-            '-y', '-i', filePath,
-            '-c:v', 'libx264',
-            '-profile:v', 'high',
-            '-pix_fmt', 'yuv420p',
-            '-preset', 'veryfast',
-            '-crf', '20',
-            '-c:a', 'aac',
-            '-b:a', '192k',
-            '-ar', '44100',
-            '-movflags', '+faststart',
-            outPath
-        ]
+        let args
+        // Otimização de alta velocidade: se o vídeo já for H.264, copia o vídeo diretamente (~1s) e apenas converte o áudio para AAC
+        if (isH264) {
+            args = [
+                '-y', '-threads', '0', '-i', filePath,
+                '-c:v', 'copy',
+                '-c:a', 'aac',
+                '-b:a', '192k',
+                '-ar', '44100',
+                '-movflags', '+faststart',
+                outPath
+            ]
+        } else {
+            args = [
+                '-y', '-threads', '0', '-i', filePath,
+                '-c:v', 'libx264',
+                '-profile:v', 'high',
+                '-pix_fmt', 'yuv420p',
+                '-preset', 'veryfast',
+                '-crf', '23',
+                '-c:a', 'aac',
+                '-b:a', '192k',
+                '-ar', '44100',
+                '-movflags', '+faststart',
+                outPath
+            ]
+        }
         const proc = spawn('ffmpeg', args)
         await new Promise((resolve, reject) => {
             // Timeout de 10 minutos (600s) para re-encode seguro

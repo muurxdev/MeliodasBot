@@ -54,6 +54,8 @@ module.exports = {
                 author: mediaData.author,
                 durationFormatted: mediaData.durationFormatted,
                 url: mediaData.url,
+                uploadDate: mediaData.uploadDate,
+                year: mediaData.year,
                 isAudio: true
             });
 

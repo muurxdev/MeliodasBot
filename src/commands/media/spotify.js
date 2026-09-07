@@ -70,13 +70,15 @@ module.exports = {
                         });
 
                         const caption = formatMediaCaption({
-                filePath: mediaData.filePath,
-                elapsedMs: mediaData.elapsedMs,
+                            filePath: mediaData.filePath,
+                            elapsedMs: mediaData.elapsedMs,
                             platform: "Spotify",
                             title: `[${i + 1}/${limit}] ${mediaData.title}`,
                             author: mediaData.author,
                             durationFormatted: mediaData.durationFormatted,
                             url: track.url || mediaData.url,
+                            uploadDate: mediaData.uploadDate,
+                            year: mediaData.year,
                             isAudio: true
                         });
 
@@ -126,6 +128,8 @@ module.exports = {
                 author: mediaData.author,
                 durationFormatted: mediaData.durationFormatted,
                 url: mediaData.url,
+                uploadDate: mediaData.uploadDate,
+                year: mediaData.year,
                 isAudio: true
             });
 

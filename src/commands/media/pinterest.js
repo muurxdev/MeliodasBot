@@ -90,7 +90,10 @@ module.exports = {
                 author: mediaData.author,
                 durationFormatted: mediaData.durationFormatted,
                 url: mediaData.url,
-                isAudio: isMp3
+                uploadDate: mediaData.uploadDate,
+                year: mediaData.year,
+                isAudio: isMp3,
+                isImage: !mediaData.isVideo && !isMp3
             });
 
             try {

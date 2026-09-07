@@ -152,12 +152,12 @@ function clearCommand(name, scope = GLOBAL_SCOPE) {
 }
 
 /** Liga TODOS os módulos — somente no escopo informado.
- * NOTA: O módulo 'divulgacao' é exclusivo do Dono e ativado sob demanda.
+ * NOTA: Os módulos 'divulgacao' e 'skycode' são exclusivos do Dono e ativados sob demanda.
  */
 function enableAll(scope = GLOBAL_SCOPE) {
     const modules = {}
     for (const m of MODULES) {
-        modules[m.key] = (m.key === 'divulgacao' ? false : true)
+        modules[m.key] = (m.key === 'divulgacao' || m.key === 'skycode' ? false : true)
     }
     _mutate(scope, () => ({ modules, commands: {} }))
     return { ok: true }

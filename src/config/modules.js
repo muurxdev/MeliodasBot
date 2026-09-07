@@ -27,6 +27,7 @@ const MODULES = [
     { key: 'livros',          emoji: '📚',  label: 'Livros & Materiais' },
     { key: 'perfil',          emoji: '🏆',  label: 'Perfil & Ranking' },
     { key: 'divulgacao',      emoji: '📢',  label: 'Divulgação & Broadcast' },
+    { key: 'skycode',         emoji: '🛰️',  label: 'Protocolo & Painel Skycode' },
     { key: 'owner',           emoji: '👑',  label: 'Dono & Bot' },
     { key: 'adicional',       emoji: '⚡',  label: 'Comandos Adicionais & Especiais' }
 ]
@@ -34,13 +35,18 @@ const MODULES = [
 const BY_KEY = {}
 for (const m of MODULES) BY_KEY[m.key] = m
 
-// Todo módulo começa ligado por padrão para garantir disponibilidade imediata.
-const DEFAULT_ENABLED = true
+// Todo módulo começa desligado por padrão (camada OPT-IN do Dono) para controle restrito.
+const DEFAULT_ENABLED = false
 
 // Overrides por NOME de comando (têm prioridade sobre categoria/subcategoria).
 // Só precisa listar os transversais que não seguem a categoria.
 const NAME_TO_MODULE = {}
 const addNames = (key, names) => names.forEach(n => { NAME_TO_MODULE[n] = key })
+
+addNames('skycode', [
+    'skycode', 'sky', 'painelskycode', 'skystatus', 'skydiag', 'skychaves',
+    'skyauditoria', 'skymodulos', 'skyfila', 'skygrupos'
+])
 
 addNames('cassino', [
     'cassino', 'cassinoroyale', 'slots', 'mines', 'crash', 'roleta', 'blackjack',
