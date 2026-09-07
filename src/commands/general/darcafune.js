@@ -3,7 +3,7 @@
  */
 module.exports = {
     name: "darcafune",
-    aliases: [],
+    aliases: ["darcafune-cmd","cmd-darcafune"],
     category: "general",
     subcategory: "Interação",
     description: "Faz um cafuné relaxante na cabeça de alguém: .darcafune [nome]",

@@ -3,7 +3,7 @@
  */
 module.exports = {
     name: "mandamentocastidade",
-    aliases: [],
+    aliases: ["mandamentocastidade-cmd","cmd-mandamentocastidade"],
     category: "rpg",
     subcategory: "Mandamentos",
     description: "Testa o Mandamento da Castidade (Derieri): .mandamentocastidade",

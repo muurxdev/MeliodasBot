@@ -3,7 +3,7 @@
  */
 module.exports = {
     name: "cacaalbion",
-    aliases: [],
+    aliases: ["cacaalbion-cmd","cmd-cacaalbion"],
     category: "rpg",
     subcategory: "Batalha",
     description: "Participa da caçada ao monstro Albion: .cacaalbion",

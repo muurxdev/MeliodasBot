@@ -3,7 +3,7 @@
  */
 module.exports = {
     name: "elixirimortal",
-    aliases: [],
+    aliases: ["elixirimortal-cmd","cmd-elixirimortal"],
     category: "rpg",
     subcategory: "Item",
     description: "Examina a taça da Fonte da Juventude: .elixirimortal",

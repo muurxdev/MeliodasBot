@@ -3,7 +3,7 @@
  */
 module.exports = {
     name: "maskphone",
-    aliases: [],
+    aliases: ["maskphone-cmd","cmd-maskphone"],
     category: "dev",
     subcategory: "Segurança",
     description: "Mascara número de telefone: .maskphone 11987654321",

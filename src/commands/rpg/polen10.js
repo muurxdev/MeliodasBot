@@ -5,7 +5,7 @@
 
 module.exports = {
     name: "polen10",
-    aliases: [],
+    aliases: ["pollen10","pollen-10"],
     category: "rpg",
     subcategory: "Magia das Fadas",
     description: "Dispersa pólen curativo da Árvore Sagrada (10): .polen10",

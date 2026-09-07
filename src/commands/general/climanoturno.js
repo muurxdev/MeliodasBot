@@ -3,7 +3,7 @@
  */
 module.exports = {
     name: "climanoturno",
-    aliases: [],
+    aliases: ["climanoturno-cmd","cmd-climanoturno"],
     category: "general",
     subcategory: "Mensagens",
     description: "Envia mensagem temática de boa noite para a guilda: .climanoturno",

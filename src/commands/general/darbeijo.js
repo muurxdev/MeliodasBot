@@ -3,7 +3,7 @@
  */
 module.exports = {
     name: "darbeijo",
-    aliases: [],
+    aliases: ["darbeijo-cmd","cmd-darbeijo"],
     category: "general",
     subcategory: "Interação",
     description: "Dá um beijo carinhoso na bochecha de alguém: .darbeijo [nome]",

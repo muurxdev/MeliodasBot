@@ -5,7 +5,7 @@
 
 module.exports = {
     name: "devdiag13",
-    aliases: [],
+    aliases: ["devd13","devd-13"],
     category: "dev",
     subcategory: "Dev Hub & Ferramentas",
     description: "Diagnóstico de sistema e métricas de execução #13: .devdiag13",

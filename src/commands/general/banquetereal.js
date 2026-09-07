@@ -3,7 +3,7 @@
  */
 module.exports = {
     name: "banquetereal",
-    aliases: [],
+    aliases: ["banquetereal-cmd","cmd-banquetereal"],
     category: "general",
     subcategory: "Taverna",
     description: "Serve o grande banquete do Rei de Liones no chat: .banquetereal",

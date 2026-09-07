@@ -3,7 +3,7 @@
  */
 module.exports = {
     name: "mandamentopureza",
-    aliases: [],
+    aliases: ["mandamentopureza-cmd","cmd-mandamentopureza"],
     category: "rpg",
     subcategory: "Mandamentos",
     description: "Testa o Mandamento da Pureza (fraudrin/derieri): .mandamentopureza",

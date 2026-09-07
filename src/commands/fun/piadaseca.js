@@ -3,7 +3,7 @@
  */
 module.exports = {
     name: "piadaseca",
-    aliases: [],
+    aliases: ["piadaseca-cmd","cmd-piadaseca"],
     category: "fun",
     subcategory: "Humor",
     description: "Conta uma piada seca ou trocadilho rápido: .piadaseca",

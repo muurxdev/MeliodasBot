@@ -3,7 +3,7 @@
  */
 module.exports = {
     name: "shufflewords",
-    aliases: [],
+    aliases: ["shufflewords-cmd","cmd-shufflewords"],
     category: "dev",
     subcategory: "String",
     description: "Embaralha aleatoriamente as palavras de uma frase: .shufflewords <frase>",

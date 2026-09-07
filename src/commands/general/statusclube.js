@@ -3,7 +3,7 @@
  */
 module.exports = {
     name: "statusclube",
-    aliases: [],
+    aliases: ["statusclube-cmd","cmd-statusclube"],
     category: "general",
     subcategory: "Grupo",
     description: "Exibe o status do clube de fãs dos Sete Pecados: .statusclube",

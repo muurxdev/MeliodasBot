@@ -3,7 +3,7 @@
  */
 module.exports = {
     name: "textrot13",
-    aliases: [],
+    aliases: ["text13","text-13"],
     category: "dev",
     subcategory: "Cifra",
     description: "Aplica cifra ROT13 em um texto: .textrot13 <texto>",

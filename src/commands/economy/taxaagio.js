@@ -3,7 +3,7 @@
  */
 module.exports = {
     name: "taxaagio",
-    aliases: [],
+    aliases: ["taxaagio-cmd","cmd-taxaagio"],
     category: "economy",
     subcategory: "Finanças",
     description: "Calcula a taxa de ágio em negociações mercantis: .taxaagio <preco_base> <preco_venda>",

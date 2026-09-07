@@ -3,7 +3,7 @@
  */
 module.exports = {
     name: "consumocombustivel",
-    aliases: [],
+    aliases: ["consumocombustivel-cmd","cmd-consumocombustivel"],
     category: "general",
     subcategory: "Finanças",
     description: "Calcula consumo médio de combustível: .consumocombustivel <km_rodados> <litros>",

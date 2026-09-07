@@ -3,7 +3,7 @@
  */
 module.exports = {
     name: "lancachastiefol",
-    aliases: [],
+    aliases: ["lancachastiefol-cmd","cmd-lancachastiefol"],
     category: "rpg",
     subcategory: "Lore",
     description: "História e materiais da Lança Espiritual Chastiefol: .lancachastiefol",

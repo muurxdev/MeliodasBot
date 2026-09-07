@@ -3,7 +3,7 @@
  */
 module.exports = {
     name: "conselhomerlin",
-    aliases: [],
+    aliases: ["conselhomerlin-cmd","cmd-conselhomerlin"],
     category: "fun",
     subcategory: "Lore SDS",
     description: "Conselho enigmático da Maga de Belialuin: .conselhomerlin",

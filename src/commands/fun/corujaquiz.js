@@ -3,7 +3,7 @@
  */
 module.exports = {
     name: "corujaquiz",
-    aliases: [],
+    aliases: ["corujaquiz-cmd","cmd-corujaquiz"],
     category: "fun",
     subcategory: "Quiz",
     description: "Pergunta rápida da Coruja Sábia: .corujaquiz",

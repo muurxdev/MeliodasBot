@@ -3,7 +3,7 @@
  */
 module.exports = {
     name: "raizquadrada",
-    aliases: [],
+    aliases: ["raizquadrada-cmd","cmd-raizquadrada"],
     category: "general",
     subcategory: "Matemática",
     description: "Calcula raiz quadrada: .raizquadrada <n>",

@@ -3,7 +3,7 @@
  */
 module.exports = {
     name: "potenciacao",
-    aliases: [],
+    aliases: ["potenciacao-cmd","cmd-potenciacao"],
     category: "general",
     subcategory: "Matemática",
     description: "Calcula potência: .potenciacao <base> <expoente>",

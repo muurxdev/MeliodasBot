@@ -3,7 +3,7 @@
  */
 module.exports = {
     name: "linkboarhat",
-    aliases: [],
+    aliases: ["linkboarhat-cmd","cmd-linkboarhat"],
     category: "general",
     subcategory: "Convite",
     description: "Exibe cartão temático de convite para a guilda: .linkboarhat",

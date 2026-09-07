@@ -3,7 +3,7 @@
  */
 module.exports = {
     name: "festachapeu",
-    aliases: [],
+    aliases: ["festachapeu-cmd","cmd-festachapeu"],
     category: "general",
     subcategory: "Taverna",
     description: "Declara rodada aberta de diversão na taverna: .festachapeu",

@@ -3,7 +3,7 @@
  */
 module.exports = {
     name: "plantarcristal",
-    aliases: [],
+    aliases: ["plantarcristal-cmd","cmd-plantarcristal"],
     category: "economy",
     subcategory: "Cultivo",
     description: "Planta uma muda de cristal de mana no jardim do Boar Hat: .plantarcristal",

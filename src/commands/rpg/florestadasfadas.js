@@ -3,7 +3,7 @@
  */
 module.exports = {
     name: "florestadasfadas",
-    aliases: [],
+    aliases: ["florestadasfadas-cmd","cmd-florestadasfadas"],
     category: "rpg",
     subcategory: "Local",
     description: "Viaja até a Floresta do Rei das Fadas: .florestadasfadas",

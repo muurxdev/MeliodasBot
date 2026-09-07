@@ -3,7 +3,7 @@
  */
 module.exports = {
     name: "taxadecambio",
-    aliases: [],
+    aliases: ["taxadecambio-cmd","cmd-taxadecambio"],
     category: "economy",
     subcategory: "Mercado",
     description: "Converte valores entre moedas de diferentes reinos: .taxadecambio <valor> <reino>",

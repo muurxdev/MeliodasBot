@@ -3,7 +3,7 @@
  */
 module.exports = {
     name: "comemorar",
-    aliases: [],
+    aliases: ["comemorar-cmd","cmd-comemorar"],
     category: "general",
     subcategory: "Interação",
     description: "Comemora uma vitória com fogos e festa: .comemorar",

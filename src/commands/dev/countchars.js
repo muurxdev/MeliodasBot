@@ -3,7 +3,7 @@
  */
 module.exports = {
     name: "countchars",
-    aliases: [],
+    aliases: ["countchars-cmd","cmd-countchars"],
     category: "dev",
     subcategory: "String",
     description: "Conta o número de caracteres com e sem espaços: .countchars <texto>",

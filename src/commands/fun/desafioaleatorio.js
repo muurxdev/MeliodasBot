@@ -3,7 +3,7 @@
  */
 module.exports = {
     name: "desafioaleatorio",
-    aliases: [],
+    aliases: ["desafioaleatorio-cmd","cmd-desafioaleatorio"],
     category: "fun",
     subcategory: "Social",
     description: "Lança um desafio relâmpago para agitar o chat: .desafioaleatorio",

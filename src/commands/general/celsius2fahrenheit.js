@@ -3,7 +3,7 @@
  */
 module.exports = {
     name: "celsius2fahrenheit",
-    aliases: [],
+    aliases: ["celsius2fahrenheit-cmd","cmd-celsius2fahrenheit"],
     category: "general",
     subcategory: "Conversão",
     description: "Converte Celsius para Fahrenheit: .celsius2fahrenheit 32",

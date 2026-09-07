@@ -3,7 +3,7 @@
  */
 module.exports = {
     name: "genpassstrong",
-    aliases: [],
+    aliases: ["genpassstrong-cmd","cmd-genpassstrong"],
     category: "dev",
     subcategory: "Segurança",
     description: "Gera senha forte aleatória: .genpassstrong [tamanho=16]",

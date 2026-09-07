@@ -3,7 +3,7 @@
  */
 module.exports = {
     name: "sanguecinzento",
-    aliases: [],
+    aliases: ["sanguecinzento-cmd","cmd-sanguecinzento"],
     category: "rpg",
     subcategory: "Mutação",
     description: "Examina as propriedades do Sangue de Demônio Cinza: .sanguecinzento",

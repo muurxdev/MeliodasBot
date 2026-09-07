@@ -3,7 +3,7 @@
  */
 module.exports = {
     name: "cladosdemonios",
-    aliases: [],
+    aliases: ["cladosdemonios-cmd","cmd-cladosdemonios"],
     category: "rpg",
     subcategory: "Lore",
     description: "História e hierarquia do Clã dos Demônios: .cladosdemonios",

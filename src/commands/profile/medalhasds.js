@@ -3,7 +3,7 @@
  */
 module.exports = {
     name: "medalhasds",
-    aliases: [],
+    aliases: ["medalhasds-cmd","cmd-medalhasds"],
     category: "profile",
     subcategory: "Conquistas",
     description: "Lista suas medalhas de bravura da Guerra Santa: .medalhasds",

@@ -3,7 +3,7 @@
  */
 module.exports = {
     name: "rimacontador",
-    aliases: [],
+    aliases: ["rimacontador-cmd","cmd-rimacontador"],
     category: "fun",
     subcategory: "Poesia",
     description: "Estima contagem de sílabas poéticas: .rimacontador <verso>",

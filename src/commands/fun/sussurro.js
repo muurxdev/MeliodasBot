@@ -3,7 +3,7 @@
  */
 module.exports = {
     name: "sussurro",
-    aliases: [],
+    aliases: ["sussurro-cmd","cmd-sussurro"],
     category: "fun",
     subcategory: "Texto",
     description: "Formata seu texto em estilo sussurrado: .sussurro <mensagem>",

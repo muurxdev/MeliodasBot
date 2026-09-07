@@ -5,7 +5,7 @@
 
 module.exports = {
     name: "tempestade11",
-    aliases: [],
+    aliases: ["temp11","temp-11"],
     category: "rpg",
     subcategory: "Cavaleiros Sagrados",
     description: "Ciclone perfurante de Howzer (11): .tempestade11",

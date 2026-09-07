@@ -3,7 +3,7 @@
  */
 module.exports = {
     name: "milhas2km",
-    aliases: [],
+    aliases: ["milhas2km-cmd","cmd-milhas2km"],
     category: "general",
     subcategory: "Conversão",
     description: "Converte Milhas para Quilômetros: .milhas2km 60",

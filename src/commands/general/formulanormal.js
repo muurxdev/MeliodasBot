@@ -3,7 +3,7 @@
  */
 module.exports = {
     name: "formulanormal",
-    aliases: [],
+    aliases: ["formulanormal-cmd","cmd-formulanormal"],
     category: "general",
     subcategory: "Física",
     description: "Calcula força normal em plano horizontal: .formulanormal <massa> [gravidade]",

@@ -3,7 +3,7 @@
  */
 module.exports = {
     name: "disasterpower",
-    aliases: [],
+    aliases: ["disasterpower-cmd","cmd-disasterpower"],
     category: "rpg",
     subcategory: "Magia",
     description: "Invoca a autoridade de Disaster sobre a natureza: .disasterpower",

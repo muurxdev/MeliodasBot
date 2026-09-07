@@ -3,7 +3,7 @@
  */
 module.exports = {
     name: "logaritmo",
-    aliases: [],
+    aliases: ["logaritmo-cmd","cmd-logaritmo"],
     category: "general",
     subcategory: "Matemática",
     description: "Calcula logaritmo: .logaritmo <número> [base=10]",

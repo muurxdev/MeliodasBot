@@ -3,7 +3,7 @@
  */
 module.exports = {
     name: "oracaodeusas",
-    aliases: [],
+    aliases: ["oracaodeusas-cmd","cmd-oracaodeusas"],
     category: "general",
     subcategory: "Roleplay",
     description: "Entoa uma prece por proteção celestial: .oracaodeusas",

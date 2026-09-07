@@ -3,7 +3,7 @@
  */
 module.exports = {
     name: "enviarcartareal",
-    aliases: [],
+    aliases: ["enviarcartareal-cmd","cmd-enviarcartareal"],
     category: "general",
     subcategory: "Social",
     description: "Envia uma carta selada com cera real para um destinatário: .enviarcartareal <mensagem>",

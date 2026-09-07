@@ -5,7 +5,7 @@
 
 module.exports = {
     name: "albion3",
-    aliases: [],
+    aliases: ["alb3","alb-3"],
     category: "rpg",
     subcategory: "Bestiário",
     description: "Golem gigante de cerco Albion (3): .albion3",

@@ -3,7 +3,7 @@
  */
 module.exports = {
     name: "ecoanimado",
-    aliases: [],
+    aliases: ["ecoanimado-cmd","cmd-ecoanimado"],
     category: "fun",
     subcategory: "Texto",
     description: "Faz um efeito de eco montanhoso com sua mensagem: .ecoanimado <palavra>",

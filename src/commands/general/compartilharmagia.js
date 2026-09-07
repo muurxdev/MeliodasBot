@@ -3,7 +3,7 @@
  */
 module.exports = {
     name: "compartilharmagia",
-    aliases: [],
+    aliases: ["compartilharmagia-cmd","cmd-compartilharmagia"],
     category: "general",
     subcategory: "Magia",
     description: "Transfere parte do seu mana para um aliado: .compartilharmagia [nome]",

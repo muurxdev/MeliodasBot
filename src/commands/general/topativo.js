@@ -3,7 +3,7 @@
  */
 module.exports = {
     name: "topativo",
-    aliases: [],
+    aliases: ["topativo-cmd","cmd-topativo"],
     category: "general",
     subcategory: "Ranking",
     description: "Exibe o mural de bravura e atividade do grupo: .topativo",

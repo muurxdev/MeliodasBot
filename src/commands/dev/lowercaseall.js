@@ -3,7 +3,7 @@
  */
 module.exports = {
     name: "lowercaseall",
-    aliases: [],
+    aliases: ["lowercaseall-cmd","cmd-lowercaseall"],
     category: "dev",
     subcategory: "String",
     description: "Converte todo o texto para minúsculas: .lowercaseall <texto>",

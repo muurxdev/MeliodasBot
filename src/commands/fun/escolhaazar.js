@@ -3,7 +3,7 @@
  */
 module.exports = {
     name: "escolhaazar",
-    aliases: [],
+    aliases: ["escolhaazar-cmd","cmd-escolhaazar"],
     category: "fun",
     subcategory: "Jogos",
     description: "Sorteia quem paga a conta ou cumpre a prenda no grupo: .escolhaazar",

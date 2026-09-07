@@ -3,7 +3,7 @@
  */
 module.exports = {
     name: "decifrechave",
-    aliases: [],
+    aliases: ["decifrechave-cmd","cmd-decifrechave"],
     category: "fun",
     subcategory: "Enigmas",
     description: "Enigma de lógica e dedução: .decifrechave",

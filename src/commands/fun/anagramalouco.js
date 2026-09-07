@@ -3,7 +3,7 @@
  */
 module.exports = {
     name: "anagramalouco",
-    aliases: [],
+    aliases: ["anagramalouco-cmd","cmd-anagramalouco"],
     category: "fun",
     subcategory: "Jogos",
     description: "Embaralha uma palavra para seus amigos decifrarem: .anagramalouco <palavra>",

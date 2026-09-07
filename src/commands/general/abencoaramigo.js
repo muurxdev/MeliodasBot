@@ -3,7 +3,7 @@
  */
 module.exports = {
     name: "abencoaramigo",
-    aliases: [],
+    aliases: ["abencoaramigo-cmd","cmd-abencoaramigo"],
     category: "general",
     subcategory: "Magia",
     description: "Lança uma bênção protetora sobre um amigo: .abencoaramigo [nome]",

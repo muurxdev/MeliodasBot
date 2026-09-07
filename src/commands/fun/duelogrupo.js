@@ -3,7 +3,7 @@
  */
 module.exports = {
     name: "duelogrupo",
-    aliases: [],
+    aliases: ["duelogrupo-cmd","cmd-duelogrupo"],
     category: "fun",
     subcategory: "Jogos",
     description: "Simula chaveamento de duelo de dois combatentes: .duelogrupo <nome1> <nome2>",

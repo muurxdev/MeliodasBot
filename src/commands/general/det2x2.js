@@ -3,7 +3,7 @@
  */
 module.exports = {
     name: "det2x2",
-    aliases: [],
+    aliases: ["det2x2-cmd","cmd-det2x2"],
     category: "general",
     subcategory: "Álgebra",
     description: "Determinante de matriz 2x2: .det2x2 a b c d",

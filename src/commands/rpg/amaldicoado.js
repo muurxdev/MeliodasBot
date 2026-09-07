@@ -3,7 +3,7 @@
  */
 module.exports = {
     name: "amaldicoado",
-    aliases: [],
+    aliases: ["amaldicoado-cmd","cmd-amaldicoado"],
     category: "rpg",
     subcategory: "Status",
     description: "Verifica a maldição eterna de reencarnação e imortalidade: .amaldicoado",

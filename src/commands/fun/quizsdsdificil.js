@@ -3,7 +3,7 @@
  */
 module.exports = {
     name: "quizsdsdificil",
-    aliases: [],
+    aliases: ["quizsdsdificil-cmd","cmd-quizsdsdificil"],
     category: "fun",
     subcategory: "Quiz SDS",
     description: "Pergunta nível experiente sobre a lore de Nanatsu no Taizai: .quizsdsdificil",

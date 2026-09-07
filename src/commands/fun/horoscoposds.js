@@ -3,7 +3,7 @@
  */
 module.exports = {
     name: "horoscoposds",
-    aliases: [],
+    aliases: ["horoscoposds-cmd","cmd-horoscoposds"],
     category: "fun",
     subcategory: "Horóscopo",
     description: "Descubra qual Pecado Capital rege o seu signo: .horoscoposds <signo>",

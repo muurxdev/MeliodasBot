@@ -3,7 +3,7 @@
  */
 module.exports = {
     name: "tesouronacional",
-    aliases: [],
+    aliases: ["tesouronacional-cmd","cmd-tesouronacional"],
     category: "economy",
     subcategory: "Status",
     description: "Consulta o cofre da reserva soberana de Britannia: .tesouronacional",

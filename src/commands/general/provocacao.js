@@ -3,7 +3,7 @@
  */
 module.exports = {
     name: "provocacao",
-    aliases: [],
+    aliases: ["provocacao-cmd","cmd-provocacao"],
     category: "general",
     subcategory: "Interação",
     description: "Manda uma provocação amigável para um rival: .provocacao [nome]",

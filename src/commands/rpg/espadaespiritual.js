@@ -3,7 +3,7 @@
  */
 module.exports = {
     name: "espadaespiritual",
-    aliases: [],
+    aliases: ["espadaespiritual-cmd","cmd-espadaespiritual"],
     category: "rpg",
     subcategory: "Armas",
     description: "Manifesta a Lâmina Sagrada de Excalibur de Arthur: .espadaespiritual",

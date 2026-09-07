@@ -3,7 +3,7 @@
  */
 module.exports = {
     name: "selaralianca",
-    aliases: [],
+    aliases: ["selaralianca-cmd","cmd-selaralianca"],
     category: "general",
     subcategory: "Social",
     description: "Sela uma aliança eterna entre dois clãs: .selaralianca [cla1] [cla2]",

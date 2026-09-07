@@ -3,7 +3,7 @@
  */
 module.exports = {
     name: "extratofinanceiro",
-    aliases: [],
+    aliases: ["extratofinanceiro-cmd","cmd-extratofinanceiro"],
     category: "economy",
     subcategory: "Banco",
     description: "Imprime extrato de movimentações financeiras recentes: .extratofinanceiro",

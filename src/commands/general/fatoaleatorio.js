@@ -3,7 +3,7 @@
  */
 module.exports = {
     name: "fatoaleatorio",
-    aliases: [],
+    aliases: ["fatoaleatorio-cmd","cmd-fatoaleatorio"],
     category: "general",
     subcategory: "Curiosidades",
     description: "Um fato científico verídico e aleatório: .fatoaleatorio",

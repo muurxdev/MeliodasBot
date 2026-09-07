@@ -3,7 +3,7 @@
  */
 module.exports = {
     name: "bin2dec",
-    aliases: [],
+    aliases: ["bin2dec-cmd","cmd-bin2dec"],
     category: "general",
     subcategory: "Conversão",
     description: "Converte binário para decimal: .bin2dec 10110",

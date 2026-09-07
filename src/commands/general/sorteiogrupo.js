@@ -3,7 +3,7 @@
  */
 module.exports = {
     name: "sorteiogrupo",
-    aliases: [],
+    aliases: ["sorteiogrupo-cmd","cmd-sorteiogrupo"],
     category: "general",
     subcategory: "Sorteio",
     description: "Sorteia um número da sorte de 1 a N: .sorteiogrupo [máximo=100]",

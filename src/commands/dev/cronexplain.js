@@ -3,7 +3,7 @@
  */
 module.exports = {
     name: "cronexplain",
-    aliases: [],
+    aliases: ["cronexplain-cmd","cmd-cronexplain"],
     category: "dev",
     subcategory: "Dev",
     description: "Explica os 5 campos de uma expressão Cron: .cronexplain <min> <hr> <dia> <mes> <semana>",

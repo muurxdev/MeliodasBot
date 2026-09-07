@@ -3,7 +3,7 @@
  */
 module.exports = {
     name: "dartapa",
-    aliases: [],
+    aliases: ["dartapa-cmd","cmd-dartapa"],
     category: "general",
     subcategory: "Interação",
     description: "Dá um tapa cômico de advertência em alguém: .dartapa [nome]",

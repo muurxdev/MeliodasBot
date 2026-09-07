@@ -3,7 +3,7 @@
  */
 module.exports = {
     name: "termofake",
-    aliases: [],
+    aliases: ["termofake-cmd","cmd-termofake"],
     category: "fun",
     subcategory: "Jogos",
     description: "Desafio de adivinhação da palavra secreta: .termofake <palavra>",

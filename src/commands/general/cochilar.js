@@ -3,7 +3,7 @@
  */
 module.exports = {
     name: "cochilar",
-    aliases: [],
+    aliases: ["cochilar-cmd","cmd-cochilar"],
     category: "general",
     subcategory: "Descanso",
     description: "Tira um cochilo no travesseiro de King (Chastiefol): .cochilar",

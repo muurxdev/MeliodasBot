@@ -5,7 +5,7 @@
 
 module.exports = {
     name: "explosao8",
-    aliases: [],
+    aliases: ["expl8","expl-8"],
     category: "rpg",
     subcategory: "Cavaleiros Sagrados",
     description: "Detonação em cadeia de Guila (8): .explosao8",

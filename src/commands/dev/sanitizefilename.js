@@ -3,7 +3,7 @@
  */
 module.exports = {
     name: "sanitizefilename",
-    aliases: [],
+    aliases: ["sanitizefilename-cmd","cmd-sanitizefilename"],
     category: "dev",
     subcategory: "Dev",
     description: "Sanitiza string para nome de arquivo seguro: .sanitizefilename <nome>",

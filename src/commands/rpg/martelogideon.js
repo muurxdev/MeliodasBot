@@ -3,7 +3,7 @@
  */
 module.exports = {
     name: "martelogideon",
-    aliases: [],
+    aliases: ["martelogideon-cmd","cmd-martelogideon"],
     category: "rpg",
     subcategory: "Lore",
     description: "História do Martelo Gigante Gideon de Diane: .martelogideon",

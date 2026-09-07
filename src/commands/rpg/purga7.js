@@ -5,7 +5,7 @@
 
 module.exports = {
     name: "purga7",
-    aliases: [],
+    aliases: ["purge7","purge-7"],
     category: "rpg",
     subcategory: "Magia Demoníaca",
     description: "Expurgo de energia sombria (7): .purga7",

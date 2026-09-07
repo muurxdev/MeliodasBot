@@ -3,7 +3,7 @@
  */
 module.exports = {
     name: "purificacao",
-    aliases: [],
+    aliases: ["purificacao-cmd","cmd-purificacao"],
     category: "rpg",
     subcategory: "Cura",
     description: "Conjura feitiço druídico de purificação: .purificacao",

@@ -3,7 +3,7 @@
  */
 module.exports = {
     name: "adagarit",
-    aliases: [],
+    aliases: ["adagarit-cmd","cmd-adagarit"],
     category: "rpg",
     subcategory: "Armas",
     description: "Lança a Adaga Rápida de Hendrickson: .adagarit",

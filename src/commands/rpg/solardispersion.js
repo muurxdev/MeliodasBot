@@ -3,7 +3,7 @@
  */
 module.exports = {
     name: "solardispersion",
-    aliases: [],
+    aliases: ["solardispersion-cmd","cmd-solardispersion"],
     category: "rpg",
     subcategory: "Combate",
     description: "Conjura explosão Cruel Sun do Sol Escaniano: .solardispersion",

@@ -3,7 +3,7 @@
  */
 module.exports = {
     name: "lealdadesds",
-    aliases: [],
+    aliases: ["lealdadesds-cmd","cmd-lealdadesds"],
     category: "profile",
     subcategory: "Status",
     description: "Verifica seu voto de lealdade ao capitão Meliodas: .lealdadesds",

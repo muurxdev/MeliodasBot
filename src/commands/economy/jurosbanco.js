@@ -3,7 +3,7 @@
  */
 module.exports = {
     name: "jurosbanco",
-    aliases: [],
+    aliases: ["jurosbanco-cmd","cmd-jurosbanco"],
     category: "economy",
     subcategory: "Banco",
     description: "Calcula o rendimento acumulado da sua poupança: .jurosbanco <saldo> <meses>",

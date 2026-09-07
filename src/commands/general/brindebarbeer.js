@@ -3,7 +3,7 @@
  */
 module.exports = {
     name: "brindebarbeer",
-    aliases: [],
+    aliases: ["brindebarbeer-cmd","cmd-brindebarbeer"],
     category: "general",
     subcategory: "Taverna",
     description: "Faz um brinde com todos no Boar Hat: .brindebarbeer",

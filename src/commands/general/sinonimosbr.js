@@ -3,7 +3,7 @@
  */
 module.exports = {
     name: "sinonimosbr",
-    aliases: [],
+    aliases: ["sinonimosbr-cmd","cmd-sinonimosbr"],
     category: "general",
     subcategory: "Língua Portuguesa",
     description: "Sugere sinônimos úteis para uma palavra: .sinonimosbr <palavra>",

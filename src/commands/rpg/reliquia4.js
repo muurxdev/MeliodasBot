@@ -5,7 +5,7 @@
 
 module.exports = {
     name: "reliquia4",
-    aliases: [],
+    aliases: ["reliq4","reliq-4"],
     category: "rpg",
     subcategory: "Relíquias Sagradas",
     description: "Inspeção de artefato lendário de Britannia (4): .reliquia4",

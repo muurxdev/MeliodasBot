@@ -3,7 +3,7 @@
  */
 module.exports = {
     name: "rgbpreview",
-    aliases: [],
+    aliases: ["rgbpreview-cmd","cmd-rgbpreview"],
     category: "dev",
     subcategory: "Cores",
     description: "Mostra esquema de cor CSS formatado: .rgbpreview <r> <g> <b>",

@@ -3,7 +3,7 @@
  */
 module.exports = {
     name: "quizbiblico",
-    aliases: [],
+    aliases: ["quizbiblico-cmd","cmd-quizbiblico"],
     category: "fun",
     subcategory: "Quiz",
     description: "Pergunta sobre passagens e figuras bíblicas: .quizbiblico",

@@ -3,7 +3,7 @@
  */
 module.exports = {
     name: "jogodoserros",
-    aliases: [],
+    aliases: ["jogodoserros-cmd","cmd-jogodoserros"],
     category: "fun",
     subcategory: "Jogos",
     description: "Encontre o caractere diferente na matriz: .jogodoserros",

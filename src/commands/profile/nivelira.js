@@ -3,7 +3,7 @@
  */
 module.exports = {
     name: "nivelira",
-    aliases: [],
+    aliases: ["nivelira-cmd","cmd-nivelira"],
     category: "profile",
     subcategory: "Status",
     description: "Mede o nível de fúria interior do Dragão: .nivelira",

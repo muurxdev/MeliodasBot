@@ -3,7 +3,7 @@
  */
 module.exports = {
     name: "encantamentosagrado",
-    aliases: [],
+    aliases: ["encantamentosagrado-cmd","cmd-encantamentosagrado"],
     category: "rpg",
     subcategory: "Magia",
     description: "Entoa um encantamento de proteção de Britannia: .encantamentosagrado",

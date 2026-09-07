@@ -3,7 +3,7 @@
  */
 module.exports = {
     name: "uppercaseall",
-    aliases: [],
+    aliases: ["uppercaseall-cmd","cmd-uppercaseall"],
     category: "dev",
     subcategory: "String",
     description: "Converte todo o texto para MAIÚSCULAS: .uppercaseall <texto>",

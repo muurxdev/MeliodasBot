@@ -3,7 +3,7 @@
  */
 module.exports = {
     name: "pedrapapelreino",
-    aliases: [],
+    aliases: ["pedrapapelreino-cmd","cmd-pedrapapelreino"],
     category: "fun",
     subcategory: "Jogos",
     description: "Pedra, Papel e Tesoura temático: .pedrapapelreino <espada/escudo/magia>",

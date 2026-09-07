@@ -3,7 +3,7 @@
  */
 module.exports = {
     name: "horoscopodia",
-    aliases: [],
+    aliases: ["horoscopodia-cmd","cmd-horoscopodia"],
     category: "fun",
     subcategory: "Horóscopo",
     description: "Previsão astrológica para o seu dia: .horoscopodia",

@@ -3,7 +3,7 @@
  */
 module.exports = {
     name: "invocacaocoop",
-    aliases: [],
+    aliases: ["invocacaocoop-cmd","cmd-invocacaocoop"],
     category: "general",
     subcategory: "Magia",
     description: "Conjura um círculo mágico cooperativo de dois magos: .invocacaocoop",

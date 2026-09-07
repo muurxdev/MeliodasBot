@@ -3,7 +3,7 @@
  */
 module.exports = {
     name: "fundirouro",
-    aliases: [],
+    aliases: ["fundirouro-cmd","cmd-fundirouro"],
     category: "economy",
     subcategory: "Forja",
     description: "Funde pepitas de ouro em barras puras: .fundirouro",

@@ -3,7 +3,7 @@
  */
 module.exports = {
     name: "cotacaomagic",
-    aliases: [],
+    aliases: ["cotacaomagic-cmd","cmd-cotacaomagic"],
     category: "economy",
     subcategory: "Mercado",
     description: "Consulta a cotação das moedas mágicas de Britannia: .cotacaomagic",

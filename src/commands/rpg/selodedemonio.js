@@ -3,7 +3,7 @@
  */
 module.exports = {
     name: "selodedemonio",
-    aliases: [],
+    aliases: ["selodedemonio-cmd","cmd-selodedemonio"],
     category: "rpg",
     subcategory: "Lore",
     description: "História do Caixão das Trevas Eternas: .selodedemonio",

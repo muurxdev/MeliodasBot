@@ -3,7 +3,7 @@
  */
 module.exports = {
     name: "colorrgb2hsl",
-    aliases: [],
+    aliases: ["colorrgb2hsl-cmd","cmd-colorrgb2hsl"],
     category: "dev",
     subcategory: "Cores",
     description: "Converte cor RGB para HSL: .colorrgb2hsl 255 0 0",

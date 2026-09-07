@@ -3,7 +3,7 @@
  */
 module.exports = {
     name: "arvoreceleste",
-    aliases: [],
+    aliases: ["arvoreceleste-cmd","cmd-arvoreceleste"],
     category: "rpg",
     subcategory: "Lore",
     description: "Consulta a árvore sagrada do mundo celestial: .arvoreceleste",

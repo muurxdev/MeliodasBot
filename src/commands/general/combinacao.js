@@ -3,7 +3,7 @@
  */
 module.exports = {
     name: "combinacao",
-    aliases: [],
+    aliases: ["combinacao-cmd","cmd-combinacao"],
     category: "general",
     subcategory: "Combinatória",
     description: "Calcula combinação simples C(n, k): .combinacao <n> <k>",

@@ -3,7 +3,7 @@
  */
 module.exports = {
     name: "snatchpower",
-    aliases: [],
+    aliases: ["snatchpower-cmd","cmd-snatchpower"],
     category: "rpg",
     subcategory: "Combate",
     description: "Usa Snatch para roubar atributos do oponente: .snatchpower",

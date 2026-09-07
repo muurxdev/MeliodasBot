@@ -3,7 +3,7 @@
  */
 module.exports = {
     name: "permutacao",
-    aliases: [],
+    aliases: ["permutacao-cmd","cmd-permutacao"],
     category: "general",
     subcategory: "Combinatória",
     description: "Calcula permutação simples P(n) = n!: .permutacao <n>",

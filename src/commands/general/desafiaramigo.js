@@ -3,7 +3,7 @@
  */
 module.exports = {
     name: "desafiaramigo",
-    aliases: [],
+    aliases: ["desafiaramigo-cmd","cmd-desafiaramigo"],
     category: "general",
     subcategory: "Combate",
     description: "Lança uma luva de desafio amigável a outro guerreiro: .desafiaramigo [nome]",

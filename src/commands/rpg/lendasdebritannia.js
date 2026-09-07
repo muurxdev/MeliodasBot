@@ -3,7 +3,7 @@
  */
 module.exports = {
     name: "lendasdebritannia",
-    aliases: [],
+    aliases: ["lendasdebritannia-cmd","cmd-lendasdebritannia"],
     category: "rpg",
     subcategory: "Crônicas",
     description: "Narra a grande crônica da Guerra Santa e o destino de Britannia: .lendasdebritannia",

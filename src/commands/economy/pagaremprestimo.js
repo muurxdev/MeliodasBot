@@ -3,7 +3,7 @@
  */
 module.exports = {
     name: "pagaremprestimo",
-    aliases: [],
+    aliases: ["pagaremprestimo-cmd","cmd-pagaremprestimo"],
     category: "economy",
     subcategory: "Banco",
     description: "Quita parcelas da sua dívida real: .pagaremprestimo <valor>",

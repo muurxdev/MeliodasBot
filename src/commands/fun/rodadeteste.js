@@ -3,7 +3,7 @@
  */
 module.exports = {
     name: "rodadeteste",
-    aliases: [],
+    aliases: ["rodadeteste-cmd","cmd-rodadeteste"],
     category: "fun",
     subcategory: "Brincadeiras",
     description: "Testa a afinidade com um membro ou crush: .rodadeteste [nome]",

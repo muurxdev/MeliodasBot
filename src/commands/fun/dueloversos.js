@@ -3,7 +3,7 @@
  */
 module.exports = {
     name: "dueloversos",
-    aliases: [],
+    aliases: ["dueloversos-cmd","cmd-dueloversos"],
     category: "fun",
     subcategory: "Humor",
     description: "Duelo de rimas entre os clientes do Boar Hat: .dueloversos",

@@ -3,7 +3,7 @@
  */
 module.exports = {
     name: "countwords",
-    aliases: [],
+    aliases: ["countwords-cmd","cmd-countwords"],
     category: "dev",
     subcategory: "String",
     description: "Conta palavras de um texto: .countwords <texto>",

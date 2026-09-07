@@ -3,7 +3,7 @@
  */
 module.exports = {
     name: "reinoaluguelinfo",
-    aliases: [],
+    aliases: ["reinoaluguelinfo-cmd","cmd-reinoaluguelinfo"],
     category: "general",
     subcategory: "Aluguel",
     description: "Tabela de vantagens e planos para alugar o Meliodas Bot para seu grupo: .reinoaluguelinfo",

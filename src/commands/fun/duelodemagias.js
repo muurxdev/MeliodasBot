@@ -3,7 +3,7 @@
  */
 module.exports = {
     name: "duelodemagias",
-    aliases: [],
+    aliases: ["duelodemagias-cmd","cmd-duelodemagias"],
     category: "fun",
     subcategory: "Jogos",
     description: "Disputa mágica rápida entre dois feitiços: .duelodemagias",

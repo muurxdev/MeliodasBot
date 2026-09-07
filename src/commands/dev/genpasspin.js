@@ -3,7 +3,7 @@
  */
 module.exports = {
     name: "genpasspin",
-    aliases: [],
+    aliases: ["genpasspin-cmd","cmd-genpasspin"],
     category: "dev",
     subcategory: "Segurança",
     description: "Gera PIN numérico seguro: .genpasspin [digitos=6]",

@@ -3,7 +3,7 @@
  */
 module.exports = {
     name: "aplaudir",
-    aliases: [],
+    aliases: ["aplaudir-cmd","cmd-aplaudir"],
     category: "general",
     subcategory: "Interação",
     description: "Aplaude a jogada ou resposta de alguém: .aplaudir [nome]",

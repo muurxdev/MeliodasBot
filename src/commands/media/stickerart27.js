@@ -5,7 +5,7 @@
 
 module.exports = {
     name: "stickerart27",
-    aliases: [],
+    aliases: ["stic27","stic-27"],
     category: "media",
     subcategory: "Figurinhas & Edição",
     description: "Criação e edição gráfica de figurinhas #27: .stickerart27",

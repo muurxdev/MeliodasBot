@@ -3,7 +3,7 @@
  */
 module.exports = {
     name: "sabedoriaking",
-    aliases: [],
+    aliases: ["sabedoriaking-cmd","cmd-sabedoriaking"],
     category: "fun",
     subcategory: "Lore SDS",
     description: "Palavras de sabedoria do Rei das Fadas: .sabedoriaking",

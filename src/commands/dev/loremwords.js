@@ -3,7 +3,7 @@
  */
 module.exports = {
     name: "loremwords",
-    aliases: [],
+    aliases: ["loremwords-cmd","cmd-loremwords"],
     category: "dev",
     subcategory: "Dev",
     description: "Gera N palavras de texto de preenchimento: .loremwords [qtd=10]",

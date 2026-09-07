@@ -3,7 +3,7 @@
  */
 module.exports = {
     name: "validadorcnpj",
-    aliases: [],
+    aliases: ["validadorcnpj-cmd","cmd-validadorcnpj"],
     category: "dev",
     subcategory: "Validação",
     description: "Valida os dígitos verificadores de um CNPJ: .validadorcnpj <cnpj>",

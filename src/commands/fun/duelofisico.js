@@ -3,7 +3,7 @@
  */
 module.exports = {
     name: "duelofisico",
-    aliases: [],
+    aliases: ["duelofisico-cmd","cmd-duelofisico"],
     category: "fun",
     subcategory: "Jogos",
     description: "Simula queda de braço épica como Meliodas vs Ban: .duelofisico",

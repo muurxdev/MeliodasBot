@@ -3,7 +3,7 @@
  */
 module.exports = {
     name: "muralrecados",
-    aliases: [],
+    aliases: ["muralrecados-cmd","cmd-muralrecados"],
     category: "general",
     subcategory: "Grupo",
     description: "Consulta o mural de avisos da taverna: .muralrecados",

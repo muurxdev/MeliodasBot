@@ -3,7 +3,7 @@
  */
 module.exports = {
     name: "mandamentorepouso",
-    aliases: [],
+    aliases: ["mandamentorepouso-cmd","cmd-mandamentorepouso"],
     category: "rpg",
     subcategory: "Mandamentos",
     description: "Testa o Mandamento do Repouso (Gloxinia): .mandamentorepouso",

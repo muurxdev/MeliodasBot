@@ -3,7 +3,7 @@
  */
 module.exports = {
     name: "raizcubica",
-    aliases: [],
+    aliases: ["raizcubica-cmd","cmd-raizcubica"],
     category: "general",
     subcategory: "Matemática",
     description: "Calcula raiz cúbica: .raizcubica <n>",

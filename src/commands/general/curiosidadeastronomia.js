@@ -3,7 +3,7 @@
  */
 module.exports = {
     name: "curiosidadeastronomia",
-    aliases: [],
+    aliases: ["curiosidadeastronomia-cmd","cmd-curiosidadeastronomia"],
     category: "general",
     subcategory: "Curiosidades",
     description: "Fato surpreendente sobre o universo e os astros: .curiosidadeastronomia",

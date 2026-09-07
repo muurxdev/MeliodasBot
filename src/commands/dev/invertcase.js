@@ -3,7 +3,7 @@
  */
 module.exports = {
     name: "invertcase",
-    aliases: [],
+    aliases: ["invertcase-cmd","cmd-invertcase"],
     category: "dev",
     subcategory: "String",
     description: "Inverte as maiúsculas e minúsculas: .invertcase <texto>",

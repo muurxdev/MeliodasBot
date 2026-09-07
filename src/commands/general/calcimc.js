@@ -3,7 +3,7 @@
  */
 module.exports = {
     name: "calcimc",
-    aliases: [],
+    aliases: ["calcimc-cmd","cmd-calcimc"],
     category: "general",
     subcategory: "Saúde",
     description: "Calcula o Índice de Massa Corporal: .calcimc <peso> <altura>",

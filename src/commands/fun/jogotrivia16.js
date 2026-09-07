@@ -5,7 +5,7 @@
 
 module.exports = {
     name: "jogotrivia16",
-    aliases: [],
+    aliases: ["jogo16","jogo-16"],
     category: "fun",
     subcategory: "Jogos & Quizzes",
     description: "Quiz e minigame interativo para o grupo #16: .jogotrivia16",

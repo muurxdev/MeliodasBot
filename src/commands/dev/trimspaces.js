@@ -3,7 +3,7 @@
  */
 module.exports = {
     name: "trimspaces",
-    aliases: [],
+    aliases: ["trimspaces-cmd","cmd-trimspaces"],
     category: "dev",
     subcategory: "String",
     description: "Remove espaços excessivos e duplos: .trimspaces <texto>",

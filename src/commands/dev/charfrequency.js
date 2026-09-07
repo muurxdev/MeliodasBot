@@ -3,7 +3,7 @@
  */
 module.exports = {
     name: "charfrequency",
-    aliases: [],
+    aliases: ["charfrequency-cmd","cmd-charfrequency"],
     category: "dev",
     subcategory: "String",
     description: "Conta frequência de cada caractere: .charfrequency <texto>",

@@ -3,7 +3,7 @@
  */
 module.exports = {
     name: "regrasgrupo",
-    aliases: [],
+    aliases: ["regrasgrupo-cmd","cmd-regrasgrupo"],
     category: "admin",
     subcategory: "Regras",
     description: "Exibe o painel de regras solenes da guilda: .regrasgrupo",

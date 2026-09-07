@@ -3,7 +3,7 @@
  */
 module.exports = {
     name: "calorias",
-    aliases: [],
+    aliases: ["calorias-cmd","cmd-calorias"],
     category: "general",
     subcategory: "Saúde",
     description: "Estimativa de Taxa Metabólica Basal: .calorias <peso> <altura_cm> <idade> <m/f>",

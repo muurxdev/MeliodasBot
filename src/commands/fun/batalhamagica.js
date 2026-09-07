@@ -3,7 +3,7 @@
  */
 module.exports = {
     name: "batalhamagica",
-    aliases: [],
+    aliases: ["batalhamagica-cmd","cmd-batalhamagica"],
     category: "fun",
     subcategory: "Jogos",
     description: "Simula duelo de magias aleatórias: .batalhamagica [oponente]",

@@ -3,7 +3,7 @@
  */
 module.exports = {
     name: "galoes2litros",
-    aliases: [],
+    aliases: ["galoes2litros-cmd","cmd-galoes2litros"],
     category: "general",
     subcategory: "Conversão",
     description: "Converte Galões (EUA) para Litros: .galoes2litros 5",

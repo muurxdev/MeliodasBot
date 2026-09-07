@@ -3,7 +3,7 @@
  */
 module.exports = {
     name: "numerodasorte",
-    aliases: [],
+    aliases: ["numerodasorte-cmd","cmd-numerodasorte"],
     category: "fun",
     subcategory: "Sorte",
     description: "Gera seus 6 números da sorte para apostas e jogos: .numerodasorte",

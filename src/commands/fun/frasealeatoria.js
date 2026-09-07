@@ -3,7 +3,7 @@
  */
 module.exports = {
     name: "frasealeatoria",
-    aliases: [],
+    aliases: ["frasealeatoria-cmd","cmd-frasealeatoria"],
     category: "fun",
     subcategory: "Frases",
     description: "Gera uma frase motivacional épica: .frasealeatoria",

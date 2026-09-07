@@ -3,7 +3,7 @@
  */
 module.exports = {
     name: "assustar",
-    aliases: [],
+    aliases: ["assustar-cmd","cmd-assustar"],
     category: "general",
     subcategory: "Interação",
     description: "Pula por trás de alguém para dar um susto: .assustar [nome]",

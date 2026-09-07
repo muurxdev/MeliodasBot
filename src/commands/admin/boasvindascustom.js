@@ -3,7 +3,7 @@
  */
 module.exports = {
     name: "boasvindascustom",
-    aliases: [],
+    aliases: ["boasvindascustom-cmd","cmd-boasvindascustom"],
     category: "admin",
     subcategory: "Boas-vindas",
     description: "Modelo de boas-vindas solenes para novos recrutas: .boasvindascustom",

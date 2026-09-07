@@ -3,7 +3,7 @@
  */
 module.exports = {
     name: "antonimosbr",
-    aliases: [],
+    aliases: ["antonimosbr-cmd","cmd-antonimosbr"],
     category: "general",
     subcategory: "Língua Portuguesa",
     description: "Sugere antônimos e termos opostos: .antonimosbr <palavra>",

@@ -3,7 +3,7 @@
  */
 module.exports = {
     name: "date2timestamp",
-    aliases: [],
+    aliases: ["date2timestamp-cmd","cmd-date2timestamp"],
     category: "dev",
     subcategory: "Data",
     description: "Gera timestamp unix da data atual ou especificada: .date2timestamp [YYYY-MM-DD]",

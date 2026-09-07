@@ -3,7 +3,7 @@
  */
 module.exports = {
     name: "reidocaos",
-    aliases: [],
+    aliases: ["reidocaos-cmd","cmd-reidocaos"],
     category: "rpg",
     subcategory: "Caos",
     description: "Desperta a profecia do Rei do Caos e o poder de Arthur Pendragon: .reidocaos",

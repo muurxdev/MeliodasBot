@@ -3,7 +3,7 @@
  */
 module.exports = {
     name: "medidavolume",
-    aliases: [],
+    aliases: ["medidavolume-cmd","cmd-medidavolume"],
     category: "general",
     subcategory: "Conversão",
     description: "Converte Litros para Mililitros e Metros Cúbicos: .medidavolume <litros>",

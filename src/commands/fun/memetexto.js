@@ -3,7 +3,7 @@
  */
 module.exports = {
     name: "memetexto",
-    aliases: [],
+    aliases: ["memetexto-cmd","cmd-memetexto"],
     category: "fun",
     subcategory: "Humor",
     description: "Gera um meme em formato de texto copypasta: .memetexto",

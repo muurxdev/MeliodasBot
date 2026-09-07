@@ -5,7 +5,7 @@
 
 module.exports = {
     name: "escuridao10",
-    aliases: [],
+    aliases: ["escur10","escur-10"],
     category: "rpg",
     subcategory: "Magia Demoníaca",
     description: "Manipulação de matéria escura pura (10): .escuridao10",

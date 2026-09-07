@@ -3,7 +3,7 @@
  */
 module.exports = {
     name: "citacaosds",
-    aliases: [],
+    aliases: ["citacaosds-cmd","cmd-citacaosds"],
     category: "fun",
     subcategory: "Lore SDS",
     description: "Citação marcante de um dos personagens de Nanatsu: .citacaosds",

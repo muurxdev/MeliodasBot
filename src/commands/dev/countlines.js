@@ -3,7 +3,7 @@
  */
 module.exports = {
     name: "countlines",
-    aliases: [],
+    aliases: ["countlines-cmd","cmd-countlines"],
     category: "dev",
     subcategory: "String",
     description: "Conta quantas linhas tem um texto: .countlines <texto>",

@@ -3,7 +3,7 @@
  */
 module.exports = {
     name: "rimamagica",
-    aliases: [],
+    aliases: ["rimamagica-cmd","cmd-rimamagica"],
     category: "fun",
     subcategory: "Humor",
     description: "Gera uma rima improvisada com uma palavra: .rimamagica <palavra>",

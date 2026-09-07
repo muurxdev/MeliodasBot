@@ -5,7 +5,7 @@
 
 module.exports = {
     name: "purgatorio2",
-    aliases: [],
+    aliases: ["purg2","purg-2"],
     category: "rpg",
     subcategory: "Purgatório",
     description: "Sobrevivência nas condições extremas do Purgatório (2): .purgatorio2",

@@ -3,7 +3,7 @@
  */
 module.exports = {
     name: "inflacao",
-    aliases: [],
+    aliases: ["inflacao-cmd","cmd-inflacao"],
     category: "general",
     subcategory: "Finanças",
     description: "Projeção de valor com inflação acumulada: .inflacao <valor> <taxa_anual%> <anos>",

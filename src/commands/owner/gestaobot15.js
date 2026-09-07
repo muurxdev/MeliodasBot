@@ -5,7 +5,7 @@
 
 module.exports = {
     name: "gestaobot15",
-    aliases: [],
+    aliases: ["gbot15","gbot-15"],
     category: "owner",
     subcategory: "Donos & Aluguel",
     description: "Controle operacional e gestão de subdonos #15: .gestaobot15",

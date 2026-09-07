@@ -3,7 +3,7 @@
  */
 module.exports = {
     name: "extractnumbers",
-    aliases: [],
+    aliases: ["extractnumbers-cmd","cmd-extractnumbers"],
     category: "dev",
     subcategory: "Regex",
     description: "Extrai todos os números de um texto: .extractnumbers <texto>",

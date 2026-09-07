@@ -3,7 +3,7 @@
  */
 module.exports = {
     name: "matriztransposta",
-    aliases: [],
+    aliases: ["matriztransposta-cmd","cmd-matriztransposta"],
     category: "general",
     subcategory: "Álgebra",
     description: "Transpõe matriz 2x2: .matriztransposta a b c d",

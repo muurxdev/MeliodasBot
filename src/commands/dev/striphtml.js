@@ -3,7 +3,7 @@
  */
 module.exports = {
     name: "striphtml",
-    aliases: [],
+    aliases: ["striphtml-cmd","cmd-striphtml"],
     category: "dev",
     subcategory: "String",
     description: "Remove tags HTML de um texto: .striphtml <tags>",

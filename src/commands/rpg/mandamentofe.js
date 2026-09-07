@@ -3,7 +3,7 @@
  */
 module.exports = {
     name: "mandamentofe",
-    aliases: [],
+    aliases: ["mandamentofe-cmd","cmd-mandamentofe"],
     category: "rpg",
     subcategory: "Mandamentos",
     description: "Testa o Mandamento da Fé (Melascula): .mandamentofe",

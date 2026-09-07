@@ -3,7 +3,7 @@
  */
 module.exports = {
     name: "testeafinidade",
-    aliases: [],
+    aliases: ["testeafinidade-cmd","cmd-testeafinidade"],
     category: "general",
     subcategory: "Social",
     description: "Calcula sintonia mística com outro usuário: .testeafinidade [nome]",

@@ -3,7 +3,7 @@
  */
 module.exports = {
     name: "jwtinspect",
-    aliases: [],
+    aliases: ["jwtinspect-cmd","cmd-jwtinspect"],
     category: "dev",
     subcategory: "Dev",
     description: "Inspeciona cabeçalho e payload de um token JWT: .jwtinspect <token>",

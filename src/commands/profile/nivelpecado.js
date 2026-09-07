@@ -3,7 +3,7 @@
  */
 module.exports = {
     name: "nivelpecado",
-    aliases: [],
+    aliases: ["nivelpecado-cmd","cmd-nivelpecado"],
     category: "profile",
     subcategory: "Status",
     description: "Mede o peso dos pecados cometidos no reino: .nivelpecado",

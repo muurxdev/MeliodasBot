@@ -5,7 +5,7 @@
 
 module.exports = {
     name: "extraplus19",
-    aliases: [],
+    aliases: ["extr19","extr-19"],
     category: "adicional",
     subcategory: "Adicionais & Especiais",
     description: "Recurso adicional e funcionalidade estendida #19: .extraplus19",

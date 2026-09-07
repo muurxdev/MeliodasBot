@@ -3,7 +3,7 @@
  */
 module.exports = {
     name: "rankherois",
-    aliases: [],
+    aliases: ["rankherois-cmd","cmd-rankherois"],
     category: "fun",
     subcategory: "Status",
     description: "Classificação fictícia dos guerreiros mais valentes: .rankherois",

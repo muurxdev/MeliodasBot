@@ -3,7 +3,7 @@
  */
 module.exports = {
     name: "camelcase",
-    aliases: [],
+    aliases: ["camelcase-cmd","cmd-camelcase"],
     category: "dev",
     subcategory: "String",
     description: "Converte texto para camelCase: .camelcase <texto>",

@@ -5,7 +5,7 @@
 
 module.exports = {
     name: "chastiefol10",
-    aliases: [],
+    aliases: ["chasti10","chasti-10"],
     category: "rpg",
     subcategory: "Tesouros Sagrados",
     description: "Ativação da Lança Espiritual Chastiefol (10): .chastiefol10",

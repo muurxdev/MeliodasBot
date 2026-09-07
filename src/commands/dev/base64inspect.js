@@ -3,7 +3,7 @@
  */
 module.exports = {
     name: "base64inspect",
-    aliases: [],
+    aliases: ["base64inspect-cmd","cmd-base64inspect"],
     category: "dev",
     subcategory: "Dev",
     description: "Verifica tamanho em bytes de string Base64: .base64inspect <b64>",

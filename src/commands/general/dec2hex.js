@@ -3,7 +3,7 @@
  */
 module.exports = {
     name: "dec2hex",
-    aliases: [],
+    aliases: ["dec2hex-cmd","cmd-dec2hex"],
     category: "general",
     subcategory: "Conversão",
     description: "Converte decimal para hexadecimal: .dec2hex 255",

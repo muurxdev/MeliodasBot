@@ -3,7 +3,7 @@
  */
 module.exports = {
     name: "quizsdsfacil",
-    aliases: [],
+    aliases: ["quizsdsfacil-cmd","cmd-quizsdsfacil"],
     category: "fun",
     subcategory: "Quiz SDS",
     description: "Pergunta nível fácil sobre Os Sete Pecados Capitais: .quizsdsfacil",

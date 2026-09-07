@@ -3,7 +3,7 @@
  */
 module.exports = {
     name: "despesas",
-    aliases: [],
+    aliases: ["despesas-cmd","cmd-despesas"],
     category: "general",
     subcategory: "Finanças",
     description: "Soma uma lista de despesas: .despesas 15.50 30 120 4.90",

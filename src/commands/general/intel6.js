@@ -5,7 +5,7 @@
 
 module.exports = {
     name: "intel6",
-    aliases: [],
+    aliases: ["inte6","inte-6"],
     category: "general",
     subcategory: "IA & Pesquisa",
     description: "Módulo de inteligência e pesquisa automatizada #6: .intel6",

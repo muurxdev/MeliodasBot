@@ -3,7 +3,7 @@
  */
 module.exports = {
     name: "genlorem",
-    aliases: [],
+    aliases: ["genlorem-cmd","cmd-genlorem"],
     category: "dev",
     subcategory: "Dev",
     description: "Gera parágrafo Lorem Ipsum para testes: .genlorem",

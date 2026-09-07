@@ -3,7 +3,7 @@
  */
 module.exports = {
     name: "nivelamizade",
-    aliases: [],
+    aliases: ["nivelamizade-cmd","cmd-nivelamizade"],
     category: "profile",
     subcategory: "Social",
     description: "Consulta o nível de amizade com a tripulação do Boar Hat: .nivelamizade",

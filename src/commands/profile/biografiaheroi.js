@@ -3,7 +3,7 @@
  */
 module.exports = {
     name: "biografiaheroi",
-    aliases: [],
+    aliases: ["biografiaheroi-cmd","cmd-biografiaheroi"],
     category: "profile",
     subcategory: "Perfil",
     description: "Define ou consulta a biografia do seu herói: .biografiaheroi [texto]",

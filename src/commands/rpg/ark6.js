@@ -5,7 +5,7 @@
 
 module.exports = {
     name: "ark6",
-    aliases: [],
+    aliases: ["holyark6","holyark-6"],
     category: "rpg",
     subcategory: "Magia das Deusas",
     description: "Lança partículas purificadoras de Ark (6): .ark6",

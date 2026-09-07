@@ -3,7 +3,7 @@
  */
 module.exports = {
     name: "simounao",
-    aliases: [],
+    aliases: ["simounao-cmd","cmd-simounao"],
     category: "fun",
     subcategory: "Oráculo",
     description: "Responde sua dúvida com Sim, Não ou Talvez: .simounao <pergunta>",

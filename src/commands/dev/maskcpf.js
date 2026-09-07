@@ -3,7 +3,7 @@
  */
 module.exports = {
     name: "maskcpf",
-    aliases: [],
+    aliases: ["maskcpf-cmd","cmd-maskcpf"],
     category: "dev",
     subcategory: "Segurança",
     description: "Mascara CPF ocultando dígitos centrais: .maskcpf 12345678900",

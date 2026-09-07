@@ -3,7 +3,7 @@
  */
 module.exports = {
     name: "bolsaaventura",
-    aliases: [],
+    aliases: ["bolsaaventura-cmd","cmd-bolsaaventura"],
     category: "economy",
     subcategory: "Item",
     description: "Verifica os itens de valor guardados na sua bolsa de aventureiro: .bolsaaventura",

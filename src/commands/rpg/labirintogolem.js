@@ -3,7 +3,7 @@
  */
 module.exports = {
     name: "labirintogolem",
-    aliases: [],
+    aliases: ["labirintogolem-cmd","cmd-labirintogolem"],
     category: "rpg",
     subcategory: "Desafio",
     description: "Enfrenta os Golems do Labirinto de Vaizel: .labirintogolem",

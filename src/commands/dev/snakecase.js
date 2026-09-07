@@ -3,7 +3,7 @@
  */
 module.exports = {
     name: "snakecase",
-    aliases: [],
+    aliases: ["snakecase-cmd","cmd-snakecase"],
     category: "dev",
     subcategory: "String",
     description: "Converte texto para snake_case: .snakecase <texto>",

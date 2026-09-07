@@ -3,7 +3,7 @@
  */
 module.exports = {
     name: "definir",
-    aliases: [],
+    aliases: ["definir-cmd","cmd-definir"],
     category: "general",
     subcategory: "IA & Pesquisa",
     description: "Mostra a definição/significado de uma palavra ou termo",

@@ -3,7 +3,7 @@
  */
 module.exports = {
     name: "trocardiamantes",
-    aliases: [],
+    aliases: ["trocardiamantes-cmd","cmd-trocardiamantes"],
     category: "economy",
     subcategory: "Mercado",
     description: "Converte diamantes em moedas de ouro: .trocardiamantes <qtd>",

@@ -3,7 +3,7 @@
  */
 module.exports = {
     name: "orbecristal",
-    aliases: [],
+    aliases: ["orbecristal-cmd","cmd-orbecristal"],
     category: "rpg",
     subcategory: "Item",
     description: "Examina o Olho da Paz de Merlin: .orbecristal",

@@ -3,7 +3,7 @@
  */
 module.exports = {
     name: "mandamentoamor",
-    aliases: [],
+    aliases: ["mandamentoamor-cmd","cmd-mandamentoamor"],
     category: "rpg",
     subcategory: "Mandamentos",
     description: "Testa a maldição do Mandamento do Amor (Estarossa): .mandamentoamor",

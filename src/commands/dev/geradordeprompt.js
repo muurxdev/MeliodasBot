@@ -3,7 +3,7 @@
  */
 module.exports = {
     name: "geradordeprompt",
-    aliases: [],
+    aliases: ["geradordeprompt-cmd","cmd-geradordeprompt"],
     category: "dev",
     subcategory: "IA",
     description: "Gera estrutura de prompt avançado para IAs: .geradordeprompt <objetivo>",

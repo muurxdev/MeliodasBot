@@ -5,7 +5,7 @@
 
 module.exports = {
     name: "mandamento10",
-    aliases: [],
+    aliases: ["mand10","mand-10"],
     category: "rpg",
     subcategory: "Mandamentos",
     description: "Conhecimento e poder do Mandamento (10): .mandamento10",

@@ -3,7 +3,7 @@
  */
 module.exports = {
     name: "travafrases",
-    aliases: [],
+    aliases: ["travafrases-cmd","cmd-travafrases"],
     category: "fun",
     subcategory: "Desafios",
     description: "Envia um trava-línguas clássico para testar a dicção: .travafrases",

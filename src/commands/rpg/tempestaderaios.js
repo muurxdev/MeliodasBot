@@ -3,7 +3,7 @@
  */
 module.exports = {
     name: "tempestaderaios",
-    aliases: [],
+    aliases: ["tempestaderaios-cmd","cmd-tempestaderaios"],
     category: "rpg",
     subcategory: "Magia",
     description: "Dispara a magia Thunderbolt de Gilthunder: .tempestaderaios",

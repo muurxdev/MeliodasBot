@@ -5,7 +5,7 @@
 
 module.exports = {
     name: "bencao10",
-    aliases: [],
+    aliases: ["benc10","benc-10"],
     category: "rpg",
     subcategory: "Magia das Deusas",
     description: "Bênção de vitalidade e purificação (10): .bencao10",

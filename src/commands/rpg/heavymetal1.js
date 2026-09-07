@@ -5,7 +5,7 @@
 
 module.exports = {
     name: "heavymetal1",
-    aliases: [],
+    aliases: ["hmetal1","hmetal-1"],
     category: "rpg",
     subcategory: "Habilidade Física",
     description: "Converte a pele em metal de altíssima densidade (1): .heavymetal1",

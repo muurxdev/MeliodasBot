@@ -3,7 +3,7 @@
  */
 module.exports = {
     name: "custoviagem",
-    aliases: [],
+    aliases: ["custoviagem-cmd","cmd-custoviagem"],
     category: "general",
     subcategory: "Finanças",
     description: "Calcula o custo em reais de uma viagem de carro: .custoviagem <distancia_km> <km_por_l> <preco_combustivel>",

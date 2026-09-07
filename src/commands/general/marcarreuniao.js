@@ -3,7 +3,7 @@
  */
 module.exports = {
     name: "marcarreuniao",
-    aliases: [],
+    aliases: ["marcarreuniao-cmd","cmd-marcarreuniao"],
     category: "general",
     subcategory: "Grupo",
     description: "Convoca uma reunião de conselho da guilda no grupo: .marcarreuniao",

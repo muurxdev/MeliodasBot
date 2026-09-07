@@ -3,7 +3,7 @@
  */
 module.exports = {
     name: "lagodeceleste",
-    aliases: [],
+    aliases: ["lagodeceleste-cmd","cmd-lagodeceleste"],
     category: "rpg",
     subcategory: "Local",
     description: "Visita o Lago Sagrado de Pajos: .lagodeceleste",

@@ -3,7 +3,7 @@
  */
 module.exports = {
     name: "cosseno",
-    aliases: [],
+    aliases: ["cosseno-cmd","cmd-cosseno"],
     category: "general",
     subcategory: "Trigonometria",
     description: "Calcula o cosseno de um ângulo em graus: .cosseno <graus>",

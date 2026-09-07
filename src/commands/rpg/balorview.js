@@ -3,7 +3,7 @@
  */
 module.exports = {
     name: "balorview",
-    aliases: [],
+    aliases: ["balorview-cmd","cmd-balorview"],
     category: "rpg",
     subcategory: "Status",
     description: "Usa o Olho de Balor para escanear poder mágico: .balorview",

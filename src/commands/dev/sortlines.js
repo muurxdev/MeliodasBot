@@ -3,7 +3,7 @@
  */
 module.exports = {
     name: "sortlines",
-    aliases: [],
+    aliases: ["sortlines-cmd","cmd-sortlines"],
     category: "dev",
     subcategory: "String",
     description: "Ordena itens ou palavras em ordem alfabética: .sortlines item1, item2, item3",

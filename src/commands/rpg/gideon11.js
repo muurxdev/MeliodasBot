@@ -5,7 +5,7 @@
 
 module.exports = {
     name: "gideon11",
-    aliases: [],
+    aliases: ["gid11","gid-11"],
     category: "rpg",
     subcategory: "Tesouros Sagrados",
     description: "Impacto do Martelo de Guerra Gideon (11): .gideon11",

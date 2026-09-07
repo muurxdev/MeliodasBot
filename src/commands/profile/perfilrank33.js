@@ -5,7 +5,7 @@
 
 module.exports = {
     name: "perfilrank33",
-    aliases: [],
+    aliases: ["prank33","prank-33"],
     category: "profile",
     subcategory: "Perfil & Ranking",
     description: "Estatísticas de perfil e condecorações de honra #33: .perfilrank33",

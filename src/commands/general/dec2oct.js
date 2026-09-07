@@ -3,7 +3,7 @@
  */
 module.exports = {
     name: "dec2oct",
-    aliases: [],
+    aliases: ["dec2oct-cmd","cmd-dec2oct"],
     category: "general",
     subcategory: "Conversão",
     description: "Converte decimal para octal: .dec2oct 63",

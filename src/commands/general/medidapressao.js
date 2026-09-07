@@ -3,7 +3,7 @@
  */
 module.exports = {
     name: "medidapressao",
-    aliases: [],
+    aliases: ["medidapressao-cmd","cmd-medidapressao"],
     category: "general",
     subcategory: "Conversão",
     description: "Converte Bar para PSI e Atmosferas (atm): .medidapressao <bar>",

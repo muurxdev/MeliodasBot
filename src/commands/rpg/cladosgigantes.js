@@ -3,7 +3,7 @@
  */
 module.exports = {
     name: "cladosgigantes",
-    aliases: [],
+    aliases: ["cladosgigantes-cmd","cmd-cladosgigantes"],
     category: "rpg",
     subcategory: "Lore",
     description: "Consulta o conhecimento e rituais da Megadozer do Clã dos Gigantes: .cladosgigantes",

@@ -3,7 +3,7 @@
  */
 module.exports = {
     name: "mercadovestigios",
-    aliases: [],
+    aliases: ["mercadovestigios-cmd","cmd-mercadovestigios"],
     category: "economy",
     subcategory: "Mercado",
     description: "Consulta o mercado negro de vestígios da Guerra Santa: .mercadovestigios",

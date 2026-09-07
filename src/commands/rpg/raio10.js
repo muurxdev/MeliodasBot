@@ -5,7 +5,7 @@
 
 module.exports = {
     name: "raio10",
-    aliases: [],
+    aliases: ["trovao10","trovao-10"],
     category: "rpg",
     subcategory: "Cavaleiros Sagrados",
     description: "Invocação de relâmpagos de Gilthunder (10): .raio10",

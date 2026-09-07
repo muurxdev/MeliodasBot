@@ -3,7 +3,7 @@
  */
 module.exports = {
     name: "rot47",
-    aliases: [],
+    aliases: ["rot-47","rot-cmd47"],
     category: "dev",
     subcategory: "Cifra",
     description: "Cifra e decifra texto usando algoritmo ROT47: .rot47 <texto>",

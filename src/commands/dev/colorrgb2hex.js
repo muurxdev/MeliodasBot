@@ -3,7 +3,7 @@
  */
 module.exports = {
     name: "colorrgb2hex",
-    aliases: [],
+    aliases: ["colorrgb2hex-cmd","cmd-colorrgb2hex"],
     category: "dev",
     subcategory: "Cores",
     description: "Converte cor RGB para Hexadecimal: .colorrgb2hex 255 87 51",

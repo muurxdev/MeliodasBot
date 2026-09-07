@@ -3,7 +3,7 @@
  */
 module.exports = {
     name: "xmlformat",
-    aliases: [],
+    aliases: ["xmlformat-cmd","cmd-xmlformat"],
     category: "dev",
     subcategory: "Dev",
     description: "Valida e indenta tags XML básicas: .xmlformat <xml>",

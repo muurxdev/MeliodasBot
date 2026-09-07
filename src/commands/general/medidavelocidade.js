@@ -3,7 +3,7 @@
  */
 module.exports = {
     name: "medidavelocidade",
-    aliases: [],
+    aliases: ["medidavelocidade-cmd","cmd-medidavelocidade"],
     category: "general",
     subcategory: "Conversão",
     description: "Converte km/h para m/s e nós náuticos: .medidavelocidade <kmh>",

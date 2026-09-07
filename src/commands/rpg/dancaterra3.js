@@ -5,7 +5,7 @@
 
 module.exports = {
     name: "dancaterra3",
-    aliases: [],
+    aliases: ["danca3","danca-3"],
     category: "rpg",
     subcategory: "Dança dos Gigantes",
     description: "Ritmo telúrico do Clã dos Gigantes (3): .dancaterra3",

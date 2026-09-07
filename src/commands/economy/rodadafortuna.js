@@ -3,7 +3,7 @@
  */
 module.exports = {
     name: "rodadafortuna",
-    aliases: [],
+    aliases: ["rodadafortuna-cmd","cmd-rodadafortuna"],
     category: "economy",
     subcategory: "Cassino",
     description: "Roda a Roda da Fortuna com multiplicadores: .rodadafortuna",

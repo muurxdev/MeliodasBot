@@ -3,7 +3,7 @@
  */
 module.exports = {
     name: "invasaoespiritual",
-    aliases: [],
+    aliases: ["invasaoespiritual-cmd","cmd-invasaoespiritual"],
     category: "rpg",
     subcategory: "Magia",
     description: "Projeta a invasão mental de Gowther: .invasaoespiritual",

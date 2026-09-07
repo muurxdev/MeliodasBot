@@ -3,7 +3,7 @@
  */
 module.exports = {
     name: "genuuidv4",
-    aliases: [],
+    aliases: ["genu4","genu-4"],
     category: "dev",
     subcategory: "Dev",
     description: "Gera identificador UUID v4 único: .genuuidv4",

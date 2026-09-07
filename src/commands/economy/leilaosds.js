@@ -3,7 +3,7 @@
  */
 module.exports = {
     name: "leilaosds",
-    aliases: [],
+    aliases: ["leilaosds-cmd","cmd-leilaosds"],
     category: "economy",
     subcategory: "Mercado",
     description: "Verifica o lote ativo no leilão do submundo: .leilaosds",

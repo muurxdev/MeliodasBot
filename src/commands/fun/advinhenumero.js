@@ -3,7 +3,7 @@
  */
 module.exports = {
     name: "advinhenumero",
-    aliases: [],
+    aliases: ["advinhenumero-cmd","cmd-advinhenumero"],
     category: "fun",
     subcategory: "Jogos",
     description: "Adivinhe o número secreto de 1 a 10: .advinhenumero <palpite>",

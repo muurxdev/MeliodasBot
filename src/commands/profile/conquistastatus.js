@@ -3,7 +3,7 @@
  */
 module.exports = {
     name: "conquistastatus",
-    aliases: [],
+    aliases: ["conquistastatus-cmd","cmd-conquistastatus"],
     category: "profile",
     subcategory: "Conquistas",
     description: "Exibe o painel de conquistas heroicas desbloqueadas: .conquistastatus",

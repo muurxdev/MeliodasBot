@@ -3,7 +3,7 @@
  */
 module.exports = {
     name: "milestone1000",
-    aliases: [],
+    aliases: ["mile1000","mile-1000"],
     category: "general",
     subcategory: "Celebração",
     description: "Celebra a marca histórica de 1.000 comandos ativos em Meliodas Bot XP: .milestone1000",

@@ -3,7 +3,7 @@
  */
 module.exports = {
     name: "cavernadruidas",
-    aliases: [],
+    aliases: ["cavernadruidas-cmd","cmd-cavernadruidas"],
     category: "rpg",
     subcategory: "Treino",
     description: "Inicia provação na Caverna de Treinamento de Istar: .cavernadruidas",

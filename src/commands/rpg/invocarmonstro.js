@@ -3,7 +3,7 @@
  */
 module.exports = {
     name: "invocarmonstro",
-    aliases: [],
+    aliases: ["invocarmonstro-cmd","cmd-invocarmonstro"],
     category: "rpg",
     subcategory: "Batalha",
     description: "Invoca uma criatura das selvas de Britannia: .invocarmonstro",

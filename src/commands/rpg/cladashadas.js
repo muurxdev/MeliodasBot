@@ -3,7 +3,7 @@
  */
 module.exports = {
     name: "cladashadas",
-    aliases: [],
+    aliases: ["cladashadas-cmd","cmd-cladashadas"],
     category: "rpg",
     subcategory: "Lore",
     description: "Consulta segredos da Floresta das Fadas: .cladashadas",

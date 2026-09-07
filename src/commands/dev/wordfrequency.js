@@ -3,7 +3,7 @@
  */
 module.exports = {
     name: "wordfrequency",
-    aliases: [],
+    aliases: ["wordfrequency-cmd","cmd-wordfrequency"],
     category: "dev",
     subcategory: "String",
     description: "Analisa a frequência de repetição de palavras: .wordfrequency <texto>",

@@ -3,7 +3,7 @@
  */
 module.exports = {
     name: "adddays",
-    aliases: [],
+    aliases: ["adddays-cmd","cmd-adddays"],
     category: "dev",
     subcategory: "Data",
     description: "Adiciona dias a uma data: .adddays <dias> [YYYY-MM-DD]",

@@ -3,7 +3,7 @@
  */
 module.exports = {
     name: "pactodemonios",
-    aliases: [],
+    aliases: ["pactodemonios-cmd","cmd-pactodemonios"],
     category: "general",
     subcategory: "Roleplay",
     description: "Sussurra palavras antigas do reino sombrio: .pactodemonios",

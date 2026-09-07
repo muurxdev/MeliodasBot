@@ -5,7 +5,7 @@
 
 module.exports = {
     name: "dragao6",
-    aliases: [],
+    aliases: ["drag6","drag-6"],
     category: "rpg",
     subcategory: "Bestiário",
     description: "Avistamento de Dragão Tirano de Britannia (6): .dragao6",

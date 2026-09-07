@@ -3,7 +3,7 @@
  */
 module.exports = {
     name: "removeduplicates",
-    aliases: [],
+    aliases: ["removeduplicates-cmd","cmd-removeduplicates"],
     category: "dev",
     subcategory: "String",
     description: "Remove palavras duplicadas consecutivas: .removeduplicates <texto>",

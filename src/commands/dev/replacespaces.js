@@ -3,7 +3,7 @@
  */
 module.exports = {
     name: "replacespaces",
-    aliases: [],
+    aliases: ["replacespaces-cmd","cmd-replacespaces"],
     category: "dev",
     subcategory: "String",
     description: "Substitui espaços por um caractere: .replacespaces <char> <texto>",

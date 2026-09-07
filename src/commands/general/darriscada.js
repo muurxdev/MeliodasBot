@@ -3,7 +3,7 @@
  */
 module.exports = {
     name: "darriscada",
-    aliases: [],
+    aliases: ["darriscada-cmd","cmd-darriscada"],
     category: "general",
     subcategory: "Interação",
     description: "Dá gargalhadas com a conversa do grupo: .darriscada",

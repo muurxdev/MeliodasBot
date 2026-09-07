@@ -3,7 +3,7 @@
  */
 module.exports = {
     name: "textb64url",
-    aliases: [],
+    aliases: ["textb64url-cmd","cmd-textb64url"],
     category: "dev",
     subcategory: "Cifra",
     description: "Codifica texto para Base64 URL Safe: .textb64url <texto>",

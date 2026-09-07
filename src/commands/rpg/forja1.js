@@ -5,7 +5,7 @@
 
 module.exports = {
     name: "forja1",
-    aliases: [],
+    aliases: ["forge1","forge-1"],
     category: "rpg",
     subcategory: "Forja Sagrada",
     description: "Trabalho de forja do mestre ferreiro Dubs (1): .forja1",

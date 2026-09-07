@@ -3,7 +3,7 @@
  */
 module.exports = {
     name: "reversewords",
-    aliases: [],
+    aliases: ["reversewords-cmd","cmd-reversewords"],
     category: "dev",
     subcategory: "String",
     description: "Inverte a ordem das palavras de uma frase: .reversewords <texto>",

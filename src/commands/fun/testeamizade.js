@@ -3,7 +3,7 @@
  */
 module.exports = {
     name: "testeamizade",
-    aliases: [],
+    aliases: ["testeamizade-cmd","cmd-testeamizade"],
     category: "fun",
     subcategory: "Brincadeiras",
     description: "Testa a força da amizade com outro participante: .testeamizade [nome]",

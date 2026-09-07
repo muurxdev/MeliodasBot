@@ -3,7 +3,7 @@
  */
 module.exports = {
     name: "nivelego",
-    aliases: [],
+    aliases: ["nivelego-cmd","cmd-nivelego"],
     category: "profile",
     subcategory: "Status",
     description: "Mede o tamanho do seu orgulho leonino: .nivelego",

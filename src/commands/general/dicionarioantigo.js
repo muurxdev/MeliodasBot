@@ -3,7 +3,7 @@
  */
 module.exports = {
     name: "dicionarioantigo",
-    aliases: [],
+    aliases: ["dicionarioantigo-cmd","cmd-dicionarioantigo"],
     category: "general",
     subcategory: "Conhecimento",
     description: "Consulta significado de termos arcanos da antiguidade: .dicionarioantigo <termo>",

@@ -3,7 +3,7 @@
  */
 module.exports = {
     name: "contagemregressiva",
-    aliases: [],
+    aliases: ["contagemregressiva-cmd","cmd-contagemregressiva"],
     category: "fun",
     subcategory: "Jogos",
     description: "Inicia uma contagem regressiva para duelo: .contagemregressiva",

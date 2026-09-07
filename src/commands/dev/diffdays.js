@@ -3,7 +3,7 @@
  */
 module.exports = {
     name: "diffdays",
-    aliases: [],
+    aliases: ["diffdays-cmd","cmd-diffdays"],
     category: "dev",
     subcategory: "Data",
     description: "Calcula a diferença de dias entre duas datas: .diffdays YYYY-MM-DD YYYY-MM-DD",

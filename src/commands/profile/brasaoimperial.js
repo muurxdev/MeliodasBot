@@ -3,7 +3,7 @@
  */
 module.exports = {
     name: "brasaoimperial",
-    aliases: [],
+    aliases: ["brasaoimperial-cmd","cmd-brasaoimperial"],
     category: "profile",
     subcategory: "Perfil",
     description: "Exibe o brasão heráldico da sua linhagem: .brasaoimperial",

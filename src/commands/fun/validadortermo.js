@@ -3,7 +3,7 @@
  */
 module.exports = {
     name: "validadortermo",
-    aliases: [],
+    aliases: ["validadortermo-cmd","cmd-validadortermo"],
     category: "fun",
     subcategory: "Jogos",
     description: "Verifica compatibilidade de letras entre duas palavras: .validadortermo <palavra1> <palavra2>",

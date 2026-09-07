@@ -3,7 +3,7 @@
  */
 module.exports = {
     name: "multiplicador",
-    aliases: [],
+    aliases: ["multiplicador-cmd","cmd-multiplicador"],
     category: "economy",
     subcategory: "Finanças",
     description: "Calcula valor pós-multiplicador de eventos: .multiplicador <valor> <fator>",

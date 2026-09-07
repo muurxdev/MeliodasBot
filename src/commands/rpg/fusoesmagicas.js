@@ -3,7 +3,7 @@
  */
 module.exports = {
     name: "fusoesmagicas",
-    aliases: [],
+    aliases: ["fusoesmagicas-cmd","cmd-fusoesmagicas"],
     category: "rpg",
     subcategory: "Combate",
     description: "Calcula a fusão elemental de dois guerreiros: .fusoesmagicas <guerreiro1> <guerreiro2>",

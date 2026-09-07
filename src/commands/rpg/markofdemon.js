@@ -3,7 +3,7 @@
  */
 module.exports = {
     name: "markofdemon",
-    aliases: [],
+    aliases: ["markofdemon-cmd","cmd-markofdemon"],
     category: "rpg",
     subcategory: "Poder",
     description: "Ativa a Marca Negra Demoníaca: .markofdemon",

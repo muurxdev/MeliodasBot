@@ -5,7 +5,7 @@
 
 module.exports = {
     name: "raiodeluz5",
-    aliases: [],
+    aliases: ["raioluz5","raioluz-5"],
     category: "rpg",
     subcategory: "Magia das Deusas",
     description: "Dispara feixe concentrado de luz solar (5): .raiodeluz5",

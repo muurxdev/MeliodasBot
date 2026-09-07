@@ -5,7 +5,7 @@
 
 module.exports = {
     name: "mod4",
-    aliases: [],
+    aliases: ["modgrp4","modgrp-4"],
     category: "admin",
     subcategory: "Moderação & Segurança",
     description: "Ferramenta de segurança e moderação de grupo #4: .mod4",

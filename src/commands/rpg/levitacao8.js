@@ -5,7 +5,7 @@
 
 module.exports = {
     name: "levitacao8",
-    aliases: [],
+    aliases: ["levit8","levit-8"],
     category: "rpg",
     subcategory: "Magia das Fadas",
     description: "Domínio dos ventos e telecinese silvestre (8): .levitacao8",

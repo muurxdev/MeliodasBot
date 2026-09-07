@@ -3,7 +3,7 @@
  */
 module.exports = {
     name: "anagramacheck",
-    aliases: [],
+    aliases: ["anagramacheck-cmd","cmd-anagramacheck"],
     category: "fun",
     subcategory: "Jogos",
     description: "Verifica se duas palavras são anagramas perfeitos: .anagramacheck <palavra1> <palavra2>",

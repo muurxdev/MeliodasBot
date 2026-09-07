@@ -3,7 +3,7 @@
  */
 module.exports = {
     name: "extracturls",
-    aliases: [],
+    aliases: ["extracturls-cmd","cmd-extracturls"],
     category: "dev",
     subcategory: "Regex",
     description: "Extrai todos os links/URLs de um texto: .extracturls <texto>",

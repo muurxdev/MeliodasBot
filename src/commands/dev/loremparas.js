@@ -3,7 +3,7 @@
  */
 module.exports = {
     name: "loremparas",
-    aliases: [],
+    aliases: ["loremparas-cmd","cmd-loremparas"],
     category: "dev",
     subcategory: "Dev",
     description: "Gera N parágrafos de texto Lorem: .loremparas [qtd=2]",

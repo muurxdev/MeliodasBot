@@ -3,7 +3,7 @@
  */
 module.exports = {
     name: "mandamentosilencio",
-    aliases: [],
+    aliases: ["mandamentosilencio-cmd","cmd-mandamentosilencio"],
     category: "rpg",
     subcategory: "Mandamentos",
     description: "Testa o Mandamento do Silêncio (Monspeet): .mandamentosilencio",

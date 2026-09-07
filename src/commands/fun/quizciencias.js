@@ -3,7 +3,7 @@
  */
 module.exports = {
     name: "quizciencias",
-    aliases: [],
+    aliases: ["quizciencias-cmd","cmd-quizciencias"],
     category: "fun",
     subcategory: "Quiz",
     description: "Pergunta de conhecimentos de Ciências e Biologia: .quizciencias",

@@ -3,7 +3,7 @@
  */
 module.exports = {
     name: "pascalcase",
-    aliases: [],
+    aliases: ["pascalcase-cmd","cmd-pascalcase"],
     category: "dev",
     subcategory: "String",
     description: "Converte texto para PascalCase: .pascalcase <texto>",

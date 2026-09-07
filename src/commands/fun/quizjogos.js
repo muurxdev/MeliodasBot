@@ -3,7 +3,7 @@
  */
 module.exports = {
     name: "quizjogos",
-    aliases: [],
+    aliases: ["quizjogos-cmd","cmd-quizjogos"],
     category: "fun",
     subcategory: "Quiz",
     description: "Pergunta sobre videogames clássicos e modernos: .quizjogos",

@@ -3,7 +3,7 @@
  */
 module.exports = {
     name: "stopletra",
-    aliases: [],
+    aliases: ["stopletra-cmd","cmd-stopletra"],
     category: "fun",
     subcategory: "Jogos",
     description: "Sorteia uma letra aleatória para brincar de Stop/Adedonha: .stopletra",

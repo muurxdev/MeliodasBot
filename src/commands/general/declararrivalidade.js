@@ -3,7 +3,7 @@
  */
 module.exports = {
     name: "declararrivalidade",
-    aliases: [],
+    aliases: ["declararrivalidade-cmd","cmd-declararrivalidade"],
     category: "general",
     subcategory: "Social",
     description: "Declara uma rivalidade saudável de crescimento mútuo: .declararrivalidade [nome]",

@@ -3,7 +3,7 @@
  */
 module.exports = {
     name: "cacarpalavra",
-    aliases: [],
+    aliases: ["cacarpalavra-cmd","cmd-cacarpalavra"],
     category: "fun",
     subcategory: "Jogos",
     description: "Gera um mini caça-palavras de 5x5: .cacarpalavra",

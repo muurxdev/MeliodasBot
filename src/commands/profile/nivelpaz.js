@@ -3,7 +3,7 @@
  */
 module.exports = {
     name: "nivelpaz",
-    aliases: [],
+    aliases: ["nivelpaz-cmd","cmd-nivelpaz"],
     category: "profile",
     subcategory: "Status",
     description: "Mede o nível de serenidade mental do herói: .nivelpaz",

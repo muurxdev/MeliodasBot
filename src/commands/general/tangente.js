@@ -3,7 +3,7 @@
  */
 module.exports = {
     name: "tangente",
-    aliases: [],
+    aliases: ["tangente-cmd","cmd-tangente"],
     category: "general",
     subcategory: "Trigonometria",
     description: "Calcula a tangente de um ângulo em graus: .tangente <graus>",

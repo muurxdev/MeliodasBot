@@ -5,7 +5,7 @@
 
 module.exports = {
     name: "demonio7",
-    aliases: [],
+    aliases: ["demon7","demon-7"],
     category: "rpg",
     subcategory: "Bestiário",
     description: "Registro de besta do Clã dos Demônios (7): .demonio7",

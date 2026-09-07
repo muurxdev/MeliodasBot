@@ -3,7 +3,7 @@
  */
 module.exports = {
     name: "treinarjunto",
-    aliases: [],
+    aliases: ["treinarjunto-cmd","cmd-treinarjunto"],
     category: "general",
     subcategory: "Treino",
     description: "Convida alguém para treino conjunto de esgrima: .treinarjunto [nome]",

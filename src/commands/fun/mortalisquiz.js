@@ -3,7 +3,7 @@
  */
 module.exports = {
     name: "mortalisquiz",
-    aliases: [],
+    aliases: ["mortalisquiz-cmd","cmd-mortalisquiz"],
     category: "fun",
     subcategory: "Quiz",
     description: "Enigma mortal dos mandamentos antigos: .mortalisquiz",

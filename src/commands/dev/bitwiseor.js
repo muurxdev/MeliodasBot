@@ -3,7 +3,7 @@
  */
 module.exports = {
     name: "bitwiseor",
-    aliases: [],
+    aliases: ["bitwiseor-cmd","cmd-bitwiseor"],
     category: "dev",
     subcategory: "Bits",
     description: "Operação lógica OR bit a bit: .bitwiseor <num1> <num2>",

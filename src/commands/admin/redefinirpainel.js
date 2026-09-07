@@ -3,7 +3,7 @@
  */
 module.exports = {
     name: "redefinirpainel",
-    aliases: [],
+    aliases: ["redefinirpainel-cmd","cmd-redefinirpainel"],
     category: "admin",
     subcategory: "Painel",
     description: "Simula limpeza de alertas temporários do grupo: .redefinirpainel",

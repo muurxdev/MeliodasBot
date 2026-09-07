@@ -3,7 +3,7 @@
  */
 module.exports = {
     name: "mandamentopiedade",
-    aliases: [],
+    aliases: ["mandamentopiedade-cmd","cmd-mandamentopiedade"],
     category: "rpg",
     subcategory: "Mandamentos",
     description: "Testa o Mandamento da Piedade (Zeldris): .mandamentopiedade",

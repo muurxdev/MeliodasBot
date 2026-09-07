@@ -3,7 +3,7 @@
  */
 module.exports = {
     name: "pedirdesculpas",
-    aliases: [],
+    aliases: ["pedirdesculpas-cmd","cmd-pedirdesculpas"],
     category: "general",
     subcategory: "Social",
     description: "Pede desculpas sinceras a um amigo ou membro: .pedirdesculpas [nome]",

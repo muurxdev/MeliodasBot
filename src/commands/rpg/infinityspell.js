@@ -3,7 +3,7 @@
  */
 module.exports = {
     name: "infinityspell",
-    aliases: [],
+    aliases: ["infinityspell-cmd","cmd-infinityspell"],
     category: "rpg",
     subcategory: "Magia",
     description: "Canaliza a benção de magia infinita de Merlin: .infinityspell",

@@ -3,7 +3,7 @@
  */
 module.exports = {
     name: "arcstatus",
-    aliases: [],
+    aliases: ["arcstatus-cmd","cmd-arcstatus"],
     category: "rpg",
     subcategory: "Magia",
     description: "Manifesta partículas sagradas de Ark: .arcstatus",

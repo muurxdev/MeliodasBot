@@ -3,7 +3,7 @@
  */
 module.exports = {
     name: "quizliteratura",
-    aliases: [],
+    aliases: ["quizliteratura-cmd","cmd-quizliteratura"],
     category: "fun",
     subcategory: "Quiz",
     description: "Pergunta sobre clássicos da literatura universal: .quizliteratura",

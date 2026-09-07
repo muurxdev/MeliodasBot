@@ -3,7 +3,7 @@
  */
 module.exports = {
     name: "testememoria",
-    aliases: [],
+    aliases: ["testememoria-cmd","cmd-testememoria"],
     category: "fun",
     subcategory: "Jogos",
     description: "Sequência de 5 símbolos para teste de memorização rápida: .testememoria",

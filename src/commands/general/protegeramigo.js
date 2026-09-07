@@ -3,7 +3,7 @@
  */
 module.exports = {
     name: "protegeramigo",
-    aliases: [],
+    aliases: ["protegeramigo-cmd","cmd-protegeramigo"],
     category: "general",
     subcategory: "Defesa",
     description: "Fica à frente de um aliado para receber o golpe: .protegeramigo [nome]",

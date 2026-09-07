@@ -3,7 +3,7 @@
  */
 module.exports = {
     name: "quizquimica",
-    aliases: [],
+    aliases: ["quizquimica-cmd","cmd-quizquimica"],
     category: "fun",
     subcategory: "Quiz",
     description: "Pergunta sobre a tabela periódica dos elementos: .quizquimica",

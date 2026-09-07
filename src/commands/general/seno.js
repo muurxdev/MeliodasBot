@@ -3,7 +3,7 @@
  */
 module.exports = {
     name: "seno",
-    aliases: [],
+    aliases: ["seno-cmd","cmd-seno"],
     category: "general",
     subcategory: "Trigonometria",
     description: "Calcula o seno de um ângulo em graus: .seno <graus>",

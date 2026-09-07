@@ -3,7 +3,7 @@
  */
 module.exports = {
     name: "kebabcase",
-    aliases: [],
+    aliases: ["kebabcase-cmd","cmd-kebabcase"],
     category: "dev",
     subcategory: "String",
     description: "Converte texto para kebab-case: .kebabcase <texto>",

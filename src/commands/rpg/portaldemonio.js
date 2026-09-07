@@ -3,7 +3,7 @@
  */
 module.exports = {
     name: "portaldemonio",
-    aliases: [],
+    aliases: ["portaldemonio-cmd","cmd-portaldemonio"],
     category: "rpg",
     subcategory: "Exploração",
     description: "Abre uma fenda para o Reino dos Demônios: .portaldemonio",

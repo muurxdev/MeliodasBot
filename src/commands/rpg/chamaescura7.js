@@ -5,7 +5,7 @@
 
 module.exports = {
     name: "chamaescura7",
-    aliases: [],
+    aliases: ["chama7","chama-7"],
     category: "rpg",
     subcategory: "Magia Demoníaca",
     description: "Evoca chamas negras do Purgatório (7): .chamaescura7",

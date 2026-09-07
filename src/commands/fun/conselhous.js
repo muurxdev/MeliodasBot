@@ -3,7 +3,7 @@
  */
 module.exports = {
     name: "conselhous",
-    aliases: [],
+    aliases: ["conselhous-cmd","cmd-conselhous"],
     category: "fun",
     subcategory: "Oráculo",
     description: "Receba um conselho sábio (ou irônico) para a vida: .conselhous",

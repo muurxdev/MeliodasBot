@@ -5,7 +5,7 @@
 
 module.exports = {
     name: "redemoinho3",
-    aliases: [],
+    aliases: ["redem3","redem-3"],
     category: "rpg",
     subcategory: "Magia de Terra",
     description: "Cria redemoinho de areia movediça (3): .redemoinho3",

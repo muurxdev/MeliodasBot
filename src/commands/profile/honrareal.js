@@ -3,7 +3,7 @@
  */
 module.exports = {
     name: "honrareal",
-    aliases: [],
+    aliases: ["honrareal-cmd","cmd-honrareal"],
     category: "profile",
     subcategory: "Status",
     description: "Consulta seus pontos de honra perante o conselho real: .honrareal",

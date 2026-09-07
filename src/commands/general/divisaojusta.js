@@ -3,7 +3,7 @@
  */
 module.exports = {
     name: "divisaojusta",
-    aliases: [],
+    aliases: ["divisaojusta-cmd","cmd-divisaojusta"],
     category: "general",
     subcategory: "Finanças",
     description: "Divide conta entre pessoas com taxa de serviço: .divisaojusta <total> <pessoas> [taxa%]",

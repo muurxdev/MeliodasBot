@@ -3,7 +3,7 @@
  */
 module.exports = {
     name: "duelosimulado",
-    aliases: [],
+    aliases: ["duelosimulado-cmd","cmd-duelosimulado"],
     category: "general",
     subcategory: "Combate",
     description: "Simula um sparring de cavalaria sem armas reais: .duelosimulado [nome]",

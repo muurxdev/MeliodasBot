@@ -5,7 +5,7 @@
 
 module.exports = {
     name: "basquias11",
-    aliases: [],
+    aliases: ["basq11","basq-11"],
     category: "rpg",
     subcategory: "Tesouros Sagrados",
     description: "Poder da Lança Espiritual Basquias (11): .basquias11",

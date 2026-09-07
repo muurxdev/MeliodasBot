@@ -3,7 +3,7 @@
  */
 module.exports = {
     name: "chifredeouro",
-    aliases: [],
+    aliases: ["chifredeouro-cmd","cmd-chifredeouro"],
     category: "rpg",
     subcategory: "Relíquia",
     description: "Toca o Chifre de Cernunnos no templo das deusas: .chifredeouro",

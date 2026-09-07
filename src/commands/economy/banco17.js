@@ -5,7 +5,7 @@
 
 module.exports = {
     name: "banco17",
-    aliases: [],
+    aliases: ["banc17","banc-17"],
     category: "economy",
     subcategory: "Economia & Banco",
     description: "Operação bancária e gestão financeira #17: .banco17",

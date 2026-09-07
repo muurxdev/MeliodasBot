@@ -3,7 +3,7 @@
  */
 module.exports = {
     name: "testeagilidade",
-    aliases: [],
+    aliases: ["testeagilidade-cmd","cmd-testeagilidade"],
     category: "fun",
     subcategory: "Jogos",
     description: "Teste de tempo de reação rápida: .testeagilidade",

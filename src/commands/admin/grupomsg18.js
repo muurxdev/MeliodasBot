@@ -5,7 +5,7 @@
 
 module.exports = {
     name: "grupomsg18",
-    aliases: [],
+    aliases: ["gmsg18","gmsg-18"],
     category: "admin",
     subcategory: "Mensagens & Grupos",
     description: "Comunicação e gerenciamento de avisos de grupo #18: .grupomsg18",

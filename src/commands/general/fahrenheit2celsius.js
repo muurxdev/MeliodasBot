@@ -3,7 +3,7 @@
  */
 module.exports = {
     name: "fahrenheit2celsius",
-    aliases: [],
+    aliases: ["fahrenheit2celsius-cmd","cmd-fahrenheit2celsius"],
     category: "general",
     subcategory: "Conversão",
     description: "Converte Fahrenheit para Celsius: .fahrenheit2celsius 80",

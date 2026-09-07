@@ -3,7 +3,7 @@
  */
 module.exports = {
     name: "fontedajuventude",
-    aliases: [],
+    aliases: ["fontedajuventude-cmd","cmd-fontedajuventude"],
     category: "rpg",
     subcategory: "Lore",
     description: "A história mística da Fonte da Juventude: .fontedajuventude",

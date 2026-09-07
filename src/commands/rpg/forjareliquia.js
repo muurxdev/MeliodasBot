@@ -3,7 +3,7 @@
  */
 module.exports = {
     name: "forjareliquia",
-    aliases: [],
+    aliases: ["forjareliquia-cmd","cmd-forjareliquia"],
     category: "rpg",
     subcategory: "Forja",
     description: "Forja uma relíquia sagrada ancestral de Britannia: .forjareliquia",

@@ -3,7 +3,7 @@
  */
 module.exports = {
     name: "arcoalbion",
-    aliases: [],
+    aliases: ["arcoalbion-cmd","cmd-arcoalbion"],
     category: "rpg",
     subcategory: "Inimigos",
     description: "Registros sobre o Monstro Golem Albion: .arcoalbion",

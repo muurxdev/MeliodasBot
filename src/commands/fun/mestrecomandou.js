@@ -3,7 +3,7 @@
  */
 module.exports = {
     name: "mestrecomandou",
-    aliases: [],
+    aliases: ["mestrecomandou-cmd","cmd-mestrecomandou"],
     category: "fun",
     subcategory: "Jogos",
     description: "O Mestre Meliodas mandou: .mestrecomandou",

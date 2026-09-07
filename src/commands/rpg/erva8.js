@@ -5,7 +5,7 @@
 
 module.exports = {
     name: "erva8",
-    aliases: [],
+    aliases: ["herb8","herb-8"],
     category: "rpg",
     subcategory: "Botânica Mística",
     description: "Colheita de planta medicinal sagrada (8): .erva8",

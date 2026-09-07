@@ -3,7 +3,7 @@
  */
 module.exports = {
     name: "extractemails",
-    aliases: [],
+    aliases: ["extractemails-cmd","cmd-extractemails"],
     category: "dev",
     subcategory: "Regex",
     description: "Extrai endereços de email de um texto: .extractemails <texto>",

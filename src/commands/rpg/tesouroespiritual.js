@@ -3,7 +3,7 @@
  */
 module.exports = {
     name: "tesouroespiritual",
-    aliases: [],
+    aliases: ["tesouroespiritual-cmd","cmd-tesouroespiritual"],
     category: "rpg",
     subcategory: "Combate",
     description: "Libera a forma primordial do seu Tesouro Espiritual: .tesouroespiritual",

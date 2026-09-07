@@ -3,7 +3,7 @@
  */
 module.exports = {
     name: "juramentocavaleiro",
-    aliases: [],
+    aliases: ["juramentocavaleiro-cmd","cmd-juramentocavaleiro"],
     category: "general",
     subcategory: "Roleplay",
     description: "Presta o juramento sagrado dos protetores de Britannia: .juramentocavaleiro",

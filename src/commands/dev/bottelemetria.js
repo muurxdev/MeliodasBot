@@ -3,7 +3,7 @@
  */
 module.exports = {
     name: "bottelemetria",
-    aliases: [],
+    aliases: ["bottelemetria-cmd","cmd-bottelemetria"],
     category: "dev",
     subcategory: "Telemetria",
     description: "Exibe telemetria avançada de processamento e recursos da VPS: .bottelemetria",

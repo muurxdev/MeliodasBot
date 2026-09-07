@@ -3,7 +3,7 @@
  */
 module.exports = {
     name: "cladasdeusas",
-    aliases: [],
+    aliases: ["cladasdeusas-cmd","cmd-cladasdeusas"],
     category: "rpg",
     subcategory: "Lore",
     description: "História e poderes do Clã das Deusas: .cladasdeusas",

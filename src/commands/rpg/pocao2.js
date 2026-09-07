@@ -5,7 +5,7 @@
 
 module.exports = {
     name: "pocao2",
-    aliases: [],
+    aliases: ["poc2","poc-2"],
     category: "rpg",
     subcategory: "Alquimia",
     description: "Mistura alquímica do Laboratório de Merlin (2): .pocao2",

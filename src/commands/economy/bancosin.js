@@ -3,7 +3,7 @@
  */
 module.exports = {
     name: "bancosin",
-    aliases: [],
+    aliases: ["bancosin-cmd","cmd-bancosin"],
     category: "economy",
     subcategory: "Banco",
     description: "Acessa a conta corrente do Banco Central dos Sete Pecados: .bancosin",

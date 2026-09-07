@@ -3,7 +3,7 @@
  */
 module.exports = {
     name: "macformat",
-    aliases: [],
+    aliases: ["macformat-cmd","cmd-macformat"],
     category: "dev",
     subcategory: "Rede",
     description: "Formata e padroniza endereço MAC: .macformat aabbccddeeff",

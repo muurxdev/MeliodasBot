@@ -3,7 +3,7 @@
  */
 module.exports = {
     name: "veracoes",
-    aliases: [],
+    aliases: ["veracoes-cmd","cmd-veracoes"],
     category: "economy",
     subcategory: "Investimento",
     description: "Visualiza os índices de mercado das guildas mercantes: .veracoes",

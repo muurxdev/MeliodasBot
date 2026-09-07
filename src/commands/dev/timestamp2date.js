@@ -3,7 +3,7 @@
  */
 module.exports = {
     name: "timestamp2date",
-    aliases: [],
+    aliases: ["timestamp2date-cmd","cmd-timestamp2date"],
     category: "dev",
     subcategory: "Data",
     description: "Converte timestamp unix (ms ou s) para data legível: .timestamp2date <timestamp>",

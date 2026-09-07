@@ -3,7 +3,7 @@
  */
 module.exports = {
     name: "motivacional",
-    aliases: [],
+    aliases: ["motivacional-cmd","cmd-motivacional"],
     category: "fun",
     subcategory: "Poesia",
     description: "Uma frase motivacional aleatória",

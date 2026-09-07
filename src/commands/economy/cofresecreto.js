@@ -3,7 +3,7 @@
  */
 module.exports = {
     name: "cofresecreto",
-    aliases: [],
+    aliases: ["cofresecreto-cmd","cmd-cofresecreto"],
     category: "economy",
     subcategory: "Banco",
     description: "Acessa o cofre oculto no porão do Boar Hat: .cofresecreto",

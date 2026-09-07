@@ -3,7 +3,7 @@
  */
 module.exports = {
     name: "darchute",
-    aliases: [],
+    aliases: ["darchute-cmd","cmd-darchute"],
     category: "general",
     subcategory: "Interação",
     description: "Dá um pontapé cômico estilo Meliodas e Hawk: .darchute [nome]",

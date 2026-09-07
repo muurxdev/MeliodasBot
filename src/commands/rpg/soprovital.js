@@ -3,7 +3,7 @@
  */
 module.exports = {
     name: "soprovital",
-    aliases: [],
+    aliases: ["soprovital-cmd","cmd-soprovital"],
     category: "rpg",
     subcategory: "Magia",
     description: "Canaliza o sopro de vida vegetal: .soprovital",

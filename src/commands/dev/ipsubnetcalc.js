@@ -3,7 +3,7 @@
  */
 module.exports = {
     name: "ipsubnetcalc",
-    aliases: [],
+    aliases: ["ipsubnetcalc-cmd","cmd-ipsubnetcalc"],
     category: "dev",
     subcategory: "Rede",
     description: "Calcula hosts úteis de máscara CIDR: .ipsubnetcalc <cidr_24_a_30>",

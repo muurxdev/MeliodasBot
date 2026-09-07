@@ -5,7 +5,7 @@
 
 module.exports = {
     name: "midia10",
-    aliases: [],
+    aliases: ["midi10","midi-10"],
     category: "media",
     subcategory: "Downloads & Mídia",
     description: "Download e conversão multimídia otimizada #10: .midia10",

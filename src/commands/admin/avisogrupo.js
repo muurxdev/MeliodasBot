@@ -3,7 +3,7 @@
  */
 module.exports = {
     name: "avisogrupo",
-    aliases: [],
+    aliases: ["avisogrupo-cmd","cmd-avisogrupo"],
     category: "admin",
     subcategory: "Avisos",
     description: "Formata e dispara um comunicado solene no grupo: .avisogrupo <mensagem>",

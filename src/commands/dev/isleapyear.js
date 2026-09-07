@@ -3,7 +3,7 @@
  */
 module.exports = {
     name: "isleapyear",
-    aliases: [],
+    aliases: ["isleapyear-cmd","cmd-isleapyear"],
     category: "dev",
     subcategory: "Data",
     description: "Verifica se um ano é bissexto: .isleapyear <ano>",

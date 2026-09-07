@@ -3,7 +3,7 @@
  */
 module.exports = {
     name: "bebercerveja",
-    aliases: [],
+    aliases: ["bebercerveja-cmd","cmd-bebercerveja"],
     category: "general",
     subcategory: "Taverna",
     description: "Toma um gole farto da famosa Cerveja de Bernia: .bebercerveja",

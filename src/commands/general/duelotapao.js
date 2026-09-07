@@ -3,7 +3,7 @@
  */
 module.exports = {
     name: "duelotapao",
-    aliases: [],
+    aliases: ["duelotapao-cmd","cmd-duelotapao"],
     category: "general",
     subcategory: "Combate",
     description: "Duelo de quem aguenta mais tempo sem rir: .duelotapao [nome]",

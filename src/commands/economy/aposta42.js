@@ -5,7 +5,7 @@
 
 module.exports = {
     name: "aposta42",
-    aliases: [],
+    aliases: ["apos42","apos-42"],
     category: "economy",
     subcategory: "Cassino & Apostas",
     description: "Mecanismo de jogos de sorte e cassino #42: .aposta42",

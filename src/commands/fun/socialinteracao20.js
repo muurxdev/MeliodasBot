@@ -5,7 +5,7 @@
 
 module.exports = {
     name: "socialinteracao20",
-    aliases: [],
+    aliases: ["soci20","soci-20"],
     category: "fun",
     subcategory: "Diversão & Social",
     description: "Interação social e entretenimento no chat #20: .socialinteracao20",

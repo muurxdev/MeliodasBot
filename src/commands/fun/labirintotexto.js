@@ -3,7 +3,7 @@
  */
 module.exports = {
     name: "labirintotexto",
-    aliases: [],
+    aliases: ["labirintotexto-cmd","cmd-labirintotexto"],
     category: "fun",
     subcategory: "Jogos",
     description: "Mini aventura interativa em labirinto: .labirintotexto <esquerda/direita/reto>",

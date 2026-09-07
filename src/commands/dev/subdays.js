@@ -3,7 +3,7 @@
  */
 module.exports = {
     name: "subdays",
-    aliases: [],
+    aliases: ["subdays-cmd","cmd-subdays"],
     category: "dev",
     subcategory: "Data",
     description: "Subtrai dias de uma data: .subdays <dias> [YYYY-MM-DD]",

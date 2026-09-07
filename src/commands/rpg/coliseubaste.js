@@ -3,7 +3,7 @@
  */
 module.exports = {
     name: "coliseubaste",
-    aliases: [],
+    aliases: ["coliseubaste-cmd","cmd-coliseubaste"],
     category: "rpg",
     subcategory: "Local",
     description: "Explora as ruínas da Prisão de Baste: .coliseubaste",

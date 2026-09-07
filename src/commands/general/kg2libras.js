@@ -3,7 +3,7 @@
  */
 module.exports = {
     name: "kg2libras",
-    aliases: [],
+    aliases: ["kg2libras-cmd","cmd-kg2libras"],
     category: "general",
     subcategory: "Conversão",
     description: "Converte Quilos para Libras: .kg2libras 70",

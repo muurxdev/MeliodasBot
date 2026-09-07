@@ -3,7 +3,7 @@
  */
 module.exports = {
     name: "emprestimoreal",
-    aliases: [],
+    aliases: ["emprestimoreal-cmd","cmd-emprestimoreal"],
     category: "economy",
     subcategory: "Banco",
     description: "Simula um empréstimo com a Tesouraria de Liones: .emprestimoreal <valor>",

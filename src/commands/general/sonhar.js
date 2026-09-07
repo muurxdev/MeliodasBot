@@ -3,7 +3,7 @@
  */
 module.exports = {
     name: "sonhar",
-    aliases: [],
+    aliases: ["sonhar-cmd","cmd-sonhar"],
     category: "general",
     subcategory: "Descanso",
     description: "Compartilha um sonho misterioso com os deuses: .sonhar",

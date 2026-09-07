@@ -3,7 +3,7 @@
  */
 module.exports = {
     name: "curaramigo",
-    aliases: [],
+    aliases: ["curaramigo-cmd","cmd-curaramigo"],
     category: "general",
     subcategory: "Cura",
     description: "Usa magia curativa de Elizabeth em alguém: .curaramigo [nome]",

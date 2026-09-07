@@ -3,7 +3,7 @@
  */
 module.exports = {
     name: "mandamentoverdade",
-    aliases: [],
+    aliases: ["mandamentoverdade-cmd","cmd-mandamentoverdade"],
     category: "rpg",
     subcategory: "Mandamentos",
     description: "Testa a maldição do Mandamento da Verdade (Galand): .mandamentoverdade",

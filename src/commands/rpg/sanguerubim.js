@@ -3,7 +3,7 @@
  */
 module.exports = {
     name: "sanguerubim",
-    aliases: [],
+    aliases: ["sanguerubim-cmd","cmd-sanguerubim"],
     category: "rpg",
     subcategory: "Mutação",
     description: "Examina as propriedades do Sangue de Demônio Vermelho: .sanguerubim",

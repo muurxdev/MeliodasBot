@@ -3,7 +3,7 @@
  */
 module.exports = {
     name: "medidaarea",
-    aliases: [],
+    aliases: ["medidaarea-cmd","cmd-medidaarea"],
     category: "general",
     subcategory: "Conversão",
     description: "Converte Metros Quadrados para Hectares: .medidaarea <m2>",

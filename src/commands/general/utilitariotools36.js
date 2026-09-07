@@ -5,7 +5,7 @@
 
 module.exports = {
     name: "utilitariotools36",
-    aliases: [],
+    aliases: ["util36","util-36"],
     category: "general",
     subcategory: "Utilidades & Telefonia",
     description: "Ferramenta utilitária do cotidiano #36: .utilitariotools36",

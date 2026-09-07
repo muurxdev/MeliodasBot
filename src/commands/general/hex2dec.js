@@ -3,7 +3,7 @@
  */
 module.exports = {
     name: "hex2dec",
-    aliases: [],
+    aliases: ["hex2dec-cmd","cmd-hex2dec"],
     category: "general",
     subcategory: "Conversão",
     description: "Converte hexadecimal para decimal: .hex2dec 2A",

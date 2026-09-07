@@ -3,7 +3,7 @@
  */
 module.exports = {
     name: "espadaquebrada",
-    aliases: [],
+    aliases: ["espadaquebrada-cmd","cmd-espadaquebrada"],
     category: "rpg",
     subcategory: "Equipamento",
     description: "Empunha o punho da Espada Quebrada do Dragão: .espadaquebrada",

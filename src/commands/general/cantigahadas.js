@@ -3,7 +3,7 @@
  */
 module.exports = {
     name: "cantigahadas",
-    aliases: [],
+    aliases: ["cantigahadas-cmd","cmd-cantigahadas"],
     category: "general",
     subcategory: "Roleplay",
     description: "Canta a suave melodia que ecoa na Floresta do Rei das Fadas: .cantigahadas",

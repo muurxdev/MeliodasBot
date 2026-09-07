@@ -3,7 +3,7 @@
  */
 module.exports = {
     name: "tempoestudo",
-    aliases: [],
+    aliases: ["tempoestudo-cmd","cmd-tempoestudo"],
     category: "general",
     subcategory: "Produtividade",
     description: "Recomenda ciclo Pomodoro de foco e pausas: .tempoestudo [horas]",

@@ -3,7 +3,7 @@
  */
 module.exports = {
     name: "reputacaoreino",
-    aliases: [],
+    aliases: ["reputacaoreino-cmd","cmd-reputacaoreino"],
     category: "profile",
     subcategory: "Status",
     description: "Status de reputação nos cinco grandes reinos: .reputacaoreino",

@@ -3,7 +3,7 @@
  */
 module.exports = {
     name: "urlparse",
-    aliases: [],
+    aliases: ["urlparse-cmd","cmd-urlparse"],
     category: "dev",
     subcategory: "Dev",
     description: "Decompõe componentes de uma URL: .urlparse <url>",

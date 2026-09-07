@@ -3,7 +3,7 @@
  */
 module.exports = {
     name: "mandamentoretencao",
-    aliases: [],
+    aliases: ["mandamentoretencao-cmd","cmd-mandamentoretencao"],
     category: "rpg",
     subcategory: "Mandamentos",
     description: "Testa o Mandamento do Desinteresse (Gowther Demoníaco): .mandamentoretencao",

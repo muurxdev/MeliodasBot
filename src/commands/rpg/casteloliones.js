@@ -3,7 +3,7 @@
  */
 module.exports = {
     name: "casteloliones",
-    aliases: [],
+    aliases: ["casteloliones-cmd","cmd-casteloliones"],
     category: "rpg",
     subcategory: "Local",
     description: "Visita o Castelo Real de Liones: .casteloliones",

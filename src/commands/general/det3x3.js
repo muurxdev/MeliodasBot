@@ -3,7 +3,7 @@
  */
 module.exports = {
     name: "det3x3",
-    aliases: [],
+    aliases: ["det3x3-cmd","cmd-det3x3"],
     category: "general",
     subcategory: "Álgebra",
     description: "Determinante de matriz 3x3 por Sarrus: .det3x3 a b c d e f g h i",

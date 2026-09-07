@@ -3,7 +3,7 @@
  */
 module.exports = {
     name: "zalgotext",
-    aliases: [],
+    aliases: ["zalgotext-cmd","cmd-zalgotext"],
     category: "dev",
     subcategory: "Texto",
     description: "Gera texto demoníaco corrompido com Zalgo: .zalgotext <texto>",

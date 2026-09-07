@@ -3,7 +3,7 @@
  */
 module.exports = {
     name: "nivelgraca",
-    aliases: [],
+    aliases: ["nivelgraca-cmd","cmd-nivelgraca"],
     category: "profile",
     subcategory: "Status",
     description: "Consulta o grau de ressonância com as 4 Graças Celestiais: .nivelgraca",

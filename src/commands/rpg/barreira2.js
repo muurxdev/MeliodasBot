@@ -5,7 +5,7 @@
 
 module.exports = {
     name: "barreira2",
-    aliases: [],
+    aliases: ["barr2","barr-2"],
     category: "rpg",
     subcategory: "Cavaleiros Sagrados",
     description: "Muralha mágica protetora de Griamore (2): .barreira2",

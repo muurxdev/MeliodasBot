@@ -3,7 +3,7 @@
  */
 module.exports = {
     name: "seguronanatsu",
-    aliases: [],
+    aliases: ["seguronanatsu-cmd","cmd-seguronanatsu"],
     category: "economy",
     subcategory: "Banco",
     description: "Contrata apólice de seguro contra ataques de monstros: .seguronanatsu",

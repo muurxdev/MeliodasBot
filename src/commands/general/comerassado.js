@@ -3,7 +3,7 @@
  */
 module.exports = {
     name: "comerassado",
-    aliases: [],
+    aliases: ["comerassado-cmd","cmd-comerassado"],
     category: "general",
     subcategory: "Taverna",
     description: "Experimenta o assado do dia: .comerassado",

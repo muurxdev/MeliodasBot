@@ -3,7 +3,7 @@
  */
 module.exports = {
     name: "afinidadedom",
-    aliases: [],
+    aliases: ["afinidadedom-cmd","cmd-afinidadedom"],
     category: "profile",
     subcategory: "Status",
     description: "Revela qual dom elemental rege a sua essência: .afinidadedom",

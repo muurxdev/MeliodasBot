@@ -5,7 +5,7 @@
 
 module.exports = {
     name: "biblioteca11",
-    aliases: [],
+    aliases: ["bibl11","bibl-11"],
     category: "general",
     subcategory: "Livros & Biblioteca",
     description: "Acervo cultural e recomendação literária #11: .biblioteca11",

@@ -3,7 +3,7 @@
  */
 module.exports = {
     name: "maskemail",
-    aliases: [],
+    aliases: ["maskemail-cmd","cmd-maskemail"],
     category: "dev",
     subcategory: "Segurança",
     description: "Mascara um e-mail para exibição pública: .maskemail usuario@exemplo.com",

@@ -3,7 +3,7 @@
  */
 module.exports = {
     name: "reversofrase",
-    aliases: [],
+    aliases: ["reversofrase-cmd","cmd-reversofrase"],
     category: "fun",
     subcategory: "Texto",
     description: "Inverte as letras de qualquer frase: .reversofrase <texto>",

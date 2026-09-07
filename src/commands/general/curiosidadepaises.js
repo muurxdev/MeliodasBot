@@ -3,7 +3,7 @@
  */
 module.exports = {
     name: "curiosidadepaises",
-    aliases: [],
+    aliases: ["curiosidadepaises-cmd","cmd-curiosidadepaises"],
     category: "general",
     subcategory: "Curiosidades",
     description: "Fato interessante sobre nações e culturas: .curiosidadepaises",

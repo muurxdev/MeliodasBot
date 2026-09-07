@@ -3,7 +3,7 @@
  */
 module.exports = {
     name: "chancede",
-    aliases: [],
+    aliases: ["chancede-cmd","cmd-chancede"],
     category: "fun",
     subcategory: "Jogos",
     description: "Calcula a porcentagem mística de probabilidade para qualquer acontecimento",

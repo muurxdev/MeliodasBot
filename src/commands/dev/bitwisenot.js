@@ -3,7 +3,7 @@
  */
 module.exports = {
     name: "bitwisenot",
-    aliases: [],
+    aliases: ["bitwisenot-cmd","cmd-bitwisenot"],
     category: "dev",
     subcategory: "Bits",
     description: "Operação lógica NOT bit a bit: .bitwisenot <num>",

@@ -3,7 +3,7 @@
  */
 module.exports = {
     name: "weekdayname",
-    aliases: [],
+    aliases: ["weekdayname-cmd","cmd-weekdayname"],
     category: "dev",
     subcategory: "Data",
     description: "Retorna o dia da semana de qualquer data: .weekdayname YYYY-MM-DD",

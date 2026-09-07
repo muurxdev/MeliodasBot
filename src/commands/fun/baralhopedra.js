@@ -3,7 +3,7 @@
  */
 module.exports = {
     name: "baralhopedra",
-    aliases: [],
+    aliases: ["baralhopedra-cmd","cmd-baralhopedra"],
     category: "fun",
     subcategory: "Jogos",
     description: "Jogo rápido Pedra, Papel ou Tesoura Elemental: .baralhopedra <fogo/agua/planta>",

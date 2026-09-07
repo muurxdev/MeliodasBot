@@ -3,7 +3,7 @@
  */
 module.exports = {
     name: "perdoaramigo",
-    aliases: [],
+    aliases: ["perdoaramigo-cmd","cmd-perdoaramigo"],
     category: "general",
     subcategory: "Social",
     description: "Concede o perdão de coração aberto: .perdoaramigo [nome]",

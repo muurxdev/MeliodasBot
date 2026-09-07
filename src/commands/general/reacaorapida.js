@@ -3,7 +3,7 @@
  */
 module.exports = {
     name: "reacaorapida",
-    aliases: [],
+    aliases: ["reacaorapida-cmd","cmd-reacaorapida"],
     category: "general",
     subcategory: "Jogos",
     description: "Dispara um teste de reação relâmpago no chat: .reacaorapida",

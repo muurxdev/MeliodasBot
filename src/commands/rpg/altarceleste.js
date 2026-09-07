@@ -3,7 +3,7 @@
  */
 module.exports = {
     name: "altarceleste",
-    aliases: [],
+    aliases: ["altarceleste-cmd","cmd-altarceleste"],
     category: "rpg",
     subcategory: "Exploração",
     description: "Faz uma prece no Altar Celeste do Clã das Deusas: .altarceleste",

@@ -3,7 +3,7 @@
  */
 module.exports = {
     name: "libras2kg",
-    aliases: [],
+    aliases: ["libras2kg-cmd","cmd-libras2kg"],
     category: "general",
     subcategory: "Conversão",
     description: "Converte Libras para Quilos: .libras2kg 150",

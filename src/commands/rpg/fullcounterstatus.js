@@ -3,7 +3,7 @@
  */
 module.exports = {
     name: "fullcounterstatus",
-    aliases: [],
+    aliases: ["fullcounterstatus-cmd","cmd-fullcounterstatus"],
     category: "rpg",
     subcategory: "Combate",
     description: "Verifica a prontidão do Full Counter: .fullcounterstatus",

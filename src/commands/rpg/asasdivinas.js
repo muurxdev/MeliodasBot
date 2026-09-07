@@ -3,7 +3,7 @@
  */
 module.exports = {
     name: "asasdivinas",
-    aliases: [],
+    aliases: ["asasdivinas-cmd","cmd-asasdivinas"],
     category: "rpg",
     subcategory: "Poder",
     description: "Abre as asas de luz do Clã das Deusas: .asasdivinas",

@@ -3,7 +3,7 @@
  */
 module.exports = {
     name: "palindromocheck",
-    aliases: [],
+    aliases: ["palindromocheck-cmd","cmd-palindromocheck"],
     category: "fun",
     subcategory: "Texto",
     description: "Verifica se uma palavra ou frase é palíndromo: .palindromocheck <texto>",

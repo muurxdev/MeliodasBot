@@ -5,7 +5,7 @@
 
 module.exports = {
     name: "arcanjo8",
-    aliases: [],
+    aliases: ["arc8","arc-8"],
     category: "rpg",
     subcategory: "Arcanjos",
     description: "Canalização da bênção dos 4 Arcanjos (8): .arcanjo8",

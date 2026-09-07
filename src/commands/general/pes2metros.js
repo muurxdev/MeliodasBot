@@ -3,7 +3,7 @@
  */
 module.exports = {
     name: "pes2metros",
-    aliases: [],
+    aliases: ["pes2metros-cmd","cmd-pes2metros"],
     category: "general",
     subcategory: "Conversão",
     description: "Converte Pés para Metros: .pes2metros 6",

@@ -3,7 +3,7 @@
  */
 module.exports = {
     name: "armadurareal",
-    aliases: [],
+    aliases: ["armadurareal-cmd","cmd-armadurareal"],
     category: "rpg",
     subcategory: "Equipamento",
     description: "Examina uma Armadura Sagrada de Platina de Liones: .armadurareal",

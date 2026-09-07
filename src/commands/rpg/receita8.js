@@ -5,7 +5,7 @@
 
 module.exports = {
     name: "receita8",
-    aliases: [],
+    aliases: ["rec8","rec-8"],
     category: "rpg",
     subcategory: "Cozinha de Britannia",
     description: "Prato especial da Taverna Chapéu de Javali (8): .receita8",

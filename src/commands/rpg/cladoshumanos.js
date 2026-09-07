@@ -3,7 +3,7 @@
  */
 module.exports = {
     name: "cladoshumanos",
-    aliases: [],
+    aliases: ["cladoshumanos-cmd","cmd-cladoshumanos"],
     category: "rpg",
     subcategory: "Lore",
     description: "Consulta a linhagem e Cavaleiros Sagrados dos Humanos: .cladoshumanos",

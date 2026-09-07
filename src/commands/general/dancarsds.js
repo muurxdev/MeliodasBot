@@ -3,7 +3,7 @@
  */
 module.exports = {
     name: "dancarsds",
-    aliases: [],
+    aliases: ["dancarsds-cmd","cmd-dancarsds"],
     category: "general",
     subcategory: "Interação",
     description: "Inicia a clássica Dança de Drole ou Dança das Fadas: .dancarsds",

@@ -3,7 +3,7 @@
  */
 module.exports = {
     name: "binaryxor",
-    aliases: [],
+    aliases: ["binaryxor-cmd","cmd-binaryxor"],
     category: "dev",
     subcategory: "Bits",
     description: "Operação lógica XOR bit a bit: .binaryxor <num1> <num2>",

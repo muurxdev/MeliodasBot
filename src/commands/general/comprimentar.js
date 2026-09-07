@@ -3,7 +3,7 @@
  */
 module.exports = {
     name: "comprimentar",
-    aliases: [],
+    aliases: ["comprimentar-cmd","cmd-comprimentar"],
     category: "general",
     subcategory: "Interação",
     description: "Saúda os clientes e amigos da taverna: .comprimentar [nome]",

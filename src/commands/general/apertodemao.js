@@ -3,7 +3,7 @@
  */
 module.exports = {
     name: "apertodemao",
-    aliases: [],
+    aliases: ["apertodemao-cmd","cmd-apertodemao"],
     category: "general",
     subcategory: "Interação",
     description: "Cumprimenta alguém com aperto de mão firme de cavaleiro: .apertodemao [nome]",

@@ -3,7 +3,7 @@
  */
 module.exports = {
     name: "missaonutriente",
-    aliases: [],
+    aliases: ["missaonutriente-cmd","cmd-missaonutriente"],
     category: "fun",
     subcategory: "Humor",
     description: "Cardápio do dia sugerido pelo Hawk: .missaonutriente",

@@ -3,7 +3,7 @@
  */
 module.exports = {
     name: "espadaescanor",
-    aliases: [],
+    aliases: ["espadaescanor-cmd","cmd-espadaescanor"],
     category: "rpg",
     subcategory: "Lore",
     description: "História do Machado Rhitta de Escanor: .espadaescanor",

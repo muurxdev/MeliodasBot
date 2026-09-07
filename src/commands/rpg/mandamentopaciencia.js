@@ -3,7 +3,7 @@
  */
 module.exports = {
     name: "mandamentopaciencia",
-    aliases: [],
+    aliases: ["mandamentopaciencia-cmd","cmd-mandamentopaciencia"],
     category: "rpg",
     subcategory: "Mandamentos",
     description: "Testa a maldição do Mandamento da Paciência (Drole): .mandamentopaciencia",

@@ -3,7 +3,7 @@
  */
 module.exports = {
     name: "escolhasuprema",
-    aliases: [],
+    aliases: ["escolhasuprema-cmd","cmd-escolhasuprema"],
     category: "fun",
     subcategory: "Jogos",
     description: "Decida um dilema difícil de Britannia: .escolhasuprema",
